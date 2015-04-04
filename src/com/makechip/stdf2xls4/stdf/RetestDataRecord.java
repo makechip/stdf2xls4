@@ -1,0 +1,77 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2013,2014 makechip.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * A copy of the GNU General Public License can be found in the file
+ * LICENSE.txt provided with the source distribution of this program
+ * This license can also be found on the GNU website at
+ * http://www.gnu.org/licenses/gpl.html.
+ * 
+ * If you did not receive a copy of the GNU General Public License along
+ * with this program, contact the lead developer, or write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ */
+
+package com.makechip.stdf2xls4.stdf;
+
+import com.makechip.util.Log;
+
+/**
+*** @author eric
+*** @version $Id: RetestDataRecord.java 258 2008-10-22 01:22:44Z ericw $
+**/
+public class RetestDataRecord extends StdfRecord
+{
+    private final int k;
+    private final int[] retestBins;
+    
+    /**
+    *** @param p1
+    *** @param p2
+    **/
+    public RetestDataRecord(int sequenceNumber, int devNum, byte[] data)
+    {
+        super(Record_t.RDR, sequenceNumber, devNum, data);
+        k = getU2(0);
+        retestBins = new int[k];
+        for (int i=0; i<k; i++) retestBins[i] = getU2(-1);
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        sb.append(":");
+        sb.append(Log.eol);
+        sb.append("    retest bins:");
+        for (int i=0; i<k; i++)
+        {
+            sb.append(" ");
+            sb.append("" + retestBins[i]);
+        }
+        sb.append(Log.eol);
+        return(sb.toString());
+    }
+    
+    /**
+     * @return the retestBins
+     */
+    public int[] getRetestBins()
+    {
+        return retestBins;
+    }
+    
+    
+
+}
