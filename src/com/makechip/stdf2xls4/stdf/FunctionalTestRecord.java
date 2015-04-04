@@ -65,6 +65,46 @@ public class FunctionalTestRecord extends StdfRecord
     private final short patGenNum;
     private final byte[] enComps;
     
+    public FunctionalTestRecord(int sequenceNumber, int devNum, byte[] data)
+    {
+        super(Record_t.FTR, sequenceNumber, devNum, data);
+        testNumber = getU4(-1);
+        headNumber = getU1((short) 0);
+        siteNumber = getU1((short) 0);
+        byte x = getByte(); 
+        testFlags = TestFlag_t.getBits(x);
+        if (getSize() <= getPtr()) optFlags = null;
+        else optFlags = FTROptFlag_t.getBits(getByte());
+        cycleCount = getU4(-1);
+        relVaddr = getU4(-1);
+        rptCnt = getU4(-1);
+        numFail = getU4(-1);
+        xFailAddr = getI4(-1);
+        yFailAddr = getI4(-1);
+        vecOffset = getI2((short) -1);
+        j = getU2(0);
+        k = getU2(0);
+        rtnIndex = new int[j];
+        for (int i=0; i<j; i++) rtnIndex[i] = getU2(-1);
+        rtnState = getNibbles(j); 
+        pgmIndex = new int[k];
+        for (int i=0; i<k; i++) pgmIndex[i] = getU2(-1);
+        pgmState = getNibbles(k);
+        failPin = getDn();
+        vecName = getCn();
+        timeSetName = getCn();
+        vecOpCode = getCn();
+        String name = getCn();
+        if (name == null) label = null;
+        else label = name;
+        alarmName = getCn();
+        progTxt = getCn();
+        rsltTxt = getCn();
+        testId = null;
+        patGenNum = getU1((short) -1);
+        enComps = getDn();
+    }
+    
     public boolean alarm() { return(testFlags.contains(ALARM)); }
     public boolean unreliable() { return(testFlags.contains(UNRELIABLE)); }
     public boolean timeout() { return(testFlags.contains(TIMEOUT)); }
@@ -233,46 +273,6 @@ public class FunctionalTestRecord extends StdfRecord
      */
     public byte[] getEnComps() { return(enComps); }
 
-    public FunctionalTestRecord(int sequenceNumber, int devNum, byte[] data)
-    {
-        super(Record_t.FTR, sequenceNumber, devNum, data);
-        testNumber = getU4(-1);
-        headNumber = getU1((short) 0);
-        siteNumber = getU1((short) 0);
-        byte x = getByte(); 
-        testFlags = TestFlag_t.getBits(x);
-        if (getSize() <= getPtr()) optFlags = null;
-        else optFlags = FTROptFlag_t.getBits(getByte());
-        cycleCount = getU4(-1);
-        relVaddr = getU4(-1);
-        rptCnt = getU4(-1);
-        numFail = getU4(-1);
-        xFailAddr = getI4(-1);
-        yFailAddr = getI4(-1);
-        vecOffset = getI2((short) -1);
-        j = getU2(0);
-        k = getU2(0);
-        rtnIndex = new int[j];
-        for (int i=0; i<j; i++) rtnIndex[i] = getU2(-1);
-        rtnState = getNibbles(j); 
-        pgmIndex = new int[k];
-        for (int i=0; i<k; i++) pgmIndex[i] = getU2(-1);
-        pgmState = getNibbles(k);
-        failPin = getDn();
-        vecName = getCn();
-        timeSetName = getCn();
-        vecOpCode = getCn();
-        String name = getCn();
-        if (name == null) label = null;
-        else label = name;
-        alarmName = getCn();
-        progTxt = getCn();
-        rsltTxt = getCn();
-        testId = null;
-        patGenNum = getU1((short) -1);
-        enComps = getDn();
-    }
-    
     public void setTestName(String string)
     {
         label = string;
