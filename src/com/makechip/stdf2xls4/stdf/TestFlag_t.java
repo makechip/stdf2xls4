@@ -29,13 +29,22 @@ import java.util.EnumSet;
 
 public enum TestFlag_t
 {
-    ALARM,
-    UNRELIABLE,
-    TIMEOUT,
-    NOT_EXECUTED,
-    ABORT,
-    NO_PASS_FAIL,
-    FAIL;
+    ALARM(1),
+    UNRELIABLE(4),
+    TIMEOUT(8),
+    NOT_EXECUTED(16),
+    ABORT(32),
+    NO_PASS_FAIL(64),
+    FAIL(128);
+    
+    private final byte bit;
+    
+    private TestFlag_t(int bit)
+    {
+    	this.bit = (byte) bit;
+    }
+    
+    public byte getBit() { return(bit); }
     
     public static EnumSet<TestFlag_t> getBits(byte b)
     {

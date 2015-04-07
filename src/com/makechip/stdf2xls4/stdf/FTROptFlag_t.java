@@ -28,12 +28,21 @@ import java.util.EnumSet;
 
 public enum FTROptFlag_t 
 {
-	CYCLE_CNT_INVALID,
-	REL_VADDR_INVALID,
-	REPEAT_CNT_INVALID,
-	NUM_FAIL_INVALID,
-	XY_FAIL_ADDR_INVALID,
-	VEC_OFFSET_INVALID;
+	CYCLE_CNT_INVALID(1),
+	REL_VADDR_INVALID(2),
+	REPEAT_CNT_INVALID(4),
+	NUM_FAIL_INVALID(8),
+	XY_FAIL_ADDR_INVALID(16),
+	VEC_OFFSET_INVALID(32);
+	
+	private final byte bit;
+	
+	private FTROptFlag_t(int bit)
+	{
+		this.bit = (byte) bit;
+	}
+	
+	public byte getBit() { return(bit); }
 	
     public static EnumSet<FTROptFlag_t> getBits(byte b)
     {

@@ -24,6 +24,8 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import java.util.EnumSet;
 
 import com.makechip.util.Log;
@@ -48,8 +50,6 @@ public class FunctionalTestRecord extends StdfRecord
     private final int xFailAddr;     // xFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
     private final int yFailAddr;     // yFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
     private final short vecOffset;   // vecOffset is invalid if VEC_OFFSET_INVALID is set
-    private final int j;
-    private final int k;
     private final int[] rtnIndex;
     private final byte[] rtnState;
     private final int[] pgmIndex;
@@ -68,41 +68,176 @@ public class FunctionalTestRecord extends StdfRecord
     public FunctionalTestRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.FTR, sequenceNumber, devNum, data);
-        testNumber = getU4(-1);
+        testNumber = getU4(MISSING_INT);
         headNumber = getU1((short) 0);
         siteNumber = getU1((short) 0);
-        byte x = getByte(); 
-        testFlags = TestFlag_t.getBits(x);
+        testFlags = TestFlag_t.getBits(getByte());
         if (getSize() <= getPtr()) optFlags = null;
         else optFlags = FTROptFlag_t.getBits(getByte());
-        cycleCount = getU4(-1);
-        relVaddr = getU4(-1);
-        rptCnt = getU4(-1);
-        numFail = getU4(-1);
-        xFailAddr = getI4(-1);
-        yFailAddr = getI4(-1);
-        vecOffset = getI2((short) -1);
-        j = getU2(0);
-        k = getU2(0);
+        cycleCount = getU4(MISSING_INT);
+        relVaddr = getU4(MISSING_INT);
+        rptCnt = getU4(MISSING_INT);
+        numFail = getU4(MISSING_INT);
+        xFailAddr = getI4(MISSING_INT);
+        yFailAddr = getI4(MISSING_INT);
+        vecOffset = getI2(MISSING_SHORT);
+        int j = getU2(0);
+        int k = getU2(0);
         rtnIndex = new int[j];
-        for (int i=0; i<j; i++) rtnIndex[i] = getU2(-1);
+        for (int i=0; i<j; i++) rtnIndex[i] = getU2(MISSING_INT);
         rtnState = getNibbles(j); 
         pgmIndex = new int[k];
-        for (int i=0; i<k; i++) pgmIndex[i] = getU2(-1);
+        for (int i=0; i<k; i++) pgmIndex[i] = getU2(MISSING_INT);
         pgmState = getNibbles(k);
         failPin = getDn();
         vecName = getCn();
         timeSetName = getCn();
         vecOpCode = getCn();
-        String name = getCn();
-        if (name == null) label = null;
-        else label = name;
+        label = getCn();
         alarmName = getCn();
         progTxt = getCn();
         rsltTxt = getCn();
         testId = null;
-        patGenNum = getU1((short) -1);
+        patGenNum = getU1(MISSING_SHORT);
         enComps = getDn();
+    }
+    
+    public FunctionalTestRecord(
+        final int sequenceNumber,
+        final int deviceNumber,
+        final int testNumber,
+        final short headNumber,
+        final short siteNumber,
+        final EnumSet<TestFlag_t> testFlags,
+        final EnumSet<FTROptFlag_t> optFlags,
+        final int cycleCount,
+        final int relVaddr,
+        final int rptCnt,
+        final int numFail,
+        final int xFailAddr,
+        final int yFailAddr,
+        final short vecOffset,
+        final int[] rtnIndex,
+        final byte[] rtnState,
+        final int[] pgmIndex,
+        final byte[] pgmState,
+        final byte[] failPin,
+        final String vecName,
+        final String timeSetName,
+        final String vecOpCode,
+        String label,
+        final String alarmName,
+        final String progTxt,
+        final String rsltTxt,
+        final short patGenNum,
+        final byte[] enComps)
+    {
+        super(Record_t.FTR, sequenceNumber, deviceNumber, null);	
+        this.testNumber = testNumber;
+        this.headNumber = headNumber;
+        this.siteNumber = siteNumber;
+        this.testFlags = testFlags;
+        this.optFlags = optFlags;
+        this.cycleCount = cycleCount;
+        this.relVaddr = relVaddr;
+        this.rptCnt = rptCnt;
+        this.numFail = numFail;
+        this.xFailAddr = xFailAddr;
+        this.yFailAddr = yFailAddr;
+        this.vecOffset = vecOffset;
+        this.rtnIndex = rtnIndex;
+        this.rtnState = rtnState;
+        this.pgmIndex = pgmIndex;
+        this.pgmState = pgmState;
+        this.failPin = failPin;
+        this.vecName = vecName;
+        this.timeSetName = timeSetName;
+        this.vecOpCode = vecOpCode;
+        this.label = label;
+        this.alarmName = alarmName;
+        this.progTxt = progTxt;
+        this.rsltTxt = rsltTxt;
+        this.patGenNum = patGenNum;
+        this.enComps = enComps;
+        testId  = TestID.getTestID(testNumber, label);
+    }
+    
+    @Override
+    protected void toBytes()
+    {
+        TByteArrayList list = new TByteArrayList();
+        list.addAll(getU4Bytes(testNumber));
+        list.addAll(getU1Bytes(headNumber));
+        list.addAll(getU1Bytes(siteNumber));
+        byte b = 0;
+        for (TestFlag_t t : testFlags) b |= t.getBit();
+        list.add(b);
+        if (optFlags != null)
+        {
+            b = 0;
+            for (FTROptFlag_t t : optFlags) b |= t.getBit();
+            list.add(b);
+            list.addAll(getU4Bytes(cycleCount));
+            list.addAll(getU4Bytes(relVaddr));
+            list.addAll(getU4Bytes(rptCnt));
+            list.addAll(getU4Bytes(numFail));
+            list.addAll(getI4Bytes(xFailAddr));
+            list.addAll(getI4Bytes(yFailAddr));
+            list.addAll(getI2Bytes(vecOffset));
+            list.addAll(getU2Bytes(rtnIndex.length));
+            list.addAll(getU2Bytes(pgmIndex.length));
+            for (int i=0; i<rtnIndex.length; i++) list.addAll(getU2Bytes(rtnIndex[i]));
+            list.addAll(getNibbleBytes(rtnState));
+            for (int i=0; i<pgmIndex.length; i++) list.addAll(getU2Bytes(pgmIndex[i]));
+            list.addAll(getNibbleBytes(pgmState));
+            list.addAll(getDnBytes(failPin));
+            list.addAll(getCnBytes(vecName));
+            list.addAll(getCnBytes(timeSetName));
+            list.addAll(getCnBytes(vecOpCode));
+            list.addAll(getCnBytes(label));
+            list.addAll(getCnBytes(alarmName));
+            list.addAll(getCnBytes(progTxt));
+            list.addAll(getCnBytes(rsltTxt));
+            list.addAll(getU1Bytes(patGenNum));
+            list.addAll(getDnBytes(enComps));
+        }
+        bytes = list.toArray();
+    }
+  
+    FunctionalTestRecord(FunctionalTestRecord ftr, DefaultFTRValueMap dmap)
+    {
+    	super(ftr.getRecordType(), ftr.getSequenceNumber(), ftr.getDeviceNumber(), null);
+    	testNumber = ftr.getTestNumber();
+        if (ftr.getOptFlags() == null) optFlags = dmap.foptDefaults.get(testNumber);
+        else optFlags = ftr.getOptFlags();
+        if (ftr.getPatGenNum() == (short) -1) patGenNum = dmap.pgDefaults.get(testNumber);
+        else patGenNum = ftr.getPatGenNum();
+        if (ftr.getEnComps().length == 0) enComps = dmap.ecDefaults.get(testNumber);
+        else enComps = ftr.getEnComps();
+        if (ftr.getTestName() == null) label = dmap.tnameDefaults.get(testNumber);
+        else label = ftr.getTestName();
+        yFailAddr = ftr.getyFailAddr();
+        xFailAddr = ftr.getxFailAddr();
+        vecOpCode = ftr.getVecOpCode();
+        vecOffset = ftr.getVecOffset();
+        vecName = ftr.getVecName();
+        timeSetName = ftr.getTimeSetName();
+        testId = TestID.getTestID(testNumber, label);
+        testFlags = ftr.getTestFlags();
+        siteNumber = ftr.getSiteNumber();
+        headNumber = ftr.getHeadNumber();
+        rtnState = ftr.getRtnState();
+        rtnIndex = ftr.getRtnIndex();
+        rsltTxt = ftr.getRsltTxt();
+        rptCnt = ftr.getRptCnt();
+        relVaddr = ftr.getRelVaddr();
+        progTxt = ftr.getProgTxt();
+        pgmState = ftr.getPgmState();
+        pgmIndex = ftr.getPgmIndex();
+        numFail = ftr.getNumFail();
+        failPin = ftr.getFailPin();
+        cycleCount = ftr.getCycleCount();
+        alarmName = ftr.getAlarmName();
     }
     
     public boolean alarm() { return(testFlags.contains(ALARM)); }
@@ -116,31 +251,38 @@ public class FunctionalTestRecord extends StdfRecord
     public TestID getTestID() { return(testId); }
     
     /**
+     * Required Field.
      * @return the testNumber
      */
     public int getTestNumber() { return(testNumber); }
 
     /**
+     * Required Field.
      * @return the headNumber
      */
     public short getHeadNumber() { return(headNumber); }
 
     /**
+     * Required Field.
      * @return the siteNumber
      */
     public short getSiteNumber() { return(siteNumber); }
 
     /**
+     * Required Field.
      * @return the testFlags
      */
     public EnumSet<TestFlag_t> getTestFlags() { return(testFlags); }
 
     /**
+     * Optional field.  If missing, no other fields follow.
+     * Default value is 0.
      * @return the optFlags
      */
     public EnumSet<FTROptFlag_t> getOptFlags() { return(optFlags); }
 
     /**
+     * Can be missing; invalid indicated by optFlag bit 0.
      * @return the cycleCount
      */
     public int getCycleCount()
@@ -150,6 +292,7 @@ public class FunctionalTestRecord extends StdfRecord
     }
 
     /**
+     * Can be missing; invalid indicated by optFlag bit 1.
      * @return the relVaddr
      */
     public int getRelVaddr()
@@ -159,6 +302,7 @@ public class FunctionalTestRecord extends StdfRecord
     }
 
     /**
+     * Can be missing; invalid indicated by optFlag bit 2.
      * @return the rptCnt
      */
     public int getRptCnt()
@@ -168,6 +312,7 @@ public class FunctionalTestRecord extends StdfRecord
     }
 
     /**
+     * Can be missing; invalid indicated by optFlag bit 3.
      * @return the numFail
      */
     public int getNumFail()
@@ -177,6 +322,7 @@ public class FunctionalTestRecord extends StdfRecord
     }
 
     /**
+     * Can be missing; invalid indicated by optFlag bit 4.
      * @return the xFailAddr
      */
     public int getxFailAddr()
@@ -186,6 +332,7 @@ public class FunctionalTestRecord extends StdfRecord
     }
 
     /**
+     * Can be missing; invalid indicated by optFlag bit 4.
      * @return the yFailAddr
      */
     public int getyFailAddr()
@@ -195,6 +342,7 @@ public class FunctionalTestRecord extends StdfRecord
     }
 
     /**
+     * Can be missing; invalid indicated by optFlag bit 5.
      * @return the vecOffset
      */
     public short getVecOffset()
@@ -204,80 +352,89 @@ public class FunctionalTestRecord extends StdfRecord
     }
 
     /**
+     * Can be missing. Default value is 0-length array, indicated by RTN_ICNT = 0.
      * @return the rtnIndex
      */
     public int[] getRtnIndex() { return(rtnIndex); }
 
     /**
+     * Can be missing. Default value is 0-length array, indicated by RTN_ICNT = 0.
      * @return the rtnState
      */
     public byte[] getRtnState() { return(rtnState); }
 
     /**
+     * Can be missing. Default value is 0-length array, indicated by PGM_ICNT = 0.
      * @return the pgmIndex
      */
     public int[] getPgmIndex() { return(pgmIndex); }
 
     /**
+     * Can be missing. Default value is 0-length array, indicated by PGM_ICNT = 0.
      * @return the pgmState
      */
     public byte[] getPgmState() { return(pgmState); }
 
     /**
+     * Can be missing. Default value is 0-length array.
      * @return the failPin
      */
     public byte[] getFailPin() { return(failPin); }
 
     /**
+     * Can be missing. Default value is 0-length string.
      * @return the vecName
      */
     public String getVecName() { return(vecName); }
 
     /**
+     * Can be missing. Default value is 0-length string.
      * @return the timeSetName
      */
     public String getTimeSetName() { return(timeSetName); }
 
     /**
+     * Can be missing. Default value is 0-length string.
      * @return the vecOpCode
      */
     public String getVecOpCode() { return(vecOpCode); }
 
     /**
+     * Can be missing. Default value is 0-length string.
      * @return the label
      */
     public String getTestName() { return(label); }
 
     /**
+     * Can be missing. Default value is 0-length string.
      * @return the alarmName
      */
     public String getAlarmName() { return(alarmName); }
 
     /**
+     * Can be missing. Default value is 0-length string.
      * @return the progTxt
      */
     public String getProgTxt() { return(progTxt); }
 
     /**
+     * Can be missing. Default value is 0-length string.
      * @return the rsltTxt
      */
     public String getRsltTxt() { return(rsltTxt); }
 
     /**
+     * Can be missing. Default value is 255.
      * @return the patGenNum
      */
     public short getPatGenNum() { return(patGenNum); }
 
     /**
+     * Can be missing. Default value is 0-length array.
      * @return the enComps
      */
     public byte[] getEnComps() { return(enComps); }
 
-    public void setTestName(String string)
-    {
-        label = string;
-    }
-    
     @Override
     public String toString()
     {
@@ -309,28 +466,28 @@ public class FunctionalTestRecord extends StdfRecord
         sb.append("    yFailAddr: "); sb.append("" + yFailAddr); sb.append(Log.eol);
         sb.append("    vecOffset: "); sb.append("" + vecOffset); sb.append(Log.eol);
         sb.append("    PMR indicies:"); sb.append(Log.eol);
-        for (int i=0; i<j; i++)
+        for (int i=0; i<rtnIndex.length; i++)
         {
             sb.append("       ");
             sb.append("" + rtnIndex[i]);
             sb.append(Log.eol);
         }
         sb.append("    Returned States:");
-        for (int i=0; i<j; i++)
+        for (int i=0; i<rtnState.length; i++)
         {
             sb.append(" ");
             sb.append("" + rtnState[i]);
         }
         sb.append(Log.eol);
         sb.append("    Programmed State Indicies:");
-        for (int i=0; i<k; i++)
+        for (int i=0; i<pgmIndex.length; i++)
         {
             sb.append(" ");
             sb.append("" + pgmIndex[i]);
         }
         sb.append(Log.eol);
         sb.append("    Programmed States:");
-        for (int i=0; i<k; i++)
+        for (int i=0; i<pgmState.length; i++)
         {
             sb.append(" ");;
             sb.append("" + pgmState[i]);
