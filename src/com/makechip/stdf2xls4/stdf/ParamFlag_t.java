@@ -29,14 +29,23 @@ import java.util.EnumSet;
 
 public enum ParamFlag_t
 {
-    SCALE_ERROR,
-    DRIFT_ERROR,
-    OSCILLATION,
-    VALUE_HIGH,
-    VALUE_LOW,
-    ALTERNATE_PASS,
-    LO_LIMIT_EQ_PASS,
-    HI_LIMIT_EQ_PASS;
+    SCALE_ERROR(1),
+    DRIFT_ERROR(2),
+    OSCILLATION(4),
+    VALUE_HIGH(8),
+    VALUE_LOW(16),
+    ALTERNATE_PASS(32),
+    LO_LIMIT_EQ_PASS(64),
+    HI_LIMIT_EQ_PASS(128);
+    
+    private final byte bit;
+    
+    private ParamFlag_t(int bit)
+    {
+    	this.bit = (byte) bit;
+    }
+    
+    public byte getBit() { return(bit); }
     
     public static EnumSet<ParamFlag_t> getBits(byte b)
     {

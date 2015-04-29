@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 
+import gnu.trove.list.array.TByteArrayList;
+
 import java.util.Date;
 
 import com.makechip.util.Log;
@@ -36,7 +38,7 @@ import com.makechip.util.Log;
 **/
 public class AuditTrailRecord extends StdfRecord
 {
-    private String date;
+    private long date;
     private String cmdLine;
     /**
     *** @param p1
@@ -45,12 +47,22 @@ public class AuditTrailRecord extends StdfRecord
     public AuditTrailRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.ATR, sequenceNumber, devNum, data);
-        long d = getU4(0);
-        date = new Date(d * 1000L).toString();
+        date = getU4(0);
         cmdLine = getCn();
     }
     
-    public String getDate() { return(date); }
+    public AuditTrailRecord(
+    		final int sequenceNumber,
+    		final int devNum,
+    		final int date,
+    		final String cmdLine)
+    {
+    	super(Record_t.ATR, sequenceNumber, devNum, null);
+    	this.date = date;
+    	this.cmdLine = cmdLine;
+    }
+    
+    public String getDate() { return(new Date(date * 1000L).toString()); }
     
     public String getCmdLine() { return(cmdLine); }
     
@@ -62,12 +74,21 @@ public class AuditTrailRecord extends StdfRecord
         sb.append(":");
         sb.append(Log.eol);
         sb.append("    MOD_TIM: ");
-        sb.append(date);
+        sb.append(getDate());
         sb.append(Log.eol);
         sb.append("    CMD_LINE: ");
         sb.append(cmdLine);
         sb.append(Log.eol);
         return(sb.toString());
     }
+
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU4Bytes(date));
+		l.addAll(getCnBytes(cmdLine));
+		bytes = l.toArray();
+	}
 
 }

@@ -25,9 +25,15 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import java.util.ArrayList;
+import gnu.trove.list.array.TByteArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
+
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 import com.makechip.util.Log;
 /**
@@ -36,10 +42,8 @@ import com.makechip.util.Log;
 **/
 public final class MultipleResultParametricRecord extends ParametricTestRecord
 {
-    private final int j;
-    private final int k; 
     private byte[] rtnState;
-    private float[] results; 
+    private double[] results; 
     private float startIn;
     private float incrIn;
     private int[] rtnIndex;
@@ -49,274 +53,218 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
     /**
     *** @param p1
     **/
-    public MultipleResultParametricRecord(Tracker tracker, int sequenceNumber, int devNum, byte[] data)
+    public MultipleResultParametricRecord(int sequenceNumber, int devNum, byte[] data)
     {
-        super(Record_t.MPR, tracker, sequenceNumber, devNum, data);
-        optFlags = EnumSet.noneOf(OptFlag_t.class);
-        testNumber = getU4(-1);
-        headNumber = getU1((short) -1);
-        siteNumber = getU1((short) -1);
-        byte f = getI1((byte) 0);
-        testFlags = TestFlag_t.getBits(f);
-        f = getI1((byte) 0);
-        paramFlags = ParamFlag_t.getBits(f);
-        j = getU2(0);
-        k = getU2(0); 
+        super(Record_t.MPR, sequenceNumber, devNum, data);
+        reqFields = new RequiredParametricFields(this);
+        int j = getU2(0);
+        int k = getU2(0); 
         rtnState = getNibbles(j);
-        results = new float[k]; 
-        for (int i=0; i<k; i++) results[i] = getR4(-Float.MAX_VALUE);
-        text = getCn();
-        testId = tracker.dup.getId(testNumber, text);
-        alarmName = getCn();
-        if (data.length >= getPtr())
+        TDoubleArrayList l = new TDoubleArrayList();
+        DoubleStream.generate(() -> getR4(-Float.MAX_VALUE)).limit(k).forEach(value -> l.add((float) value));
+        results = l.toArray();
+        getParametricFields(); 
+        startIn = getR4(MISSING_FLOAT);
+        incrIn = getR4(MISSING_FLOAT);
+        TIntArrayList il = new TIntArrayList();
+        IntStream.generate(() -> getU2(-1)).limit(j).forEach(value -> il.add(value));
+        rtnIndex = il.toArray(); 
+        units = getCn();
+        unitsIn = getCn();
+        getLastFields(); 
+    }
+    
+    public MultipleResultParametricRecord(
+            final int sequenceNumber,
+            final int deviceNumber,
+            final int testNumber,
+            final int headNumber,
+            final int siteNumber,
+            final EnumSet<TestFlag_t> testFlags,
+            final EnumSet<ParamFlag_t> paramFlags,
+            final int j,
+            final int k,
+            final byte[] rtnState,
+            final double[] results,
+    	    final String text,
+    	    final String alarmName,
+    	    final EnumSet<OptFlag_t> optFlags, 
+    	    final byte resScal, // if RES_SCAL_INVALID set, then use default res_scal
+    	    final byte llmScal,
+    	    final byte hlmScal, 
+    	    final float loLimit, 
+    	    final float hiLimit,
+    	    final float startIn,
+    	    final float incrIn,
+    	    final int[] rtnIndex,
+    	    final String units,
+    	    final String unitsIn,
+    	    final String resFmt,
+    	    final String llmFmt,
+    	    final String hlmFmt,
+    	    final float loSpec,
+    	    final float hiSpec)
+    {
+        super(Record_t.PTR, sequenceNumber, deviceNumber, null);
+        reqFields = new RequiredParametricFields(testNumber, headNumber, siteNumber, testFlags, paramFlags);
+        this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
+        this.results = Arrays.copyOf(results, results.length);
+        this.text = text;
+        this.alarmName = alarmName;
+        if (optFlags != null)
         {
-            optFlags = tracker.poptDefaults.get(testNumber);
-            if (optFlags == null) optFlags = EnumSet.noneOf(OptFlag_t.class);
+            this.optFlags = EnumSet.noneOf(OptFlag_t.class);
+            optFlags.stream().forEach(p -> this.optFlags.add(p));
         }
-        else
+        else this.optFlags = null;
+        this.resScal = resScal;
+        this.llmScal = llmScal;
+        this.hlmScal = hlmScal;
+        this.loLimit = loLimit;
+        this.hiLimit = hiLimit;
+        this.startIn = startIn;
+        this.incrIn = incrIn;
+        this.units = units;
+        this.unitsIn = unitsIn;
+        this.resFmt = resFmt;
+        this.llmFmt = llmFmt;
+        this.hlmFmt = hlmFmt;
+        this.loSpec = loSpec;
+        this.hiSpec = hiSpec;
+    }
+    
+    public MultipleResultParametricRecord(MultipleResultParametricRecord mpr, DefaultMPRValueMap dmap)
+    {
+    	super(mpr.getRecordType(), mpr.getSequenceNumber(), mpr.getDeviceNumber(), null);
+    	reqFields = new RequiredParametricFields(mpr.getTestNumber(), mpr.getHeadNumber(), mpr.getSiteNumber(),
+    			mpr.getTestFlags(), mpr.getParamFlags());
+    	rtnState = mpr.getRtnState();
+    	results = mpr.getResults();
+    	text = mpr.getTestName();
+    	alarmName = mpr.getAlarmName();
+    	if (mpr.getOptFlags() != null) optFlags = mpr.getOptFlags();
+    	else optFlags = dmap.poptDefaults.get(mpr.getTestNumber());
+    	if (mpr.getResScal() == MISSING_BYTE) 
+    	{
+    		resScal = dmap.resScalDefaults.get(testId);
+    		if (resScal == MISSING_BYTE) resScal = dmap.nresScalDefaults.get(mpr.getTestNumber());
+    	}
+    	else resScal = mpr.getResScal();
+    	if (mpr.getLlmScal() == MISSING_BYTE)
+    	{
+    		llmScal = dmap.llmScalDefaults.get(testId);
+    		if (llmScal == MISSING_BYTE) llmScal = dmap.nllmScalDefaults.get(mpr.getTestNumber());
+    	}
+    	else llmScal = mpr.getLlmScal();
+    	if (mpr.getHlmScal() == MISSING_BYTE)
+    	{
+    		hlmScal = dmap.hlmScalDefaults.get(testId);
+    		if (hlmScal == MISSING_BYTE) hlmScal = dmap.nhlmScalDefaults.get(mpr.getTestNumber());
+    	}
+    	else hlmScal = mpr.getHlmScal();
+    	if (mpr.getLoLimit() == MISSING_FLOAT)
+    	{
+    		loLimit = dmap.loLimDefaults.get(testId);
+    		if (loLimit == MISSING_FLOAT) loLimit = dmap.nloLimDefaults.get(mpr.getTestNumber());
+    	}
+    	else loLimit = mpr.getLoLimit();
+    	if (mpr.getHiLimit() == MISSING_FLOAT)
+    	{
+    		hiLimit = dmap.hiLimDefaults.get(testId);
+    		if (hiLimit == MISSING_FLOAT) hiLimit = dmap.nhiLimDefaults.get(mpr.getTestNumber());
+    	}
+    	else hiLimit = mpr.getHiLimit();
+        if (startIn == MISSING_FLOAT)
         {
-            f = getI1((byte) 0);
-            optFlags = OptFlag_t.getBits(f);
-            if (tracker.poptDefaults.get(testNumber) == null)
-            {
-                tracker.poptDefaults.put(testNumber, optFlags);
-            }
+        	startIn = dmap.startInDefaults.get(testId);
+        	if (startIn == MISSING_FLOAT) startIn = dmap.nstartInDefaults.get(mpr.getTestNumber());
         }
-        
-        byte rs = getI1(MISSING_BYTE);
-        if (rs == MISSING_BYTE || optFlags.contains(OptFlag_t.RES_SCAL_INVALID))
+        else startIn = mpr.getStartIn();
+        if (incrIn == MISSING_FLOAT)
         {
-            resScal = tracker.resScalDefaults.get(testId);
-            if (resScal == MISSING_BYTE) resScal = tracker.nresScalDefaults.get(testNumber);
-            if (resScal == MISSING_BYTE) tracker.resScalDefaults.put(testId, (byte) 0);
+        	incrIn = dmap.incrInDefaults.get(testId);
+        	if (incrIn == MISSING_FLOAT) incrIn = dmap.nincrInDefaults.get(mpr.getTestNumber());
         }
-        else resScal = rs;
-        if (tracker.resScalDefaults.get(testId) == MISSING_BYTE) 
+        else incrIn = mpr.getIncrIn();
+    	if (mpr.getUnits().equals(MISSING_STRING))
+    	{
+    		units = dmap.unitDefaults.get(testId);
+    		if (units.equals(MISSING_STRING)) units = dmap.nunitDefaults.get(mpr.getTestNumber());
+    	}
+    	else units = mpr.getUnits();
+    	if (mpr.getUnitsIn().equals(MISSING_STRING))
+    	{
+    		unitsIn = dmap.unitsInDefaults.get(testId);
+    		if (unitsIn.equals(MISSING_STRING)) unitsIn = dmap.nunitsInDefaults.get(mpr.getTestNumber());
+    	}
+    	else unitsIn = mpr.getUnits();
+    	if (mpr.getResFmt().equals(MISSING_STRING))
+    	{
+    		resFmt = dmap.resFmtDefaults.get(testId);
+    		if (resFmt.equals(MISSING_STRING)) resFmt = dmap.nresFmtDefaults.get(mpr.getTestNumber());
+    	}
+    	else resFmt = mpr.getResFmt();
+    	if (mpr.getHlmFmt().equals(MISSING_STRING))
+    	{
+    		hlmFmt = dmap.hlmFmtDefaults.get(testId);
+    		if (hlmFmt.equals(MISSING_STRING)) hlmFmt = dmap.nhlmFmtDefaults.get(mpr.getTestNumber());
+    	}
+    	else hlmFmt = mpr.getHlmFmt();
+    	if (mpr.getLlmFmt().equals(MISSING_STRING))
+    	{
+    		llmFmt = dmap.llmFmtDefaults.get(testId);
+    		if (llmFmt.equals(MISSING_STRING)) llmFmt = dmap.nllmFmtDefaults.get(mpr.getTestNumber());
+    	}
+    	else llmFmt = mpr.getLlmFmt();
+        if (mpr.getLoSpec() == MISSING_FLOAT)
         {
-            tracker.resScalDefaults.put(testId, resScal);
-            tracker.nresScalDefaults.put(testNumber, resScal);
+        	loSpec = dmap.loSpecDefaults.get(testId);
+        	if (loSpec == MISSING_FLOAT) loSpec = dmap.nloSpecDefaults.get(mpr.getTestNumber());
         }
-        
-        byte ls = getI1(MISSING_BYTE);
-        if (ls == MISSING_BYTE || optFlags.contains(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID))
+        else loSpec = mpr.getLoSpec();
+        if (mpr.getHiSpec() == MISSING_FLOAT)
         {
-            llmScal = tracker.llmScalDefaults.get(testId);
-            if (llmScal == MISSING_BYTE) tracker.llmScalDefaults.put(testId, (byte) 0);
+        	hiSpec = dmap.hiSpecDefaults.get(testId);
+        	if (hiSpec == MISSING_FLOAT) hiSpec = dmap.nhiSpecDefaults.get(mpr.getTestNumber());
         }
-        else llmScal = ls;
-        if (tracker.llmScalDefaults.get(testId) == MISSING_BYTE) tracker.llmScalDefaults.put(testId, llmScal);
-        
-        byte hs = getI1(MISSING_BYTE); 
-        if (hs == MISSING_BYTE || optFlags.contains(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID))
+        else hiSpec = mpr.getHiSpec();
+    }
+    
+    @Override
+    protected void toBytes()
+    {
+        TByteArrayList list = new TByteArrayList();
+        list.addAll(getU4Bytes(reqFields.getTestNumber()));
+        list.addAll(getU1Bytes(reqFields.getHeadNumber()));
+        list.addAll(getU1Bytes(reqFields.getSiteNumber()));
+        list.add((byte) reqFields.getTestFlags().stream().mapToInt(b -> b.getBit()).sum());
+        list.add((byte) reqFields.getParamFlags().stream().mapToInt(b -> b.getBit()).sum());
+        list.addAll(getU2Bytes(rtnState.length));
+        list.addAll(getU2Bytes(results.length));
+        list.addAll(getNibbles(rtnState.length));
+        Arrays.stream(results).forEach(p -> list.addAll(getR4Bytes((float) p)));
+        list.addAll(getCnBytes(text));
+        list.addAll(getCnBytes(alarmName));
+        if (optFlags != null)
         {
-            hlmScal = tracker.hlmScalDefaults.get(testId);
-            if (hlmScal == MISSING_BYTE) hlmScal = tracker.nhlmScalDefaults.get(testNumber);
-            if (hlmScal == MISSING_BYTE) tracker.hlmScalDefaults.put(testId, (byte) 0);
+        	list.add((byte) optFlags.stream().mapToInt(b -> b.getBit()).sum());
+            list.addAll(getI1Bytes(resScal));
+            list.addAll(getI1Bytes(llmScal));
+            list.addAll(getI1Bytes(hlmScal));
+            list.addAll(getR4Bytes(loLimit));
+            list.addAll(getR4Bytes(hiLimit));
+            list.addAll(getR4Bytes(startIn));
+            list.addAll(getR4Bytes(incrIn));
+            Arrays.stream(rtnIndex).forEach(p -> list.addAll(getU2Bytes(p)));
+            list.addAll(getCnBytes(units));
+            list.addAll(getCnBytes(unitsIn));
+            list.addAll(getCnBytes(resFmt));
+            list.addAll(getCnBytes(llmFmt));
+            list.addAll(getCnBytes(hlmFmt));
+            list.addAll(getR4Bytes(loSpec));
+            list.addAll(getR4Bytes(hiSpec));
         }
-        else hlmScal = hs;
-        if (tracker.hlmScalDefaults.get(testId) == MISSING_BYTE) 
-        {
-            tracker.hlmScalDefaults.put(testId, hlmScal);
-            tracker.nhlmScalDefaults.put(testNumber, hlmScal);
-        }
-        
-        float ll = getR4(MISSING_FLOAT); 
-        if (ll == MISSING_FLOAT || optFlags.contains(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID))
-        {
-            loLimit = tracker.loLimDefaults.get(testId);
-            if (loLimit == MISSING_FLOAT) loLimit = tracker.nloLimDefaults.get(testNumber);
-        }
-        else loLimit = ll;
-        if (tracker.loLimDefaults.get(testId) == MISSING_FLOAT) 
-        {
-            tracker.loLimDefaults.put(testId, loLimit);
-            tracker.nloLimDefaults.put(testNumber, loLimit);
-        }
-        float hl = getR4(MISSING_FLOAT);
-        if (hl == MISSING_FLOAT || optFlags.contains(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID))
-        {
-            hiLimit = tracker.hiLimDefaults.get(testId);
-            if (hiLimit == MISSING_FLOAT) hiLimit = tracker.nhiLimDefaults.get(testNumber);
-        }
-        else hiLimit = hl;
-        if (tracker.hiLimDefaults.get(testId) == MISSING_FLOAT) 
-        {
-            tracker.hiLimDefaults.put(testId, hiLimit);
-            tracker.nhiLimDefaults.put(testNumber, hiLimit);
-        }
-        
-        float si = getR4(MISSING_FLOAT);
-        if (si == MISSING_FLOAT)
-        {
-            startIn = tracker.startInDefaults.get(testId);
-            if (startIn == MISSING_FLOAT) startIn = tracker.nstartInDefaults.get(testNumber);
-        }
-        else startIn = si;
-        if (tracker.startInDefaults.get(testId) == MISSING_FLOAT) 
-        {
-            tracker.startInDefaults.put(testId, si);
-            tracker.nstartInDefaults.put(testNumber, startIn);
-        }
-        
-        float ii = getR4(MISSING_FLOAT);
-        if (ii == MISSING_FLOAT)
-        {
-            incrIn = tracker.incrInDefaults.get(testId);
-            if (incrIn == MISSING_FLOAT) incrIn = tracker.nincrInDefaults.get(testNumber);
-        }
-        else incrIn = ii;
-        if (tracker.incrInDefaults.get(testId) == MISSING_FLOAT) 
-        {
-            tracker.incrInDefaults.put(testId, ii);
-            tracker.nincrInDefaults.put(testNumber, incrIn);
-        }
-        
-        int[] ri = new int[j];
-        for (int i=0; i<j; i++) ri[i] = getU2(-1);
-        if (data.length >= getPtr())
-        {
-            rtnIndex = tracker.rtnIndexDefaults.get(testId);
-            // use default pinlist
-            pins = tracker.mprPins.get(testId);
-            if (pins == null) pins = tracker.nmprPins.get(testNumber);
-            if (pins == null) Log.msg("ERROR pins is NULL: tnum = " + testNumber + " tname = " + text);
-        }
-        else 
-        {
-            rtnIndex = ri;
-            // generate pin name list
-            List<String> list = new ArrayList<String>(ri.length);
-            for (int i=0; i<ri.length; i++)
-            {
-                String pname = tracker.pinmap.get(siteNumber).get(ri[i]);
-                //Log.msg("pin = " + pname);
-                list.add(pname);
-            }
-            pins = PinList.getPinList(list);
-            tracker.mprPins.put(testId, pins);
-            tracker.nmprPins.put(testNumber, pins);
-        }
-        if (tracker.rtnIndexDefaults.get(testId) == null) tracker.rtnIndexDefaults.put(testId, ri);
-        if (tracker.mprPins.get(testId) == null) tracker.mprPins.put(testId, pins); 
-        
-        
-        String u = getCn();
-        if (u == null) 
-        {
-            units = tracker.unitDefaults.get(testId);
-            if (units == null) units = tracker.nunitDefaults.get(testNumber);
-        }
-        else units = u;
-        if (tracker.unitDefaults.get(testId) == null) 
-        {
-            tracker.unitDefaults.put(testId, units);
-            tracker.nunitDefaults.put(testNumber, units);
-        }
-        
-        String ui = getCn();
-        if (ui == null) 
-        {
-            unitsIn = tracker.unitsInDefaults.get(testId);
-            if (unitsIn == null) unitsIn = tracker.nunitsInDefaults.get(testNumber);
-        }
-        else unitsIn = ui;
-        if (tracker.unitsInDefaults.get(testId) == null) 
-        {
-            tracker.unitsInDefaults.put(testId, ui);
-            tracker.nunitsInDefaults.put(testNumber, unitsIn);
-        }
-        
-        // scale limits and units here:
-        int s = 0;
-        if (tracker.scales.get(testId) == MISSING_INT)
-        {
-        	if (results.length != 0)
-        	{
-        		s = getScale(results[0], hiLimit, resScal, llmScal, hlmScal);
-        		tracker.scales.put(testId, s);
-        	}
-        }
-        else s = tracker.scales.get(testId);
-        if (tracker.scaledLoLimits.get(testId) == MISSING_FLOAT)
-        {
-            float sLoLim = scaleValue(loLimit, findScale());
-            tracker.scaledLoLimits.put(testId, sLoLim);
-        }
-        if (tracker.scaledHiLimits.get(testId) == MISSING_FLOAT)
-        {
-            float sHiLim = scaleValue(hiLimit, findScale());
-            tracker.scaledHiLimits.put(testId, sHiLim);
-        }
-        if (tracker.scaledUnits.get(testId) == null)
-        {
-            String un = scaleUnits(units, findScale());
-            tracker.scaledUnits.put(testId, un);
-        }
-        
-        String rf = getCn();
-        if (rf == null) 
-        {
-            resFmt = tracker.resFmtDefaults.get(testId);
-            if (resFmt == null) resFmt = tracker.nresFmtDefaults.get(testNumber);
-        }
-        else resFmt = rf;
-        if (tracker.resFmtDefaults.get(testId) == null) 
-        {
-            tracker.resFmtDefaults.put(testId, resFmt);
-            tracker.nresFmtDefaults.put(testNumber, resFmt);
-        }
-        
-        String lf = getCn();
-        if (lf == null) 
-        {
-            llmFmt = tracker.llmFmtDefaults.get(testId);
-            if (llmFmt == null) llmFmt = tracker.nllmFmtDefaults.get(testNumber);
-        }
-        else llmFmt = lf;
-        if (tracker.llmFmtDefaults.get(testId) == null) 
-        {
-            tracker.llmFmtDefaults.put(testId, llmFmt);
-            tracker.nllmFmtDefaults.put(testNumber, llmFmt);
-        }
-        
-        String hf = getCn();
-        if (hf == null) 
-        {
-            hlmFmt = tracker.hlmFmtDefaults.get(testId);
-            if (hlmFmt == null) hlmFmt = tracker.nhlmFmtDefaults.get(testNumber);
-        }
-        else hlmFmt = hf;
-        if (tracker.hlmFmtDefaults.get(testId) == null) 
-        {
-            tracker.hlmFmtDefaults.put(testId, hlmFmt);
-            tracker.nhlmFmtDefaults.put(testNumber, hlmFmt);
-        }
-        
-        float lsp = getR4(MISSING_FLOAT);
-        if (lsp == MISSING_FLOAT) 
-        {
-            loSpec = tracker.loSpecDefaults.get(testId);
-            if (loSpec == MISSING_FLOAT) loSpec = tracker.nloSpecDefaults.get(testNumber);
-        }
-        else loSpec = lsp;
-        if (tracker.loSpecDefaults.get(testId) == MISSING_FLOAT) 
-        {
-            tracker.loSpecDefaults.put(testId, loSpec);
-            tracker.nloSpecDefaults.put(testNumber, loSpec);
-        }
-        
-        float hsp = getR4(MISSING_FLOAT);
-        if (hsp == MISSING_FLOAT) 
-        {
-            hiSpec = tracker.hiSpecDefaults.get(testId);
-            if (hiSpec == MISSING_FLOAT) hiSpec = tracker.nhiSpecDefaults.get(testNumber);
-        }
-        else hiSpec = hsp;
-        if (tracker.hiSpecDefaults.get(testId) == MISSING_FLOAT) 
-        {
-            tracker.hiSpecDefaults.put(testId, hiSpec);
-            tracker.nhiSpecDefaults.put(testNumber, hiSpec);
-        }
+        bytes = list.toArray();
     }
     
     @Override
@@ -325,48 +273,17 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(":");
         sb.append(Log.eol);
-        sb.append("    test number: " + testNumber); sb.append(Log.eol);
-        sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site number: " + siteNumber); sb.append(Log.eol);
-        sb.append("    test flags:");
-        for (TestFlag_t t : testFlags)
-        {
-            sb.append(" ");
-            sb.append(t.toString());
-        }
-        sb.append(Log.eol);
-        sb.append("    param flags:");
-        for (ParamFlag_t p : paramFlags)
-        {
-            sb.append(" ");
-            sb.append(p.toString());
-        }
-        sb.append(Log.eol);
+        sb.append(reqFields.toString());
         sb.append("    returned states:");
-        for (int i=0; i<rtnState.length; i++)
-        {
-            sb.append(" ");
-            sb.append("" + rtnState[i]);
-        }
+        for (byte b : rtnState) sb.append(" " + b);
         sb.append(Log.eol);
         sb.append("    results:");
-        for (int i=0; i<results.length; i++)
-        {
-            sb.append(" ");
-            sb.append("" + results[i]);
-        }
+        Arrays.stream(results).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
         sb.append("    test name: "); sb.append(text); sb.append(Log.eol);
         sb.append("    alarm name: "); sb.append(alarmName); sb.append(Log.eol);
         sb.append("    optional flags:");
-        if (optFlags != null)
-        {
-            for (OptFlag_t o : optFlags)
-            {
-                sb.append(" ");
-                sb.append(o.toString());
-            }
-        }
+        if (optFlags != null) optFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
         sb.append(Log.eol);
         sb.append("    result scaling exponent: " + resScal); sb.append(Log.eol);
         sb.append("    low limit scaling exponent: " + llmScal); sb.append(Log.eol);
@@ -378,11 +295,7 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         if (rtnIndex != null)
         {
             sb.append("    array of PMR indicies:");
-            for (int i=0; i<rtnIndex.length; i++)
-            {
-                sb.append(" ");
-                sb.append("" + rtnIndex[i]);
-            }
+            Arrays.stream(rtnIndex).forEach(p -> sb.append(" " + p));
         }
         sb.append(Log.eol);
         sb.append("    units: "); sb.append(units); sb.append(Log.eol);
@@ -395,9 +308,9 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         return(sb.toString());
     }
     
-    public float[] getScaledResults()
+    public double[] getScaledResults()
     {
-        float[] r = new float[results.length];
+        double[] r = new double[results.length];
         for (int i=0; i<results.length; i++)
         {
             r[i] = scaleValue(results[i], findScale());
@@ -414,12 +327,12 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
 
     public int getRtnIcnt()
     {
-        return(j);
+        return(rtnIndex.length);
     }
 
     public int getRsltCnt()
     {
-        return(k);
+        return(results.length);
     }
 
     public byte[] getRtnState()
@@ -427,7 +340,7 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         return(rtnState);
     }
 
-    public float[] getResults()
+    public double[] getResults()
     {
         return(results);
     }

@@ -29,15 +29,23 @@ import java.util.EnumSet;
 
 public enum OptFlag_t
 {
-    RES_SCAL_INVALID,
-    START_INCR_IN_INVALID,
-    NO_LO_SPEC_LIMIT,
-    NO_HI_SPEC_LIMIT,
-    LO_LIMIT_LLM_SCAL_INVALID,
-    HI_LIMIT_HLM_SCAL_INVALID,
-    NO_LO_LIMIT,
-    NO_HI_LIMIT;
+    RES_SCAL_INVALID(1),
+    START_INCR_IN_INVALID(2),
+    NO_LO_SPEC_LIMIT(4),
+    NO_HI_SPEC_LIMIT(8),
+    LO_LIMIT_LLM_SCAL_INVALID(16),
+    HI_LIMIT_HLM_SCAL_INVALID(32),
+    NO_LO_LIMIT(64),
+    NO_HI_LIMIT(128);
+   
+    private final byte bit;
     
+    private OptFlag_t(int bit)
+    {
+    	this.bit = (byte) bit;
+    }
+    
+    public byte getBit() { return(bit); }
     
     public static EnumSet<OptFlag_t> getBits(byte b)
     {

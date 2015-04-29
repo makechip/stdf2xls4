@@ -25,9 +25,9 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import com.makechip.util.Log;
+import gnu.trove.list.array.TByteArrayList;
 
-import gnu.trove.map.hash.TIntObjectHashMap;
+import com.makechip.util.Log;
 
 
 /**
@@ -49,7 +49,12 @@ public class PinMapRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public PinMapRecord(Tracker tracker, int sequenceNumber, int devNum, byte[] data)
+    public PinMapRecord(int sequenceNumber, int devNum, byte[] data)
+    {
+    	this(false, sequenceNumber, devNum, data);
+    }
+    
+    public PinMapRecord(boolean usePhyPinName, int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.PMR, sequenceNumber, devNum, data);
         pmrIdx = getU2(-1);
@@ -59,16 +64,45 @@ public class PinMapRecord extends StdfRecord
         logicalPinName = getCn();
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) 1);
-        pinName = (tracker.isLtx()) ? physicalPinName : channelName; 
-        TIntObjectHashMap<String> m = tracker.pinmap.get(siteNumber);
-        if (m == null)
-        {
-            m = new TIntObjectHashMap<String>();
-            tracker.pinmap.put(siteNumber, m);
-        }
-        m.put(pmrIdx, pinName);
+        pinName = (usePhyPinName) ? physicalPinName : channelName; 
     }
     
+    public PinMapRecord(boolean usePhyPinName,
+    		            int sequenceNumber,
+    		            int devNum,
+    		            int pmrIdx,
+    		            int channelType,
+    		            String channelName,
+    		            String physicalPinName,
+    		            String logicalPinName,
+    		            short headNumber,
+    		            short siteNumber)
+    		            {
+    						super(Record_t.PMR, sequenceNumber, devNum, null);
+    						this.pmrIdx = pmrIdx;
+    						this.channelType = channelType;
+    						this.channelName = channelName;
+    						this.physicalPinName = physicalPinName;
+    						this.logicalPinName = logicalPinName;
+    						this.headNumber = headNumber;
+    						this.siteNumber = siteNumber;
+    						pinName = usePhyPinName ? physicalPinName : channelName;
+    		            }
+    
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU2Bytes(pmrIdx));
+		l.addAll(getU2Bytes(channelType));
+		l.addAll(getCnBytes(channelName));
+		l.addAll(getCnBytes(physicalPinName));
+		l.addAll(getCnBytes(logicalPinName));
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteNumber));
+		bytes = l.toArray();
+	}
+
     @Override
     public String toString()
     {
@@ -139,6 +173,11 @@ public class PinMapRecord extends StdfRecord
     public short getSiteNumber()
     {
         return siteNumber;
+    }
+    
+    public String getPinName()
+    {
+    	return(pinName);
     }
 
 }

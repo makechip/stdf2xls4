@@ -48,12 +48,10 @@ public class StdfReader
     private String filename;
     public static Cpu_t cpuType;
     private List<RecordBytes> records;
-    private Tracker tracker;
     
     public StdfReader(String filename)
     {
         this.filename = filename;
-        tracker = new Tracker();
     }
     
     public static void main(String[] args)
@@ -64,7 +62,7 @@ public class StdfReader
     	Log.msg("" + r.records.size() + " records read");
     }
     
-    private RecordBytes farCheck(int len, byte[] bytes) throws StdfException
+    private RecordBytes FARcheck(int len, byte[] bytes) throws StdfException
     {
        	if (len != 6) throw new StdfException("Malformed FAR record");
        	if (bytes[2] != (byte)  0) throw new StdfException("First STDF record is not a FAR");
@@ -75,7 +73,7 @@ public class StdfReader
         byte[] far = new byte[2];
         far[0] = bytes[4];
         far[1] = bytes[5];
-    	return(new RecordBytes(far, 0, tracker, FAR));
+    	return(new RecordBytes(far, 0, FAR));
     }
     
     private boolean isDeviceRecord(Record_t type)
@@ -91,7 +89,7 @@ public class StdfReader
         	// first record should be a FAR:
         	byte[] far = new byte[6];
         	int len = rdr.read(far); 
-            records.add(farCheck(len, far));
+            records.add(FARcheck(len, far));
             int seqNum = 1;	
             int devNum = 1;
         	while (true)
@@ -106,8 +104,8 @@ public class StdfReader
                 byte[] record = new byte[recLen];
                 len = rdr.read(record);
                 if (len != recLen) throw new RuntimeException("Error: record could not be read");
-                if (isDeviceRecord(type)) records.add(new RecordBytes(record, seqNum, tracker, type, devNum));
-                else records.add(new RecordBytes(record, seqNum, tracker, type));
+                if (isDeviceRecord(type)) records.add(new RecordBytes(record, seqNum, type, devNum));
+                else records.add(new RecordBytes(record, seqNum, type));
                 if (type == PRR) devNum++;
                 seqNum++;
         	}                

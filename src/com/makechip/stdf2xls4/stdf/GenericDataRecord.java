@@ -24,8 +24,13 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import com.makechip.util.Log;
 
 /**
@@ -34,7 +39,103 @@ import com.makechip.util.Log;
 **/
 public class GenericDataRecord extends StdfRecord
 {
-    private final List<Object> list;
+    private final List<Data> list;
+	
+	public static final class Data
+	{
+		final Data_t type;
+		final Object value;
+		final int padCnt;
+		
+		Data(PadData p, Object value)
+		{
+			this.type = p.getType();
+			padCnt = p.getPadCnt();
+			this.value = value;
+		}
+		
+		public Data_t getType() { return(type); }
+		
+		public Object getValue() { return(value); }
+		
+		public int getPadCnt() { return(padCnt); }
+		
+		@Override
+		public String toString()
+		{
+			return(value.toString());
+		}
+	}
+	
+	private static final class PadData
+	{
+		final Data_t type;
+		final byte padCnt;
+		
+		PadData(Data_t type, int padCnt)
+		{
+			this.type = type;
+			this.padCnt = (byte) padCnt;
+		}
+		
+		Data_t getType() { return(type); }
+		int getPadCnt() { return(padCnt); }
+	}
+	
+	private PadData getType()
+	{
+		int type = 0;
+		int cnt = 0;
+		while (type == (short) 0) 
+		{
+			type = getU1((short) -1);
+			if (type != (byte) 0) break;
+			cnt++;
+		}
+		return(new PadData(Data_t.getDataType(type), cnt));
+	}
+	
+	private void getField(PadData v)
+	{
+        switch (v.getType())
+        {
+        case U_1: list.add(new Data(v, getU1((short) 0))); break;
+        case U_2: list.add(new Data(v, getU2(0))); break;
+        case U_4: list.add(new Data(v, getU4(0))); break;
+        case I_1: list.add(new Data(v, getI1((byte) 0))); break;
+        case I_2: list.add(new Data(v, getI2((short) 0))); break;
+        case I_4: list.add(new Data(v, getI4(0))); break;
+        case R_4: list.add(new Data(v, getR4(0.0f))); break;
+        case R_8: list.add(new Data(v, getR8(0.0))); break;
+        case C_N: list.add(new Data(v, getCn())); break;
+        case B_N: list.add(new Data(v, getBn())); break;
+        case D_N: list.add(new Data(v, getDn())); break;
+        case N_N: list.add(new Data(v, getNibbles(1))); break;
+       	default: throw new RuntimeException("Unknown data type in GenericDataRecord");
+        }
+	}
+	
+	private void setField(TByteArrayList l, Data field)
+	{
+		IntStream.generate(() -> 0).limit(field.getPadCnt()).forEach(v -> l.add((byte) 0));
+		switch (field.getType())
+		{
+        case U_1: l.add(getU1Bytes((short) field.getValue())); break;
+        case U_2: l.addAll(getU2Bytes((int) field.getValue())); break;
+        case U_4: l.addAll(getU4Bytes((long) field.getValue())); break;
+        case I_1: l.add(getI1Bytes((byte) field.getValue())); break;
+        case I_2: l.addAll(getI2Bytes((short) field.getValue())); break;
+        case I_4: l.addAll(getI4Bytes((int) field.getValue())); break;
+        case R_4: l.addAll(getR4Bytes((float) field.getValue())); break;
+        case R_8: l.addAll(getR8Bytes((double) field.getValue())); break;
+        case C_N: l.addAll(getCnBytes((String) field.getValue())); break;
+        case B_N: l.addAll(getBnBytes((byte[]) field.getValue())); break;
+        case D_N: l.addAll(getDnBytes((byte[]) field.getValue())); break;
+        case N_N: l.addAll(getNibbleBytes((byte[]) field.getValue())); break;
+       	default: throw new RuntimeException("Unknown data type in GenericDataRecord");
+		}
+	}
+	
     /**
     *** @param p1
     *** @param p2
@@ -42,33 +143,18 @@ public class GenericDataRecord extends StdfRecord
     public GenericDataRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.GDR, sequenceNumber, devNum, data);
-        list = new ArrayList<Object>();
-        while (true)
-        {
-            int cnt = getU2(0);
-            if (cnt == 0) break;
-            int type = 0;
-            while (type == 0) type = getU1((short) -1);
-            switch (type)
-            {
-            case 1:  for (int j=0; j<cnt; j++) list.add(getU1((short) 0)); break;
-            case 2:  for (int j=0; j<cnt; j++) list.add(getU2(0)); break;
-            case 3:  for (int j=0; j<cnt; j++) list.add(getU4(0)); break;
-            case 4:  for (int j=0; j<cnt; j++) list.add(getI1((byte) 0)); break;
-            case 5:  for (int j=0; j<cnt; j++) list.add(getI2((short) 0)); break;
-            case 6:  for (int j=0; j<cnt; j++) list.add(getI4(0)); break;
-            case 7:  for (int j=0; j<cnt; j++) list.add(getR4(0.0f)); break;
-            case 8:  for (int j=0; j<cnt; j++) list.add(getR8(0.0)); break;
-            case 10: for (int j=0; j<cnt; j++) list.add(getCn()); break;
-            case 11: for (int j=0; j<cnt; j++) list.add(getBn()); break;
-            case 12: for (int j=0; j<cnt; j++) list.add(getDn()); break;
-            case 13: for (int j=0; j<cnt; j++) list.add(getNibbles(1)); break;
-            default: Log.fatal("Unknown data type in GenericDataRecord");
-            }
-        }
+        list = new ArrayList<Data>();
+        int fields = getU2(0);
+        Stream.generate(() -> getType()).limit(fields).forEach(v -> getField(v));
+    }
+    
+    public GenericDataRecord(int sequenceNumber, int devNum, List<Data> list)
+    {
+    	super(Record_t.GDR, sequenceNumber, devNum, null);
+    	this.list = new ArrayList<Data>(list);
     }
 
-    public List<Object> getData() { return(list); }
+    public List<Data> getData() { return(list); }
     
     @Override
     public String toString()
@@ -76,15 +162,17 @@ public class GenericDataRecord extends StdfRecord
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(":");
         sb.append(Log.eol);
-        for (Object o : list)
-        {
-        	if (o == null) continue;
-            sb.append("    ");
-            sb.append(o.toString());
-            sb.append(Log.eol);
-        }
+        list.stream().forEach(p -> sb.append("    ").append(p.toString()).append(Log.eol));
         return(sb.toString());
     }
+
+	@Override
+	protected void toBytes()
+	{
+	    TByteArrayList l = new TByteArrayList();
+	    l.addAll(getU2Bytes(list.size())); 
+	    list.stream().forEach(d -> setField(l, d));
+	}
     
     
 }

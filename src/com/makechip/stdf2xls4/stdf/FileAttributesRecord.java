@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import com.makechip.util.Log;
 
 /**
@@ -49,6 +51,13 @@ public class FileAttributesRecord extends StdfRecord
         assert stdfVersion == 4;
     }
     
+    public FileAttributesRecord(int sequenceNumber, int devNum, int stdfVersion, Cpu_t cpuType)
+    {
+    	super(Record_t.FAR, sequenceNumber, devNum, null);
+    	this.stdfVersion = stdfVersion;
+    	this.cpuType = cpuType;
+    }
+    
     public int getStdfVersion() { return(stdfVersion); }
     
     public Cpu_t getCpuType() { return(cpuType); }
@@ -57,14 +66,21 @@ public class FileAttributesRecord extends StdfRecord
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
         sb.append("    CPU_TYPE: ");
         sb.append(cpuType.toString());
         sb.append("    STDF_VER: ");
-        sb.append("" + stdfVersion);
-        sb.append(Log.eol);
+        sb.append("" + stdfVersion).append(Log.eol);
         return(sb.toString());
     }
+
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.add(cpuType.getType());
+		l.add((byte) stdfVersion);
+		bytes = l.toArray();
+	}
 
 }

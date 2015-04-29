@@ -34,14 +34,6 @@ import com.makechip.util.Log;
 public class PartResultsRecord extends StdfRecord
 {
 	private static int sn = -1;
-    public static enum PartInfoFlag_t
-    {
-        RETEST_EXEC0,
-        RETEST_EXEC1,
-        ABNORMAL_END_OF_TEST,
-        PART_FAILED,
-        NO_PASS_FAIL_INDICATION;
-    }
     
     private final short headNumber;
     private final short siteNumber;
@@ -76,13 +68,8 @@ public class PartResultsRecord extends StdfRecord
         super(Record_t.PRR, sequenceNumber, devNum, data);
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
-        int f = getI1((byte) 0);
-        partInfoFlags = EnumSet.noneOf(PartInfoFlag_t.class);
-        if ((f & 1)  ==  1) partInfoFlags.add(PartInfoFlag_t.RETEST_EXEC0);
-        if ((f & 2)  ==  2) partInfoFlags.add(PartInfoFlag_t.RETEST_EXEC1);
-        if ((f & 4)  ==  4) partInfoFlags.add(PartInfoFlag_t.ABNORMAL_END_OF_TEST);
-        if ((f & 8)  ==  8) partInfoFlags.add(PartInfoFlag_t.PART_FAILED);
-        if ((f & 16) == 16) partInfoFlags.add(PartInfoFlag_t.NO_PASS_FAIL_INDICATION);
+        byte f = getI1((byte) 0);
+        partInfoFlags = PartInfoFlag_t.getBits(f);
         numExecs = getU2(0);
         hwBinNumber = getU2(-1);
         swBinNumber = getU2(-1);
@@ -99,37 +86,34 @@ public class PartResultsRecord extends StdfRecord
         repair = getBn();
     }
 
+	@Override
+	protected void toBytes()
+	{
+		
+	}
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site number: " + siteNumber); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    head number: " + headNumber).append(Log.eol);
+        sb.append("    site number: " + siteNumber).append(Log.eol);
         sb.append("    test flags:");
-        for (PartInfoFlag_t t : partInfoFlags)
-        {
-            sb.append(" ");
-            sb.append(t.toString());
-        }
+        partInfoFlags.stream().forEach(e -> sb.append(" ").append(e.toString()));
         sb.append(Log.eol);
-        sb.append("    number of tests executed: " + numExecs); sb.append(Log.eol);
-        sb.append("    hardware bin number: " + hwBinNumber); sb.append(Log.eol);
-        sb.append("    software bin number: " + swBinNumber); sb.append(Log.eol);
-        sb.append("    wafer X-coordinate: " + xCoord); sb.append(Log.eol);
-        sb.append("    wafer Y-coordinate: " + yCoord); sb.append(Log.eol);
-        sb.append("    test time: " + testTime); sb.append(Log.eol);
-        sb.append("    part ID: "); sb.append(partID); sb.append(Log.eol);
-        sb.append("    part description: "); sb.append(partDescription); sb.append(Log.eol);
+        sb.append("    number of tests executed: " + numExecs).append(Log.eol);
+        sb.append("    hardware bin number: " + hwBinNumber).append(Log.eol);
+        sb.append("    software bin number: " + swBinNumber).append(Log.eol);
+        sb.append("    wafer X-coordinate: " + xCoord).append(Log.eol);
+        sb.append("    wafer Y-coordinate: " + yCoord).append(Log.eol);
+        sb.append("    test time: " + testTime).append(Log.eol);
+        sb.append("    part ID: "); sb.append(partID).append(Log.eol);
+        sb.append("    part description: ").append(partDescription).append(Log.eol);
         if (repair != null)
         {
         	sb.append("    repair info:");
-        	for (int i=0; i<repair.length; i++)
-        	{
-        		sb.append(" ");
-        		sb.append("" + repair[i]);
-        	}
+        	for (int i=0; i<repair.length; i++) sb.append(" " + repair[i]);
         }
         sb.append(Log.eol);
         return(sb.toString()); 
@@ -241,5 +225,4 @@ public class PartResultsRecord extends StdfRecord
     {
         return repair;
     }
-
 }

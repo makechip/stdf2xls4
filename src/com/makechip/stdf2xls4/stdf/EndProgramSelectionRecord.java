@@ -41,10 +41,21 @@ public class EndProgramSelectionRecord extends StdfRecord
         super(Record_t.EPS, sequenceNumber, devNum, data);
     }
     
+    public EndProgramSelectionRecord(int sequenceNumber, int devNum)
+    {
+    	super(Record_t.EPS, sequenceNumber, devNum, null);
+    }
+    
     @Override
     public String toString()
     {
         return("EndProgramSelectionRecord" + Log.eol);
     }
+
+	@Override
+	protected void toBytes()
+	{
+	    bytes = new byte[0];	
+	}
     
 }

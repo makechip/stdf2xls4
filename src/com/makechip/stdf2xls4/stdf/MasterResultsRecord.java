@@ -24,6 +24,8 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import java.util.Date;
 
 import com.makechip.util.Log;
@@ -34,7 +36,7 @@ import com.makechip.util.Log;
 **/
 public class MasterResultsRecord extends StdfRecord
 {
-    private final String finishDate;
+    private final long finishDate;
     private final String dispCode;
     private final String lotDesc;
     private final String execDesc;
@@ -46,23 +48,45 @@ public class MasterResultsRecord extends StdfRecord
     public MasterResultsRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.MRR, sequenceNumber, devNum, data);
-        long d = getU4(0);
-        finishDate = new Date(d * 1000L).toString();
+        finishDate = getU4(0);
         dispCode = getFixedLengthString(1);
         lotDesc = getCn();
         execDesc = getCn();
     }
     
+    public MasterResultsRecord(int sequenceNumber, int devNum,
+    		long finishDate,
+    		char dispCode,
+    		String lotDesc,
+    		String execDesc)
+    {
+    	super(Record_t.MRR, sequenceNumber, devNum, null);
+    	this.finishDate = finishDate;
+    	this.dispCode = "" + dispCode;
+    	this.lotDesc = lotDesc;
+    	this.execDesc = execDesc;
+    }
+    
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU4Bytes(finishDate));
+		l.addAll(getFixedLengthStringBytes(dispCode));
+		l.addAll(getCnBytes(lotDesc));
+		l.addAll(getCnBytes(execDesc));
+		bytes = l.toArray();
+	}
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    finish date: "); sb.append(finishDate); sb.append(Log.eol);
-        sb.append("    lot disposition code: "); sb.append(dispCode); sb.append(Log.eol);
-        sb.append("    user lot description: "); sb.append(lotDesc); sb.append(Log.eol);
-        sb.append("    exec lot description: "); sb.append(execDesc); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    finish date: ").append(getFinishDate()).append(Log.eol);
+        sb.append("    lot disposition code: ").append(dispCode).append(Log.eol);
+        sb.append("    user lot description: ").append(lotDesc).append(Log.eol);
+        sb.append("    exec lot description: ").append(execDesc).append(Log.eol);
         return(sb.toString());
     }
 
@@ -71,7 +95,7 @@ public class MasterResultsRecord extends StdfRecord
      */
     public String getFinishDate()
     {
-        return finishDate;
+        return(new Date(1000L * finishDate).toString());
     }
 
     /**

@@ -5,27 +5,20 @@ public class RecordBytes implements Comparable<RecordBytes>
 	private byte[] bytes;
 	private Record_t type;
 	private int sequenceNumber;
-	private Tracker tracker;
 	private int devNum;
 
-	public RecordBytes(byte[] bytes, int sequenceNumber, Tracker tracker, Record_t type, int devNum) throws StdfException
+	public RecordBytes(byte[] bytes, int sequenceNumber, Record_t type, int devNum) throws StdfException
 	{
 		this.bytes = bytes;
 		this.sequenceNumber = sequenceNumber;
-		this.tracker = tracker;
 		this.type = type;
 		this.devNum = devNum;
 		if (type == null) throw new StdfException("Unknown record type: " + bytes[0] + bytes[1]);
 	}
 	
-	public RecordBytes(byte[] bytes, int sequenceNumber, Tracker tracker, Record_t type) throws StdfException
+	public RecordBytes(byte[] bytes, int sequenceNumber, Record_t type) throws StdfException
 	{
-		this.bytes = bytes;
-		this.sequenceNumber = sequenceNumber;
-		this.tracker = tracker;
-		this.type = type;
-		this.devNum = -1;
-		if (type == null) throw new StdfException("Unknown record type: " + bytes[0] + bytes[1]);
+		this(bytes, sequenceNumber, type, -1);
 	}
 	
 	byte[] getBytes() { return(bytes); }
@@ -56,15 +49,15 @@ public class RecordBytes implements Comparable<RecordBytes>
 		case GDR: return(new GenericDataRecord(sequenceNumber, devNum, bytes));
 		case HBR: return(new HardwareBinRecord(sequenceNumber, devNum, bytes));
 		case MIR: return(new MasterInformationRecord(sequenceNumber, devNum, bytes));
-		case MPR: return(new MultipleResultParametricRecord(tracker, sequenceNumber, devNum, bytes)); // ***
+		case MPR: return(new MultipleResultParametricRecord(sequenceNumber, devNum, bytes)); // ***
 		case MRR: return(new MasterResultsRecord(sequenceNumber, devNum, bytes));
 		case PCR: return(new PartCountRecord(sequenceNumber, devNum, bytes));
 		case PGR: return(new PinGroupRecord(sequenceNumber, devNum, bytes));
 		case PIR: return(new PartInformationRecord(sequenceNumber, devNum, bytes));
 		case PLR: return(new PinListRecord(sequenceNumber, devNum, bytes));
-		case PMR: return(new PinMapRecord(tracker, sequenceNumber, devNum, bytes)); // ***
-		case PRR: tracker.reset(); return(new PartResultsRecord(sequenceNumber, devNum, bytes));
-		case PTR: return(new ParametricTestRecord(tracker, sequenceNumber, devNum, bytes)); // ***
+		case PMR: return(new PinMapRecord(sequenceNumber, devNum, bytes)); // ***
+		case PRR: return(new PartResultsRecord(sequenceNumber, devNum, bytes));
+		case PTR: return(new ParametricTestRecord(sequenceNumber, devNum, bytes)); // ***
 		case RDR: return(new RetestDataRecord(sequenceNumber, devNum, bytes));
 		case SBR: return(new SoftwareBinRecord(sequenceNumber, devNum, bytes));
 		case SDR: return(new SiteDescriptionRecord(sequenceNumber, devNum, bytes));

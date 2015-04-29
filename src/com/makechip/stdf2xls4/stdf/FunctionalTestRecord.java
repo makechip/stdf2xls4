@@ -29,8 +29,6 @@ import gnu.trove.list.array.TByteArrayList;
 import java.util.EnumSet;
 
 import com.makechip.util.Log;
-
-import static com.makechip.stdf2xls4.stdf.TestFlag_t.*;
 /**
 *** @author eric
 *** @version $Id: FunctionalTestRecord.java 258 2008-10-22 01:22:44Z ericw $
@@ -38,15 +36,12 @@ import static com.makechip.stdf2xls4.stdf.TestFlag_t.*;
 public class FunctionalTestRecord extends StdfRecord
 {
 	private final TestID testId;
-    private final int testNumber;
-    private final short headNumber;
-    private final short siteNumber;
-    private final EnumSet<TestFlag_t> testFlags;
+	private final RequiredTestFields reqFields;
     private final EnumSet<FTROptFlag_t> optFlags;
-    private final int cycleCount;    // cycle count is invalid if CYCLE_CNT_INVALID is set
-    private final int relVaddr;      // relVaddr is invalid if REL_VADDR_INVALID is set
-    private final int rptCnt;        // rptCnt is invalid if REPEAT_CNT_INVALID is set
-    private final int numFail;       // numFail is invalid if NUM_FAIL_INVALID is set
+    private final long cycleCount;    // cycle count is invalid if CYCLE_CNT_INVALID is set
+    private final long relVaddr;      // relVaddr is invalid if REL_VADDR_INVALID is set
+    private final long rptCnt;        // rptCnt is invalid if REPEAT_CNT_INVALID is set
+    private final long numFail;       // numFail is invalid if NUM_FAIL_INVALID is set
     private final int xFailAddr;     // xFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
     private final int yFailAddr;     // yFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
     private final short vecOffset;   // vecOffset is invalid if VEC_OFFSET_INVALID is set
@@ -68,10 +63,7 @@ public class FunctionalTestRecord extends StdfRecord
     public FunctionalTestRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.FTR, sequenceNumber, devNum, data);
-        testNumber = getU4(MISSING_INT);
-        headNumber = getU1((short) 0);
-        siteNumber = getU1((short) 0);
-        testFlags = TestFlag_t.getBits(getByte());
+        reqFields = new RequiredTestFields(this);
         if (getSize() <= getPtr()) optFlags = null;
         else optFlags = FTROptFlag_t.getBits(getByte());
         cycleCount = getU4(MISSING_INT);
@@ -110,10 +102,10 @@ public class FunctionalTestRecord extends StdfRecord
         final short siteNumber,
         final EnumSet<TestFlag_t> testFlags,
         final EnumSet<FTROptFlag_t> optFlags,
-        final int cycleCount,
-        final int relVaddr,
-        final int rptCnt,
-        final int numFail,
+        final long cycleCount,
+        final long relVaddr,
+        final long rptCnt,
+        final long numFail,
         final int xFailAddr,
         final int yFailAddr,
         final short vecOffset,
@@ -133,11 +125,9 @@ public class FunctionalTestRecord extends StdfRecord
         final byte[] enComps)
     {
         super(Record_t.FTR, sequenceNumber, deviceNumber, null);	
-        this.testNumber = testNumber;
-        this.headNumber = headNumber;
-        this.siteNumber = siteNumber;
-        this.testFlags = testFlags;
-        this.optFlags = optFlags;
+        reqFields = new RequiredTestFields(testNumber, headNumber, siteNumber, testFlags);
+        this.optFlags = EnumSet.noneOf(FTROptFlag_t.class);
+        for (FTROptFlag_t p : optFlags) this.optFlags.add(p);
         this.cycleCount = cycleCount;
         this.relVaddr = relVaddr;
         this.rptCnt = rptCnt;
@@ -166,11 +156,11 @@ public class FunctionalTestRecord extends StdfRecord
     protected void toBytes()
     {
         TByteArrayList list = new TByteArrayList();
-        list.addAll(getU4Bytes(testNumber));
-        list.addAll(getU1Bytes(headNumber));
-        list.addAll(getU1Bytes(siteNumber));
+        list.addAll(getU4Bytes(reqFields.getTestNumber()));
+        list.addAll(getU1Bytes(reqFields.getHeadNumber()));
+        list.addAll(getU1Bytes(reqFields.getSiteNumber()));
         byte b = 0;
-        for (TestFlag_t t : testFlags) b |= t.getBit();
+        for (TestFlag_t t : reqFields.getTestFlags()) b |= t.getBit();
         list.add(b);
         if (optFlags != null)
         {
@@ -207,14 +197,15 @@ public class FunctionalTestRecord extends StdfRecord
     FunctionalTestRecord(FunctionalTestRecord ftr, DefaultFTRValueMap dmap)
     {
     	super(ftr.getRecordType(), ftr.getSequenceNumber(), ftr.getDeviceNumber(), null);
-    	testNumber = ftr.getTestNumber();
-        if (ftr.getOptFlags() == null) optFlags = dmap.foptDefaults.get(testNumber);
+    	reqFields = new RequiredTestFields(ftr.getTestNumber(), ftr.getHeadNumber(),
+    			    ftr.getSiteNumber(), ftr.getTestFlags());
+        if (ftr.getOptFlags() == null) optFlags = dmap.foptDefaults.get(ftr.getTestNumber());
         else optFlags = ftr.getOptFlags();
-        if (ftr.getPatGenNum() == (short) -1) patGenNum = dmap.pgDefaults.get(testNumber);
+        if (ftr.getPatGenNum() == (short) -1) patGenNum = dmap.pgDefaults.get(ftr.getTestNumber());
         else patGenNum = ftr.getPatGenNum();
-        if (ftr.getEnComps().length == 0) enComps = dmap.ecDefaults.get(testNumber);
+        if (ftr.getEnComps().length == 0) enComps = dmap.ecDefaults.get(ftr.getTestNumber());
         else enComps = ftr.getEnComps();
-        if (ftr.getTestName() == null) label = dmap.tnameDefaults.get(testNumber);
+        if (ftr.getTestName() == null) label = dmap.tnameDefaults.get(ftr.getTestNumber());
         else label = ftr.getTestName();
         yFailAddr = ftr.getyFailAddr();
         xFailAddr = ftr.getxFailAddr();
@@ -222,10 +213,7 @@ public class FunctionalTestRecord extends StdfRecord
         vecOffset = ftr.getVecOffset();
         vecName = ftr.getVecName();
         timeSetName = ftr.getTimeSetName();
-        testId = TestID.getTestID(testNumber, label);
-        testFlags = ftr.getTestFlags();
-        siteNumber = ftr.getSiteNumber();
-        headNumber = ftr.getHeadNumber();
+        testId = TestID.getTestID(ftr.getTestNumber(), label);
         rtnState = ftr.getRtnState();
         rtnIndex = ftr.getRtnIndex();
         rsltTxt = ftr.getRsltTxt();
@@ -240,13 +228,13 @@ public class FunctionalTestRecord extends StdfRecord
         alarmName = ftr.getAlarmName();
     }
     
-    public boolean alarm() { return(testFlags.contains(ALARM)); }
-    public boolean unreliable() { return(testFlags.contains(UNRELIABLE)); }
-    public boolean timeout() { return(testFlags.contains(TIMEOUT)); }
-    public boolean notExecuted() { return(testFlags.contains(NOT_EXECUTED)); }
-    public boolean abort() { return(testFlags.contains(ABORT)); }
-    public boolean noPassFailIndication() { return(testFlags.contains(NO_PASS_FAIL)); }
-    public boolean fail() { return(testFlags.contains(FAIL)); }
+    public boolean alarm() { return(reqFields.alarm()); }
+    public boolean unreliable() { return(reqFields.unreliable()); }
+    public boolean timeout() { return(reqFields.timeout()); }
+    public boolean notExecuted() { return(reqFields.notExecuted()); }
+    public boolean abort() { return(reqFields.abort()); }
+    public boolean noPassFailIndication() { return(reqFields.noPassFailIndication()); }
+    public boolean fail() { return(reqFields.fail()); }
     
     public TestID getTestID() { return(testId); }
     
@@ -254,25 +242,25 @@ public class FunctionalTestRecord extends StdfRecord
      * Required Field.
      * @return the testNumber
      */
-    public int getTestNumber() { return(testNumber); }
+    public long getTestNumber() { return(reqFields.getTestNumber()); }
 
     /**
      * Required Field.
      * @return the headNumber
      */
-    public short getHeadNumber() { return(headNumber); }
+    public short getHeadNumber() { return(reqFields.getHeadNumber()); }
 
     /**
      * Required Field.
      * @return the siteNumber
      */
-    public short getSiteNumber() { return(siteNumber); }
+    public short getSiteNumber() { return(reqFields.getSiteNumber()); }
 
     /**
      * Required Field.
      * @return the testFlags
      */
-    public EnumSet<TestFlag_t> getTestFlags() { return(testFlags); }
+    public EnumSet<TestFlag_t> getTestFlags() { return(reqFields.getTestFlags()); }
 
     /**
      * Optional field.  If missing, no other fields follow.
@@ -285,7 +273,7 @@ public class FunctionalTestRecord extends StdfRecord
      * Can be missing; invalid indicated by optFlag bit 0.
      * @return the cycleCount
      */
-    public int getCycleCount()
+    public long getCycleCount()
     {
         if (optFlags.contains(FTROptFlag_t.CYCLE_CNT_INVALID)) return(-1);
         return(cycleCount);
@@ -295,7 +283,7 @@ public class FunctionalTestRecord extends StdfRecord
      * Can be missing; invalid indicated by optFlag bit 1.
      * @return the relVaddr
      */
-    public int getRelVaddr()
+    public long getRelVaddr()
     {
         if (optFlags.contains(FTROptFlag_t.REL_VADDR_INVALID)) return(-1);
         return(relVaddr);
@@ -305,7 +293,7 @@ public class FunctionalTestRecord extends StdfRecord
      * Can be missing; invalid indicated by optFlag bit 2.
      * @return the rptCnt
      */
-    public int getRptCnt()
+    public long getRptCnt()
     {
         if (optFlags.contains(FTROptFlag_t.REPEAT_CNT_INVALID)) return(-1);
         return(rptCnt);
@@ -315,7 +303,7 @@ public class FunctionalTestRecord extends StdfRecord
      * Can be missing; invalid indicated by optFlag bit 3.
      * @return the numFail
      */
-    public int getNumFail()
+    public long getNumFail()
     {
         if (optFlags.contains(FTROptFlag_t.NUM_FAIL_INVALID)) return(-1);
         return(numFail);
@@ -441,16 +429,7 @@ public class FunctionalTestRecord extends StdfRecord
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(":");
         sb.append(Log.eol);
-        sb.append("    testNumber: "); sb.append("" + testNumber); sb.append(Log.eol);
-        sb.append("    headNumber: "); sb.append("" + headNumber); sb.append(Log.eol);
-        sb.append("    siteNumber: "); sb.append("" + siteNumber); sb.append(Log.eol);
-        sb.append("    testFlags:");
-        for (TestFlag_t t : testFlags)
-        {
-            sb.append(" ");
-            sb.append(t.toString());
-        }
-        sb.append(Log.eol);
+        sb.append(reqFields.toString());
         sb.append("    optFlags:");
         for (FTROptFlag_t d : optFlags)
         {

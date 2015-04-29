@@ -31,10 +31,19 @@ package com.makechip.stdf2xls4.stdf;
 **/
 public enum Cpu_t
 {
-    VAX,
-    SUN,
-    PC;
+    VAX(0),
+    SUN(1),
+    PC(2);
+    
+    private final byte type_;
 
+    private Cpu_t(int type)
+    {
+    	this.type_ = (byte) type;
+    }
+    
+    public byte getType() { return(type_); }
+    
     public static Cpu_t getCpuType(byte val)
     {
         Cpu_t type = null;

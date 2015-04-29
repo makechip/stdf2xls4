@@ -25,6 +25,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 
+import gnu.trove.list.array.TByteArrayList;
+
 import java.util.Date;
 
 import com.makechip.util.Log;
@@ -35,8 +37,8 @@ import com.makechip.util.Log;
 **/
 public class MasterInformationRecord extends StdfRecord
 {
-    private final String jobDate;
-    private final String testDate;
+    private final long jobDate;
+    private final long testDate;
     private final short stationNumber;
     private final String testModeCode;
     private final String lotRetestCode;
@@ -75,6 +77,89 @@ public class MasterInformationRecord extends StdfRecord
     private final String supervisorID;
     private long fileTimeStamp; // not an STDF value; for filename timestamp tracking 
     
+    public MasterInformationRecord(int sequenceNumber, int devNum,
+        long jobDate,
+        long testDate,
+        short stationNumber,
+        String testModeCode,
+        String lotRetestCode,
+        String dataProtectionCode,
+        int burnInTime,
+        String cmdModeCode,
+        String lotID,
+        String partType,
+        String nodeName,
+        String testerType,
+        String jobName,
+        String jobRevisionNumber,
+        String sublotID,
+        String operatorName,
+        String execSoftware,
+        String execSoftwareVersion,
+        String stepCode,
+        String temperature,
+        String userText,
+        String auxDataFile,
+        String packageType,
+        String familyID,
+        String dateCode,
+        String facilityID,
+        String floorID,
+        String fabID,
+        String frequency,
+        String specName,
+        String specVersion,
+        String flowID,
+        String setupID,
+        String designRevision,
+        String engLotID,
+        String romCodeID,
+        String testerSerialNumber,
+        String supervisorID,
+        long fileTimeStamp)
+    {
+        super(Record_t.MIR, sequenceNumber, devNum, null);
+        this.jobDate = jobDate;
+        this.testDate = testDate;
+        this.stationNumber = stationNumber;
+        this.testModeCode = testModeCode;
+        this.lotRetestCode = lotRetestCode;
+        this.dataProtectionCode = dataProtectionCode;
+        this.burnInTime = burnInTime;
+        this.cmdModeCode = cmdModeCode;
+        this.lotID = lotID;
+        this.partType = partType;
+        this.nodeName = nodeName;
+        this.testerType = testerType;
+        this.jobName = jobName;
+        this.jobRevisionNumber = jobRevisionNumber;
+        this.sublotID = sublotID;
+        this.operatorName = operatorName;
+        this.execSoftware = execSoftware;
+        this.execSoftwareVersion = execSoftwareVersion;
+        this.stepCode = stepCode;
+        this.temperature = temperature;
+        this.userText = userText;
+        this.auxDataFile = auxDataFile;
+        this.packageType = packageType;
+        this.familyID = familyID;
+        this.dateCode = dateCode;
+        this.facilityID = facilityID;
+        this.floorID = floorID;
+        this.fabID = fabID;
+        this.frequency = frequency;
+        this.specName = specName;
+        this.specVersion = specVersion;
+        this.flowID = flowID;
+        this.setupID = setupID;
+        this.designRevision = designRevision;
+        this.engLotID = engLotID;
+        this.romCodeID = romCodeID;
+        this.testerSerialNumber = testerSerialNumber;
+        this.supervisorID = supervisorID;
+        this.fileTimeStamp = -1L;
+    }
+    
     /**
     *** @param p1
     *** @param p2
@@ -82,10 +167,8 @@ public class MasterInformationRecord extends StdfRecord
     public MasterInformationRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.MIR, sequenceNumber, devNum, data);
-        long d = getU4(0);
-        jobDate = new Date(d * 1000L).toString();
-        d = getU4(0);
-        testDate = new Date(d * 1000L).toString();
+        jobDate = getU4(0);
+        testDate = getU4(0);
         stationNumber = getU1((byte) 0);
         testModeCode = getFixedLengthString(1);
         lotRetestCode = getFixedLengthString(1);
@@ -125,53 +208,99 @@ public class MasterInformationRecord extends StdfRecord
         fileTimeStamp = -1L;
     }
     
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU4Bytes(jobDate));
+		l.addAll(getU4Bytes(testDate));
+		l.addAll(getU1Bytes(stationNumber));
+		l.addAll(getFixedLengthStringBytes(testModeCode));
+		l.addAll(getFixedLengthStringBytes(lotRetestCode));
+		l.addAll(getU2Bytes(burnInTime));
+		l.addAll(getFixedLengthStringBytes(cmdModeCode));
+		l.addAll(getCnBytes(lotID));
+        l.addAll(getCnBytes(partType));
+        l.addAll(getCnBytes(nodeName));
+        l.addAll(getCnBytes(testerType));
+        l.addAll(getCnBytes(jobName));
+        l.addAll(getCnBytes(jobRevisionNumber));
+        l.addAll(getCnBytes(sublotID));
+        l.addAll(getCnBytes(operatorName));
+        l.addAll(getCnBytes(execSoftware));
+        l.addAll(getCnBytes(execSoftwareVersion));
+        l.addAll(getCnBytes(stepCode));
+        l.addAll(getCnBytes(temperature));
+        l.addAll(getCnBytes(userText));
+        l.addAll(getCnBytes(auxDataFile));
+        l.addAll(getCnBytes(packageType));
+        l.addAll(getCnBytes(familyID));
+        l.addAll(getCnBytes(dateCode));
+        l.addAll(getCnBytes(facilityID));
+        l.addAll(getCnBytes(floorID));
+        l.addAll(getCnBytes(fabID));
+        l.addAll(getCnBytes(frequency));
+        l.addAll(getCnBytes(specName));
+        l.addAll(getCnBytes(specVersion));
+        l.addAll(getCnBytes(flowID));
+        l.addAll(getCnBytes(setupID));
+        l.addAll(getCnBytes(designRevision));
+        l.addAll(getCnBytes(engLotID));
+        l.addAll(getCnBytes(romCodeID));
+        l.addAll(getCnBytes(testerSerialNumber));
+        l.addAll(getCnBytes(supervisorID));
+        bytes = l.toArray();
+	}
+
     public void setFileTimeStamp(long value) { fileTimeStamp = value; }
     public long getFileTimeStamp() { return(fileTimeStamp); }
 
     @Override
     public String toString()
     {
+    	String jdate = new Date(1000L * jobDate).toString();
+    	String tdate = new Date(1000L * testDate).toString();
         StringBuilder sb = new StringBuilder(getClass().getName());
         sb.append(":");
         sb.append(Log.eol);
-        sb.append("    job date: "); sb.append(jobDate); sb.append(Log.eol);
-        sb.append("    test date: "); sb.append(testDate); sb.append(Log.eol);
-        sb.append("    station number: " + stationNumber); sb.append(Log.eol);
-        sb.append("    test mode code: "); sb.append(testModeCode); sb.append(Log.eol);
-        sb.append("    lot retest code: "); sb.append(lotRetestCode); sb.append(Log.eol);
-        sb.append("    data protection code: "); sb.append(dataProtectionCode); sb.append(Log.eol);
-        sb.append("    burn-in time: " + burnInTime); sb.append(Log.eol);
-        sb.append("    command mode code: "); sb.append(cmdModeCode); sb.append(Log.eol);
-        sb.append("    lot ID: "); sb.append(lotID); sb.append(Log.eol);
-        sb.append("    part type: "); sb.append(partType); sb.append(Log.eol);
-        sb.append("    node name: "); sb.append(nodeName); sb.append(Log.eol);
-        sb.append("    tester type: "); sb.append(testerType); sb.append(Log.eol);
-        sb.append("    job name: "); sb.append(jobName); sb.append(Log.eol);
-        sb.append("    job revision number: "); sb.append(jobRevisionNumber); sb.append(Log.eol);
-        sb.append("    sublot ID: "); sb.append(sublotID); sb.append(Log.eol);
-        sb.append("    operatorName: "); sb.append(operatorName); sb.append(Log.eol);
-        sb.append("    exec software: "); sb.append(execSoftware); sb.append(Log.eol);
-        sb.append("    exec software revision: "); sb.append(execSoftwareVersion); sb.append(Log.eol);
-        sb.append("    step code: "); sb.append(stepCode); sb.append(Log.eol);
-        sb.append("    temperature: "); sb.append(temperature); sb.append(Log.eol);
-        sb.append("    user text: "); sb.append(userText); sb.append(Log.eol);
-        sb.append("    auxilliary data file: "); sb.append(auxDataFile); sb.append(Log.eol);
-        sb.append("    package type: "); sb.append(packageType); sb.append(Log.eol);
-        sb.append("    family ID: "); sb.append(familyID); sb.append(Log.eol);
-        sb.append("    date code: "); sb.append(dateCode); sb.append(Log.eol);
-        sb.append("    facility ID: "); sb.append(facilityID); sb.append(Log.eol);
-        sb.append("    floor ID: "); sb.append(floorID); sb.append(Log.eol);
-        sb.append("    fab ID: "); sb.append(fabID); sb.append(Log.eol);
-        sb.append("    frequency: "); sb.append(frequency); sb.append(Log.eol);
-        sb.append("    spec name: "); sb.append(specName); sb.append(Log.eol);
-        sb.append("    spec version: "); sb.append(specVersion); sb.append(Log.eol);
-        sb.append("    flow ID: "); sb.append(flowID); sb.append(Log.eol);
-        sb.append("    setup ID: "); sb.append(setupID); sb.append(Log.eol);
-        sb.append("    design revision: "); sb.append(designRevision); sb.append(Log.eol);
-        sb.append("    engineering lot ID: "); sb.append(engLotID); sb.append(Log.eol);
-        sb.append("    ROM code ID: "); sb.append(romCodeID); sb.append(Log.eol);
-        sb.append("    tester serial number: "); sb.append(testerSerialNumber); sb.append(Log.eol);
-        sb.append("    supervisor ID: "); sb.append(supervisorID); sb.append(Log.eol);
+        sb.append("    job date: ").append(jdate).append(Log.eol);
+        sb.append("    test date: ").append(tdate).append(Log.eol);
+        sb.append("    station number: " + stationNumber).append(Log.eol);
+        sb.append("    test mode code: ").append(testModeCode).append(Log.eol);
+        sb.append("    lot retest code: ").append(lotRetestCode).append(Log.eol);
+        sb.append("    data protection code: ").append(dataProtectionCode).append(Log.eol);
+        sb.append("    burn-in time: " + burnInTime).append(Log.eol);
+        sb.append("    command mode code: ").append(cmdModeCode).append(Log.eol);
+        sb.append("    lot ID: ").append(lotID).append(Log.eol);
+        sb.append("    part type: ").append(partType).append(Log.eol);
+        sb.append("    node name: ").append(nodeName).append(Log.eol);
+        sb.append("    tester type: ").append(testerType).append(Log.eol);
+        sb.append("    job name: ").append(jobName).append(Log.eol);
+        sb.append("    job revision number: ").append(jobRevisionNumber).append(Log.eol);
+        sb.append("    sublot ID: ").append(sublotID).append(Log.eol);
+        sb.append("    operatorName: ").append(operatorName).append(Log.eol);
+        sb.append("    exec software: ").append(execSoftware).append(Log.eol);
+        sb.append("    exec software revision: ").append(execSoftwareVersion).append(Log.eol);
+        sb.append("    step code: ").append(stepCode).append(Log.eol);
+        sb.append("    temperature: ").append(temperature).append(Log.eol);
+        sb.append("    user text: ").append(userText).append(Log.eol);
+        sb.append("    auxilliary data file: ").append(auxDataFile).append(Log.eol);
+        sb.append("    package type: ").append(packageType).append(Log.eol);
+        sb.append("    family ID: ").append(familyID).append(Log.eol);
+        sb.append("    date code: ").append(dateCode).append(Log.eol);
+        sb.append("    facility ID: ").append(facilityID).append(Log.eol);
+        sb.append("    floor ID: ").append(floorID).append(Log.eol);
+        sb.append("    fab ID: ").append(fabID).append(Log.eol);
+        sb.append("    frequency: ").append(frequency).append(Log.eol);
+        sb.append("    spec name: ").append(specName).append(Log.eol);
+        sb.append("    spec version: ").append(specVersion).append(Log.eol);
+        sb.append("    flow ID: ").append(flowID).append(Log.eol);
+        sb.append("    setup ID: ").append(setupID).append(Log.eol);
+        sb.append("    design revision: ").append(designRevision).append(Log.eol);
+        sb.append("    engineering lot ID: ").append(engLotID).append(Log.eol);
+        sb.append("    ROM code ID: ").append(romCodeID).append(Log.eol);
+        sb.append("    tester serial number: ").append(testerSerialNumber).append(Log.eol);
+        sb.append("    supervisor ID: ").append(supervisorID).append(Log.eol);
         return(sb.toString());
     }
 
@@ -180,7 +309,7 @@ public class MasterInformationRecord extends StdfRecord
      */
     public String getJobDate()
     {
-        return jobDate;
+        return(new Date(1000L * jobDate).toString());
     }
 
 
@@ -189,7 +318,7 @@ public class MasterInformationRecord extends StdfRecord
      */
     public String getTestDate()
     {
-        return testDate;
+        return(new Date(1000L * testDate).toString());
     }
 
 

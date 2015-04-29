@@ -45,6 +45,12 @@ public class DatalogTextRecord extends StdfRecord
         text = getCn();
     }
     
+    public DatalogTextRecord(int sequenceNumber, int devNum, String text)
+    {
+    	super(Record_t.DTR, sequenceNumber, devNum, null);
+    	this.text = text;
+    }
+    
     public String getText() { return(text); }
     
     @Override
@@ -58,5 +64,11 @@ public class DatalogTextRecord extends StdfRecord
         sb.append(Log.eol);
         return(sb.toString());
     }
+
+	@Override
+	protected void toBytes()
+	{
+		bytes = getCnBytes(text);
+	}
 
 }

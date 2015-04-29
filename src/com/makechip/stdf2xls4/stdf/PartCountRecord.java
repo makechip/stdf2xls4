@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import com.makechip.util.Log;
 
 
@@ -58,18 +60,50 @@ public class PartCountRecord extends StdfRecord
         functional = getU4(-1);
     }
     
+    public PartCountRecord(int sequenceNumber, int devNum,
+    		short headNumber,
+    		short siteNumber,
+    		long partsTested,
+    		long partsReTested,
+    		long aborts,
+    		long good,
+    		long functional)
+    {
+    	super(Record_t.PCR, sequenceNumber, devNum, null);
+    	this.headNumber = headNumber;
+    	this.siteNumber = siteNumber;
+    	this.partsTested = partsTested;
+    	this.partsReTested = partsReTested;
+        this.aborts = aborts;
+        this.good = good;
+        this.functional = functional;
+    }
+    
+	@Override
+	protected void toBytes()
+	{
+	    TByteArrayList l = new TByteArrayList();
+	    l.addAll(getU1Bytes(headNumber));
+	    l.addAll(getU1Bytes(siteNumber));
+	    l.addAll(getU4Bytes(partsTested));
+	    l.addAll(getU4Bytes(partsReTested));
+	    l.addAll(getU4Bytes(aborts));
+	    l.addAll(getU4Bytes(good));
+	    l.addAll(getU4Bytes(functional));
+	    bytes = l.toArray();
+	}
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site number: " + siteNumber); sb.append(Log.eol);
-        sb.append("    parts tested: " + partsTested); sb.append(Log.eol);
-        sb.append("    number of aborts: " + aborts); sb.append(Log.eol);
-        sb.append("    number good: " + good); sb.append(Log.eol);
-        sb.append("    number functional: " + functional); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    head number: " + headNumber).append(Log.eol);
+        sb.append("    site number: " + siteNumber).append(Log.eol);
+        sb.append("    parts tested: " + partsTested).append(Log.eol);
+        sb.append("    number of aborts: " + aborts).append(Log.eol);
+        sb.append("    number good: " + good).append(Log.eol);
+        sb.append("    number functional: " + functional).append(Log.eol);
         return(sb.toString());
     }
 

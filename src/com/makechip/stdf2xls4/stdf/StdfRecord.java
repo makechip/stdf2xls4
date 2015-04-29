@@ -66,85 +66,48 @@ public abstract class StdfRecord
     	return(b);
     }
    
-    protected int getU4(int defaultValue)
-    {
-    	if (bytes.length < ptr+4) return(defaultValue);
-    	byte b0 = bytes[ptr++];
-    	byte b1 = bytes[ptr++];
-    	byte b2 = bytes[ptr++];
-    	byte b3 = bytes[ptr++];
-    	int l = 0;
-    	switch ((StdfReader.cpuType))
-    	{
-    	    case SUN: l |= (b3 & 0xFF); l |= ((b2 & 0xFF) << 8); l |= ((b1 & 0xFF) << 16); l |= ((b0 & 0xFF) << 24); break;
-    	    case VAX:
-    	    default: l |= (b0 & 0xFF); l |= ((b1 & 0xFF) << 8); l |= ((b2 & 0xFF) << 16); l |= ((b3 & 0xFF) << 24);
-    	}
-    	return(l);
-    }
-    
-    protected byte[] getU4Bytes(int v)
-    {
-    	byte[] b = new byte[4];
-    	if (StdfReader.cpuType == Cpu_t.SUN)
-    	{
-    		b[0] = (byte) (v >> 24);
-    		b[1] = (byte) ((v & 0x00FF0000) >> 16);
-    		b[2] = (byte) ((v & 0x0000FF00) >> 8);
-    		b[3] = (byte) (v & 0x000000FF);
-    	}
-    	else
-    	{
-    	    b[0] = (byte) (v & 0x000000FF);
-    	    b[1] = (byte) ((v & 0x0000FF00) >> 8);
-    	    b[2] = (byte) ((v & 0x00FF0000) >> 16);
-    	    b[3] = (byte) (v >> 24);
-    	}
-    	return(b);
-    }
-   
     protected int getScale(float result, float hiLimit, byte resScal, byte llmScal, byte hlmScal)
     {
         int scale = 0;
         if (result != 0.0f) scale = resScal;
         else if (hiLimit != 0.0f) scale = hlmScal;
-        else scale = hlmScal;
+        else scale = llmScal;
         return(scale);
     }
   
-   protected float scaleValue(float value, int scale)
-   {
-       if (value == MISSING_FLOAT) return(value);
-       switch (scale)
-       {
-       case -9: value /= 1E9; break;
-       case -6: value /= 1E6; break;
-       case -3: value /= 1E3; break;
-       case  3: value *= 1E3; break;
-       case  6: value *= 1E6; break;
-       case  9: value *= 1E9; break;
-       case 12: value *= 1E12; break;
-       default:
-       }
-       return(value);
-   }
+    protected double scaleValue(double value, int scale)
+    {
+        if (value == MISSING_FLOAT) return(value);
+        switch (scale)
+        {
+        case -9: value /= 1E9; break;
+        case -6: value /= 1E6; break;
+        case -3: value /= 1E3; break;
+        case  3: value *= 1E3; break;
+        case  6: value *= 1E6; break;
+        case  9: value *= 1E9; break;
+        case 12: value *= 1E12; break;
+        default:
+        }
+        return(value);
+    }
    
-   protected String scaleUnits(String units, int scale)
-   {
-       String u = units;
-       switch (scale)
-       {
-       case -9: u = "G" + units; break;
-       case -6: u = "M" + units; break;
-       case -3: u = "k" + units; break;
-       case  3: u = "m" + units; break;
-       case  6: u = "u" + units; break;
-       case  9: u = "n" + units; break;
-       case 12: u = "p" + units; break;
-       default:
-       }
-       return(u);
-   }
+    protected String scaleUnits(String units, int scale)
+    {
+        String u = units;
+        switch (scale)
+        {
+        case -9: u = "G" + units; break;
+        case -6: u = "M" + units; break;
+        case -3: u = "k" + units; break;
+        case  3: u = "m" + units; break;
+        case  6: u = "u" + units; break;
+        case  9: u = "n" + units; break;
+        case 12: u = "p" + units; break;
+        default:
+        }
+        return(u);
+    }
 
     protected short getU1(short defaultValue)
     {
@@ -193,6 +156,43 @@ public abstract class StdfRecord
     	return(b);
     }
     
+    protected long getU4(long defaultValue)
+    {
+    	if (bytes.length < ptr+4) return(defaultValue);
+    	byte b0 = bytes[ptr++];
+    	byte b1 = bytes[ptr++];
+    	byte b2 = bytes[ptr++];
+    	byte b3 = bytes[ptr++];
+    	int l = 0;
+    	switch ((StdfReader.cpuType))
+    	{
+    	    case SUN: l |= (b3 & 0xFF); l |= ((b2 & 0xFF) << 8); l |= ((b1 & 0xFF) << 16); l |= ((b0 & 0xFF) << 24); break;
+    	    case VAX:
+    	    default: l |= (b0 & 0xFF); l |= ((b1 & 0xFF) << 8); l |= ((b2 & 0xFF) << 16); l |= ((b3 & 0xFF) << 24);
+    	}
+    	return(l);
+    }
+    
+    protected byte[] getU4Bytes(long v)
+    {
+    	byte[] b = new byte[4];
+    	if (StdfReader.cpuType == Cpu_t.SUN)
+    	{
+    		b[0] = (byte) (v >> 24);
+    		b[1] = (byte) ((v & 0x00FF0000) >> 16);
+    		b[2] = (byte) ((v & 0x0000FF00) >> 8);
+    		b[3] = (byte) (v & 0x000000FF);
+    	}
+    	else
+    	{
+    	    b[0] = (byte) (v & 0x000000FF);
+    	    b[1] = (byte) ((v & 0x0000FF00) >> 8);
+    	    b[2] = (byte) ((v & 0x00FF0000) >> 16);
+    	    b[3] = (byte) (v >> 24);
+    	}
+    	return(b);
+    }
+   
     protected static int getUnsignedInt(byte b0, byte b1)
     {
         int l = 0;

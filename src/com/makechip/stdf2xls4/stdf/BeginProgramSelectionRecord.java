@@ -45,6 +45,12 @@ public class BeginProgramSelectionRecord extends StdfRecord
         seqName = getCn();
     }
     
+    public BeginProgramSelectionRecord(int sequenceNumber, int devNum, String seqName)
+    {
+    	super(Record_t.BPS, sequenceNumber, devNum, null);
+    	this.seqName = seqName;
+    }
+    
     public String getSeqName() { return(seqName); }
     
     @Override
@@ -58,5 +64,11 @@ public class BeginProgramSelectionRecord extends StdfRecord
         sb.append(Log.eol);
         return(sb.toString());
     }
+
+	@Override
+	protected void toBytes()
+	{
+	    bytes = getCnBytes(seqName);	
+	}
 
 }

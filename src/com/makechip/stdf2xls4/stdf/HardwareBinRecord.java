@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import com.makechip.util.Log;
 
 /**
@@ -54,20 +56,44 @@ public class HardwareBinRecord extends StdfRecord
         binName = getCn();
     }
     
+    public HardwareBinRecord(int sequenceNumber, int devNum, short headNumber,
+    		short siteNumber, int hwBin, long binCnt, String pf, String binName)
+    {
+    	super(Record_t.HBR, sequenceNumber, devNum, null);
+    	this.headNumber = headNumber;
+    	this.siteNumber = siteNumber;
+    	this.hwBin = hwBin;
+    	this.binCnt = binCnt;
+    	this.pf = pf;
+    	this.binName = binName;
+    }
+    
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteNumber));
+		l.addAll(getU2Bytes(hwBin));
+		l.addAll(pf.getBytes());
+		l.addAll(getCnBytes(binName));
+		bytes = l.toArray();
+	}
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site number: " + siteNumber); sb.append(Log.eol);
-        sb.append("    HW bin number:" + hwBin); sb.append(Log.eol);
-        sb.append("    bin count: " + binCnt); sb.append(Log.eol);
-        sb.append("    P/F: "); sb.append(pf); sb.append(Log.eol);
-        sb.append("    bin name: "); sb.append(binName); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    head number: " + headNumber).append(Log.eol);
+        sb.append("    site number: " + siteNumber).append(Log.eol);
+        sb.append("    HW bin number:" + hwBin).append(Log.eol);
+        sb.append("    bin count: " + binCnt).append(Log.eol);
+        sb.append("    P/F: "); sb.append(pf).append(Log.eol);
+        sb.append("    bin name: ").append(binName).append(Log.eol);
         return(sb.toString());
     }
+    
     /**
      * @return the headNumber
      */

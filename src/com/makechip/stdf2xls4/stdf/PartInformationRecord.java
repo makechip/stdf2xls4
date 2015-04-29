@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import com.makechip.util.Log;
 
 
@@ -48,14 +50,29 @@ public class PartInformationRecord extends StdfRecord
         siteNumber = getU1((short) -1);
     }
     
+    public PartInformationRecord(int sequenceNumber, int devNum, short headNumber, short siteNumber)
+    {
+    	super(Record_t.PIR, sequenceNumber, devNum, null);
+    	this.headNumber = headNumber;
+    	this.siteNumber = siteNumber;
+    }
+    
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteNumber));
+		bytes = l.toArray();
+	}
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site number: " + siteNumber); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    head number: " + headNumber).append(Log.eol);
+        sb.append("    site number: " + siteNumber).append(Log.eol);
         return(sb.toString());
     }
 

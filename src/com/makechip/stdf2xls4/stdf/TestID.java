@@ -28,31 +28,31 @@ import java.util.HashMap;
 
 import com.makechip.util.Identity;
 import com.makechip.util.factory.IdentityFactoryIO;
-import com.makechip.util.factory.IdentityFactoryNON;
+import com.makechip.util.factory.IdentityFactoryLON;
 import com.makechip.util.Immutable;
 
 public final class TestID implements Identity, Immutable 
 {
-	private static IdentityFactoryNON<String, TestID> map2 = 
-		new IdentityFactoryNON<String, TestID>(String.class, TestID.class);
+	private static IdentityFactoryLON<String, TestID> map2 = 
+		new IdentityFactoryLON<String, TestID>(String.class, TestID.class);
     private static IdentityFactoryIO<TestID, String, TestID> pmap =
         new IdentityFactoryIO<TestID, String, TestID>(TestID.class, String.class, TestID.class);
 	private static HashMap<String, TestID> map1 = new HashMap<String, TestID>();
     
-    private final int testNum;
+    private final long testNum;
     private final String testName;
     private String pin;
 
     private int dupNum;
    
-    private TestID(int testNum, String testName)
+    private TestID(long testNum, String testName)
     {
         this.testNum = testNum;
         this.testName = testName;
         dupNum = 0;
     }
     
-    private TestID(int testNum, String testName, int dupNum)
+    private TestID(long testNum, String testName, int dupNum)
     {
         this.testNum = testNum;
         this.testName = testName;
@@ -66,12 +66,12 @@ public final class TestID implements Identity, Immutable
         dupNum = 0;
     }
     
-    public static TestID getTestID(int testNum, String testName, int dupNum)
+    public static TestID getTestID(long testNum, String testName, int dupNum)
     {
     	return(map2.getValue(testNum, testName, dupNum));
     }
     
-    public static TestID getTestID(int testNum, String testName)
+    public static TestID getTestID(long testNum, String testName)
     {
     	TestID id = map1.get(testName);
     	if (id != null)
@@ -89,12 +89,12 @@ public final class TestID implements Identity, Immutable
         return(pmap.getValue(id, pin));
     }
     
-    public static TestID findTestID(int testNum, String testName)
+    public static TestID findTestID(long testNum, String testName)
     {
     	return(map2.getExistingValue(testNum, testName, 0));
     }
     
-    public static TestID findTestID(int testNum, String testName, int dupNum)
+    public static TestID findTestID(long testNum, String testName, int dupNum)
     {
     	return(map2.getExistingValue(testNum, testName, dupNum));
     }
@@ -120,7 +120,7 @@ public final class TestID implements Identity, Immutable
         return(sb.toString());
     }
     
-    public int getTestNumber() { return(testNum); }
+    public long getTestNumber() { return(testNum); }
     
     public String getTestName() 
     { 

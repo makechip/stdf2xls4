@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import java.util.EnumSet;
+
 
 /**
 *** @author ericw
@@ -32,31 +34,40 @@ package com.makechip.stdf2xls4.stdf;
 **/
 public enum Data_t
 {
-    U_1(1),     // unsigned integer
-    U_2(2),      // unsigned integer
-    U_4(4),      // unsigned integer
-    I_1(1),      // signed integer
-    I_2(2),      // signed integer
-    I_4(4),      // signed integer
-    R_4(4),      // float
-    R_8(8),      // double
-    X_0(0),      // dummy
-    C_N(1),      // one-byte char
-    B_N(1),      // bit-encoded field
-    D_N(1),      // long bit-encoded field
-    N_1(1),      // single nibble nibbles
-    N_N(1),      // array of nibbles
-    B_1(1),      // one byte bit field?
-    C_1(1),      // single character
-    V(-1);       // field specified data type
+    U_1(1, 1),     // unsigned integer
+    U_2(2, 2),      // unsigned integer
+    U_4(3, 4),      // unsigned integer
+    I_1(4, 1),      // signed integer
+    I_2(5, 2),      // signed integer
+    I_4(6, 4),      // signed integer
+    R_4(7, 4),      // float
+    R_8(8, 8),      // double
+    X_0(9, 0),      // dummy
+    C_N(10, 1),      // one-byte char
+    B_N(11, 1),      // bit-encoded field
+    D_N(12, 1),      // long bit-encoded field
+    N_1(14, 1),      // single nibble nibbles
+    N_N(13, 1),      // array of nibbles
+    B_1(15, 1),      // one byte bit field?
+    C_1(16, 1),      // single character
+    V(17, -1);       // field specified data type
 
-    private int numBytes;
+    private final int type;
+    private final int numBytes;
 
-    private Data_t(int numBytes)
+    private Data_t(int type, int numBytes)
     {
+    	this.type = type;
         this.numBytes = numBytes;
     }
 
     public int getNumBytes() { return(numBytes); }
+    public int getFieldType() { return(type); }
+    
+    public static Data_t getDataType(int fieldType)
+    {
+    	EnumSet<Data_t> set = EnumSet.allOf(Data_t.class);
+    	return(set.stream().filter(d -> d.getFieldType() == fieldType).findFirst().orElse(null));
+    }
 
 }
