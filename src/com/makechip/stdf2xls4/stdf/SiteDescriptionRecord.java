@@ -25,6 +25,10 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
+import java.util.Arrays;
+
 import com.makechip.util.Log;
 
 
@@ -37,7 +41,7 @@ public class SiteDescriptionRecord extends StdfRecord
     private final short headNumber;
     private final short siteGroupNumber;
     private final short numSites;
-    private final short[] siteNumbers;
+    private final int[] siteNumbers;
     private final String handlerType;
     private final String handlerID;
     private final String probeCardType;
@@ -65,8 +69,8 @@ public class SiteDescriptionRecord extends StdfRecord
         headNumber = getU1((short) -1);
         siteGroupNumber = getU1((short) -1);
         numSites = getU1((short) 0);
-        siteNumbers = new short[numSites];
-        for (int i=0; i<numSites; i++) siteNumbers[i] = getU1((short) -1);
+        siteNumbers = new int[numSites];
+        Arrays.setAll(siteNumbers, p -> getU1((short) -1));
         handlerType = getCn();
         handlerID = getCn();
         probeCardType = getCn();
@@ -85,38 +89,106 @@ public class SiteDescriptionRecord extends StdfRecord
         equipID = getCn();
     }
     
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteGroupNumber));
+		l.addAll(getU1Bytes(numSites));
+		Arrays.stream(siteNumbers).forEach(p -> l.addAll(getU1Bytes((short) p)));
+		l.addAll(getCnBytes(handlerType));
+        l.addAll(getCnBytes(handlerID));
+        l.addAll(getCnBytes(probeCardType));
+        l.addAll(getCnBytes(probeCardID));
+        l.addAll(getCnBytes(loadBoardType));
+        l.addAll(getCnBytes(loadBoardID));
+        l.addAll(getCnBytes(dibBoardType));
+        l.addAll(getCnBytes(dibBoardID));
+        l.addAll(getCnBytes(ifaceCableType));
+        l.addAll(getCnBytes(ifaceCableID));
+        l.addAll(getCnBytes(contactorType));
+        l.addAll(getCnBytes(contactorID));
+        l.addAll(getCnBytes(laserType));
+        l.addAll(getCnBytes(laserID));
+        l.addAll(getCnBytes(equipType));
+        l.addAll(getCnBytes(equipID));
+        bytes = l.toArray();
+	}
+	
+	public SiteDescriptionRecord(int sequenceNumber, int devNum,
+		short headNumber,
+		short siteGroupNumber,
+		short numSites,
+		int[] siteNumbers,
+		String handlerType,
+		String handlerID,
+		String probeCardType,
+		String probeCardID,
+		String loadBoardType,
+		String loadBoardID,
+		String dibBoardType,
+		String dibBoardID,
+		String ifaceCableType,
+		String ifaceCableID,
+		String contactorType,
+		String contactorID,
+		String laserType,
+		String laserID,
+		String equipType,
+		String equipID
+		)
+	{
+		super(Record_t.SDR, sequenceNumber, devNum, null);
+		this.headNumber = headNumber;
+		this.siteGroupNumber = siteGroupNumber;
+		this.numSites = numSites;
+	    this.siteNumbers = Arrays.copyOf(siteNumbers, siteNumbers.length);
+	    this.handlerType = handlerType;
+	    this.handlerID = handlerID;
+	    this.probeCardType = probeCardType;
+	    this.probeCardID = probeCardID;
+	    this.loadBoardType = loadBoardType;
+	    this.loadBoardID = loadBoardID;
+	    this.dibBoardType = dibBoardType;
+	    this.dibBoardID = dibBoardID;
+	    this.ifaceCableType = ifaceCableType;
+	    this.ifaceCableID = ifaceCableID;
+	    this.contactorType = contactorType;
+	    this.contactorID = contactorID;
+	    this.laserType = laserType;
+	    this.laserID = laserID;
+	    this.equipType = equipType;
+	    this.equipID = equipID;
+	}
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site group number: " + siteGroupNumber); sb.append(Log.eol);
-        sb.append("    number of sites: " + numSites); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    head number: " + headNumber).append(Log.eol);
+        sb.append("    site group number: " + siteGroupNumber).append(Log.eol);
+        sb.append("    number of sites: " + numSites).append(Log.eol);
         sb.append("    site numbers:");
-        for (int i=0; i<numSites; i++)
-        {
-            sb.append(" ");
-            sb.append("" + siteNumbers[i]);
-        }
+        Arrays.stream(siteNumbers).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
-        sb.append("    handler type: "); sb.append(handlerType); sb.append(Log.eol);
-        sb.append("    handler ID: "); sb.append(handlerID); sb.append(Log.eol);
-        sb.append("    probe card type: "); sb.append(probeCardType); sb.append(Log.eol);
-        sb.append("    probe card ID: "); sb.append(probeCardID); sb.append(Log.eol);
-        sb.append("    loadboard type: "); sb.append(loadBoardType); sb.append(Log.eol);
-        sb.append("    loadboard ID: "); sb.append(loadBoardID); sb.append(Log.eol);
-        sb.append("    DIB board type: "); sb.append(dibBoardType); sb.append(Log.eol);
-        sb.append("    DIB board ID: "); sb.append(dibBoardID); sb.append(Log.eol);
-        sb.append("    interface cable type: "); sb.append(ifaceCableType); sb.append(Log.eol);
-        sb.append("    interface cable ID: "); sb.append(ifaceCableID); sb.append(Log.eol);
-        sb.append("    contactor type: "); sb.append(contactorType); sb.append(Log.eol);
-        sb.append("    contactor ID: "); sb.append(contactorID); sb.append(Log.eol);
-        sb.append("    laser type: "); sb.append(laserType); sb.append(Log.eol);
-        sb.append("    laser ID: "); sb.append(laserID); sb.append(Log.eol);
-        sb.append("    extra equipment type: "); sb.append(equipType); sb.append(Log.eol);
-        sb.append("    extra equipment ID: "); sb.append(equipID); sb.append(Log.eol);
+        sb.append("    handler type: ").append(handlerType).append(Log.eol);
+        sb.append("    handler ID: ").append(handlerID).append(Log.eol);
+        sb.append("    probe card type: ").append(probeCardType).append(Log.eol);
+        sb.append("    probe card ID: ").append(probeCardID).append(Log.eol);
+        sb.append("    loadboard type: ").append(loadBoardType).append(Log.eol);
+        sb.append("    loadboard ID: ").append(loadBoardID).append(Log.eol);
+        sb.append("    DIB board type: ").append(dibBoardType).append(Log.eol);
+        sb.append("    DIB board ID: ").append(dibBoardID).append(Log.eol);
+        sb.append("    interface cable type: ").append(ifaceCableType).append(Log.eol);
+        sb.append("    interface cable ID: ").append(ifaceCableID).append(Log.eol);
+        sb.append("    contactor type: ").append(contactorType).append(Log.eol);
+        sb.append("    contactor ID: ").append(contactorID).append(Log.eol);
+        sb.append("    laser type: ").append(laserType).append(Log.eol);
+        sb.append("    laser ID: ").append(laserID).append(Log.eol);
+        sb.append("    extra equipment type: ").append(equipType).append(Log.eol);
+        sb.append("    extra equipment ID: ").append(equipID).append(Log.eol);
         return(sb.toString());
     }
 
@@ -147,7 +219,7 @@ public class SiteDescriptionRecord extends StdfRecord
     /**
      * @return the siteNumbers
      */
-    public short[] getSiteNumbers()
+    public int[] getSiteNumbers()
     {
         return siteNumbers;
     }

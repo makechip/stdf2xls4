@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import com.makechip.util.Log;
 
 
@@ -65,21 +67,59 @@ public class WaferConfigurationRecord extends StdfRecord
         posY = c.charAt(0);
     }
     
+	@Override
+	protected void toBytes()
+	{
+	    TByteArrayList l = new TByteArrayList();
+	    l.addAll(getR4Bytes(waferSize));
+	    l.addAll(getR4Bytes(dieHeight));
+	    l.addAll(getR4Bytes(dieWidth));
+	    l.addAll(getU1Bytes(units));
+	    l.addAll(getFixedLengthStringBytes("" + flatOrient));
+	    l.addAll(getI2Bytes(centerX));
+	    l.addAll(getI2Bytes(centerY));
+	    l.addAll(getFixedLengthStringBytes("" + posX));
+	    l.addAll(getFixedLengthStringBytes("" + posY));
+	    bytes = l.toArray();
+	}
+	
+	public WaferConfigurationRecord(int sequenceNumber, int devNum,
+        float waferSize,
+        float dieHeight,
+        float dieWidth,
+        short units,
+        char flatOrient,
+        short centerX,
+        short centerY,
+        char posX,
+        char posY)
+    {
+	    super(Record_t.WCR, sequenceNumber, devNum, null);
+	    this.waferSize = waferSize;
+	    this.dieHeight = dieHeight;
+	    this.dieWidth = dieWidth;
+	    this.units = units;
+	    this.flatOrient = flatOrient;
+	    this.centerX = centerX;
+	    this.centerY = centerY;
+	    this.posX = posX;
+	    this.posY = posY;
+    }
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    wafer size: " + waferSize); sb.append(Log.eol);
-        sb.append("    die height: " + dieHeight); sb.append(Log.eol);
-        sb.append("    die width: " + dieWidth); sb.append(Log.eol);
-        sb.append("    dimension units: " + units); sb.append(Log.eol);
-        sb.append("    flat orientation: " + flatOrient); sb.append(Log.eol);
-        sb.append("    center die X-coordinate: " + centerX); sb.append(Log.eol);
-        sb.append("    center die Y-coordinate: " + centerY); sb.append(Log.eol);
-        sb.append("    positive X-direction: " + posX); sb.append(Log.eol);
-        sb.append("    positive Y-direction: " + posY); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    wafer size: " + waferSize).append(Log.eol);
+        sb.append("    die height: " + dieHeight).append(Log.eol);
+        sb.append("    die width: " + dieWidth).append(Log.eol);
+        sb.append("    dimension units: " + units).append(Log.eol);
+        sb.append("    flat orientation: " + flatOrient).append(Log.eol);
+        sb.append("    center die X-coordinate: " + centerX).append(Log.eol);
+        sb.append("    center die Y-coordinate: " + centerY).append(Log.eol);
+        sb.append("    positive X-direction: " + posX).append(Log.eol);
+        sb.append("    positive Y-direction: " + posY).append(Log.eol);
         return(sb.toString());
     }
 

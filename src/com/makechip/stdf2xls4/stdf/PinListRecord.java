@@ -25,6 +25,9 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
+import java.util.Arrays;
 import com.makechip.util.Log;
 
 
@@ -34,10 +37,9 @@ import com.makechip.util.Log;
 **/
 public class PinListRecord extends StdfRecord
 {
-    private final int k;
     private final int[] pinIndex;
     private final int[] mode;
-    private final short[] radix;
+    private final int[] radix;
     private final String[] pgmChar;
     private final String[] rtnChar;
     private final String[] pgmChal;
@@ -49,77 +51,75 @@ public class PinListRecord extends StdfRecord
     public PinListRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.PLR, sequenceNumber, devNum, data);
-        k = getU2(0);
+        int k = getU2(0);
         pinIndex = new int[k];
-        for (int i=0; i<k; i++) pinIndex[i] = getU2(-1);
+        Arrays.setAll(pinIndex, p -> getU2(-1));
         mode = new int[k];
-        for (int i=0; i<k; i++) mode[i] = getU2(0);
-        radix = new short[k];
-        for (int i=0; i<k; i++) radix[i] = getU1((short) 0);
+        Arrays.setAll(mode, p -> getU2(0));
+        radix = new int[k];
+        Arrays.setAll(radix, p -> getU1((short) 0));
         pgmChar = new String[k];
-        pgmChal = new String[k];
+        Arrays.setAll(pgmChar, p -> getCn());
         rtnChar = new String[k];
+        Arrays.setAll(rtnChar, p -> getCn());
+        pgmChal = new String[k];
+        Arrays.setAll(pgmChal, p -> getCn());
         rtnChal = new String[k];
-        for (int i=0; i<k; i++) pgmChar[i] = getCn();
-        for (int i=0; i<k; i++) rtnChar[i] = getCn();
-        for (int i=0; i<k; i++) pgmChal[i] = getCn();
-        for (int i=0; i<k; i++) rtnChal[i] = getCn();
+        Arrays.setAll(rtnChal, p -> getCn());
+        
     }
     
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU2Bytes(pinIndex.length));
+		
+	}
+	
+	public PinListRecord(int sequenceNumber, int devNum,
+	    int[] pinIndex,
+	    int[] mode,
+	    int[] radix,
+	    String[] pgmChar,
+	    String[] rtnChar,
+	    String[] pgmChal,
+	    String[] rtnChal)
+	{
+		super(Record_t.PLR, sequenceNumber, devNum, null);
+		this.pinIndex = Arrays.copyOf(pinIndex, pinIndex.length);
+		this.mode = Arrays.copyOf(mode, mode.length);
+		this.radix = Arrays.copyOf(radix, radix.length);
+		this.pgmChar = Arrays.copyOf(pgmChar, pgmChar.length);
+		this.rtnChar = Arrays.copyOf(rtnChar, pgmChar.length);
+		this.pgmChal = Arrays.copyOf(pgmChal, pgmChar.length);
+		this.rtnChal = Arrays.copyOf(rtnChal, pgmChar.length);
+	}
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    pin group indicies:");
-        for (int i=0; i<k; i++)
-        {
-            sb.append(" ");
-            sb.append("" + pinIndex[i]);
-        }
+        sb.append(":").append(Log.eol);
+        Arrays.stream(pinIndex).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
         sb.append("    pin mode:");
-        for (int i=0; i<k; i++)
-        {
-            sb.append(" ");
-            sb.append("" + mode[i]);
-        }
+        Arrays.stream(mode).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
         sb.append("    pin radix:");
-        for (int i=0; i<k; i++)
-        {
-            sb.append(" ");
-            sb.append("" + radix[i]);
-        }
+        Arrays.stream(radix).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
         sb.append("    program-state encoding characters-R:");
-        for (int i=0; i<k; i++)
-        {
-            sb.append(" ");
-            sb.append("" + pgmChar[i]);
-        }
+        Arrays.stream(pgmChar).forEach(p -> sb.append(" ").append(p));
         sb.append(Log.eol);
         sb.append("    return-state encoding characters-R:");
-        for (int i=0; i<k; i++)
-        {
-            sb.append(" ");
-            sb.append("" + rtnChar[i]);
-        }
+        Arrays.stream(rtnChar).forEach(p -> sb.append(" ").append(p));
         sb.append(Log.eol);
         sb.append("    program-state encoding characters-L:");
-        for (int i=0; i<k; i++)
-        {
-            sb.append(" ");
-            sb.append("" + pgmChal[i]);
-        }
+        Arrays.stream(pgmChal).forEach(p -> sb.append(" ").append(p));
         sb.append(Log.eol);
         sb.append("    return-state encoding characters-L:");
-        for (int i=0; i<k; i++)
-        {
-            sb.append(" ");
-            sb.append("" + rtnChal[i]);
-        }
+        Arrays.stream(rtnChal).forEach(p -> sb.append(" ").append(p));
         sb.append(Log.eol);
         return(sb.toString());
     }
@@ -143,7 +143,7 @@ public class PinListRecord extends StdfRecord
     /**
      * @return the radix
      */
-    public short[] getRadix()
+    public int[] getRadix()
     {
         return radix;
     }

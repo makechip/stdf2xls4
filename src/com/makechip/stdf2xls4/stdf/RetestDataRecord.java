@@ -25,6 +25,10 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
+import java.util.Arrays;
+
 import com.makechip.util.Log;
 
 /**
@@ -33,7 +37,6 @@ import com.makechip.util.Log;
 **/
 public class RetestDataRecord extends StdfRecord
 {
-    private final int k;
     private final int[] retestBins;
     
     /**
@@ -43,23 +46,33 @@ public class RetestDataRecord extends StdfRecord
     public RetestDataRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.RDR, sequenceNumber, devNum, data);
-        k = getU2(0);
+        int k = getU2(0);
         retestBins = new int[k];
-        for (int i=0; i<k; i++) retestBins[i] = getU2(-1);
+        Arrays.setAll(retestBins, p -> getU2(-1));
+    }
+    
+    public RetestDataRecord(int sequenceNumber, int devNum, int[] retestBins)
+    {
+    	super(Record_t.RDR, sequenceNumber, devNum, null);
+    	this.retestBins = Arrays.copyOf(retestBins, retestBins.length);
     }
 
+	@Override
+	protected void toBytes()
+	{
+	    TByteArrayList l = new TByteArrayList();	
+	    l.addAll(getU2Bytes(retestBins.length));
+	    Arrays.stream(retestBins).forEach(p -> l.addAll(getU2Bytes(p)));
+	    bytes = l.toArray();
+	}
+    
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
         sb.append("    retest bins:");
-        for (int i=0; i<k; i++)
-        {
-            sb.append(" ");
-            sb.append("" + retestBins[i]);
-        }
+        Arrays.stream(retestBins).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
         return(sb.toString());
     }
@@ -71,7 +84,7 @@ public class RetestDataRecord extends StdfRecord
     {
         return retestBins;
     }
-    
+
     
 
 }

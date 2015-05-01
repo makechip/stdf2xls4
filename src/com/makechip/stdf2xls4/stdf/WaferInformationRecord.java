@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import java.util.Date;
 
 import com.makechip.util.Log;
@@ -38,7 +40,7 @@ public class WaferInformationRecord extends StdfRecord
 {
     private final short headNumber;
     private final short siteGroupNumber;
-    private final String startDate;
+    private final long startDate;
     private final String waferID;
     
     /**
@@ -49,21 +51,42 @@ public class WaferInformationRecord extends StdfRecord
         super(Record_t.WIR, sequenceNumber, devNum, data);
         headNumber = getU1((short) -1);
         siteGroupNumber = getU1((short) -1);
-        long d = getU4(-1);
-        startDate = new Date(d * 1000L).toString();
+        startDate = getU4(-1);
         waferID = getCn();
     }
     
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteGroupNumber));
+		l.addAll(getU4Bytes(startDate));
+		l.addAll(getCnBytes(waferID));
+	}
+	
+	public WaferInformationRecord(int sequenceNumber, int devNum,
+		short headNumber,
+		short siteGroupNumber,
+		long startDate,
+		String waferID)
+	{
+		super(Record_t.WIR, sequenceNumber, devNum, null);
+		this.headNumber = headNumber;
+		this.siteGroupNumber = siteGroupNumber;
+		this.startDate = startDate;
+		this.waferID = waferID;
+	}
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site group number: " + siteGroupNumber); sb.append(Log.eol);
-        sb.append("    start date: "); sb.append(startDate); sb.append(Log.eol);
-        sb.append("    wafer ID: "); sb.append(waferID); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    head number: " + headNumber).append(Log.eol);
+        sb.append("    site group number: " + siteGroupNumber).append(Log.eol);
+        sb.append("    start date: "); sb.append(startDate).append(Log.eol);
+        sb.append("    wafer ID: "); sb.append(waferID).append(Log.eol);
         return(sb.toString());
     }
     
@@ -89,7 +112,7 @@ public class WaferInformationRecord extends StdfRecord
      */
     public String getStartDate()
     {
-        return startDate;
+        return(new Date(startDate * 1000L).toString());
     }
 
     /**

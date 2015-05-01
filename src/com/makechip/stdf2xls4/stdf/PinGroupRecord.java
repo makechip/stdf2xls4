@@ -24,6 +24,10 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
+import java.util.Arrays;
+
 import com.makechip.util.Log;
 
 
@@ -35,7 +39,6 @@ public class PinGroupRecord extends StdfRecord
 {
     private final int groupIndex;
     private final String groupName;
-    private final int k;
     private final int[] pmrIdx;
     
     /**
@@ -47,25 +50,40 @@ public class PinGroupRecord extends StdfRecord
         super(Record_t.PGR, sequenceNumber, devNum, data);
         groupIndex = getU2(-1);
         groupName = getCn();
-        k = getU2(0);
+        int k = getU2(0);
         pmrIdx = new int[k];
         for (int i=0; i<k; i++) pmrIdx[i] = getU2(-1);
     }
+    
+    public PinGroupRecord(int sequenceNumber, int devNum,
+    	int groupIndex, String groupName, int[] pmrIdx)
+    {
+        super(Record_t.PGR, sequenceNumber, devNum, null);
+        this.groupIndex = groupIndex;
+        this.groupName = groupName;
+        this.pmrIdx = Arrays.copyOf(pmrIdx, pmrIdx.length);
+    }
 
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU2Bytes(groupIndex));
+		l.addAll(getCnBytes(groupName));
+		l.addAll(getU2Bytes(pmrIdx.length));
+		Arrays.stream(pmrIdx).forEach(p -> l.addAll(getU2Bytes(p)));
+		bytes = l.toArray();
+	}
+    
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    group index: " + groupIndex); sb.append(Log.eol);
-        sb.append("    group name: "); sb.append(groupName); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    group index: " + groupIndex).append(Log.eol);
+        sb.append("    group name: ").append(groupName).append(Log.eol);
         sb.append("    pmr indicies:");
-        for (int i=0; i<k; i++) 
-        {
-            sb.append(" ");
-            sb.append("" + pmrIdx[i]);
-        }
+        Arrays.stream(pmrIdx).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
         return(sb.toString());
     }
@@ -93,7 +111,7 @@ public class PinGroupRecord extends StdfRecord
     {
         return pmrIdx;
     }
-    
+
     
 
 }

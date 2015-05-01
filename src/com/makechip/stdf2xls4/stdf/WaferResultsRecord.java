@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import java.util.Date;
 
 import com.makechip.util.Log;
@@ -37,7 +39,7 @@ public class WaferResultsRecord extends StdfRecord
 {
     private final short headNumber;
     private final short siteGroupNumber;
-    private final String finishDate;
+    private final long finishDate;
     private final long partCount;
     private final long retestCount;
     private final long abortCount;
@@ -58,8 +60,7 @@ public class WaferResultsRecord extends StdfRecord
         super(Record_t.WRR, sequenceNumber, devNum, data);
         headNumber = getU1((short) -1);
         siteGroupNumber = getU1((short) -1);
-        long d = getU4(-1);
-        finishDate = new Date(d * 1000L).toString();
+        finishDate = getU4(-1);
         partCount = getU4(-1);
         retestCount = getU4(-1);
         abortCount = getU4(-1);
@@ -73,26 +74,79 @@ public class WaferResultsRecord extends StdfRecord
         execWaferDesc = getCn();
     }
     
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteGroupNumber));
+		l.addAll(getU4Bytes(finishDate));
+		l.addAll(getU4Bytes(partCount));
+		l.addAll(getU4Bytes(retestCount));
+		l.addAll(getU4Bytes(abortCount));
+		l.addAll(getU4Bytes(passCount));
+		l.addAll(getU4Bytes(functionalCount));
+		l.addAll(getCnBytes(waferID));
+		l.addAll(getCnBytes(fabWaferID));
+		l.addAll(getCnBytes(waferFrameID));
+		l.addAll(getCnBytes(waferMaskID));
+		l.addAll(getCnBytes(userWaferDesc));
+		l.addAll(getCnBytes(execWaferDesc));
+		bytes = l.toArray();
+	}
+	
+	public WaferResultsRecord(int sequenceNumber, int devNum,
+        short headNumber,
+        short siteGroupNumber,
+        long finishDate,
+        long partCount,
+        long retestCount,
+        long abortCount,
+        long passCount,
+        long functionalCount,
+        String waferID,
+        String fabWaferID,
+        String waferFrameID,
+        String waferMaskID,
+        String userWaferDesc,
+        String execWaferDesc)
+    {
+		super(Record_t.WRR, sequenceNumber, devNum, null);
+		this.headNumber = headNumber;
+		this.siteGroupNumber = siteGroupNumber;
+		this.finishDate = finishDate;
+		this.partCount = partCount;
+		this.retestCount = retestCount;
+		this.abortCount = abortCount;
+		this.passCount = passCount;
+		this.functionalCount = functionalCount;
+		this.waferID = waferID;
+		this.fabWaferID = fabWaferID;
+		this.waferFrameID = waferFrameID;
+		this.waferMaskID = waferMaskID;
+		this.userWaferDesc = userWaferDesc;
+		this.execWaferDesc = execWaferDesc;
+    }
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site group number: " + siteGroupNumber); sb.append(Log.eol);
-        sb.append("    finish date: "); sb.append(finishDate); sb.append(Log.eol);
-        sb.append("    number of parts tested: " + partCount); sb.append(Log.eol);
-        sb.append("    number of parts re-tested: " + retestCount); sb.append(Log.eol);
-        sb.append("    number of aborts: " + abortCount); sb.append(Log.eol);
-        sb.append("    number of good parts: " + passCount); sb.append(Log.eol);
-        sb.append("    number of functional parts: " + functionalCount); sb.append(Log.eol);
-        sb.append("    wafer ID: "); sb.append(waferID); sb.append(Log.eol);
-        sb.append("    fab wafer ID: "); sb.append(fabWaferID); sb.append(Log.eol);
-        sb.append("    wafer frame ID: "); sb.append(waferFrameID); sb.append(Log.eol);
-        sb.append("    wafer mask ID: "); sb.append(waferMaskID); sb.append(Log.eol);
-        sb.append("    user wafer description: "); sb.append(userWaferDesc); sb.append(Log.eol);
-        sb.append("    exec wafer description: "); sb.append(execWaferDesc); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    head number: " + headNumber).append(Log.eol);
+        sb.append("    site group number: " + siteGroupNumber).append(Log.eol);
+        sb.append("    finish date: ").append(finishDate).append(Log.eol);
+        sb.append("    number of parts tested: " + partCount).append(Log.eol);
+        sb.append("    number of parts re-tested: " + retestCount).append(Log.eol);
+        sb.append("    number of aborts: " + abortCount).append(Log.eol);
+        sb.append("    number of good parts: " + passCount).append(Log.eol);
+        sb.append("    number of functional parts: " + functionalCount).append(Log.eol);
+        sb.append("    wafer ID: ").append(waferID).append(Log.eol);
+        sb.append("    fab wafer ID: ").append(fabWaferID).append(Log.eol);
+        sb.append("    wafer frame ID: ").append(waferFrameID).append(Log.eol);
+        sb.append("    wafer mask ID: ").append(waferMaskID).append(Log.eol);
+        sb.append("    user wafer description: ").append(userWaferDesc).append(Log.eol);
+        sb.append("    exec wafer description: ").append(execWaferDesc).append(Log.eol);
         return(sb.toString());
     }
 
@@ -117,7 +171,7 @@ public class WaferResultsRecord extends StdfRecord
      */
     public String getFinishDate()
     {
-        return finishDate;
+        return(new Date(finishDate * 1000L).toString());
     }
 
     /**

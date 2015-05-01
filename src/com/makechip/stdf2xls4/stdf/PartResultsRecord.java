@@ -24,7 +24,11 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
+import java.util.Arrays;
 import java.util.EnumSet;
+
 import com.makechip.util.Log;
 
 /**
@@ -85,11 +89,52 @@ public class PartResultsRecord extends StdfRecord
         partDescription = getCn();
         repair = getBn();
     }
+    
+    public PartResultsRecord(int sequenceNumber, int devNum,
+    	short headNumber,
+    	short siteNumber,
+    	byte partInfoFlags,
+    	int numExecs,
+    	int hwBinNumber,
+    	int swBinNumber,
+    	short xCoord,
+    	short yCoord,
+    	long testTime,
+    	String partID,
+    	String partDescription,
+    	byte[] repair)
+    {
+    	super(Record_t.PRR, sequenceNumber, devNum, null);
+    	this.headNumber = headNumber;
+    	this.siteNumber = siteNumber;
+    	this.partInfoFlags = PartInfoFlag_t.getBits(partInfoFlags);
+    	this.numExecs = numExecs;
+    	this.hwBinNumber = hwBinNumber;
+    	this.swBinNumber = swBinNumber;
+    	this.xCoord = xCoord;
+    	this.yCoord = yCoord;
+    	this.testTime = testTime;
+    	this.partID = partID;
+    	this.partDescription = partDescription;
+    	this.repair = Arrays.copyOf(repair, repair.length);
+    }
 
 	@Override
 	protected void toBytes()
 	{
-		
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteNumber));
+		l.add((byte) partInfoFlags.stream().mapToInt(b -> b.getBit()).sum());
+		l.addAll(getU2Bytes(numExecs));
+		l.addAll(getU2Bytes(hwBinNumber));
+		l.addAll(getU2Bytes(swBinNumber));
+		l.addAll(getI2Bytes(xCoord));
+		l.addAll(getI2Bytes(yCoord));
+		l.addAll(getU4Bytes(testTime));
+		l.addAll(getCnBytes(partID));
+		l.addAll(getCnBytes(partDescription));
+		l.addAll(getBnBytes(repair));
 	}
 
     @Override

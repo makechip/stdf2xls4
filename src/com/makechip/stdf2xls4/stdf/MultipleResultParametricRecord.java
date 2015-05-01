@@ -26,15 +26,9 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
-
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-
 import com.makechip.util.Log;
 /**
 *** @author eric
@@ -60,15 +54,13 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         int j = getU2(0);
         int k = getU2(0); 
         rtnState = getNibbles(j);
-        TDoubleArrayList l = new TDoubleArrayList();
-        DoubleStream.generate(() -> getR4(-Float.MAX_VALUE)).limit(k).forEach(value -> l.add((float) value));
-        results = l.toArray();
+        results =  new double[k];
+        Arrays.setAll(results, p -> getR4(-Float.MAX_VALUE));
         getParametricFields(); 
         startIn = getR4(MISSING_FLOAT);
         incrIn = getR4(MISSING_FLOAT);
-        TIntArrayList il = new TIntArrayList();
-        IntStream.generate(() -> getU2(-1)).limit(j).forEach(value -> il.add(value));
-        rtnIndex = il.toArray(); 
+        rtnIndex = new int[j];
+        Arrays.setAll(rtnIndex, p -> getU2(-1));
         units = getCn();
         unitsIn = getCn();
         getLastFields(); 

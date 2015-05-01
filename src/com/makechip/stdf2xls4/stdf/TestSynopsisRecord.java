@@ -24,6 +24,8 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import java.util.EnumSet;
 
 import com.makechip.util.Log;
@@ -34,14 +36,6 @@ import com.makechip.util.Log;
 **/
 public class TestSynopsisRecord extends StdfRecord
 {
-    public static enum TestOptFlag_t
-    {
-        TEST_MIN_INVALID,
-        TEST_MAX_INVALID,
-        TEST_TIME_INVALID,
-        TEST_SUMS_INVALID,
-        TEST_SQRS_INVALID;
-    }
     
     private final short headNumber;
     private final short siteNumber;
@@ -77,13 +71,7 @@ public class TestSynopsisRecord extends StdfRecord
         testName = getCn();
         sequencerName = getCn();
         testLabel = getCn();
-        optFlags = EnumSet.noneOf(TestOptFlag_t.class);
-        int f = getU1((short) 0);
-        if ((f & 1) == 1) optFlags.add(TestOptFlag_t.TEST_MIN_INVALID);
-        if ((f & 2) == 2) optFlags.add(TestOptFlag_t.TEST_MAX_INVALID);
-        if ((f & 4) == 4) optFlags.add(TestOptFlag_t.TEST_TIME_INVALID);
-        if ((f & 16) == 16) optFlags.add(TestOptFlag_t.TEST_SUMS_INVALID);
-        if ((f & 32) == 32) optFlags.add(TestOptFlag_t.TEST_SQRS_INVALID);
+        optFlags = TestOptFlag_t.getBits((byte) getU1((short) 0));
         testTime = getR4(-1.0f);
         testMin = getR4(-Float.MAX_VALUE);
         testMax = getR4(-Float.MAX_VALUE);
@@ -91,34 +79,93 @@ public class TestSynopsisRecord extends StdfRecord
         testSumSquares = getR4(-Float.MAX_VALUE);
     }
     
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteNumber));
+		l.addAll(getFixedLengthStringBytes("" + testType));
+		l.addAll(getU4Bytes(testNumber));
+		l.addAll(getU4Bytes(numExecs));
+		l.addAll(getU4Bytes(numFailures));
+		l.addAll(getU4Bytes(numAlarms));
+		l.addAll(getCnBytes(testName));
+		l.addAll(getCnBytes(sequencerName));
+		l.addAll(getCnBytes(testLabel));
+		l.add((byte) optFlags.stream().mapToInt(b -> b.getBit()).sum());
+		l.addAll(getR4Bytes(testTime));
+		l.addAll(getR4Bytes(testMin));
+		l.addAll(getR4Bytes(testMax));
+		l.addAll(getR4Bytes(testSum));
+		l.addAll(getR4Bytes(testSumSquares));
+		bytes = l.toArray();
+	}
+	
+	public TestSynopsisRecord(int sequenceNumber, int devNum,
+	   short headNumber,
+	   short siteNumber,
+	   char testType,
+	   long testNumber,
+	   long numExecs,
+	   long numFailures,
+	   long numAlarms,
+	   String testName,
+	   String sequencerName,
+	   String testLabel,
+	   EnumSet<TestOptFlag_t> optFlags,
+	   float testTime,
+	   float testMin,
+	   float testMax,
+	   float testSum,
+	   float testSumSquares)
+	{
+		super(Record_t.TSR, sequenceNumber, devNum, null);
+		this.headNumber = headNumber;
+		this.siteNumber = siteNumber;
+		this.testType = testType;
+		this.testNumber = testNumber;
+		this.numExecs = numExecs;
+		this.numFailures = numFailures;
+		this.numAlarms = numAlarms;
+		this.testName = testName;
+		this.sequencerName = sequencerName;
+		this.testLabel = testLabel;
+		if (optFlags != null)
+		{
+		    this.optFlags = EnumSet.noneOf(TestOptFlag_t.class);
+		    optFlags.stream().forEach(p -> this.optFlags.add(p));
+		}
+		this.testTime = testTime;
+		this.testMin = testMin;
+		this.testMax = testMax;
+		this.testSum = testSum;
+		this.testSumSquares = testSumSquares;
+	}
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    headNumber: " + headNumber); sb.append(Log.eol);
-        sb.append("    siteNumber: " + siteNumber); sb.append(Log.eol);
-        sb.append("    test type: " + testType); sb.append(Log.eol);
-        sb.append("    test number: " + testNumber); sb.append(Log.eol);
-        sb.append("    number of test execs: " + numExecs); sb.append(Log.eol);
-        sb.append("    number of failures: " + numFailures); sb.append(Log.eol);
-        sb.append("    number of alarms: " + numAlarms); sb.append(Log.eol);
-        sb.append("    test name: "); sb.append(testName); sb.append(Log.eol);
-        sb.append("    sequencer name: "); sb.append(sequencerName); sb.append(Log.eol);
-        sb.append("    test label: "); sb.append(testLabel); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    headNumber: " + headNumber).append(Log.eol);
+        sb.append("    siteNumber: " + siteNumber).append(Log.eol);
+        sb.append("    test type: " + testType).append(Log.eol);
+        sb.append("    test number: " + testNumber).append(Log.eol);
+        sb.append("    number of test execs: " + numExecs).append(Log.eol);
+        sb.append("    number of failures: " + numFailures).append(Log.eol);
+        sb.append("    number of alarms: " + numAlarms).append(Log.eol);
+        sb.append("    test name: "); sb.append(testName).append(Log.eol);
+        sb.append("    sequencer name: "); sb.append(sequencerName).append(Log.eol);
+        sb.append("    test label: "); sb.append(testLabel).append(Log.eol);
         sb.append("    optional data flags:");
-        for (TestOptFlag_t t : optFlags)
-        {
-            sb.append(" ");
-            sb.append(t.toString());
-        }
+        optFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
         sb.append(Log.eol);
-        sb.append("    test time: " + testTime); sb.append(Log.eol);
-        sb.append("    minimum result value: " + testMin); sb.append(Log.eol);
-        sb.append("    maximum result value: " + testMax); sb.append(Log.eol);
-        sb.append("    sum of result values: " + testSum); sb.append(Log.eol);
-        sb.append("    sum of squares of result values: " + testSumSquares); sb.append(Log.eol);
+        sb.append("    test time: " + testTime).append(Log.eol);
+        sb.append("    minimum result value: " + testMin).append(Log.eol);
+        sb.append("    maximum result value: " + testMax).append(Log.eol);
+        sb.append("    sum of result values: " + testSum).append(Log.eol);
+        sb.append("    sum of squares of result values: " + testSumSquares).append(Log.eol);
         return(sb.toString());
     }
 

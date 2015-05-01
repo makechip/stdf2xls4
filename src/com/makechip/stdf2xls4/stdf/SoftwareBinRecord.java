@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
 import com.makechip.util.Log;
 
 
@@ -64,18 +66,47 @@ public class SoftwareBinRecord extends StdfRecord
         binName = getCn();
     }
 
+	@Override
+	protected void toBytes()
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteNumber));
+		l.addAll(getU2Bytes(swBinNumber));
+		l.addAll(getU2Bytes(count));
+		l.addAll(getFixedLengthStringBytes(pf));
+		l.addAll(getCnBytes(binName));
+		bytes = l.toArray();
+	}
+	
+	public SoftwareBinRecord(int sequenceNumber, int devNum,
+		short headNumber,
+		short siteNumber,
+		int swBinNumber,
+		int count,
+		String pf,
+		String binName)
+	{
+		super(Record_t.SBR, sequenceNumber, devNum, null);
+		this.headNumber = headNumber;
+		this.siteNumber = siteNumber;
+		this.swBinNumber = swBinNumber;
+		this.count = count;
+		this.pf = pf;
+		this.binName = binName;
+	}
+    
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site number: " + siteNumber); sb.append(Log.eol);
-        sb.append("    software bin number: " + swBinNumber); sb.append(Log.eol);
-        sb.append("    bin count: " + count); sb.append(Log.eol);
-        sb.append("    pass/fail indication: "); sb.append(pf); sb.append(Log.eol);
-        sb.append("    bin name: "); sb.append(binName); sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    head number: " + headNumber).append(Log.eol);
+        sb.append("    site number: " + siteNumber).append(Log.eol);
+        sb.append("    software bin number: " + swBinNumber).append(Log.eol);
+        sb.append("    bin count: " + count).append(Log.eol);
+        sb.append("    pass/fail indication: ").append(pf).append(Log.eol);
+        sb.append("    bin name: ").append(binName).append(Log.eol);
         return(sb.toString());
     }
     
@@ -126,7 +157,7 @@ public class SoftwareBinRecord extends StdfRecord
     {
         return binName;
     }
-    
+
 
 
 }
