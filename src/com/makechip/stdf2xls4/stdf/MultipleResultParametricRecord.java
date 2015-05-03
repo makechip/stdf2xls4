@@ -116,6 +116,7 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         this.hiLimit = hiLimit;
         this.startIn = startIn;
         this.incrIn = incrIn;
+        this.rtnIndex = Arrays.copyOf(rtnIndex, rtnIndex.length);
         this.units = units;
         this.unitsIn = unitsIn;
         this.resFmt = resFmt;
@@ -233,7 +234,7 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         list.add((byte) reqFields.getParamFlags().stream().mapToInt(b -> b.getBit()).sum());
         list.addAll(getU2Bytes(rtnState.length));
         list.addAll(getU2Bytes(results.length));
-        list.addAll(getNibbles(rtnState.length));
+        list.addAll(getNibbleBytes(rtnState));
         Arrays.stream(results).forEach(p -> list.addAll(getR4Bytes((float) p)));
         list.addAll(getCnBytes(text));
         list.addAll(getCnBytes(alarmName));

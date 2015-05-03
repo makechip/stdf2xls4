@@ -27,7 +27,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import java.io.DataInputStream;
 import java.io.BufferedInputStream;
-import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,6 +51,13 @@ public class StdfReader
     public StdfReader(String filename)
     {
         this.filename = filename;
+    }
+    
+    /**
+     * Use this CTOR when reading an array of bytes.
+     */
+    public StdfReader()
+    {
     }
     
     public static void main(String[] args)
@@ -96,11 +102,14 @@ public class StdfReader
         	{
         		byte l0;
         		byte l1;
-            	try { l0 = rdr.readByte(); l1 = rdr.readByte(); } catch (EOFException e) { break; }
+        		if (rdr.available() < 2) break;
+            	l0 = rdr.readByte(); 
+            	l1 = rdr.readByte();
                 int recLen = getUnsignedInt(l0, l1);	
                 l0 = rdr.readByte(); // type
                 l1 = rdr.readByte(); // sub-type
                 Record_t type = Record_t.getRecordType(l0, l1);
+                if (type == null) Log.msg("unkown type at seqNum = " + seqNum);
                 byte[] record = new byte[recLen];
                 len = rdr.read(record);
                 if (len != recLen) throw new RuntimeException("Error: record could not be read");
@@ -118,6 +127,48 @@ public class StdfReader
         {
         	Log.fatal(e2.getMessage());
         }
+    }
+    
+    public void read(byte[] bytes)
+    {
+    	records = new ArrayList<RecordBytes>();
+    	try
+    	{
+    	    byte[] far = new byte[6];
+    	    int ptr = 0;
+    	    for (int i=0; i<6; i++) 
+    	    {
+    	    	far[i] = bytes[i];
+    	    	ptr++;
+    	    }
+    	    Log.msg("bytes[" + ptr + "] = " + bytes[ptr]);
+    	    records.add(FARcheck(6, far));
+    	    int seqNum = 1;
+    	    int devNum = 1;
+    	    while (true)
+    	    {
+    	    	byte l0;
+    	    	byte l1;
+    	    	if (ptr > bytes.length - 2) break;
+    	    	l0 = bytes[ptr++];
+    	    	l1 = bytes[ptr++];
+    	    	int recLen = getUnsignedInt(l0, l1);
+    	    	l0 = bytes[ptr++]; // type
+    	    	l1 = bytes[ptr++]; // sub-type
+    	    	Log.msg("recLen = " + recLen + " type = " + l0 + " subType = " + l1);
+    	    	Record_t type = Record_t.getRecordType(l0,  l1);
+                if (type == null) Log.msg("unkown type at seqNum = " + (seqNum + 1));
+    	    	byte[] record = new byte[recLen];
+    	    	Log.msg("ptr = " + ptr + " recLen = " + recLen + " bytes.length = " + bytes.length);
+    	    	if (ptr > bytes.length - recLen) throw new RuntimeException("Error: record could not be read");
+    	    	for (int i=0; i<recLen; i++) record[i] = bytes[ptr++];
+    	    	if (isDeviceRecord(type)) records.add(new RecordBytes(record, seqNum, type, devNum));
+    	    	else records.add(new RecordBytes(record, seqNum, type));
+    	    	if (type == PRR) devNum++;
+    	    	seqNum++;
+    	    }
+    	}
+    	catch (StdfException e) { Log.fatal(e); }
     }
     
     public Stream<RecordBytes> stream() { return(records.stream()); }

@@ -74,7 +74,7 @@ public class PinListRecord extends StdfRecord
 	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU2Bytes(pinIndex.length));
-		
+		bytes = l.toArray();
 	}
 	
 	public PinListRecord(int sequenceNumber, int devNum,

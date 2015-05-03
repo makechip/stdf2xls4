@@ -2,6 +2,9 @@ package com.makechip.stdf2xls4.stdf;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+
+import com.makechip.util.Log;
 
 
 public abstract class StdfRecord
@@ -25,19 +28,38 @@ public abstract class StdfRecord
 		this.devNum = devNum;
 		this.bytes = bytes;
 		ptr = 0;
+		Log.msg("seqNum = " + sequenceNumber + " type = " + getClass().getSimpleName());
 	}
 	
 	public void writeStdf(DataOutputStream ds) throws IOException
 	{
+		if (bytes == null) toBytes();
 		byte[] b = getU2Bytes(bytes.length);
-		ds.write(b);
-		ds.write((byte) 15);
-		ds.write((byte) 20);
+		ds.write(b, 0, b.length);
+		b[0] = (byte) type.getRecordType();
+		b[1] = (byte) type.getRecordSubType();
+		ds.write(b[0]);
+		ds.write(b[1]);
 		toBytes();
 		ds.write(bytes, 0, bytes.length);
 	}
 	
 	protected abstract void toBytes();
+	
+	public byte[] getBytes() 
+	{ 
+		if (bytes == null) toBytes();
+		Log.msg("record = " + getClass().getSimpleName());
+		byte[] b = new byte[bytes.length + 4];
+		byte[] l = getU2Bytes(bytes.length);
+		b[0] = l[0];
+		b[1] = l[1];
+		b[2] = (byte) type.getRecordType();
+	    b[3] = (byte) type.getRecordSubType();	
+	    Log.msg("b[2] = " + b[2] + " b[3] = " + b[3]);
+	    for (int i=4; i<b.length; i++) b[i] = bytes[i-4];
+		return(Arrays.copyOf(b, b.length));
+	}
 	
 	protected int getPtr() { return(ptr); }
 	protected int getSize() { return(bytes.length); }
@@ -50,6 +72,7 @@ public abstract class StdfRecord
     {
         if (bytes.length <= ptr) return(MISSING_STRING);
         int s = 0xFF & bytes[ptr++];
+        Log.msg("s.len = " + s + " bytes.length = " + bytes.length + " ptr = " + ptr);
         String out = new String(bytes, ptr, s); 
         ptr += s;
         return(out);
@@ -121,7 +144,7 @@ public abstract class StdfRecord
     protected byte[] getU1Bytes(short value)
     {
     	byte[] b = new byte[1];
-    	b[0] = (byte) (value * 0xFF);
+    	b[0] = (byte) (value & 0xFF);
     	return(b);
     }
     
@@ -353,7 +376,7 @@ public abstract class StdfRecord
     protected byte[] getR8Bytes(double val)
     {
     	long value = Double.doubleToLongBits(val);
-    	byte[] b = new byte[4];
+    	byte[] b = new byte[8];
     	if (StdfReader.cpuType == Cpu_t.SUN)
     	{
     		b[0] = (byte) ((((long) value) & 0xFF00000000000000L) >> 56);
@@ -467,7 +490,7 @@ public abstract class StdfRecord
     	    b[0] = (byte) (l &0x00FF);
     	    b[1] = (byte) ((l & 0xFF00)	>> 8);
     	}
-    	for (int i=0; i<dn.length+2; i++) b[i+2] = dn[i];
+    	for (int i=2; i<dn.length+2; i++) b[i] = dn[i-2];
     	return(b);
     }
     

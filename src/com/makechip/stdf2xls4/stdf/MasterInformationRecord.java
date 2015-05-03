@@ -40,11 +40,11 @@ public class MasterInformationRecord extends StdfRecord
     private final long jobDate;
     private final long testDate;
     private final short stationNumber;
-    private final String testModeCode;
-    private final String lotRetestCode;
-    private final String dataProtectionCode;
+    private final char testModeCode;
+    private final char lotRetestCode;
+    private final char dataProtectionCode;
     private final int burnInTime;
-    private final String cmdModeCode;
+    private final char cmdModeCode;
     private final String lotID;
     private final String partType;
     private final String nodeName;
@@ -81,11 +81,11 @@ public class MasterInformationRecord extends StdfRecord
         long jobDate,
         long testDate,
         short stationNumber,
-        String testModeCode,
-        String lotRetestCode,
-        String dataProtectionCode,
+        char testModeCode,
+        char lotRetestCode,
+        char dataProtectionCode,
         int burnInTime,
-        String cmdModeCode,
+        char cmdModeCode,
         String lotID,
         String partType,
         String nodeName,
@@ -170,11 +170,11 @@ public class MasterInformationRecord extends StdfRecord
         jobDate = getU4(0);
         testDate = getU4(0);
         stationNumber = getU1((byte) 0);
-        testModeCode = getFixedLengthString(1);
-        lotRetestCode = getFixedLengthString(1);
-        dataProtectionCode = getFixedLengthString(1);
+        testModeCode = getFixedLengthString(1).charAt(0);
+        lotRetestCode = getFixedLengthString(1).charAt(0);
+        dataProtectionCode = getFixedLengthString(1).charAt(0);
         burnInTime = getU2(0);
-        cmdModeCode = getFixedLengthString(1);
+        cmdModeCode = getFixedLengthString(1).charAt(0);
         lotID = getCn();
         partType = getCn();
         nodeName = getCn();
@@ -215,10 +215,11 @@ public class MasterInformationRecord extends StdfRecord
 		l.addAll(getU4Bytes(jobDate));
 		l.addAll(getU4Bytes(testDate));
 		l.addAll(getU1Bytes(stationNumber));
-		l.addAll(getFixedLengthStringBytes(testModeCode));
-		l.addAll(getFixedLengthStringBytes(lotRetestCode));
+		l.addAll(getFixedLengthStringBytes("" + testModeCode));
+		l.addAll(getFixedLengthStringBytes("" + lotRetestCode));
+		l.addAll(getFixedLengthStringBytes("" + dataProtectionCode));
 		l.addAll(getU2Bytes(burnInTime));
-		l.addAll(getFixedLengthStringBytes(cmdModeCode));
+		l.addAll(getFixedLengthStringBytes("" + cmdModeCode));
 		l.addAll(getCnBytes(lotID));
         l.addAll(getCnBytes(partType));
         l.addAll(getCnBytes(nodeName));
@@ -336,7 +337,7 @@ public class MasterInformationRecord extends StdfRecord
      */
     public String getTestModeCode()
     {
-        return testModeCode;
+        return "" + testModeCode;
     }
 
 
@@ -345,7 +346,7 @@ public class MasterInformationRecord extends StdfRecord
      */
     public String getLotRetestCode()
     {
-        return lotRetestCode;
+        return "" + lotRetestCode;
     }
 
 
@@ -354,7 +355,7 @@ public class MasterInformationRecord extends StdfRecord
      */
     public String getDataProtectionCode()
     {
-        return dataProtectionCode;
+        return "" + dataProtectionCode;
     }
 
 
@@ -372,7 +373,7 @@ public class MasterInformationRecord extends StdfRecord
      */
     public String getCmdModeCode()
     {
-        return cmdModeCode;
+        return "" + cmdModeCode;
     }
 
 

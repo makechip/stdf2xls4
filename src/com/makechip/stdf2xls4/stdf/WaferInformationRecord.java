@@ -63,6 +63,7 @@ public class WaferInformationRecord extends StdfRecord
 		l.addAll(getU1Bytes(siteGroupNumber));
 		l.addAll(getU4Bytes(startDate));
 		l.addAll(getCnBytes(waferID));
+		bytes = l.toArray();
 	}
 	
 	public WaferInformationRecord(int sequenceNumber, int devNum,

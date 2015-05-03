@@ -23,7 +23,7 @@ public class StdfAPI
 	{
 		if (args.length != 1)
 		{
-			System.out.println("Usage: java com.makechip.stdf2xls3.stdf.StdfAPI <stdfFile>");
+			System.out.println("Usage: java com.makechip.stdf2xls.stdf.StdfAPI <stdfFile>");
 			System.exit(1);
 		}
 		StdfAPI api = new StdfAPI(args[0]);

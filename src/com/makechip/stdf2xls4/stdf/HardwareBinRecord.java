@@ -39,7 +39,7 @@ public class HardwareBinRecord extends StdfRecord
     private final short siteNumber;
     private final int hwBin;
     private final long binCnt;
-    private final String pf;
+    private final char pf;
     private final String binName;
     /**
     *** @param p1
@@ -52,12 +52,12 @@ public class HardwareBinRecord extends StdfRecord
         siteNumber = getU1((short) 0);
         hwBin = getU2(-1);
         binCnt = getU4(0);
-        pf = getFixedLengthString(1);
+        pf = getFixedLengthString(1).charAt(0);
         binName = getCn();
     }
     
     public HardwareBinRecord(int sequenceNumber, int devNum, short headNumber,
-    		short siteNumber, int hwBin, long binCnt, String pf, String binName)
+    		short siteNumber, int hwBin, long binCnt, char pf, String binName)
     {
     	super(Record_t.HBR, sequenceNumber, devNum, null);
     	this.headNumber = headNumber;
@@ -75,7 +75,8 @@ public class HardwareBinRecord extends StdfRecord
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteNumber));
 		l.addAll(getU2Bytes(hwBin));
-		l.addAll(pf.getBytes());
+		l.addAll(getU4Bytes(binCnt));
+		l.addAll(getFixedLengthStringBytes("" + pf));
 		l.addAll(getCnBytes(binName));
 		bytes = l.toArray();
 	}
@@ -131,7 +132,7 @@ public class HardwareBinRecord extends StdfRecord
      */
     public String getPf()
     {
-        return pf;
+        return "" + pf;
     }
 
     /**

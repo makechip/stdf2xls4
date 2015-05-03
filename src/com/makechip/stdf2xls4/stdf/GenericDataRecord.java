@@ -47,7 +47,7 @@ public class GenericDataRecord extends StdfRecord
 		final Object value;
 		final int padCnt;
 		
-		Data(PadData p, Object value)
+		public Data(PadData p, Object value)
 		{
 			this.type = p.getType();
 			padCnt = p.getPadCnt();
@@ -67,12 +67,12 @@ public class GenericDataRecord extends StdfRecord
 		}
 	}
 	
-	private static final class PadData
+	public static final class PadData
 	{
 		final Data_t type;
 		final byte padCnt;
 		
-		PadData(Data_t type, int padCnt)
+		public PadData(Data_t type, int padCnt)
 		{
 			this.type = type;
 			this.padCnt = (byte) padCnt;
@@ -89,6 +89,7 @@ public class GenericDataRecord extends StdfRecord
 		while (type == (short) 0) 
 		{
 			type = getU1((short) -1);
+			Log.msg("TYPE = " + Data_t.getDataType(type) + " type = " + type);
 			if (type != (byte) 0) break;
 			cnt++;
 		}
@@ -97,6 +98,8 @@ public class GenericDataRecord extends StdfRecord
 	
 	private void getField(PadData v)
 	{
+		if (v == null) Log.msg("V IS NULL");
+		if (v.getType() == null) Log.msg("v.type IS NULL");
         switch (v.getType())
         {
         case U_1: list.add(new Data(v, getU1((short) 0))); break;
@@ -118,6 +121,7 @@ public class GenericDataRecord extends StdfRecord
 	private void setField(TByteArrayList l, Data field)
 	{
 		IntStream.generate(() -> 0).limit(field.getPadCnt()).forEach(v -> l.add((byte) 0));
+		l.add((byte) field.getType().getFieldType());
 		switch (field.getType())
 		{
         case U_1: l.add(getU1Bytes((short) field.getValue())); break;
@@ -172,6 +176,7 @@ public class GenericDataRecord extends StdfRecord
 	    TByteArrayList l = new TByteArrayList();
 	    l.addAll(getU2Bytes(list.size())); 
 	    list.stream().forEach(d -> setField(l, d));
+	    bytes = l.toArray();
 	}
     
     

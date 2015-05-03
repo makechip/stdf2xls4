@@ -64,10 +64,10 @@ public class TestSynopsisRecord extends StdfRecord
         siteNumber = getU1((short) -1);
         String c = getFixedLengthString(1);
         testType = c.charAt(0);
-        testNumber = getU4(-1);
-        numExecs = getU4(-1);
-        numFailures = getU4(-1);
-        numAlarms = getU4(-1);
+        testNumber = getU4(-1L);
+        numExecs = getU4(-1L);
+        numFailures = getU4(-1L);
+        numAlarms = getU4(-1L);
         testName = getCn();
         sequencerName = getCn();
         testLabel = getCn();
@@ -154,7 +154,8 @@ public class TestSynopsisRecord extends StdfRecord
         sb.append("    test number: " + testNumber).append(Log.eol);
         sb.append("    number of test execs: " + numExecs).append(Log.eol);
         sb.append("    number of failures: " + numFailures).append(Log.eol);
-        sb.append("    number of alarms: " + numAlarms).append(Log.eol);
+        System.err.print("numAlarms = " + numAlarms + "\n");
+        sb.append("    number of alarms: " + (numAlarms == -1 ? 0 : numAlarms)).append(Log.eol);
         sb.append("    test name: "); sb.append(testName).append(Log.eol);
         sb.append("    sequencer name: "); sb.append(sequencerName).append(Log.eol);
         sb.append("    test label: "); sb.append(testLabel).append(Log.eol);

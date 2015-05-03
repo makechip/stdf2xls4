@@ -135,6 +135,7 @@ public class PartResultsRecord extends StdfRecord
 		l.addAll(getCnBytes(partID));
 		l.addAll(getCnBytes(partDescription));
 		l.addAll(getBnBytes(repair));
+		bytes = l.toArray();
 	}
 
     @Override

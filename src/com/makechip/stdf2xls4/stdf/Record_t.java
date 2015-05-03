@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import com.makechip.util.Log;
+
 /**
 *** @author eric
 *** @version $Id: Record_t.java 261 2008-10-23 00:14:14Z ericw $
@@ -85,6 +87,7 @@ public enum Record_t
             	return(r);
             }
         }
+        Log.msg("record type is null for type = " + type + " subType = " + subType);
         return(null);
     }
 
