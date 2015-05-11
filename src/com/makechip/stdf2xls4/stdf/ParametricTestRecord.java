@@ -92,6 +92,7 @@ public class ParametricTestRecord extends StdfRecord
         super(Record_t.PTR, sequenceNumber, devNum, data);
         reqFields = new RequiredParametricFields(this);
         result = getR4(MISSING_FLOAT);
+        Log.msg("result = " + result);
         getParametricFields();
         units = getCn();
         getLastFields();

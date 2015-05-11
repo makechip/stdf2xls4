@@ -157,7 +157,7 @@ public class StdfReader
     	    	l1 = bytes[ptr++]; // sub-type
     	    	Log.msg("recLen = " + recLen + " type = " + l0 + " subType = " + l1);
     	    	Record_t type = Record_t.getRecordType(l0,  l1);
-                if (type == null) Log.msg("unkown type at seqNum = " + (seqNum + 1));
+                if (type == null) Log.msg("unknown type at seqNum = " + (seqNum + 1));
     	    	byte[] record = new byte[recLen];
     	    	Log.msg("ptr = " + ptr + " recLen = " + recLen + " bytes.length = " + bytes.length);
     	    	if (ptr > bytes.length - recLen) throw new RuntimeException("Error: record could not be read");

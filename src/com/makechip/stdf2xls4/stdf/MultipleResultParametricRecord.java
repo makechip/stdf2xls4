@@ -97,7 +97,7 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(Record_t.PTR, sequenceNumber, deviceNumber, null);
+        super(Record_t.MPR, sequenceNumber, deviceNumber, null);
         reqFields = new RequiredParametricFields(testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
         this.results = Arrays.copyOf(results, results.length);

@@ -74,6 +74,7 @@ public abstract class StdfRecord
         int s = 0xFF & bytes[ptr++];
         Log.msg("s.len = " + s + " bytes.length = " + bytes.length + " ptr = " + ptr);
         String out = new String(bytes, ptr, s); 
+        Log.msg("out = " + out);
         ptr += s;
         return(out);
     }

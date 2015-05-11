@@ -54,7 +54,7 @@ public class AuditTrailRecord extends StdfRecord
     public AuditTrailRecord(
     		final int sequenceNumber,
     		final int devNum,
-    		final int date,
+    		final long date,
     		final String cmdLine)
     {
     	super(Record_t.ATR, sequenceNumber, devNum, null);
