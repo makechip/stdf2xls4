@@ -521,8 +521,8 @@ public abstract class StdfRecord
     	{
     	    b[i] = (byte) (nibs[j] & 0x0F);
     	    j++;
-    	    if (j == nibs.length) break;
-    	    b[i] |= (byte) ((nibs[j] & 0xF0) >> 4);
+    	    if (j == b.length) break;
+    	    b[i] |= (byte) ((nibs[j] & 0x04) << 4);
     	    j++;
     	}
     	return(b);

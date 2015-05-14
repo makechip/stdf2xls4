@@ -47,6 +47,10 @@ public class StdfTest1
 			"dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID",
 			"laserType", "laserID", "equipType", "equipID"));
 		stdf = new StdfWriter(far, atrs, mir, rdr, sdrs);
+		stdf.add(new PinMapRecord(false, snum++, dnum, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(false, snum++, dnum, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(false, snum++, dnum, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(false, snum++, dnum, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
 		stdf.add(new BeginProgramSelectionRecord(snum++, dnum, "beginProgramSelectionRecord"));
 		stdf.add(new DatalogTextRecord(snum++, dnum, "datalogTextRecord"));
 		stdf.add(new FunctionalTestRecord(snum++, dnum, 3, (short) 2, (short) 1, EnumSet.noneOf(TestFlag_t.class),
@@ -76,7 +80,6 @@ public class StdfTest1
 			10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 }));
 		stdf.add(new PinListRecord(snum++, dnum, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
 			new String[] { "a", "b" }, new String[] { "c", "d" }, new String[] { "e", "f" }, new String[] { "g", "h" }));
-		stdf.add(new PinMapRecord(false, snum++, dnum, 2, 3, "channelName", "physicalPinName", "logicalPinName", (short) 1, (short) 0));
 		stdf.add(new SoftwareBinRecord(snum++, dnum, (short) 1, (short) 0, 5, 45, "F", "binName"));
 	    stdf.add(new TestSynopsisRecord(snum++, dnum, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
 	    	"sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f));	
@@ -93,7 +96,7 @@ public class StdfTest1
 		StdfReader rdr = new StdfReader();
 		rdr.read(stdf.getBytes());
 		List<StdfRecord> list = rdr.stream().map(RecordBytes::createRecord).collect(Collectors.toList());
-		assertEquals(23, list.size());
+		assertEquals(26, list.size());
 		stack = new Stack<StdfRecord>();
 		Stack<StdfRecord> tmp = new Stack<StdfRecord>();
 		list.stream().forEach(p -> tmp.push(p));
@@ -230,22 +233,75 @@ public class StdfTest1
 		assertEquals("equipID", sdr.getEquipID());
 	}
 	
-	//stdf.add(new BeginProgramSelectionRecord(snum++, dnum, "beginProgramSelectionRecord"));
+	// stdf.add(new PinMapRecord(false, snum++, dnum, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
+	// stdf.add(new PinMapRecord(false, snum++, dnum, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
+	// stdf.add(new PinMapRecord(false, snum++, dnum, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
+	// stdf.add(new PinMapRecord(false, snum++, dnum, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
 	@Test
 	public void testG()
 	{
+		StdfRecord r1 = stack.pop();
+		assertTrue(r1 instanceof PinMapRecord);
+		PinMapRecord pmr = (PinMapRecord) r1;
+		assertEquals(5, pmr.getSequenceNumber());
+	    assertEquals(0, pmr.getPmrIdx());
+	    assertEquals(3, pmr.getChannelType());
+	    assertEquals("channelName0", pmr.getChannelName());
+	    assertEquals("physicalPinName0", pmr.getPhysicalPinName());
+	    assertEquals("logicalPinName0", pmr.getLogicalPinName());
+	    assertEquals(1, pmr.getHeadNumber());
+	    assertEquals(0, pmr.getSiteNumber());
+	    r1 = stack.pop();
+	    assertTrue(r1 instanceof PinMapRecord);
+	    pmr = (PinMapRecord) r1;
+		assertEquals(6, pmr.getSequenceNumber());
+	    assertEquals(1, pmr.getPmrIdx());
+	    assertEquals(3, pmr.getChannelType());
+	    assertEquals("channelName1", pmr.getChannelName());
+	    assertEquals("physicalPinName1", pmr.getPhysicalPinName());
+	    assertEquals("logicalPinName1", pmr.getLogicalPinName());
+	    assertEquals(1, pmr.getHeadNumber());
+	    assertEquals(0, pmr.getSiteNumber());
+	    r1 = stack.pop();
+	    assertTrue(r1 instanceof PinMapRecord);
+	    pmr = (PinMapRecord) r1;
+		assertEquals(7, pmr.getSequenceNumber());
+	    assertEquals(2, pmr.getPmrIdx());
+	    assertEquals(3, pmr.getChannelType());
+	    assertEquals("channelName2", pmr.getChannelName());
+	    assertEquals("physicalPinName2", pmr.getPhysicalPinName());
+	    assertEquals("logicalPinName2", pmr.getLogicalPinName());
+	    assertEquals(1, pmr.getHeadNumber());
+	    assertEquals(0, pmr.getSiteNumber());
+	    r1 = stack.pop();
+	    assertTrue(r1 instanceof PinMapRecord);
+	    pmr = (PinMapRecord) r1;
+		assertEquals(8, pmr.getSequenceNumber());
+	    assertEquals(3, pmr.getPmrIdx());
+	    assertEquals(3, pmr.getChannelType());
+	    assertEquals("channelName3", pmr.getChannelName());
+	    assertEquals("physicalPinName3", pmr.getPhysicalPinName());
+	    assertEquals("logicalPinName3", pmr.getLogicalPinName());
+	    assertEquals(1, pmr.getHeadNumber());
+	    assertEquals(0, pmr.getSiteNumber());
+	}
+	
+	//stdf.add(new BeginProgramSelectionRecord(snum++, dnum, "beginProgramSelectionRecord"));
+	@Test
+	public void testH()
+	{
 	    StdfRecord r = stack.pop();
 	    assertTrue(r instanceof BeginProgramSelectionRecord);
-	    assertEquals(5, r.getSequenceNumber());
+	    assertEquals(9, r.getSequenceNumber());
 	}
 	
 	//stdf.add(new DatalogTextRecord(snum++, dnum, "datalogTextRecord"));
 	@Test
-	public void testH()
+	public void testI()
 	{
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof DatalogTextRecord);
-		assertEquals(6, r.getSequenceNumber());
+		assertEquals(10, r.getSequenceNumber());
 		DatalogTextRecord dtr = (DatalogTextRecord) r;
 		assertEquals("datalogTextRecord", dtr.getText());
 	}
@@ -257,11 +313,11 @@ public class StdfTest1
 	//	"vecName", "timeSetName", "vecOpCode", "label", "alarmName", "progTxt", "rsltTxt", (short) 5, 
 	//	new byte[] { (byte) 6, (byte) 7, (byte) 8 }));
 	@Test
-	public void testI()
+	public void testJ()
 	{
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof FunctionalTestRecord);
-		assertEquals(7, r.getSequenceNumber());
+		assertEquals(11, r.getSequenceNumber());
 		FunctionalTestRecord ftr = (FunctionalTestRecord) r;
 		assertEquals(3, ftr.getTestNumber());
 		assertEquals(2, ftr.getHeadNumber());
@@ -315,21 +371,21 @@ public class StdfTest1
 	//lgd.add(d2);
 	//stdf.add(new GenericDataRecord(snum++, dnum, lgd));
 	@Test
-	public void testJ()
+	public void testK()
 	{
 	
 	}
 	
 	//stdf.add(new HardwareBinRecord(snum++, dnum, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
 	@Test
-	public void testK()
+	public void testL()
 	{
 	
 	}
 	
 	//stdf.add(new MasterResultsRecord(snum++, dnum, 1000L, 'C', "lotDesc", "execDesc"));
 	@Test
-	public void testL()
+	public void testM()
 	{
 	
 	}
@@ -339,7 +395,7 @@ public class StdfTest1
 	//	"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 	//	0.0f, 0.0f, new int[] { 5, 6 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
 	@Test
-	public void testM()
+	public void testN()
 	{
 	
 	}
@@ -348,21 +404,21 @@ public class StdfTest1
 	//	EnumSet.noneOf(ParamFlag_t.class), 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class),
 	//	(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
 	@Test
-	public void testN()
+	public void testO()
 	{
 	
 	}
 	
 	//stdf.add(new PartCountRecord(snum++, dnum, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
 	@Test
-	public void testO()
+	public void testP()
 	{
 	
 	}
 	
 	//stdf.add(new PartInformationRecord(snum++, dnum, (short) 1, (short) 0));
 	@Test
-	public void testP()
+	public void testQ()
 	{
 	
 	}
@@ -370,20 +426,13 @@ public class StdfTest1
 	//stdf.add(new PartResultsRecord(snum++, dnum, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
 	//	10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 }));
 	@Test
-	public void testQ()
+	public void testR()
 	{
 	
 	}
 	
 	//stdf.add(new PinListRecord(snum++, dnum, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
 	//	new String[] { "a", "b" }, new String[] { "c", "d" }, new String[] { "e", "f" }, new String[] { "g", "h" }));
-	@Test
-	public void testR()
-	{
-	
-	}
-	
-	//stdf.add(new PinMapRecord(false, snum++, dnum, 2, 3, "channelName", "physicalPinName", "logicalPinName", (short) 1, (short) 0));
 	@Test
 	public void testS()
 	{
