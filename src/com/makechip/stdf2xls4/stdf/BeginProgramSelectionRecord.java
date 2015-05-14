@@ -57,11 +57,8 @@ public class BeginProgramSelectionRecord extends StdfRecord
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("BeginProgramSelectionRecord:");
-        sb.append(Log.eol);
-        sb.append("    SEQ_NAME: ");
-        sb.append(seqName);
-        sb.append(Log.eol);
+        sb.append("BeginProgramSelectionRecord:").append(Log.eol);
+        sb.append("    SEQ_NAME: ").append(seqName).append(Log.eol);
         return(sb.toString());
     }
 

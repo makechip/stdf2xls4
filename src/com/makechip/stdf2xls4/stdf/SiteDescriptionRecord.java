@@ -231,6 +231,11 @@ public class SiteDescriptionRecord extends StdfRecord
     {
         return handlerType;
     }
+    
+    public String getHandlerID()
+    {
+    	return handlerID;
+    }
 
     /**
      * @return the probeCardType
