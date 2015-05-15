@@ -141,7 +141,7 @@ public class StdfReader
     	    	far[i] = bytes[i];
     	    	ptr++;
     	    }
-    	    Log.msg("bytes[" + ptr + "] = " + bytes[ptr]);
+    	    //Log.msg("bytes[" + ptr + "] = " + bytes[ptr]);
     	    records.add(FARcheck(6, far));
     	    int seqNum = 1;
     	    int devNum = 1;
@@ -155,11 +155,11 @@ public class StdfReader
     	    	int recLen = getUnsignedInt(l0, l1);
     	    	l0 = bytes[ptr++]; // type
     	    	l1 = bytes[ptr++]; // sub-type
-    	    	Log.msg("recLen = " + recLen + " type = " + l0 + " subType = " + l1);
+    	    	//Log.msg("recLen = " + recLen + " type = " + l0 + " subType = " + l1);
     	    	Record_t type = Record_t.getRecordType(l0,  l1);
                 if (type == null) Log.msg("unknown type at seqNum = " + (seqNum + 1));
     	    	byte[] record = new byte[recLen];
-    	    	Log.msg("ptr = " + ptr + " recLen = " + recLen + " bytes.length = " + bytes.length);
+    	    	//Log.msg("ptr = " + ptr + " recLen = " + recLen + " bytes.length = " + bytes.length);
     	    	if (ptr > bytes.length - recLen) throw new RuntimeException("Error: record could not be read");
     	    	for (int i=0; i<recLen; i++) record[i] = bytes[ptr++];
     	    	if (isDeviceRecord(type)) records.add(new RecordBytes(record, seqNum, type, devNum));

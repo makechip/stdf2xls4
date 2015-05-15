@@ -28,7 +28,7 @@ public abstract class StdfRecord
 		this.devNum = devNum;
 		this.bytes = bytes;
 		ptr = 0;
-		Log.msg("seqNum = " + sequenceNumber + " type = " + getClass().getSimpleName());
+		//Log.msg("seqNum = " + sequenceNumber + " type = " + getClass().getSimpleName());
 	}
 	
 	public void writeStdf(DataOutputStream ds) throws IOException
@@ -49,14 +49,14 @@ public abstract class StdfRecord
 	public byte[] getBytes() 
 	{ 
 		if (bytes == null) toBytes();
-		Log.msg("record = " + getClass().getSimpleName());
+		//Log.msg("record = " + getClass().getSimpleName());
 		byte[] b = new byte[bytes.length + 4];
 		byte[] l = getU2Bytes(bytes.length);
 		b[0] = l[0];
 		b[1] = l[1];
 		b[2] = (byte) type.getRecordType();
 	    b[3] = (byte) type.getRecordSubType();	
-	    Log.msg("b[2] = " + b[2] + " b[3] = " + b[3]);
+	    //Log.msg("b[2] = " + b[2] + " b[3] = " + b[3]);
 	    for (int i=4; i<b.length; i++) b[i] = bytes[i-4];
 		return(Arrays.copyOf(b, b.length));
 	}
@@ -72,9 +72,9 @@ public abstract class StdfRecord
     {
         if (bytes.length <= ptr) return(MISSING_STRING);
         int s = 0xFF & bytes[ptr++];
-        Log.msg("s.len = " + s + " bytes.length = " + bytes.length + " ptr = " + ptr);
+        //Log.msg("s.len = " + s + " bytes.length = " + bytes.length + " ptr = " + ptr);
         String out = new String(bytes, ptr, s); 
-        Log.msg("out = " + out);
+        //Log.msg("out = " + out);
         ptr += s;
         return(out);
     }
@@ -467,19 +467,21 @@ public abstract class StdfRecord
             case VAX:
             default: l |= (b0 & 0xFF); l |= ((b1 & 0xFF) << 8);
         }
+        // l is number of bits
         byte[] b = new byte[l];
-        int length = (l % 8 == 0) ? l/8 : l/8 + 1;
+        int length = (l % 8 == 0) ? l/8 : l/8 + 1; 
         if (bytes.length < ptr+length) return(MISSING_BYTE_ARRAY);
         for (int i=0; i<length; i++) 
         {
-            if (bytes.length > ptr+1) b[i] = bytes[ptr++];
+        	byte x = bytes[ptr++];
+            b[i] = x;
         }
         return(b);
     }
     
     protected byte[] getDnBytes(byte[] dn)
     {
-    	int l = dn.length;
+    	int l = dn.length * 8;
     	byte[] b = new byte[dn.length + 2];
     	if (StdfReader.cpuType == Cpu_t.SUN)
     	{
@@ -510,6 +512,9 @@ public abstract class StdfRecord
             if (i == cnt) break;
             n[i] = (byte) ((b & 0xF0) >> 4);
         }
+        Log.msg("getNibbles(): n[0] = " + n[0]);
+        for (byte x : n) Log.msg_(" " + x);
+        Log.msg("");
         return(n);
     }
         
@@ -522,9 +527,10 @@ public abstract class StdfRecord
     	    b[i] = (byte) (nibs[j] & 0x0F);
     	    j++;
     	    if (j == b.length) break;
-    	    b[i] |= (byte) ((nibs[j] & 0x04) << 4);
+    	    b[i] |= (byte) ((nibs[j] & 0x0F) << 4);
     	    j++;
     	}
+    	Log.msg("getNibbleBytes(): b[0] = " + b[0]);
     	return(b);
     }
 

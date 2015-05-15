@@ -373,21 +373,47 @@ public class StdfTest1
 	@Test
 	public void testK()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof GenericDataRecord);
+		GenericDataRecord gdr = (GenericDataRecord) r;
+		assertEquals(12, gdr.getSequenceNumber());
+		List<GenericDataRecord.Data> l = gdr.getData(); 
+		GenericDataRecord.Data d = l.get(0);
+		assertEquals(Data_t.I_4, d.getType());
+		assertEquals(33, d.getValue());
+		d = l.get(1);
+		assertEquals(Data_t.R_8, d.getType());
+		assertEquals(44.0, d.getValue());
 	}
 	
 	//stdf.add(new HardwareBinRecord(snum++, dnum, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
 	@Test
 	public void testL()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof HardwareBinRecord);
+		assertEquals(13, r.getSequenceNumber());
+		HardwareBinRecord hbr = (HardwareBinRecord) r;
+		assertEquals(1, hbr.getHeadNumber());
+		assertEquals(0, hbr.getSiteNumber());
+		assertEquals(1, hbr.getHwBin());
+		assertEquals(10L, hbr.getBinCnt());
+		assertEquals("P", hbr.getPf());
+		assertEquals("binName", hbr.getBinName());
 	}
 	
 	//stdf.add(new MasterResultsRecord(snum++, dnum, 1000L, 'C', "lotDesc", "execDesc"));
 	@Test
 	public void testM()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof MasterResultsRecord);
+		assertEquals(14, r.getSequenceNumber());
+		MasterResultsRecord mrr = (MasterResultsRecord) r;
+		assertEquals(new Date(1000L * 1000L).toString(), mrr.getFinishDate());
+		assertEquals("C", mrr.getDispCode());
+		assertEquals("lotDesc", mrr.getLotDesc());
+		assertEquals("execDesc", mrr.getExecDesc());
 	}
 	
 	//stdf.add(new MultipleResultParametricRecord(snum++, dnum, 22, 1, 0, EnumSet.noneOf(TestFlag_t.class),
@@ -397,7 +423,40 @@ public class StdfTest1
 	@Test
 	public void testN()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof MultipleResultParametricRecord);
+		assertEquals(15, r.getSequenceNumber());
+		MultipleResultParametricRecord mpr = (MultipleResultParametricRecord) r;
+	    assertEquals(22, mpr.getTestNumber());
+	    assertEquals(1, mpr.getHeadNumber());
+	    assertEquals(0, mpr.getSiteNumber());
+	    assertEquals(0, mpr.getTestFlags().size());
+	    assertEquals(0, mpr.getParamFlags().size());
+	    assertEquals(1, mpr.getRtnState()[0]);
+	    assertEquals(2, mpr.getRtnState()[1]);
+	    assertEquals(1.0, mpr.getResults()[0], 5);
+	    assertEquals(2.0, mpr.getResults()[1], 5);
+	    assertEquals(3.0, mpr.getResults()[2], 5);
+	    assertEquals(4.0, mpr.getResults()[3], 5);
+	    assertEquals("text", mpr.getTestName());
+	    assertEquals("alarmName", mpr.getAlarmName());
+	    assertEquals(0, mpr.getOptFlags().size());
+	    assertEquals(0, mpr.getResScal());
+	    assertEquals(1, mpr.getLlmScal());
+	    assertEquals(2, mpr.getLlmScal());
+	    assertEquals(1.0f, mpr.getLoLimit(), 5);
+	    assertEquals(3.0f, mpr.getHiLimit(), 5);
+	    assertEquals(0.0f, mpr.getStartIn(), 5);
+	    assertEquals(0.0f, mpr.getIncrIn(), 5);
+	    assertEquals(5, mpr.getRtnIndex()[0]);
+	    assertEquals(6, mpr.getRtnIndex()[1]);
+	    assertEquals("units", mpr.getUnits());
+	    assertEquals("unitsIn", mpr.getUnitsIn());
+	    assertEquals("resFmt", mpr.getResFmt());
+	    assertEquals("llmFmt", mpr.getLlmFmt());
+	    assertEquals("hlmFmt", mpr.getHlmFmt());
+	    assertEquals(3.0f, mpr.getLoSpec(), 5);
+	    assertEquals(4.0f, mpr.getHiSpec(), 5);
 	}
 	
 	//stdf.add(new ParametricTestRecord(snum++, dnum, 44, 1, 0, EnumSet.noneOf(TestFlag_t.class),
