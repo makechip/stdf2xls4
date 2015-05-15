@@ -443,7 +443,7 @@ public class StdfTest1
 	    assertEquals(0, mpr.getOptFlags().size());
 	    assertEquals(0, mpr.getResScal());
 	    assertEquals(1, mpr.getLlmScal());
-	    assertEquals(2, mpr.getLlmScal());
+	    assertEquals(2, mpr.getHlmScal());
 	    assertEquals(1.0f, mpr.getLoLimit(), 5);
 	    assertEquals(3.0f, mpr.getHiLimit(), 5);
 	    assertEquals(0.0f, mpr.getStartIn(), 5);
@@ -465,21 +465,59 @@ public class StdfTest1
 	@Test
 	public void testO()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof ParametricTestRecord);
+		assertEquals(16, r.getSequenceNumber());
+		ParametricTestRecord ptr = (ParametricTestRecord) r;
+	    assertEquals(44, ptr.getTestNumber());
+	    assertEquals(1, ptr.getHeadNumber());
+	    assertEquals(0, ptr.getSiteNumber());
+	    assertEquals(0, ptr.getTestFlags().size());
+	    assertEquals(0, ptr.getParamFlags().size());
+	    assertEquals(5.5f, ptr.getResult(), 5);
+	    assertEquals("text", ptr.getTestName());
+	    assertEquals("alarmName", ptr.getAlarmName());
+	    assertEquals(0, ptr.getOptFlags().size());
+	    assertEquals(1, ptr.getResScal());
+	    assertEquals(2, ptr.getLlmScal());
+	    assertEquals(3, ptr.getHlmScal());
+	    assertEquals(1.0f, ptr.getLoLimit(), 5);
+	    assertEquals(10.0f, ptr.getHiLimit(), 5);
+	    assertEquals("units", ptr.getUnits());
+	    assertEquals("resFmt", ptr.getResFmt());
+	    assertEquals("llmFmt", ptr.getLlmFmt());
+	    assertEquals("hlmFmt", ptr.getHlmFmt());
+	    assertEquals(1.0f, ptr.getLoSpec(), 5);
+	    assertEquals(2.0f, ptr.getHiSpec(), 5);
 	}
 	
 	//stdf.add(new PartCountRecord(snum++, dnum, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
 	@Test
 	public void testP()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof PartCountRecord);
+		assertEquals(17, r.getSequenceNumber());
+		PartCountRecord ptr = (PartCountRecord) r;
+        assertEquals(1, ptr.getHeadNumber()); 
+        assertEquals(0, ptr.getSiteNumber()); 
+        assertEquals(2L, ptr.getPartsTested()); 
+        assertEquals(1L, ptr.getPartsReTested()); 
+        assertEquals(0L, ptr.getAborts()); 
+        assertEquals(2L, ptr.getGood()); 
+        assertEquals(1L, ptr.getFunctional()); 
 	}
 	
 	//stdf.add(new PartInformationRecord(snum++, dnum, (short) 1, (short) 0));
 	@Test
 	public void testQ()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof PartInformationRecord);
+		assertEquals(18, r.getSequenceNumber());
+		PartInformationRecord ptr = (PartInformationRecord) r;
+		assertEquals(1, ptr.getHeadNumber());
+		assertEquals(0, ptr.getSiteNumber());
 	}
 	
 	//stdf.add(new PartResultsRecord(snum++, dnum, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
@@ -487,7 +525,24 @@ public class StdfTest1
 	@Test
 	public void testR()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof PartResultsRecord);
+		assertEquals(19, r.getSequenceNumber());
+		PartResultsRecord ptr = (PartResultsRecord) r;
+		assertEquals(1, ptr.getHeadNumber());
+		assertEquals(0, ptr.getSiteNumber());
+		assertEquals(0, ptr.getPartInfoFlags().size());
+		assertEquals(1, ptr.getNumExecs());
+		assertEquals(2, ptr.getHwBinNumber());
+		assertEquals(3, ptr.getSwBinNumber());
+		assertEquals(1, ptr.getxCoord());
+		assertEquals(2, ptr.getyCoord());
+		assertEquals(10L, ptr.getTestTime());
+		assertEquals("partID", ptr.getPartID());
+		assertEquals("partDescription", ptr.getPartDescription());
+		assertEquals(0, ptr.getRepair()[0]);
+		assertEquals(1, ptr.getRepair()[1]);
+		assertEquals(2, ptr.getRepair()[2]);
 	}
 	
 	//stdf.add(new PinListRecord(snum++, dnum, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
@@ -495,14 +550,40 @@ public class StdfTest1
 	@Test
 	public void testS()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof PinListRecord);
+		assertEquals(20, r.getSequenceNumber());
+		PinListRecord ptr = (PinListRecord) r;
+	    //assertEquals(1, ptr.getPinIndex()[0]);
+	    //assertEquals(2, ptr.getPinIndex()[1]);
+	    assertEquals(3, ptr.getMode()[0]);
+	    assertEquals(4, ptr.getMode()[1]);
+	    assertEquals(2, ptr.getRadix()[0]);
+	    assertEquals(2, ptr.getRadix()[1]);
+	    assertEquals("a", ptr.getPgmChar()[0]);
+	    assertEquals("b", ptr.getPgmChar()[1]);
+	    assertEquals("c", ptr.getRtnChar()[0]);
+	    assertEquals("d", ptr.getRtnChar()[1]);
+	    assertEquals("e", ptr.getPgmChal()[0]);
+	    assertEquals("f", ptr.getPgmChal()[1]);
+	    assertEquals("g", ptr.getRtnChal()[0]);
+	    assertEquals("h", ptr.getRtnChal()[1]);
 	}
 	
 	//stdf.add(new SoftwareBinRecord(snum++, dnum, (short) 1, (short) 0, 5, 45, "F", "binName"));
 	@Test
 	public void testT()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof SoftwareBinRecord);
+		assertEquals(21, r.getSequenceNumber());
+		SoftwareBinRecord ptr = (SoftwareBinRecord) r;
+        assertEquals(1, ptr.getHeadNumber());	
+        assertEquals(0, ptr.getSiteNumber());	
+        assertEquals(5, ptr.getSwBinNumber());	
+        assertEquals(45, ptr.getCount());	
+        assertEquals("F", ptr.getPf());	
+        assertEquals("binName", ptr.getBinName());	
 	}
 	
     //stdf.add(new TestSynopsisRecord(snum++, dnum, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
@@ -510,21 +591,59 @@ public class StdfTest1
 	@Test
 	public void testU()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof TestSynopsisRecord);
+		assertEquals(22, r.getSequenceNumber());
+		TestSynopsisRecord ptr = (TestSynopsisRecord) r;
+        assertEquals(1, ptr.getHeadNumber());	
+        assertEquals(0, ptr.getSiteNumber());	
+        assertEquals('T', ptr.getTestType());	
+        assertEquals(10L, ptr.getTestNumber());	
+        assertEquals(11L, ptr.getNumExecs());	
+        assertEquals(12L, ptr.getNumFailures());	
+        assertEquals(13L, ptr.getNumAlarms());	
+        assertEquals("testName", ptr.getTestName());	
+        assertEquals("sequencerName", ptr.getSequencerName());	
+        assertEquals("testLabel", ptr.getTestLabel());	
+        assertEquals(0, ptr.getOptFlags().size());	
+        assertEquals(3.0f, ptr.getTestTime(), 5);	
+        assertEquals(1.0f, ptr.getTestMin(), 5);	
+        assertEquals(2.2f, ptr.getTestMax(), 5);	
+        assertEquals(3.3f, ptr.getTestSum(), 5);	
+        assertEquals(4.4f, ptr.getTestSumSquares(), 5);	
 	}
 	
     //stdf.add(new WaferConfigurationRecord(snum++, dnum, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5'));
 	@Test
 	public void testV()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof WaferConfigurationRecord);
+		assertEquals(23, r.getSequenceNumber());
+		WaferConfigurationRecord ptr = (WaferConfigurationRecord) r;
+        assertEquals(6.0f, ptr.getWaferSize(), 5);	
+        assertEquals(3.3f, ptr.getDieHeight(), 5);	
+        assertEquals(4.4f, ptr.getDieWidth(), 5);	
+        assertEquals(1, ptr.getUnits());	
+        assertEquals('L', ptr.getFlatOrient());	
+        assertEquals(1, ptr.getCenterX());	
+        assertEquals(2, ptr.getCenterY());	
+        assertEquals('5', ptr.getPosX());	
+        assertEquals('5', ptr.getPosY());	
 	}
 	
     //stdf.add(new WaferInformationRecord(snum++, dnum, (short) 1, (short) 0, 1000L, "waferID"));
 	@Test
 	public void testW()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof WaferInformationRecord);
+		assertEquals(24, r.getSequenceNumber());
+		WaferInformationRecord ptr = (WaferInformationRecord) r;
+        assertEquals(1, ptr.getHeadNumber());	
+        assertEquals(0, ptr.getSiteGroupNumber());	
+        assertEquals(new Date(1000000L).toString(), ptr.getStartDate());	
+        assertEquals("waferID", ptr.getWaferID());	
 	}
 	
 	//stdf.add(new WaferResultsRecord(snum++, dnum, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
@@ -532,7 +651,24 @@ public class StdfTest1
 	@Test
 	public void testX()
 	{
-	
+		StdfRecord r = stack.pop();
+		assertTrue(r instanceof WaferResultsRecord);
+		assertEquals(25, r.getSequenceNumber());
+		WaferResultsRecord ptr = (WaferResultsRecord) r;
+        assertEquals(1, ptr.getHeadNumber());	
+        assertEquals(0, ptr.getSiteGroupNumber());	
+        assertEquals(new Date(1000000L).toString(), ptr.getFinishDate());	
+        assertEquals(1L, ptr.getPartCount());	
+        assertEquals(2L, ptr.getRetestCount());	
+        assertEquals(0L, ptr.getAbortCount());	
+        assertEquals(1L, ptr.getPassCount());	
+        assertEquals(0L, ptr.getFunctionalCount());	
+        assertEquals("waferID", ptr.getWaferID());	
+        assertEquals("fabWaferID", ptr.getFabWaferID());	
+        assertEquals("waferFrameID", ptr.getWaferFrameID());	
+        assertEquals("waferMaskID", ptr.getWaferMaskID());	
+        assertEquals("userWaferDesc", ptr.getUserWaferDesc());	
+        assertEquals("execWaferDesc", ptr.getExecWaferDesc());	
 	}
 	
 

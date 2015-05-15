@@ -512,9 +512,7 @@ public abstract class StdfRecord
             if (i == cnt) break;
             n[i] = (byte) ((b & 0xF0) >> 4);
         }
-        Log.msg("getNibbles(): n[0] = " + n[0]);
         for (byte x : n) Log.msg_(" " + x);
-        Log.msg("");
         return(n);
     }
         
@@ -526,11 +524,10 @@ public abstract class StdfRecord
     	{
     	    b[i] = (byte) (nibs[j] & 0x0F);
     	    j++;
-    	    if (j == b.length) break;
+    	    if (j == nibs.length) break; 
     	    b[i] |= (byte) ((nibs[j] & 0x0F) << 4);
     	    j++;
     	}
-    	Log.msg("getNibbleBytes(): b[0] = " + b[0]);
     	return(b);
     }
 
