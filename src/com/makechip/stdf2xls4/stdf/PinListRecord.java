@@ -127,7 +127,7 @@ public class PinListRecord extends StdfRecord
         sb.append(Log.eol);
         sb.append("    return-state encoding characters-L:");
         Arrays.stream(rtnChal).forEach(p -> sb.append(" ").append(p));
-        sb.append(Log.eol);
+        sb.append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
 

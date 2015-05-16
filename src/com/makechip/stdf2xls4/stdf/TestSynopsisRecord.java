@@ -166,7 +166,7 @@ public class TestSynopsisRecord extends StdfRecord
         sb.append("    minimum result value: " + testMin).append(Log.eol);
         sb.append("    maximum result value: " + testMax).append(Log.eol);
         sb.append("    sum of result values: " + testSum).append(Log.eol);
-        sb.append("    sum of squares of result values: " + testSumSquares).append(Log.eol);
+        sb.append("    sum of squares of result values: " + testSumSquares).append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
 

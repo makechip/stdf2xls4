@@ -84,7 +84,7 @@ public class PinGroupRecord extends StdfRecord
         sb.append("    group name: ").append(groupName).append(Log.eol);
         sb.append("    pmr indicies:");
         Arrays.stream(pmrIdx).forEach(p -> sb.append(" " + p));
-        sb.append(Log.eol);
+        sb.append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
     

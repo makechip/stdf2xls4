@@ -59,16 +59,12 @@ class RequiredTestFields
     public String toString()
     {
     	StringBuilder sb = new StringBuilder();
-    	sb.append("    testNumber: " + testNumber + Log.eol);
-    	sb.append("    headNumber: " + headNumber + Log.eol);
-    	sb.append("    siteNumber: " + siteNumber + Log.eol);
+    	sb.append("    testNumber: " + testNumber).append(Log.eol);
+    	sb.append("    headNumber: " + headNumber).append(Log.eol);
+    	sb.append("    siteNumber: " + siteNumber).append(Log.eol);
     	sb.append("    testFlags:");
-    	for (TestFlag_t t : testFlags)
-    	{
-    		sb.append(" ");
-    		sb.append(t.toString());
-    	}
-    	sb.append(Log.eol);
+    	testFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
+    	sb.append(Log.eol).append(Log.eol);
     	return(sb.toString());
     }
 }

@@ -91,7 +91,6 @@ public class ParametricTestRecord extends StdfRecord
         super(Record_t.PTR, sequenceNumber, devNum, data);
         reqFields = new RequiredParametricFields(this);
         result = getR4(MISSING_FLOAT);
-        Log.msg("result = " + result);
         getParametricFields();
         units = getCn();
         getLastFields();
@@ -206,20 +205,24 @@ public class ParametricTestRecord extends StdfRecord
         sb.append("    result: " + result).append(Log.eol);
         sb.append("    test name: ").append(text).append(Log.eol);
         sb.append("    alarm name: ").append(alarmName).append(Log.eol);
-        sb.append("    optional flags:");
-        optFlags.stream().forEach(o -> sb.append(" ").append(o.toString()));
+        if (optFlags != null)
+        {
+            sb.append("    optional flags:");
+        	optFlags.stream().forEach(o -> sb.append(" ").append(o.toString()));
+        	sb.append(Log.eol);
+        	sb.append("    result scaling exponent: " + resScal).append(Log.eol);
+        	sb.append("    low limit scaling exponent: " + llmScal).append(Log.eol);
+        	sb.append("    high limit scaling exponent: " + hlmScal).append(Log.eol);
+        	sb.append("    low limit: " + loLimit).append(Log.eol);
+        	sb.append("    high limit: " + hiLimit).append(Log.eol);
+        	sb.append("    units: "); sb.append(units).append(Log.eol);
+        	sb.append("    result format string: ").append(resFmt).append(Log.eol);
+        	sb.append("    low limit format string: ").append(llmFmt).append(Log.eol);
+        	sb.append("    high limit format string: ").append(hlmFmt).append(Log.eol);
+        	sb.append("    low spec limit value: " + loSpec).append(Log.eol);
+        	sb.append("    high spec limit value: " + hiSpec).append(Log.eol);
+        }
         sb.append(Log.eol);
-        sb.append("    result scaling exponent: " + resScal).append(Log.eol);
-        sb.append("    low limit scaling exponent: " + llmScal).append(Log.eol);
-        sb.append("    high limit scaling exponent: " + hlmScal).append(Log.eol);
-        sb.append("    low limit: " + loLimit).append(Log.eol);
-        sb.append("    high limit: " + hiLimit).append(Log.eol);
-        sb.append("    units: "); sb.append(units).append(Log.eol);
-        sb.append("    result format string: ").append(resFmt).append(Log.eol);
-        sb.append("    low limit format string: ").append(llmFmt).append(Log.eol);
-        sb.append("    high limit format string: ").append(hlmFmt).append(Log.eol);
-        sb.append("    low spec limit value: " + loSpec).append(Log.eol);
-        sb.append("    high spec limit value: " + hiSpec).append(Log.eol);
         return(sb.toString());
     }
 

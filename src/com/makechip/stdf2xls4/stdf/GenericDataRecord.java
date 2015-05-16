@@ -164,9 +164,9 @@ public class GenericDataRecord extends StdfRecord
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
         list.stream().forEach(p -> sb.append("    ").append(p.toString()).append(Log.eol));
+        sb.append(Log.eol);
         return(sb.toString());
     }
 

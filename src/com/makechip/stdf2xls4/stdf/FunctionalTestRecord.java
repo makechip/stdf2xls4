@@ -26,6 +26,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 
 import com.makechip.util.Log;
@@ -427,76 +428,46 @@ public class FunctionalTestRecord extends StdfRecord
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
         sb.append(reqFields.toString());
         sb.append("    optFlags:");
-        for (FTROptFlag_t d : optFlags)
-        {
-            sb.append(" ");
-            sb.append(d.toString());
-        }
+        optFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
         sb.append(Log.eol);
-        sb.append("    cycleCount: "); sb.append("" + cycleCount); sb.append(Log.eol);
-        sb.append("    relVaddr: "); sb.append("" + relVaddr); sb.append(Log.eol);
-        sb.append("    rptCnt: "); sb.append("" + rptCnt); sb.append(Log.eol);
-        sb.append("    numFail: "); sb.append("" + numFail); sb.append(Log.eol);
-        sb.append("    xFailAddr: "); sb.append("" + xFailAddr); sb.append(Log.eol);
-        sb.append("    yFailAddr: "); sb.append("" + yFailAddr); sb.append(Log.eol);
-        sb.append("    vecOffset: "); sb.append("" + vecOffset); sb.append(Log.eol);
-        sb.append("    PMR indicies:"); sb.append(Log.eol);
-        for (int i=0; i<rtnIndex.length; i++)
-        {
-            sb.append("       ");
-            sb.append("" + rtnIndex[i]);
-            sb.append(Log.eol);
-        }
+        sb.append("    cycleCount: ").append("" + cycleCount).append(Log.eol);
+        sb.append("    relVaddr: ").append("" + relVaddr).append(Log.eol);
+        sb.append("    rptCnt: ").append("" + rptCnt).append(Log.eol);
+        sb.append("    numFail: ").append("" + numFail).append(Log.eol);
+        sb.append("    xFailAddr: ").append("" + xFailAddr).append(Log.eol);
+        sb.append("    yFailAddr: ").append("" + yFailAddr).append(Log.eol);
+        sb.append("    vecOffset: ").append("" + vecOffset).append(Log.eol);
+        sb.append("    PMR indicies:").append(Log.eol);
+        Arrays.stream(rtnIndex).forEach(p -> sb.append("    " + p).append(Log.eol));
         sb.append("    Returned States:");
-        for (int i=0; i<rtnState.length; i++)
-        {
-            sb.append(" ");
-            sb.append("" + rtnState[i]);
-        }
+        for (byte b : rtnState) sb.append(" " + b);
         sb.append(Log.eol);
         sb.append("    Programmed State Indicies:");
-        for (int i=0; i<pgmIndex.length; i++)
-        {
-            sb.append(" ");
-            sb.append("" + pgmIndex[i]);
-        }
+        Arrays.stream(pgmIndex).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
         sb.append("    Programmed States:");
-        for (int i=0; i<pgmState.length; i++)
-        {
-            sb.append(" ");;
-            sb.append("" + pgmState[i]);
-        }
+        for (byte b : pgmState) sb.append(" " + b);
         sb.append(Log.eol);
         sb.append("    Failing Pins:");
-        for (int i=0; i<failPin.length; i++)
-        {
-            sb.append(" ");
-            sb.append("" + failPin[i]);
-        }
+        for (byte b : failPin) sb.append(" " + b);
         sb.append(Log.eol);
-        sb.append("    vecName: "); sb.append(vecName); sb.append(Log.eol);
-        sb.append("    timeSetName: "); sb.append(timeSetName); sb.append(Log.eol);
-        sb.append("    vecOpCode: "); sb.append(vecOpCode); sb.append(Log.eol);
-        sb.append("    test name: "); sb.append(label); sb.append(Log.eol);
-        sb.append("    alarmName: "); sb.append(alarmName); sb.append(Log.eol);
-        sb.append("    progTxt: "); sb.append(progTxt); sb.append(Log.eol);
-        sb.append("    rsltTxt: "); sb.append(rsltTxt); sb.append(Log.eol);
-        sb.append("    patGetNum: " + patGenNum); sb.append(Log.eol);
-        sb.append("    enabled Comparators:"); sb.append(Log.eol);
+        sb.append("    vecName: ").append(vecName).append(Log.eol);
+        sb.append("    timeSetName: ").append(timeSetName).append(Log.eol);
+        sb.append("    vecOpCode: ").append(vecOpCode).append(Log.eol);
+        sb.append("    test name: ").append(label).append(Log.eol);
+        sb.append("    alarmName: ").append(alarmName).append(Log.eol);
+        sb.append("    progTxt: ").append(progTxt).append(Log.eol);
+        sb.append("    rsltTxt: ").append(rsltTxt).append(Log.eol);
+        sb.append("    patGetNum: " + patGenNum).append(Log.eol);
+        sb.append("    enabled Comparators:").append(Log.eol);
         if (enComps != null)
         {
-            for (int i=0; i<enComps.length; i++)
-            {
-                sb.append(" ");
-                sb.append("" + enComps[i]);
-            }
+            for (byte b : enComps) sb.append(" " + b);
         }
-        sb.append(Log.eol);
+        sb.append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
     

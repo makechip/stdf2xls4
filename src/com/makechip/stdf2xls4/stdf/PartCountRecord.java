@@ -103,7 +103,7 @@ public class PartCountRecord extends StdfRecord
         sb.append("    parts tested: " + partsTested).append(Log.eol);
         sb.append("    number of aborts: " + aborts).append(Log.eol);
         sb.append("    number good: " + good).append(Log.eol);
-        sb.append("    number functional: " + functional).append(Log.eol);
+        sb.append("    number functional: " + functional).append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
 

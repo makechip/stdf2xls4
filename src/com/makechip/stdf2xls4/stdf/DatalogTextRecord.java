@@ -57,11 +57,8 @@ public class DatalogTextRecord extends StdfRecord
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    TEXT_DAT: ");
-        sb.append(text);
-        sb.append(Log.eol);
+        sb.append(":").append(Log.eol);
+        sb.append("    TEXT_DAT: ").append(text).append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
 

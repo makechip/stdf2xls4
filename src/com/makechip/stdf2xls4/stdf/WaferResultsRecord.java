@@ -146,7 +146,7 @@ public class WaferResultsRecord extends StdfRecord
         sb.append("    wafer frame ID: ").append(waferFrameID).append(Log.eol);
         sb.append("    wafer mask ID: ").append(waferMaskID).append(Log.eol);
         sb.append("    user wafer description: ").append(userWaferDesc).append(Log.eol);
-        sb.append("    exec wafer description: ").append(execWaferDesc).append(Log.eol);
+        sb.append("    exec wafer description: ").append(execWaferDesc).append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
 

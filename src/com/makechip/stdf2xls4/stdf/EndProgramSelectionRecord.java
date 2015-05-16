@@ -49,7 +49,7 @@ public class EndProgramSelectionRecord extends StdfRecord
     @Override
     public String toString()
     {
-        return("EndProgramSelectionRecord" + Log.eol);
+        return("EndProgramSelectionRecord" + Log.eol + Log.eol);
     }
 
 	@Override

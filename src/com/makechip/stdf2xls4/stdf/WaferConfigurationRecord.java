@@ -119,7 +119,7 @@ public class WaferConfigurationRecord extends StdfRecord
         sb.append("    center die X-coordinate: " + centerX).append(Log.eol);
         sb.append("    center die Y-coordinate: " + centerY).append(Log.eol);
         sb.append("    positive X-direction: " + posX).append(Log.eol);
-        sb.append("    positive Y-direction: " + posY).append(Log.eol);
+        sb.append("    positive Y-direction: " + posY).append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
 

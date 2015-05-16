@@ -188,7 +188,7 @@ public class SiteDescriptionRecord extends StdfRecord
         sb.append("    laser type: ").append(laserType).append(Log.eol);
         sb.append("    laser ID: ").append(laserID).append(Log.eol);
         sb.append("    extra equipment type: ").append(equipType).append(Log.eol);
-        sb.append("    extra equipment ID: ").append(equipID).append(Log.eol);
+        sb.append("    extra equipment ID: ").append(equipID).append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
 

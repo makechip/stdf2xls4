@@ -72,7 +72,7 @@ public class PartInformationRecord extends StdfRecord
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(":").append(Log.eol);
         sb.append("    head number: " + headNumber).append(Log.eol);
-        sb.append("    site number: " + siteNumber).append(Log.eol);
+        sb.append("    site number: " + siteNumber).append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
 

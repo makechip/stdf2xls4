@@ -73,7 +73,7 @@ public class RetestDataRecord extends StdfRecord
         sb.append(":").append(Log.eol);
         sb.append("    retest bins:");
         Arrays.stream(retestBins).forEach(p -> sb.append(" " + p));
-        sb.append(Log.eol);
+        sb.append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
     

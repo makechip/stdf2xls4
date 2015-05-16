@@ -115,7 +115,7 @@ public class PinMapRecord extends StdfRecord
         sb.append("    physical pin name: "); sb.append(physicalPinName); sb.append(Log.eol);
         sb.append("    logical pin name: "); sb.append(logicalPinName); sb.append(Log.eol);
         sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site number: " + siteNumber); sb.append(Log.eol);
+        sb.append("    site number: " + siteNumber); sb.append(Log.eol).append(Log.eol);
         return(sb.toString());
     }
 

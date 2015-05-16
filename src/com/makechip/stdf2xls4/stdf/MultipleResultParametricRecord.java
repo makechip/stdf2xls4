@@ -171,31 +171,35 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         sb.append("    results:");
         Arrays.stream(results).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
-        sb.append("    test name: "); sb.append(text); sb.append(Log.eol);
-        sb.append("    alarm name: "); sb.append(alarmName); sb.append(Log.eol);
+        sb.append("    test name: ").append(text).append(Log.eol);
+        sb.append("    alarm name: ").append(alarmName).append(Log.eol);
         sb.append("    optional flags:");
-        if (optFlags != null) optFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
-        sb.append(Log.eol);
-        sb.append("    result scaling exponent: " + resScal); sb.append(Log.eol);
-        sb.append("    low limit scaling exponent: " + llmScal); sb.append(Log.eol);
-        sb.append("    high limit scaling exponent: " + hlmScal); sb.append(Log.eol);
-        sb.append("    low limit: " + getLoLimit()); sb.append(Log.eol);
-        sb.append("    high limit: " + getHiLimit()); sb.append(Log.eol);
-        sb.append("    starting input value: " + getStartIn()); sb.append(Log.eol);
-        sb.append("    increment of input condition: " + getIncrIn()); sb.append(Log.eol);
-        if (rtnIndex != null)
+        if (optFlags != null) 
         {
-            sb.append("    array of PMR indicies:");
-            Arrays.stream(rtnIndex).forEach(p -> sb.append(" " + p));
+        	optFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
+        	sb.append(Log.eol);
+        	sb.append("    result scaling exponent: " + resScal).append(Log.eol);
+        	sb.append("    low limit scaling exponent: " + llmScal).append(Log.eol);
+        	sb.append("    high limit scaling exponent: " + hlmScal).append(Log.eol);
+        	sb.append("    low limit: " + getLoLimit()).append(Log.eol);
+        	sb.append("    high limit: " + getHiLimit()).append(Log.eol);
+        	sb.append("    starting input value: " + getStartIn()).append(Log.eol);
+        	sb.append("    increment of input condition: " + getIncrIn()).append(Log.eol);
+        	if (rtnIndex != null)
+        	{
+        		sb.append("    array of PMR indicies:");
+        		Arrays.stream(rtnIndex).forEach(p -> sb.append(" " + p));
+        	}
+        	sb.append(Log.eol);
+        	sb.append("    units: ").append(units).append(Log.eol);
+        	sb.append("    input condition units: ").append(unitsIn).append(Log.eol);
+        	sb.append("    result format string: ").append(resFmt).append(Log.eol);
+        	sb.append("    low limit format string: ").append(llmFmt).append(Log.eol);
+        	sb.append("    high limit format string: ").append(hlmFmt).append(Log.eol);
+        	sb.append("    low spec limit value: " + getLoSpec()).append(Log.eol);
+        	sb.append("    high spec limit value: " + getHiSpec()).append(Log.eol);
         }
         sb.append(Log.eol);
-        sb.append("    units: "); sb.append(units); sb.append(Log.eol);
-        sb.append("    input condition units: "); sb.append(unitsIn); sb.append(Log.eol);
-        sb.append("    result format string: "); sb.append(resFmt); sb.append(Log.eol);
-        sb.append("    low limit format string: "); sb.append(llmFmt); sb.append(Log.eol);
-        sb.append("    high limit format string: "); sb.append(hlmFmt); sb.append(Log.eol);
-        sb.append("    low spec limit value: " + getLoSpec()); sb.append(Log.eol);
-        sb.append("    high spec limit value: " + getHiSpec()); sb.append(Log.eol);
         return(sb.toString());
     }
     
