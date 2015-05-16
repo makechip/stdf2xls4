@@ -108,6 +108,7 @@ public class PinListRecord extends StdfRecord
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(":").append(Log.eol);
+        sb.append("    pin index:");
         Arrays.stream(pinIndex).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
         sb.append("    pin mode:");

@@ -89,7 +89,6 @@ public class GenericDataRecord extends StdfRecord
 		while (type == (short) 0) 
 		{
 			type = getU1((short) -1);
-			Log.msg("TYPE = " + Data_t.getDataType(type) + " type = " + type);
 			if (type != (byte) 0) break;
 			cnt++;
 		}

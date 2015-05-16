@@ -195,40 +195,6 @@ public class FunctionalTestRecord extends StdfRecord
         bytes = list.toArray();
     }
   
-    FunctionalTestRecord(FunctionalTestRecord ftr, DefaultFTRValueMap dmap)
-    {
-    	super(ftr.getRecordType(), ftr.getSequenceNumber(), ftr.getDeviceNumber(), null);
-    	reqFields = new RequiredTestFields(ftr.getTestNumber(), ftr.getHeadNumber(),
-    			    ftr.getSiteNumber(), ftr.getTestFlags());
-        if (ftr.getOptFlags() == null) optFlags = dmap.foptDefaults.get(ftr.getTestNumber());
-        else optFlags = ftr.getOptFlags();
-        if (ftr.getPatGenNum() == (short) -1) patGenNum = dmap.pgDefaults.get(ftr.getTestNumber());
-        else patGenNum = ftr.getPatGenNum();
-        if (ftr.getEnComps().length == 0) enComps = dmap.ecDefaults.get(ftr.getTestNumber());
-        else enComps = ftr.getEnComps();
-        if (ftr.getTestName() == null) label = dmap.tnameDefaults.get(ftr.getTestNumber());
-        else label = ftr.getTestName();
-        yFailAddr = ftr.getyFailAddr();
-        xFailAddr = ftr.getxFailAddr();
-        vecOpCode = ftr.getVecOpCode();
-        vecOffset = ftr.getVecOffset();
-        vecName = ftr.getVecName();
-        timeSetName = ftr.getTimeSetName();
-        testId = TestID.getTestID(ftr.getTestNumber(), label);
-        rtnState = ftr.getRtnState();
-        rtnIndex = ftr.getRtnIndex();
-        rsltTxt = ftr.getRsltTxt();
-        rptCnt = ftr.getRptCnt();
-        relVaddr = ftr.getRelVaddr();
-        progTxt = ftr.getProgTxt();
-        pgmState = ftr.getPgmState();
-        pgmIndex = ftr.getPgmIndex();
-        numFail = ftr.getNumFail();
-        failPin = ftr.getFailPin();
-        cycleCount = ftr.getCycleCount();
-        alarmName = ftr.getAlarmName();
-    }
-    
     public boolean alarm() { return(reqFields.alarm()); }
     public boolean unreliable() { return(reqFields.unreliable()); }
     public boolean timeout() { return(reqFields.timeout()); }
@@ -440,8 +406,9 @@ public class FunctionalTestRecord extends StdfRecord
         sb.append("    xFailAddr: ").append("" + xFailAddr).append(Log.eol);
         sb.append("    yFailAddr: ").append("" + yFailAddr).append(Log.eol);
         sb.append("    vecOffset: ").append("" + vecOffset).append(Log.eol);
-        sb.append("    PMR indicies:").append(Log.eol);
-        Arrays.stream(rtnIndex).forEach(p -> sb.append("    " + p).append(Log.eol));
+        sb.append("    PMR indicies:");
+        Arrays.stream(rtnIndex).forEach(p -> sb.append(" " + p));
+        sb.append(Log.eol);
         sb.append("    Returned States:");
         for (byte b : rtnState) sb.append(" " + b);
         sb.append(Log.eol);
@@ -462,9 +429,9 @@ public class FunctionalTestRecord extends StdfRecord
         sb.append("    progTxt: ").append(progTxt).append(Log.eol);
         sb.append("    rsltTxt: ").append(rsltTxt).append(Log.eol);
         sb.append("    patGetNum: " + patGenNum).append(Log.eol);
-        sb.append("    enabled Comparators:").append(Log.eol);
         if (enComps != null)
         {
+            sb.append("    enabled Comparators:");
             for (byte b : enComps) sb.append(" " + b);
         }
         sb.append(Log.eol);
