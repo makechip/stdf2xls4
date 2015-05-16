@@ -119,14 +119,8 @@ public class StdfReader
                 seqNum++;
         	}                
         }
-        catch (IOException e)
-        {
-        	Log.fatal(e);
-        }
-        catch (StdfException e2)
-        {
-        	Log.fatal(e2.getMessage());
-        }
+        catch (IOException e) { Log.fatal(e); }
+        catch (StdfException e2) { Log.fatal(e2.getMessage()); }
     }
     
     public void read(byte[] bytes)

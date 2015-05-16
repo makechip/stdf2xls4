@@ -74,6 +74,13 @@ public class PinListRecord extends StdfRecord
 	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU2Bytes(pinIndex.length));
+		Arrays.stream(pinIndex).forEach(p -> l.addAll(getU2Bytes(p)));
+		Arrays.stream(mode).forEach(p -> l.addAll(getU2Bytes(p)));
+		Arrays.stream(radix).forEach(p -> l.addAll(getU1Bytes((short) p)));
+		Arrays.stream(pgmChar).forEach(p -> l.addAll(getCnBytes(p)));
+		Arrays.stream(rtnChar).forEach(p -> l.addAll(getCnBytes(p)));
+		Arrays.stream(pgmChal).forEach(p -> l.addAll(getCnBytes(p)));
+		Arrays.stream(rtnChal).forEach(p -> l.addAll(getCnBytes(p)));
 		bytes = l.toArray();
 	}
 	

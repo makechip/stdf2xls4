@@ -36,7 +36,6 @@ import com.makechip.util.Log;
 **/
 public class ParametricTestRecord extends StdfRecord
 {
-	protected TestID testId;
 	protected RequiredParametricFields reqFields;
     protected double result; 
     protected String text;
@@ -110,7 +109,6 @@ public class ParametricTestRecord extends StdfRecord
     protected void getParametricFields()
     {
         text = getCn(); 
-        testId = TestID.getTestID(reqFields.getTestNumber(), text);
         alarmName = getCn();
         if (getSize() <= getPtr()) optFlags = null;
         else optFlags = OptFlag_t.getBits(getByte());
@@ -169,86 +167,6 @@ public class ParametricTestRecord extends StdfRecord
         this.hiSpec = hiSpec;
     }
     
-    ParametricTestRecord(ParametricTestRecord ptr, DefaultPTRValueMap dmap)
-    {
-    	super(ptr.getRecordType(), ptr.getSequenceNumber(), ptr.getDeviceNumber(), null);
-    	reqFields = new RequiredParametricFields(ptr.getTestNumber(), ptr.getHeadNumber(), ptr.getSiteNumber(),
-    			ptr.getTestFlags(), ptr.getParamFlags());
-    	this.result = ptr.getResult();
-    	this.text = ptr.getTestName();
-    	this.alarmName = ptr.getAlarmName();
-    	testId = ptr.getTestID();
-    	if (ptr.getOptFlags() != null) optFlags = ptr.getOptFlags();
-    	else optFlags = dmap.poptDefaults.get(ptr.getTestNumber());
-    	if (ptr.getResScal() == MISSING_BYTE) 
-    	{
-    		resScal = dmap.resScalDefaults.get(testId);
-    		if (resScal == MISSING_BYTE) resScal = dmap.nresScalDefaults.get(ptr.getTestNumber());
-    	}
-    	else resScal = ptr.getResScal();
-    	if (ptr.getLlmScal() == MISSING_BYTE)
-    	{
-    		llmScal = dmap.llmScalDefaults.get(testId);
-    		if (llmScal == MISSING_BYTE) llmScal = dmap.nllmScalDefaults.get(ptr.getTestNumber());
-    	}
-    	else llmScal = ptr.getLlmScal();
-    	if (ptr.getHlmScal() == MISSING_BYTE)
-    	{
-    		hlmScal = dmap.hlmScalDefaults.get(testId);
-    		if (hlmScal == MISSING_BYTE) hlmScal = dmap.nhlmScalDefaults.get(ptr.getTestNumber());
-    	}
-    	else hlmScal = ptr.getHlmScal();
-    	if (ptr.getLoLimit() == MISSING_FLOAT)
-    	{
-    		loLimit = dmap.loLimDefaults.get(testId);
-    		if (loLimit == MISSING_FLOAT) loLimit = dmap.nloLimDefaults.get(ptr.getTestNumber());
-    	}
-    	else loLimit = ptr.getLoLimit();
-    	if (ptr.getHiLimit() == MISSING_FLOAT)
-    	{
-    		hiLimit = dmap.hiLimDefaults.get(testId);
-    		if (hiLimit == MISSING_FLOAT) hiLimit = dmap.nhiLimDefaults.get(ptr.getTestNumber());
-    	}
-    	else hiLimit = ptr.getHiLimit();
-    	if (ptr.getUnits().equals(MISSING_STRING))
-    	{
-    		units = dmap.unitDefaults.get(testId);
-    		if (units.equals(MISSING_STRING)) units = dmap.nunitDefaults.get(ptr.getTestNumber());
-    	}
-    	else units = ptr.getUnits();
-    	
-    	if (ptr.getResFmt().equals(MISSING_STRING))
-    	{
-    		resFmt = dmap.resFmtDefaults.get(testId);
-    		if (resFmt.equals(MISSING_STRING)) resFmt = dmap.nresFmtDefaults.get(ptr.getTestNumber());
-    	}
-    	else resFmt = ptr.getResFmt();
-    	if (ptr.getHlmFmt().equals(MISSING_STRING))
-    	{
-    		hlmFmt = dmap.hlmFmtDefaults.get(testId);
-    		if (hlmFmt.equals(MISSING_STRING)) hlmFmt = dmap.nhlmFmtDefaults.get(ptr.getTestNumber());
-    	}
-    	else hlmFmt = ptr.getHlmFmt();
-    	if (ptr.getLlmFmt().equals(MISSING_STRING))
-    	{
-    		llmFmt = dmap.llmFmtDefaults.get(testId);
-    		if (llmFmt.equals(MISSING_STRING)) llmFmt = dmap.nllmFmtDefaults.get(ptr.getTestNumber());
-    	}
-    	else llmFmt = ptr.getLlmFmt();
-        if (ptr.getLoSpec() == MISSING_FLOAT)
-        {
-        	loSpec = dmap.loSpecDefaults.get(testId);
-        	if (loSpec == MISSING_FLOAT) loSpec = dmap.nloSpecDefaults.get(ptr.getTestNumber());
-        }
-        else loSpec = ptr.getLoSpec();
-        if (ptr.getHiSpec() == MISSING_FLOAT)
-        {
-        	hiSpec = dmap.hiSpecDefaults.get(testId);
-        	if (hiSpec == MISSING_FLOAT) hiSpec = dmap.nhiSpecDefaults.get(ptr.getTestNumber());
-        }
-        else hiSpec = ptr.getHiSpec();
-    }
-
     @Override
     protected void toBytes()
     {
@@ -305,8 +223,6 @@ public class ParametricTestRecord extends StdfRecord
         return(sb.toString());
     }
 
-    public TestID getTestID() { return(testId); }
-    
     /**
      * @return the optFlags
      */

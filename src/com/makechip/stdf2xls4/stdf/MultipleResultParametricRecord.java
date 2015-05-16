@@ -27,7 +27,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import com.makechip.util.Log;
 /**
@@ -72,15 +71,15 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
             final int testNumber,
             final int headNumber,
             final int siteNumber,
-            final EnumSet<TestFlag_t> testFlags,
-            final EnumSet<ParamFlag_t> paramFlags,
+            final byte testFlags,
+            final byte paramFlags,
             final int j,
             final int k,
             final byte[] rtnState,
             final double[] results,
     	    final String text,
     	    final String alarmName,
-    	    final EnumSet<OptFlag_t> optFlags, 
+    	    final byte optFlags, 
     	    final byte resScal, // if RES_SCAL_INVALID set, then use default res_scal
     	    final byte llmScal,
     	    final byte hlmScal, 
@@ -103,11 +102,7 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         this.results = Arrays.copyOf(results, results.length);
         this.text = text;
         this.alarmName = alarmName;
-        if (optFlags != null)
-        {
-            this.optFlags = EnumSet.noneOf(OptFlag_t.class);
-            optFlags.stream().forEach(p -> this.optFlags.add(p));
-        }
+        if (optFlags != (byte) -1) this.optFlags = OptFlag_t.getBits(optFlags);
         else this.optFlags = null;
         this.resScal = resScal;
         this.llmScal = llmScal;
@@ -124,103 +119,6 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         this.hlmFmt = hlmFmt;
         this.loSpec = loSpec;
         this.hiSpec = hiSpec;
-    }
-    
-    public MultipleResultParametricRecord(MultipleResultParametricRecord mpr, DefaultMPRValueMap dmap)
-    {
-    	super(mpr.getRecordType(), mpr.getSequenceNumber(), mpr.getDeviceNumber(), null);
-    	reqFields = new RequiredParametricFields(mpr.getTestNumber(), mpr.getHeadNumber(), mpr.getSiteNumber(),
-    			mpr.getTestFlags(), mpr.getParamFlags());
-    	rtnState = mpr.getRtnState();
-    	results = mpr.getResults();
-    	text = mpr.getTestName();
-    	alarmName = mpr.getAlarmName();
-    	if (mpr.getOptFlags() != null) optFlags = mpr.getOptFlags();
-    	else optFlags = dmap.poptDefaults.get(mpr.getTestNumber());
-    	if (mpr.getResScal() == MISSING_BYTE) 
-    	{
-    		resScal = dmap.resScalDefaults.get(testId);
-    		if (resScal == MISSING_BYTE) resScal = dmap.nresScalDefaults.get(mpr.getTestNumber());
-    	}
-    	else resScal = mpr.getResScal();
-    	if (mpr.getLlmScal() == MISSING_BYTE)
-    	{
-    		llmScal = dmap.llmScalDefaults.get(testId);
-    		if (llmScal == MISSING_BYTE) llmScal = dmap.nllmScalDefaults.get(mpr.getTestNumber());
-    	}
-    	else llmScal = mpr.getLlmScal();
-    	if (mpr.getHlmScal() == MISSING_BYTE)
-    	{
-    		hlmScal = dmap.hlmScalDefaults.get(testId);
-    		if (hlmScal == MISSING_BYTE) hlmScal = dmap.nhlmScalDefaults.get(mpr.getTestNumber());
-    	}
-    	else hlmScal = mpr.getHlmScal();
-    	if (mpr.getLoLimit() == MISSING_FLOAT)
-    	{
-    		loLimit = dmap.loLimDefaults.get(testId);
-    		if (loLimit == MISSING_FLOAT) loLimit = dmap.nloLimDefaults.get(mpr.getTestNumber());
-    	}
-    	else loLimit = mpr.getLoLimit();
-    	if (mpr.getHiLimit() == MISSING_FLOAT)
-    	{
-    		hiLimit = dmap.hiLimDefaults.get(testId);
-    		if (hiLimit == MISSING_FLOAT) hiLimit = dmap.nhiLimDefaults.get(mpr.getTestNumber());
-    	}
-    	else hiLimit = mpr.getHiLimit();
-        if (startIn == MISSING_FLOAT)
-        {
-        	startIn = dmap.startInDefaults.get(testId);
-        	if (startIn == MISSING_FLOAT) startIn = dmap.nstartInDefaults.get(mpr.getTestNumber());
-        }
-        else startIn = mpr.getStartIn();
-        if (incrIn == MISSING_FLOAT)
-        {
-        	incrIn = dmap.incrInDefaults.get(testId);
-        	if (incrIn == MISSING_FLOAT) incrIn = dmap.nincrInDefaults.get(mpr.getTestNumber());
-        }
-        else incrIn = mpr.getIncrIn();
-    	if (mpr.getUnits().equals(MISSING_STRING))
-    	{
-    		units = dmap.unitDefaults.get(testId);
-    		if (units.equals(MISSING_STRING)) units = dmap.nunitDefaults.get(mpr.getTestNumber());
-    	}
-    	else units = mpr.getUnits();
-    	if (mpr.getUnitsIn().equals(MISSING_STRING))
-    	{
-    		unitsIn = dmap.unitsInDefaults.get(testId);
-    		if (unitsIn.equals(MISSING_STRING)) unitsIn = dmap.nunitsInDefaults.get(mpr.getTestNumber());
-    	}
-    	else unitsIn = mpr.getUnits();
-    	if (mpr.getResFmt().equals(MISSING_STRING))
-    	{
-    		resFmt = dmap.resFmtDefaults.get(testId);
-    		if (resFmt.equals(MISSING_STRING)) resFmt = dmap.nresFmtDefaults.get(mpr.getTestNumber());
-    	}
-    	else resFmt = mpr.getResFmt();
-    	if (mpr.getHlmFmt().equals(MISSING_STRING))
-    	{
-    		hlmFmt = dmap.hlmFmtDefaults.get(testId);
-    		if (hlmFmt.equals(MISSING_STRING)) hlmFmt = dmap.nhlmFmtDefaults.get(mpr.getTestNumber());
-    	}
-    	else hlmFmt = mpr.getHlmFmt();
-    	if (mpr.getLlmFmt().equals(MISSING_STRING))
-    	{
-    		llmFmt = dmap.llmFmtDefaults.get(testId);
-    		if (llmFmt.equals(MISSING_STRING)) llmFmt = dmap.nllmFmtDefaults.get(mpr.getTestNumber());
-    	}
-    	else llmFmt = mpr.getLlmFmt();
-        if (mpr.getLoSpec() == MISSING_FLOAT)
-        {
-        	loSpec = dmap.loSpecDefaults.get(testId);
-        	if (loSpec == MISSING_FLOAT) loSpec = dmap.nloSpecDefaults.get(mpr.getTestNumber());
-        }
-        else loSpec = mpr.getLoSpec();
-        if (mpr.getHiSpec() == MISSING_FLOAT)
-        {
-        	hiSpec = dmap.hiSpecDefaults.get(testId);
-        	if (hiSpec == MISSING_FLOAT) hiSpec = dmap.nhiSpecDefaults.get(mpr.getTestNumber());
-        }
-        else hiSpec = mpr.getHiSpec();
     }
     
     @Override

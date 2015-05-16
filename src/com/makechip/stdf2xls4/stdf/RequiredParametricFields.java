@@ -14,12 +14,15 @@ class RequiredParametricFields extends RequiredTestFields
 		paramFlags = ParamFlag_t.getBits(rec.getByte());
 	}
 
-	public RequiredParametricFields(long testNumber, int headNumber, int siteNumber, 
-			         EnumSet<TestFlag_t> testFlags, EnumSet<ParamFlag_t> paramFlags)
+	public RequiredParametricFields(long testNumber, int headNumber, int siteNumber, byte testFlags, byte paramFlags)
+	{
+		this(testNumber, headNumber, siteNumber, TestFlag_t.getBits(testFlags), ParamFlag_t.getBits(paramFlags));
+	}
+	
+	public RequiredParametricFields(long testNumber, int headNumber, int siteNumber, EnumSet<TestFlag_t> testFlags, EnumSet<ParamFlag_t> paramFlags)
 	{
 		super(testNumber, headNumber, siteNumber, testFlags);
-		this.paramFlags = EnumSet.noneOf(ParamFlag_t.class);
-		for (ParamFlag_t p : paramFlags) this.paramFlags.add(p);
+		this.paramFlags = paramFlags;
 	}
 	
 	public EnumSet<ParamFlag_t> getParamFlags() { return(paramFlags); }

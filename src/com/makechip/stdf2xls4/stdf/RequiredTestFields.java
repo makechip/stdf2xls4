@@ -32,10 +32,13 @@ class RequiredTestFields
 		this.testNumber = testNumber;
 		this.headNumber = (short) headNumber;
 		this.siteNumber = (short) siteNumber;
-		this.testFlags = EnumSet.noneOf(TestFlag_t.class);
-		for (TestFlag_t t : testFlags) this.testFlags.add(t);
+		this.testFlags = testFlags;
 	}
 	
+	public RequiredTestFields(long testNumber, int headNumber, int siteNumber, byte testFlags)
+	{
+		this(testNumber, headNumber, siteNumber, TestFlag_t.getBits(testFlags));
+	}
 	public long getTestNumber() { return(testNumber); }
 	
 	public short getHeadNumber() { return(headNumber); }

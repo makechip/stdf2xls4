@@ -67,9 +67,9 @@ public class StdfTest1
 		stdf.add(new GenericDataRecord(snum++, dnum, lgd));
 		stdf.add(new HardwareBinRecord(snum++, dnum, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
 		stdf.add(new MasterResultsRecord(snum++, dnum, 1000L, 'C', "lotDesc", "execDesc"));
-		stdf.add(new MultipleResultParametricRecord(snum++, dnum, 22, 1, 0, EnumSet.noneOf(TestFlag_t.class),
-			EnumSet.noneOf(ParamFlag_t.class), 2, 4, new byte[] { 1, 2 }, new double[] { 1.0, 2.0, 3.0, 4.0 },
-			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+		stdf.add(new MultipleResultParametricRecord(snum++, dnum, 22, 1, 0, (byte) 0,
+			(byte) 0, 2, 4, new byte[] { 1, 2 }, new double[] { 1.0, 2.0, 3.0, 4.0 },
+			"text", "alarmName", (byte) 0, (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 5, 6 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
 		stdf.add(new ParametricTestRecord(snum++, dnum, 44, 1, 0, EnumSet.noneOf(TestFlag_t.class),
 			EnumSet.noneOf(ParamFlag_t.class), 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class),
@@ -300,6 +300,7 @@ public class StdfTest1
 	public void testI()
 	{
 		StdfRecord r = stack.pop();
+		assertEquals(1, r.getDeviceNumber());
 		assertTrue(r instanceof DatalogTextRecord);
 		assertEquals(10, r.getSequenceNumber());
 		DatalogTextRecord dtr = (DatalogTextRecord) r;
@@ -317,6 +318,7 @@ public class StdfTest1
 	{
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof FunctionalTestRecord);
+		assertEquals(1, r.getDeviceNumber());
 		assertEquals(11, r.getSequenceNumber());
 		FunctionalTestRecord ftr = (FunctionalTestRecord) r;
 		assertEquals(3, ftr.getTestNumber());
@@ -424,6 +426,7 @@ public class StdfTest1
 	public void testN()
 	{
 		StdfRecord r = stack.pop();
+		assertEquals(1, r.getDeviceNumber());
 		assertTrue(r instanceof MultipleResultParametricRecord);
 		assertEquals(15, r.getSequenceNumber());
 		MultipleResultParametricRecord mpr = (MultipleResultParametricRecord) r;
@@ -466,6 +469,7 @@ public class StdfTest1
 	public void testO()
 	{
 		StdfRecord r = stack.pop();
+		assertEquals(1, r.getDeviceNumber());
 		assertTrue(r instanceof ParametricTestRecord);
 		assertEquals(16, r.getSequenceNumber());
 		ParametricTestRecord ptr = (ParametricTestRecord) r;
@@ -526,6 +530,7 @@ public class StdfTest1
 	public void testR()
 	{
 		StdfRecord r = stack.pop();
+		assertEquals(1, r.getDeviceNumber());
 		assertTrue(r instanceof PartResultsRecord);
 		assertEquals(19, r.getSequenceNumber());
 		PartResultsRecord ptr = (PartResultsRecord) r;
@@ -637,6 +642,7 @@ public class StdfTest1
 	public void testW()
 	{
 		StdfRecord r = stack.pop();
+		assertEquals(2, r.getDeviceNumber());
 		assertTrue(r instanceof WaferInformationRecord);
 		assertEquals(24, r.getSequenceNumber());
 		WaferInformationRecord ptr = (WaferInformationRecord) r;
