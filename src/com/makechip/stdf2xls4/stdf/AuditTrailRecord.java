@@ -72,7 +72,7 @@ public class AuditTrailRecord extends StdfRecord
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName()).append(":").append(Log.eol);
         sb.append("    MOD_TIM: ").append(getDate()).append(Log.eol);
-        sb.append("    CMD_LINE: ").append(cmdLine).append(Log.eol).append(Log.eol);
+        sb.append("    CMD_LINE: ").append(cmdLine).append(Log.eol);
         return(sb.toString());
     }
 

@@ -467,7 +467,7 @@ public class FunctionalTestRecord extends StdfRecord
         {
             for (byte b : enComps) sb.append(" " + b);
         }
-        sb.append(Log.eol).append(Log.eol);
+        sb.append(Log.eol);
         return(sb.toString());
     }
     

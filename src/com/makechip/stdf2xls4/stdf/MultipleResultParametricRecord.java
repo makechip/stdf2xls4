@@ -173,9 +173,9 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         sb.append(Log.eol);
         sb.append("    test name: ").append(text).append(Log.eol);
         sb.append("    alarm name: ").append(alarmName).append(Log.eol);
-        sb.append("    optional flags:");
         if (optFlags != null) 
         {
+            sb.append("    optional flags:");
         	optFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
         	sb.append(Log.eol);
         	sb.append("    result scaling exponent: " + resScal).append(Log.eol);
@@ -199,7 +199,6 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         	sb.append("    low spec limit value: " + getLoSpec()).append(Log.eol);
         	sb.append("    high spec limit value: " + getHiSpec()).append(Log.eol);
         }
-        sb.append(Log.eol);
         return(sb.toString());
     }
     

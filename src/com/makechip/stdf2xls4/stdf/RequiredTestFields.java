@@ -64,7 +64,7 @@ class RequiredTestFields
     	sb.append("    siteNumber: " + siteNumber).append(Log.eol);
     	sb.append("    testFlags:");
     	testFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
-    	sb.append(Log.eol).append(Log.eol);
+    	sb.append(Log.eol);
     	return(sb.toString());
     }
 }

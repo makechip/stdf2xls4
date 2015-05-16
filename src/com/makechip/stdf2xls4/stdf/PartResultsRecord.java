@@ -161,7 +161,7 @@ public class PartResultsRecord extends StdfRecord
         	sb.append("    repair info:");
         	for (int i=0; i<repair.length; i++) sb.append(" " + repair[i]);
         }
-        sb.append(Log.eol).append(Log.eol);
+        sb.append(Log.eol);
         return(sb.toString()); 
     }
 

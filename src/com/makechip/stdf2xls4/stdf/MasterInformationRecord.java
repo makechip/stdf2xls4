@@ -301,7 +301,7 @@ public class MasterInformationRecord extends StdfRecord
         sb.append("    engineering lot ID: ").append(engLotID).append(Log.eol);
         sb.append("    ROM code ID: ").append(romCodeID).append(Log.eol);
         sb.append("    tester serial number: ").append(testerSerialNumber).append(Log.eol);
-        sb.append("    supervisor ID: ").append(supervisorID).append(Log.eol).append(Log.eol);
+        sb.append("    supervisor ID: ").append(supervisorID).append(Log.eol);
         return(sb.toString());
     }
 

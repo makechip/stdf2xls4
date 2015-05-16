@@ -87,7 +87,7 @@ public class WaferInformationRecord extends StdfRecord
         sb.append("    head number: " + headNumber).append(Log.eol);
         sb.append("    site group number: " + siteGroupNumber).append(Log.eol);
         sb.append("    start date: "); sb.append(startDate).append(Log.eol);
-        sb.append("    wafer ID: "); sb.append(waferID).append(Log.eol).append(Log.eol);
+        sb.append("    wafer ID: "); sb.append(waferID).append(Log.eol);
         return(sb.toString());
     }
     

@@ -91,7 +91,7 @@ public class HardwareBinRecord extends StdfRecord
         sb.append("    HW bin number:" + hwBin).append(Log.eol);
         sb.append("    bin count: " + binCnt).append(Log.eol);
         sb.append("    P/F: "); sb.append(pf).append(Log.eol);
-        sb.append("    bin name: ").append(binName).append(Log.eol).append(Log.eol);
+        sb.append("    bin name: ").append(binName).append(Log.eol);
         return(sb.toString());
     }
     

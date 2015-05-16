@@ -68,7 +68,7 @@ public class FileAttributesRecord extends StdfRecord
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(":").append(Log.eol);
         sb.append("    CPU_TYPE: ").append(cpuType.toString()).append(Log.eol);
-        sb.append("    STDF_VER: " + stdfVersion).append(Log.eol).append(Log.eol);
+        sb.append("    STDF_VER: " + stdfVersion).append(Log.eol);
         return(sb.toString());
     }
 

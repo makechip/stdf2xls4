@@ -106,7 +106,7 @@ public class SoftwareBinRecord extends StdfRecord
         sb.append("    software bin number: " + swBinNumber).append(Log.eol);
         sb.append("    bin count: " + count).append(Log.eol);
         sb.append("    pass/fail indication: ").append(pf).append(Log.eol);
-        sb.append("    bin name: ").append(binName).append(Log.eol).append(Log.eol);
+        sb.append("    bin name: ").append(binName).append(Log.eol);
         return(sb.toString());
     }
     

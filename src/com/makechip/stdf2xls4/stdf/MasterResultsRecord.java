@@ -86,7 +86,7 @@ public class MasterResultsRecord extends StdfRecord
         sb.append("    finish date: ").append(getFinishDate()).append(Log.eol);
         sb.append("    lot disposition code: ").append(dispCode).append(Log.eol);
         sb.append("    user lot description: ").append(lotDesc).append(Log.eol);
-        sb.append("    exec lot description: ").append(execDesc).append(Log.eol).append(Log.eol);
+        sb.append("    exec lot description: ").append(execDesc).append(Log.eol);
         return(sb.toString());
     }
 

@@ -4,8 +4,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import com.makechip.util.Log;
-
 
 public abstract class StdfRecord
 {
@@ -512,7 +510,6 @@ public abstract class StdfRecord
             if (i == cnt) break;
             n[i] = (byte) ((b & 0xF0) >> 4);
         }
-        for (byte x : n) Log.msg_(" " + x);
         return(n);
     }
         

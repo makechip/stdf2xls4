@@ -222,7 +222,6 @@ public class ParametricTestRecord extends StdfRecord
         	sb.append("    low spec limit value: " + loSpec).append(Log.eol);
         	sb.append("    high spec limit value: " + hiSpec).append(Log.eol);
         }
-        sb.append(Log.eol);
         return(sb.toString());
     }
 
