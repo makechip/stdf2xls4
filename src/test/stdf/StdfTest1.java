@@ -53,8 +53,8 @@ public class StdfTest1
 		stdf.add(new PinMapRecord(false, snum++, dnum, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
 		stdf.add(new BeginProgramSelectionRecord(snum++, dnum, "beginProgramSelectionRecord"));
 		stdf.add(new DatalogTextRecord(snum++, dnum, "datalogTextRecord"));
-		stdf.add(new FunctionalTestRecord(snum++, dnum, 3, (short) 2, (short) 1, EnumSet.noneOf(TestFlag_t.class),
-			EnumSet.noneOf(FTROptFlag_t.class), 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
+		stdf.add(new FunctionalTestRecord(snum++, dnum, 3, (short) 2, (short) 1, (byte) 0,
+			(byte) 0, 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
 			new byte[] { (byte) 4, (byte) 3, (byte) 2, (byte) 1 }, new int[] { 3, 4, 5, 6 },
 			new byte[] { (byte) 0, (byte) 1, (byte) 2, (byte) 3 }, new byte[] { (byte) 3, (byte) 2, (byte) 1, (byte) 0 },
 			"vecName", "timeSetName", "vecOpCode", "label", "alarmName", "progTxt", "rsltTxt", (short) 5, 
@@ -321,49 +321,49 @@ public class StdfTest1
 		assertEquals(1, r.getDeviceNumber());
 		assertEquals(11, r.getSequenceNumber());
 		FunctionalTestRecord ftr = (FunctionalTestRecord) r;
-		assertEquals(3, ftr.getTestNumber());
-		assertEquals(2, ftr.getHeadNumber());
-		assertEquals(1, ftr.getSiteNumber());
-		assertTrue(ftr.getTestFlags().size() == 0);
-		assertTrue(ftr.getOptFlags().size() == 0);
-		assertEquals(1234L, ftr.getCycleCount());
-		assertEquals(111L, ftr.getRelVaddr());
-		assertEquals(222L, ftr.getRptCnt());
-		assertEquals(55L, ftr.getNumFail());
-		assertEquals(4, ftr.getxFailAddr());
-		assertEquals(5, ftr.getyFailAddr());
-		assertEquals(6, ftr.getVecOffset());
-		assertEquals(1, ftr.getRtnIndex()[0]);
-		assertEquals(2, ftr.getRtnIndex()[1]);
-		assertEquals(3, ftr.getRtnIndex()[2]);
-		assertEquals(4, ftr.getRtnIndex()[3]);
-		assertEquals(4, ftr.getRtnState()[0]);
-		assertEquals(3, ftr.getRtnState()[1]);
-		assertEquals(2, ftr.getRtnState()[2]);
-		assertEquals(1, ftr.getRtnState()[3]);
-		assertEquals(3, ftr.getPgmIndex()[0]);
-		assertEquals(4, ftr.getPgmIndex()[1]);
-		assertEquals(5, ftr.getPgmIndex()[2]);
-		assertEquals(6, ftr.getPgmIndex()[3]);
-		assertEquals(0, ftr.getPgmState()[0]);
-		assertEquals(1, ftr.getPgmState()[1]);
-		assertEquals(2, ftr.getPgmState()[2]);
-		assertEquals(3, ftr.getPgmState()[3]);
-		assertEquals(3, ftr.getFailPin()[0]);
-		assertEquals(2, ftr.getFailPin()[1]);
-		assertEquals(1, ftr.getFailPin()[2]);
-		assertEquals(0, ftr.getFailPin()[3]);
-		assertEquals("vecName", ftr.getVecName());
-		assertEquals("timeSetName", ftr.getTimeSetName());
-		assertEquals("vecOpCode", ftr.getVecOpCode());
-		assertEquals("label",ftr.getTestName());
-		assertEquals("alarmName", ftr.getAlarmName());
-		assertEquals("progTxt", ftr.getProgTxt());
-		assertEquals("rsltTxt", ftr.getRsltTxt());
-		assertEquals(5, ftr.getPatGenNum());
-		assertEquals(6, ftr.getEnComps()[0]);
-		assertEquals(7, ftr.getEnComps()[1]);
-		assertEquals(8, ftr.getEnComps()[2]);
+		assertEquals(3, ftr.testNumber);
+		assertEquals(2, ftr.headNumber);
+		assertEquals(1, ftr.siteNumber);
+		assertTrue(ftr.testFlags.size() == 0);
+		assertTrue(ftr.optFlags.size() == 0);
+		assertEquals(1234L, ftr.cycleCount);
+		assertEquals(111L, ftr.relVaddr);
+		assertEquals(222L, ftr.rptCnt);
+		assertEquals(55L, ftr.numFail);
+		assertEquals(4, ftr.xFailAddr);
+		assertEquals(5, ftr.yFailAddr);
+		assertEquals(6, ftr.vecOffset);
+		assertEquals(1, ftr.rtnIndex[0]);
+		assertEquals(2, ftr.rtnIndex[1]);
+		assertEquals(3, ftr.rtnIndex[2]);
+		assertEquals(4, ftr.rtnIndex[3]);
+		assertEquals(4, ftr.rtnState[0]);
+		assertEquals(3, ftr.rtnState[1]);
+		assertEquals(2, ftr.rtnState[2]);
+		assertEquals(1, ftr.rtnState[3]);
+		assertEquals(3, ftr.pgmIndex[0]);
+		assertEquals(4, ftr.pgmIndex[1]);
+		assertEquals(5, ftr.pgmIndex[2]);
+		assertEquals(6, ftr.pgmIndex[3]);
+		assertEquals(0, ftr.pgmState[0]);
+		assertEquals(1, ftr.pgmState[1]);
+		assertEquals(2, ftr.pgmState[2]);
+		assertEquals(3, ftr.pgmState[3]);
+		assertEquals(3, ftr.failPin[0]);
+		assertEquals(2, ftr.failPin[1]);
+		assertEquals(1, ftr.failPin[2]);
+		assertEquals(0, ftr.failPin[3]);
+		assertEquals("vecName", ftr.vecName);
+		assertEquals("timeSetName", ftr.timeSetName);
+		assertEquals("vecOpCode", ftr.vecOpCode);
+		assertEquals("label",ftr.testName);
+		assertEquals("alarmName", ftr.alarmName);
+		assertEquals("progTxt", ftr.progTxt);
+		assertEquals("rsltTxt", ftr.rsltTxt);
+		assertEquals(5, ftr.patGenNum);
+		assertEquals(6, ftr.enComps[0]);
+		assertEquals(7, ftr.enComps[1]);
+		assertEquals(8, ftr.enComps[2]);
 	}
 	
 	//GenericDataRecord.Data d1 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_4, 0), new Integer(33));

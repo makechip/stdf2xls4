@@ -27,46 +27,58 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Set;
 
 import com.makechip.util.Log;
 /**
 *** @author eric
-*** @version $Id: FunctionalTestRecord.java 258 2008-10-22 01:22:44Z ericw $
+*** @version $Id: FunctionalTestRecord.java 258 2008-10-22 01:22:44Z eric $
 **/
 public class FunctionalTestRecord extends StdfRecord
 {
-	private final TestID testId;
-	private final RequiredTestFields reqFields;
-    private final EnumSet<FTROptFlag_t> optFlags;
-    private final long cycleCount;    // cycle count is invalid if CYCLE_CNT_INVALID is set
-    private final long relVaddr;      // relVaddr is invalid if REL_VADDR_INVALID is set
-    private final long rptCnt;        // rptCnt is invalid if REPEAT_CNT_INVALID is set
-    private final long numFail;       // numFail is invalid if NUM_FAIL_INVALID is set
-    private final int xFailAddr;     // xFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
-    private final int yFailAddr;     // yFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
-    private final short vecOffset;   // vecOffset is invalid if VEC_OFFSET_INVALID is set
-    private final int[] rtnIndex;
-    private final byte[] rtnState;
-    private final int[] pgmIndex;
-    private final byte[] pgmState;
-    private final byte[] failPin;
-    private final String vecName;
-    private final String timeSetName;
-    private final String vecOpCode;
-    private String label;
-    private final String alarmName;
-    private final String progTxt;
-    private final String rsltTxt;
-    private final short patGenNum;
-    private final byte[] enComps;
+	public final long testNumber;
+	public final short headNumber;
+	public final short siteNumber;
+	public final Set<TestFlag_t> testFlags;
+    public final Set<FTROptFlag_t> optFlags;
+    public final long cycleCount;    // cycle count is invalid if CYCLE_CNT_INVALID is set
+    public final long relVaddr;      // relVaddr is invalid if REL_VADDR_INVALID is set
+    public final long rptCnt;        // rptCnt is invalid if REPEAT_CNT_INVALID is set
+    public final long numFail;       // numFail is invalid if NUM_FAIL_INVALID is set
+    public final int xFailAddr;     // xFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
+    public final int yFailAddr;     // yFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
+    public final short vecOffset;   // vecOffset is invalid if VEC_OFFSET_INVALID is set
+    public final int[] rtnIndex;
+    public final byte[] rtnState;
+    public final int[] pgmIndex;
+    public final byte[] pgmState;
+    public final byte[] failPin;
+    public final String vecName;
+    public final String timeSetName;
+    public final String vecOpCode;
+    public final String testName;
+    public final String alarmName;
+    public final String progTxt;
+    public final String rsltTxt;
+    public final short patGenNum;
+    public final byte[] enComps;
     
     public FunctionalTestRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.FTR, sequenceNumber, devNum, data);
-        reqFields = new RequiredTestFields(this);
+        testNumber = getU4(MISSING_INT);
+        headNumber = getU1(MISSING_SHORT);
+        siteNumber = getU1(MISSING_SHORT);
+        EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());
+        testFlags = Collections.unmodifiableSet(s);
         if (getSize() <= getPtr()) optFlags = null;
-        else optFlags = FTROptFlag_t.getBits(getByte());
+        else 
+        {
+        	EnumSet<FTROptFlag_t> opt = FTROptFlag_t.getBits(getByte());
+        	optFlags = Collections.unmodifiableSet(opt);
+        }
         cycleCount = getU4(MISSING_INT);
         relVaddr = getU4(MISSING_INT);
         rptCnt = getU4(MISSING_INT);
@@ -86,11 +98,10 @@ public class FunctionalTestRecord extends StdfRecord
         vecName = getCn();
         timeSetName = getCn();
         vecOpCode = getCn();
-        label = getCn();
+        testName = getCn();
         alarmName = getCn();
         progTxt = getCn();
         rsltTxt = getCn();
-        testId = null;
         patGenNum = getU1(MISSING_SHORT);
         enComps = getDn();
     }
@@ -101,8 +112,8 @@ public class FunctionalTestRecord extends StdfRecord
         final int testNumber,
         final short headNumber,
         final short siteNumber,
-        final EnumSet<TestFlag_t> testFlags,
-        final EnumSet<FTROptFlag_t> optFlags,
+        final byte testFlags,
+        final byte optFlags,
         final long cycleCount,
         final long relVaddr,
         final long rptCnt,
@@ -126,9 +137,13 @@ public class FunctionalTestRecord extends StdfRecord
         final byte[] enComps)
     {
         super(Record_t.FTR, sequenceNumber, deviceNumber, null);	
-        reqFields = new RequiredTestFields(testNumber, headNumber, siteNumber, testFlags);
-        this.optFlags = EnumSet.noneOf(FTROptFlag_t.class);
-        for (FTROptFlag_t p : optFlags) this.optFlags.add(p);
+        this.testNumber = testNumber;
+        this.headNumber = headNumber;
+        this.siteNumber = siteNumber;
+        EnumSet<TestFlag_t> s1 = TestFlag_t.getBits(testFlags);
+        this.testFlags = Collections.unmodifiableSet(s1);
+        EnumSet<FTROptFlag_t> s2 = FTROptFlag_t.getBits(optFlags);
+        this.optFlags = Collections.unmodifiableSet(s2);
         this.cycleCount = cycleCount;
         this.relVaddr = relVaddr;
         this.rptCnt = rptCnt;
@@ -144,24 +159,23 @@ public class FunctionalTestRecord extends StdfRecord
         this.vecName = vecName;
         this.timeSetName = timeSetName;
         this.vecOpCode = vecOpCode;
-        this.label = label;
+        this.testName = label;
         this.alarmName = alarmName;
         this.progTxt = progTxt;
         this.rsltTxt = rsltTxt;
         this.patGenNum = patGenNum;
         this.enComps = enComps;
-        testId  = TestID.getTestID(testNumber, label);
     }
     
     @Override
     protected void toBytes()
     {
         TByteArrayList list = new TByteArrayList();
-        list.addAll(getU4Bytes(reqFields.getTestNumber()));
-        list.addAll(getU1Bytes(reqFields.getHeadNumber()));
-        list.addAll(getU1Bytes(reqFields.getSiteNumber()));
+        list.addAll(getU4Bytes(testNumber));
+        list.addAll(getU1Bytes(headNumber));
+        list.addAll(getU1Bytes(siteNumber));
         byte b = 0;
-        for (TestFlag_t t : reqFields.getTestFlags()) b |= t.getBit();
+        for (TestFlag_t t : testFlags) b |= t.getBit();
         list.add(b);
         if (optFlags != null)
         {
@@ -185,7 +199,7 @@ public class FunctionalTestRecord extends StdfRecord
             list.addAll(getCnBytes(vecName));
             list.addAll(getCnBytes(timeSetName));
             list.addAll(getCnBytes(vecOpCode));
-            list.addAll(getCnBytes(label));
+            list.addAll(getCnBytes(testName));
             list.addAll(getCnBytes(alarmName));
             list.addAll(getCnBytes(progTxt));
             list.addAll(getCnBytes(rsltTxt));
@@ -195,207 +209,25 @@ public class FunctionalTestRecord extends StdfRecord
         bytes = list.toArray();
     }
   
-    public boolean alarm() { return(reqFields.alarm()); }
-    public boolean unreliable() { return(reqFields.unreliable()); }
-    public boolean timeout() { return(reqFields.timeout()); }
-    public boolean notExecuted() { return(reqFields.notExecuted()); }
-    public boolean abort() { return(reqFields.abort()); }
-    public boolean noPassFailIndication() { return(reqFields.noPassFailIndication()); }
-    public boolean fail() { return(reqFields.fail()); }
+    public boolean alarm() { return(testFlags.contains(TestFlag_t.ALARM)); }
+    public boolean unreliable() { return(testFlags.contains(TestFlag_t.UNRELIABLE)); }
+    public boolean timeout() { return(testFlags.contains(TestFlag_t.TIMEOUT)); }
+    public boolean notExecuted() { return(testFlags.contains(TestFlag_t.NOT_EXECUTED)); }
+    public boolean abort() { return(testFlags.contains(TestFlag_t.ABORT)); }
+    public boolean noPassFailIndication() { return(testFlags.contains(TestFlag_t.NO_PASS_FAIL)); }
+    public boolean fail() { return(testFlags.contains(TestFlag_t.FAIL)); }
     
-    public TestID getTestID() { return(testId); }
-    
-    /**
-     * Required Field.
-     * @return the testNumber
-     */
-    public long getTestNumber() { return(reqFields.getTestNumber()); }
-
-    /**
-     * Required Field.
-     * @return the headNumber
-     */
-    public short getHeadNumber() { return(reqFields.getHeadNumber()); }
-
-    /**
-     * Required Field.
-     * @return the siteNumber
-     */
-    public short getSiteNumber() { return(reqFields.getSiteNumber()); }
-
-    /**
-     * Required Field.
-     * @return the testFlags
-     */
-    public EnumSet<TestFlag_t> getTestFlags() { return(reqFields.getTestFlags()); }
-
-    /**
-     * Optional field.  If missing, no other fields follow.
-     * Default value is 0.
-     * @return the optFlags
-     */
-    public EnumSet<FTROptFlag_t> getOptFlags() { return(optFlags); }
-
-    /**
-     * Can be missing; invalid indicated by optFlag bit 0.
-     * @return the cycleCount
-     */
-    public long getCycleCount()
-    {
-        if (optFlags.contains(FTROptFlag_t.CYCLE_CNT_INVALID)) return(-1);
-        return(cycleCount);
-    }
-
-    /**
-     * Can be missing; invalid indicated by optFlag bit 1.
-     * @return the relVaddr
-     */
-    public long getRelVaddr()
-    {
-        if (optFlags.contains(FTROptFlag_t.REL_VADDR_INVALID)) return(-1);
-        return(relVaddr);
-    }
-
-    /**
-     * Can be missing; invalid indicated by optFlag bit 2.
-     * @return the rptCnt
-     */
-    public long getRptCnt()
-    {
-        if (optFlags.contains(FTROptFlag_t.REPEAT_CNT_INVALID)) return(-1);
-        return(rptCnt);
-    }
-
-    /**
-     * Can be missing; invalid indicated by optFlag bit 3.
-     * @return the numFail
-     */
-    public long getNumFail()
-    {
-        if (optFlags.contains(FTROptFlag_t.NUM_FAIL_INVALID)) return(-1);
-        return(numFail);
-    }
-
-    /**
-     * Can be missing; invalid indicated by optFlag bit 4.
-     * @return the xFailAddr
-     */
-    public int getxFailAddr()
-    {
-        if (optFlags.contains(FTROptFlag_t.XY_FAIL_ADDR_INVALID)) return(Integer.MIN_VALUE);
-        return(xFailAddr);
-    }
-
-    /**
-     * Can be missing; invalid indicated by optFlag bit 4.
-     * @return the yFailAddr
-     */
-    public int getyFailAddr()
-    {
-        if (optFlags.contains(FTROptFlag_t.XY_FAIL_ADDR_INVALID)) return(Integer.MIN_VALUE);
-        return(yFailAddr);
-    }
-
-    /**
-     * Can be missing; invalid indicated by optFlag bit 5.
-     * @return the vecOffset
-     */
-    public short getVecOffset()
-    {
-        if (optFlags.contains(FTROptFlag_t.VEC_OFFSET_INVALID)) return(Short.MIN_VALUE);
-        return(vecOffset);
-    }
-
-    /**
-     * Can be missing. Default value is 0-length array, indicated by RTN_ICNT = 0.
-     * @return the rtnIndex
-     */
-    public int[] getRtnIndex() { return(rtnIndex); }
-
-    /**
-     * Can be missing. Default value is 0-length array, indicated by RTN_ICNT = 0.
-     * @return the rtnState
-     */
-    public byte[] getRtnState() { return(rtnState); }
-
-    /**
-     * Can be missing. Default value is 0-length array, indicated by PGM_ICNT = 0.
-     * @return the pgmIndex
-     */
-    public int[] getPgmIndex() { return(pgmIndex); }
-
-    /**
-     * Can be missing. Default value is 0-length array, indicated by PGM_ICNT = 0.
-     * @return the pgmState
-     */
-    public byte[] getPgmState() { return(pgmState); }
-
-    /**
-     * Can be missing. Default value is 0-length array.
-     * @return the failPin
-     */
-    public byte[] getFailPin() { return(failPin); }
-
-    /**
-     * Can be missing. Default value is 0-length string.
-     * @return the vecName
-     */
-    public String getVecName() { return(vecName); }
-
-    /**
-     * Can be missing. Default value is 0-length string.
-     * @return the timeSetName
-     */
-    public String getTimeSetName() { return(timeSetName); }
-
-    /**
-     * Can be missing. Default value is 0-length string.
-     * @return the vecOpCode
-     */
-    public String getVecOpCode() { return(vecOpCode); }
-
-    /**
-     * Can be missing. Default value is 0-length string.
-     * @return the label
-     */
-    public String getTestName() { return(label); }
-
-    /**
-     * Can be missing. Default value is 0-length string.
-     * @return the alarmName
-     */
-    public String getAlarmName() { return(alarmName); }
-
-    /**
-     * Can be missing. Default value is 0-length string.
-     * @return the progTxt
-     */
-    public String getProgTxt() { return(progTxt); }
-
-    /**
-     * Can be missing. Default value is 0-length string.
-     * @return the rsltTxt
-     */
-    public String getRsltTxt() { return(rsltTxt); }
-
-    /**
-     * Can be missing. Default value is 255.
-     * @return the patGenNum
-     */
-    public short getPatGenNum() { return(patGenNum); }
-
-    /**
-     * Can be missing. Default value is 0-length array.
-     * @return the enComps
-     */
-    public byte[] getEnComps() { return(enComps); }
 
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(":").append(Log.eol);
-        sb.append(reqFields.toString());
+        sb.append("    testNumber: " + testNumber).append(Log.eol);
+        sb.append("    headNumber: " + headNumber).append(Log.eol);
+        sb.append("    siteNumber: " + siteNumber).append(Log.eol);
+        sb.append("    testFlags:");
+        testFlags.stream().forEach(p -> sb.append(" ").append(p));
         sb.append("    optFlags:");
         optFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
         sb.append(Log.eol);
@@ -424,7 +256,7 @@ public class FunctionalTestRecord extends StdfRecord
         sb.append("    vecName: ").append(vecName).append(Log.eol);
         sb.append("    timeSetName: ").append(timeSetName).append(Log.eol);
         sb.append("    vecOpCode: ").append(vecOpCode).append(Log.eol);
-        sb.append("    test name: ").append(label).append(Log.eol);
+        sb.append("    test name: ").append(testName).append(Log.eol);
         sb.append("    alarmName: ").append(alarmName).append(Log.eol);
         sb.append("    progTxt: ").append(progTxt).append(Log.eol);
         sb.append("    rsltTxt: ").append(rsltTxt).append(Log.eol);
