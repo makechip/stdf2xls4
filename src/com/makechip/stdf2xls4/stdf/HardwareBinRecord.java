@@ -35,12 +35,12 @@ import com.makechip.util.Log;
 **/
 public class HardwareBinRecord extends StdfRecord
 {
-    private final short headNumber;
-    private final short siteNumber;
-    private final int hwBin;
-    private final long binCnt;
-    private final char pf;
-    private final String binName;
+    public final short headNumber;
+    public final short siteNumber;
+    public final int hwBin;
+    public final long binCnt;
+    public final char pf;
+    public final String binName;
     /**
     *** @param p1
     *** @param p2
@@ -95,53 +95,4 @@ public class HardwareBinRecord extends StdfRecord
         return(sb.toString());
     }
     
-    /**
-     * @return the headNumber
-     */
-    public short getHeadNumber()
-    {
-        return headNumber;
-    }
-
-    /**
-     * @return the siteNumber
-     */
-    public short getSiteNumber()
-    {
-        return siteNumber;
-    }
-
-    /**
-     * @return the hwBin
-     */
-    public int getHwBin()
-    {
-        return hwBin;
-    }
-
-    /**
-     * @return the binCnt
-     */
-    public long getBinCnt()
-    {
-        return binCnt;
-    }
-
-    /**
-     * @return the pf
-     */
-    public String getPf()
-    {
-        return "" + pf;
-    }
-
-    /**
-     * @return the binName
-     */
-    public String getBinName()
-    {
-        return binName;
-    }
-
-
 }

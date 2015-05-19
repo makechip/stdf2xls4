@@ -71,8 +71,8 @@ public class StdfTest1
 			(byte) 0, 2, 4, new byte[] { 1, 2 }, new double[] { 1.0, 2.0, 3.0, 4.0 },
 			"text", "alarmName", (byte) 0, (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 5, 6 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
-		stdf.add(new ParametricTestRecord(snum++, dnum, 44, 1, 0, EnumSet.noneOf(TestFlag_t.class),
-			EnumSet.noneOf(ParamFlag_t.class), 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class),
+		stdf.add(new ParametricTestRecord(snum++, dnum, 44, 1, 0, (byte) 0,
+			(byte) 0, 5.5f, "text", "alarmName", (byte) 0,
 			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
 		stdf.add(new PartCountRecord(snum++, dnum, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
 		stdf.add(new PartInformationRecord(snum++, dnum, (short) 1, (short) 0));
@@ -110,9 +110,9 @@ public class StdfTest1
     	StdfRecord r = stack.pop();
     	assertTrue(r instanceof FileAttributesRecord);
 	    FileAttributesRecord far = (FileAttributesRecord) r;
-	    assertEquals(Cpu_t.PC, far.getCpuType());
-	    assertEquals(4, far.getStdfVersion());
-	    assertEquals(0, r.getSequenceNumber());
+	    assertEquals(Cpu_t.PC, far.cpuType);
+	    assertEquals(4, far.stdfVersion);
+	    assertEquals(0, r.sequenceNumber);
     }
     
 	// atrs.add(new AuditTrailRecord(snum++, dnum, 100000000L, "cmdline"));
@@ -122,9 +122,9 @@ public class StdfTest1
         StdfRecord r = stack.pop();
         assertTrue(r instanceof AuditTrailRecord);
         AuditTrailRecord atr = (AuditTrailRecord) r;
-        assertEquals(1, atr.getSequenceNumber());
-        assertEquals((new Date(100000000L * 1000L).toString()), atr.getDate());
-        assertEquals("cmdline", atr.getCmdLine());
+        assertEquals(1, atr.sequenceNumber);
+        assertEquals((new Date(100000000L * 1000L).toString()), atr.date);
+        assertEquals("cmdline", atr.cmdLine);
 	}
 
 	//MasterInformationRecord mir = new MasterInformationRecord(snum++, dnum, 1000L, 2000L, (short) 1,
@@ -140,47 +140,47 @@ public class StdfTest1
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof MasterInformationRecord);
 		MasterInformationRecord mir = (MasterInformationRecord) r;
-		assertEquals(2, mir.getSequenceNumber());
-		assertEquals(-1, mir.getDeviceNumber());
-		assertTrue((new Date(1000000L).toString().equals(mir.getJobDate())));
-		assertTrue((new Date(2000000L).toString().equals(mir.getTestDate())));
-		assertEquals((short) 1, mir.getStationNumber());
-		assertEquals("A", mir.getTestModeCode());
-		assertEquals("B", mir.getLotRetestCode());
-		assertEquals("C", mir.getDataProtectionCode());
-		assertEquals(100, mir.getBurnInTime());
-		assertEquals("D", mir.getCmdModeCode());
-		assertEquals("lotID", mir.getLotID());
-		assertEquals("partType", mir.getPartType());
-		assertEquals("nodeName", mir.getNodeName());
-		assertEquals("testerType", mir.getTesterType());
-		assertEquals("jobName", mir.getJobName());
-		assertEquals("jobRevisionNumber", mir.getJobRevisionNumber());
-		assertEquals("sublotID", mir.getSublotID());
-		assertEquals("operatorName", mir.getOperatorName());
-		assertEquals("execSoftware", mir.getExecSoftware());
-		assertEquals("execSoftwareVersion", mir.getExecSoftwareVersion());
-		assertEquals("stepCode", mir.getStepCode());
-		assertEquals("temperature", mir.getTemperature());
-		assertEquals("userText", mir.getUserText());
-		assertEquals("auxDataFile", mir.getAuxDataFile());
-		assertEquals("packageType", mir.getPackageType());
-		assertEquals("familyID", mir.getFamilyID());
-		assertEquals("dateCode", mir.getDateCode());
-		assertEquals("facilityID", mir.getFacilityID());
-		assertEquals("floorID", mir.getFloorID());
-		assertEquals("fabID", mir.getFabID());
-		assertEquals("frequency", mir.getFrequency());
-		assertEquals("specName", mir.getSpecName());
-		assertEquals("specVersion", mir.getSpecVersion());
-		assertEquals("flowID", mir.getFlowID());
-		assertEquals("setupID", mir.getSetupID());
-		assertEquals("designRevision", mir.getDesignRevision());
-		assertEquals("engLotID", mir.getEngLotID());
-		assertEquals("romCodeID", mir.getRomCodeID());
-		assertEquals("testerSerialNumber", mir.getTesterSerialNumber());
-		assertEquals("supervisorID", mir.getSupervisorID());
-		assertEquals(-1, mir.getFileTimeStamp());
+		assertEquals(2, mir.sequenceNumber);
+		assertEquals(-1, mir.devNum);
+		assertEquals(1000000L, mir.jobDate);
+		assertEquals(2000000L, mir.testDate);
+		assertEquals((short) 1, mir.stationNumber);
+		assertEquals("A", mir.testModeCode);
+		assertEquals("B", mir.lotRetestCode);
+		assertEquals("C", mir.dataProtectionCode);
+		assertEquals(100, mir.burnInTime);
+		assertEquals("D", mir.cmdModeCode);
+		assertEquals("lotID", mir.lotID);
+		assertEquals("partType", mir.partType);
+		assertEquals("nodeName", mir.nodeName);
+		assertEquals("testerType", mir.testerType);
+		assertEquals("jobName", mir.jobName);
+		assertEquals("jobRevisionNumber", mir.jobRevisionNumber);
+		assertEquals("sublotID", mir.sublotID);
+		assertEquals("operatorName", mir.operatorName);
+		assertEquals("execSoftware", mir.execSoftware);
+		assertEquals("execSoftwareVersion", mir.execSoftwareVersion);
+		assertEquals("stepCode", mir.stepCode);
+		assertEquals("temperature", mir.temperature);
+		assertEquals("userText", mir.userText);
+		assertEquals("auxDataFile", mir.auxDataFile);
+		assertEquals("packageType", mir.packageType);
+		assertEquals("familyID", mir.familyID);
+		assertEquals("dateCode", mir.dateCode);
+		assertEquals("facilityID", mir.facilityID);
+		assertEquals("floorID", mir.floorID);
+		assertEquals("fabID", mir.fabID);
+		assertEquals("frequency", mir.frequency);
+		assertEquals("specName", mir.specName);
+		assertEquals("specVersion", mir.specVersion);
+		assertEquals("flowID", mir.flowID);
+		assertEquals("setupID", mir.setupID);
+		assertEquals("designRevision", mir.designRevision);
+		assertEquals("engLotID", mir.engLotID);
+		assertEquals("romCodeID", mir.romCodeID);
+		assertEquals("testerSerialNumber", mir.testerSerialNumber);
+		assertEquals("supervisorID", mir.supervisorID);
+		assertEquals(-1, mir.fileTimeStamp);
 	}
 	
 	// RetestDataRecord rdr = new RetestDataRecord(snum++, dnum, new int[] { 1, 2, 3, 4 });
@@ -190,8 +190,8 @@ public class StdfTest1
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof RetestDataRecord);
 		RetestDataRecord rdr = (RetestDataRecord) r;
-		assertEquals(3, rdr.getSequenceNumber());
-		assertEquals(-1, rdr.getDeviceNumber());
+		assertEquals(3, rdr.sequenceNumber);
+		assertEquals(-1, rdr.devNum);
 		int[] bins = rdr.getRetestBins();
 		assertEquals(1, bins[0]);
 		assertEquals(2, bins[1]);
@@ -210,7 +210,7 @@ public class StdfTest1
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof SiteDescriptionRecord);
 		SiteDescriptionRecord sdr = (SiteDescriptionRecord) r;
-		assertEquals(4, sdr.getSequenceNumber());
+		assertEquals(4, sdr.sequenceNumber);
 		assertEquals(1, sdr.getHeadNumber());
 		assertEquals(2, sdr.getSiteGroupNumber());
 		assertEquals(1, sdr.getNumSites());
@@ -243,7 +243,7 @@ public class StdfTest1
 		StdfRecord r1 = stack.pop();
 		assertTrue(r1 instanceof PinMapRecord);
 		PinMapRecord pmr = (PinMapRecord) r1;
-		assertEquals(5, pmr.getSequenceNumber());
+		assertEquals(5, pmr.sequenceNumber);
 	    assertEquals(0, pmr.getPmrIdx());
 	    assertEquals(3, pmr.getChannelType());
 	    assertEquals("channelName0", pmr.getChannelName());
@@ -254,7 +254,7 @@ public class StdfTest1
 	    r1 = stack.pop();
 	    assertTrue(r1 instanceof PinMapRecord);
 	    pmr = (PinMapRecord) r1;
-		assertEquals(6, pmr.getSequenceNumber());
+		assertEquals(6, pmr.sequenceNumber);
 	    assertEquals(1, pmr.getPmrIdx());
 	    assertEquals(3, pmr.getChannelType());
 	    assertEquals("channelName1", pmr.getChannelName());
@@ -265,7 +265,7 @@ public class StdfTest1
 	    r1 = stack.pop();
 	    assertTrue(r1 instanceof PinMapRecord);
 	    pmr = (PinMapRecord) r1;
-		assertEquals(7, pmr.getSequenceNumber());
+		assertEquals(7, pmr.sequenceNumber);
 	    assertEquals(2, pmr.getPmrIdx());
 	    assertEquals(3, pmr.getChannelType());
 	    assertEquals("channelName2", pmr.getChannelName());
@@ -276,7 +276,7 @@ public class StdfTest1
 	    r1 = stack.pop();
 	    assertTrue(r1 instanceof PinMapRecord);
 	    pmr = (PinMapRecord) r1;
-		assertEquals(8, pmr.getSequenceNumber());
+		assertEquals(8, pmr.sequenceNumber);
 	    assertEquals(3, pmr.getPmrIdx());
 	    assertEquals(3, pmr.getChannelType());
 	    assertEquals("channelName3", pmr.getChannelName());
@@ -292,7 +292,9 @@ public class StdfTest1
 	{
 	    StdfRecord r = stack.pop();
 	    assertTrue(r instanceof BeginProgramSelectionRecord);
-	    assertEquals(9, r.getSequenceNumber());
+	    assertEquals(9, r.sequenceNumber);
+	    BeginProgramSelectionRecord bpr = (BeginProgramSelectionRecord) r;
+	    assertEquals("beginProgramSelectionRecord", bpr.seqName);
 	}
 	
 	//stdf.add(new DatalogTextRecord(snum++, dnum, "datalogTextRecord"));
@@ -300,11 +302,11 @@ public class StdfTest1
 	public void testI()
 	{
 		StdfRecord r = stack.pop();
-		assertEquals(1, r.getDeviceNumber());
+		assertEquals(1, r.devNum);
 		assertTrue(r instanceof DatalogTextRecord);
-		assertEquals(10, r.getSequenceNumber());
+		assertEquals(10, r.sequenceNumber);
 		DatalogTextRecord dtr = (DatalogTextRecord) r;
-		assertEquals("datalogTextRecord", dtr.getText());
+		assertEquals("datalogTextRecord", dtr.text);
 	}
 	
 	//stdf.add(new FunctionalTestRecord(snum++, dnum, 3, (short) 2, (short) 1, EnumSet.noneOf(TestFlag_t.class),
@@ -318,8 +320,8 @@ public class StdfTest1
 	{
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof FunctionalTestRecord);
-		assertEquals(1, r.getDeviceNumber());
-		assertEquals(11, r.getSequenceNumber());
+		assertEquals(1, r.devNum);
+		assertEquals(11, r.sequenceNumber);
 		FunctionalTestRecord ftr = (FunctionalTestRecord) r;
 		assertEquals(3, ftr.testNumber);
 		assertEquals(2, ftr.headNumber);
@@ -333,26 +335,26 @@ public class StdfTest1
 		assertEquals(4, ftr.xFailAddr);
 		assertEquals(5, ftr.yFailAddr);
 		assertEquals(6, ftr.vecOffset);
-		assertEquals(1, ftr.rtnIndex[0]);
-		assertEquals(2, ftr.rtnIndex[1]);
-		assertEquals(3, ftr.rtnIndex[2]);
-		assertEquals(4, ftr.rtnIndex[3]);
-		assertEquals(4, ftr.rtnState[0]);
-		assertEquals(3, ftr.rtnState[1]);
-		assertEquals(2, ftr.rtnState[2]);
-		assertEquals(1, ftr.rtnState[3]);
-		assertEquals(3, ftr.pgmIndex[0]);
-		assertEquals(4, ftr.pgmIndex[1]);
-		assertEquals(5, ftr.pgmIndex[2]);
-		assertEquals(6, ftr.pgmIndex[3]);
-		assertEquals(0, ftr.pgmState[0]);
-		assertEquals(1, ftr.pgmState[1]);
-		assertEquals(2, ftr.pgmState[2]);
-		assertEquals(3, ftr.pgmState[3]);
-		assertEquals(3, ftr.failPin[0]);
-		assertEquals(2, ftr.failPin[1]);
-		assertEquals(1, ftr.failPin[2]);
-		assertEquals(0, ftr.failPin[3]);
+		assertEquals(1, ftr.getRtnIndex()[0]);
+		assertEquals(2, ftr.getRtnIndex()[1]);
+		assertEquals(3, ftr.getRtnIndex()[2]);
+		assertEquals(4, ftr.getRtnIndex()[3]);
+		assertEquals(4, ftr.getRtnState()[0]);
+		assertEquals(3, ftr.getRtnState()[1]);
+		assertEquals(2, ftr.getRtnState()[2]);
+		assertEquals(1, ftr.getRtnState()[3]);
+		assertEquals(3, ftr.getPgmIndex()[0]);
+		assertEquals(4, ftr.getPgmIndex()[1]);
+		assertEquals(5, ftr.getPgmIndex()[2]);
+		assertEquals(6, ftr.getPgmIndex()[3]);
+		assertEquals(0, ftr.getPgmState()[0]);
+		assertEquals(1, ftr.getPgmState()[1]);
+		assertEquals(2, ftr.getPgmState()[2]);
+		assertEquals(3, ftr.getPgmState()[3]);
+		assertEquals(3, ftr.getFailPin()[0]);
+		assertEquals(2, ftr.getFailPin()[1]);
+		assertEquals(1, ftr.getFailPin()[2]);
+		assertEquals(0, ftr.getFailPin()[3]);
 		assertEquals("vecName", ftr.vecName);
 		assertEquals("timeSetName", ftr.timeSetName);
 		assertEquals("vecOpCode", ftr.vecOpCode);
@@ -361,9 +363,9 @@ public class StdfTest1
 		assertEquals("progTxt", ftr.progTxt);
 		assertEquals("rsltTxt", ftr.rsltTxt);
 		assertEquals(5, ftr.patGenNum);
-		assertEquals(6, ftr.enComps[0]);
-		assertEquals(7, ftr.enComps[1]);
-		assertEquals(8, ftr.enComps[2]);
+		assertEquals(6, ftr.getEnComps()[0]);
+		assertEquals(7, ftr.getEnComps()[1]);
+		assertEquals(8, ftr.getEnComps()[2]);
 	}
 	
 	//GenericDataRecord.Data d1 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_4, 0), new Integer(33));
@@ -378,8 +380,8 @@ public class StdfTest1
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof GenericDataRecord);
 		GenericDataRecord gdr = (GenericDataRecord) r;
-		assertEquals(12, gdr.getSequenceNumber());
-		List<GenericDataRecord.Data> l = gdr.getData(); 
+		assertEquals(12, gdr.sequenceNumber);
+		List<GenericDataRecord.Data> l = gdr.list; 
 		GenericDataRecord.Data d = l.get(0);
 		assertEquals(Data_t.I_4, d.getType());
 		assertEquals(33, d.getValue());
@@ -394,14 +396,14 @@ public class StdfTest1
 	{
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof HardwareBinRecord);
-		assertEquals(13, r.getSequenceNumber());
+		assertEquals(13, r.sequenceNumber);
 		HardwareBinRecord hbr = (HardwareBinRecord) r;
-		assertEquals(1, hbr.getHeadNumber());
-		assertEquals(0, hbr.getSiteNumber());
-		assertEquals(1, hbr.getHwBin());
-		assertEquals(10L, hbr.getBinCnt());
-		assertEquals("P", hbr.getPf());
-		assertEquals("binName", hbr.getBinName());
+		assertEquals(1, hbr.headNumber);
+		assertEquals(0, hbr.siteNumber);
+		assertEquals(1, hbr.hwBin);
+		assertEquals(10L, hbr.binCnt);
+		assertEquals("P", hbr.pf);
+		assertEquals("binName", hbr.binName);
 	}
 	
 	//stdf.add(new MasterResultsRecord(snum++, dnum, 1000L, 'C', "lotDesc", "execDesc"));
@@ -410,12 +412,12 @@ public class StdfTest1
 	{
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof MasterResultsRecord);
-		assertEquals(14, r.getSequenceNumber());
+		assertEquals(14, r.sequenceNumber);
 		MasterResultsRecord mrr = (MasterResultsRecord) r;
-		assertEquals(new Date(1000L * 1000L).toString(), mrr.getFinishDate());
-		assertEquals("C", mrr.getDispCode());
-		assertEquals("lotDesc", mrr.getLotDesc());
-		assertEquals("execDesc", mrr.getExecDesc());
+		assertEquals(1000000L, mrr.finishDate);
+		assertEquals("C", mrr.dispCode);
+		assertEquals("lotDesc", mrr.lotDesc);
+		assertEquals("execDesc", mrr.execDesc);
 	}
 	
 	//stdf.add(new MultipleResultParametricRecord(snum++, dnum, 22, 1, 0, EnumSet.noneOf(TestFlag_t.class),
@@ -426,40 +428,40 @@ public class StdfTest1
 	public void testN()
 	{
 		StdfRecord r = stack.pop();
-		assertEquals(1, r.getDeviceNumber());
+		assertEquals(1, r.devNum);
 		assertTrue(r instanceof MultipleResultParametricRecord);
-		assertEquals(15, r.getSequenceNumber());
+		assertEquals(15, r.sequenceNumber);
 		MultipleResultParametricRecord mpr = (MultipleResultParametricRecord) r;
-	    assertEquals(22, mpr.getTestNumber());
-	    assertEquals(1, mpr.getHeadNumber());
-	    assertEquals(0, mpr.getSiteNumber());
-	    assertEquals(0, mpr.getTestFlags().size());
-	    assertEquals(0, mpr.getParamFlags().size());
+	    assertEquals(22, mpr.testNumber);
+	    assertEquals(1, mpr.headNumber);
+	    assertEquals(0, mpr.siteNumber);
+	    assertEquals(0, mpr.testFlags.size());
+	    assertEquals(0, mpr.paramFlags.size());
 	    assertEquals(1, mpr.getRtnState()[0]);
 	    assertEquals(2, mpr.getRtnState()[1]);
 	    assertEquals(1.0, mpr.getResults()[0], 5);
 	    assertEquals(2.0, mpr.getResults()[1], 5);
 	    assertEquals(3.0, mpr.getResults()[2], 5);
 	    assertEquals(4.0, mpr.getResults()[3], 5);
-	    assertEquals("text", mpr.getTestName());
-	    assertEquals("alarmName", mpr.getAlarmName());
-	    assertEquals(0, mpr.getOptFlags().size());
-	    assertEquals(0, mpr.getResScal());
-	    assertEquals(1, mpr.getLlmScal());
-	    assertEquals(2, mpr.getHlmScal());
-	    assertEquals(1.0f, mpr.getLoLimit(), 5);
-	    assertEquals(3.0f, mpr.getHiLimit(), 5);
-	    assertEquals(0.0f, mpr.getStartIn(), 5);
-	    assertEquals(0.0f, mpr.getIncrIn(), 5);
-	    assertEquals(5, mpr.getRtnIndex()[0]);
-	    assertEquals(6, mpr.getRtnIndex()[1]);
-	    assertEquals("units", mpr.getUnits());
-	    assertEquals("unitsIn", mpr.getUnitsIn());
-	    assertEquals("resFmt", mpr.getResFmt());
-	    assertEquals("llmFmt", mpr.getLlmFmt());
-	    assertEquals("hlmFmt", mpr.getHlmFmt());
-	    assertEquals(3.0f, mpr.getLoSpec(), 5);
-	    assertEquals(4.0f, mpr.getHiSpec(), 5);
+	    assertEquals("text", mpr.testName);
+	    assertEquals("alarmName", mpr.alarmName);
+	    assertEquals(0, mpr.optFlags.size());
+	    assertEquals(0, mpr.resScal);
+	    assertEquals(1, mpr.llmScal);
+	    assertEquals(2, mpr.hlmScal);
+	    assertEquals(1.0f, mpr.loLimit, 5);
+	    assertEquals(3.0f, mpr.hiLimit, 5);
+	    assertEquals(0.0f, mpr.startIn, 5);
+	    assertEquals(0.0f, mpr.incrIn, 5);
+	    assertEquals(5, mpr.getRtnIndex[0]);
+	    assertEquals(6, mpr.getRtnIndex[1]);
+	    assertEquals("units", mpr.units);
+	    assertEquals("unitsIn", mpr.unitsIn);
+	    assertEquals("resFmt", mpr.resFmt);
+	    assertEquals("llmFmt", mpr.llmFmt);
+	    assertEquals("hlmFmt", mpr.hlmFmt);
+	    assertEquals(3.0f, mpr.loSpec, 5);
+	    assertEquals(4.0f, mpr.hiSpec, 5);
 	}
 	
 	//stdf.add(new ParametricTestRecord(snum++, dnum, 44, 1, 0, EnumSet.noneOf(TestFlag_t.class),

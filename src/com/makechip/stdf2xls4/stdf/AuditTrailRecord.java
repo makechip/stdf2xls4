@@ -28,8 +28,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.util.Date;
-
 import com.makechip.util.Log;
 
 /**
@@ -38,8 +36,8 @@ import com.makechip.util.Log;
 **/
 public class AuditTrailRecord extends StdfRecord
 {
-    private long date;
-    private String cmdLine;
+    public final long date;
+    public final String cmdLine;
     /**
     *** @param p1
     *** @param p2
@@ -62,16 +60,12 @@ public class AuditTrailRecord extends StdfRecord
     	this.cmdLine = cmdLine;
     }
     
-    public String getDate() { return(new Date(date * 1000L).toString()); }
-    
-    public String getCmdLine() { return(cmdLine); }
-    
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName()).append(":").append(Log.eol);
-        sb.append("    MOD_TIM: ").append(getDate()).append(Log.eol);
+        sb.append("    MOD_TIM: ").append(date).append(Log.eol);
         sb.append("    CMD_LINE: ").append(cmdLine).append(Log.eol);
         return(sb.toString());
     }

@@ -36,10 +36,10 @@ import com.makechip.util.Log;
 **/
 public class MasterResultsRecord extends StdfRecord
 {
-    private final long finishDate;
-    private final String dispCode;
-    private final String lotDesc;
-    private final String execDesc;
+    public final long finishDate;
+    public final String dispCode;
+    public final String lotDesc;
+    public final String execDesc;
     
     /**
     *** @param p1
@@ -93,33 +93,9 @@ public class MasterResultsRecord extends StdfRecord
     /**
      * @return the finishDate
      */
-    public String getFinishDate()
+    private String getFinishDate()
     {
         return(new Date(1000L * finishDate).toString());
-    }
-
-    /**
-     * @return the dispCode
-     */
-    public String getDispCode()
-    {
-        return dispCode;
-    }
-
-    /**
-     * @return the lotDesc
-     */
-    public String getLotDesc()
-    {
-        return lotDesc;
-    }
-
-    /**
-     * @return the execDesc
-     */
-    public String getExecDesc()
-    {
-        return execDesc;
     }
 
 }

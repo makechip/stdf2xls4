@@ -33,7 +33,7 @@ import com.makechip.util.Log;
 **/
 public class DatalogTextRecord extends StdfRecord
 {
-    private String text;
+    public final String text;
     
     /**
     *** @param p1
@@ -50,8 +50,6 @@ public class DatalogTextRecord extends StdfRecord
     	super(Record_t.DTR, sequenceNumber, devNum, null);
     	this.text = text;
     }
-    
-    public String getText() { return(text); }
     
     @Override
     public String toString()

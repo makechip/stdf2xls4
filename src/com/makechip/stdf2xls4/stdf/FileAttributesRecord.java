@@ -35,8 +35,8 @@ import com.makechip.util.Log;
 **/
 public class FileAttributesRecord extends StdfRecord
 {
-    private int stdfVersion;
-    private Cpu_t cpuType;
+    public final int stdfVersion;
+    public final Cpu_t cpuType;
     
     /**
     *** @param p1
@@ -46,8 +46,7 @@ public class FileAttributesRecord extends StdfRecord
     {
         super(Record_t.FAR, sequenceNumber, devNum, data);
         cpuType = Cpu_t.getCpuType(data[0]);
-        stdfVersion = 0;
-        stdfVersion |= (data[1] & 0xFF);
+        stdfVersion = (data[1] & 0xFF);
         assert stdfVersion == 4;
     }
     
@@ -57,10 +56,6 @@ public class FileAttributesRecord extends StdfRecord
     	this.stdfVersion = stdfVersion;
     	this.cpuType = cpuType;
     }
-    
-    public int getStdfVersion() { return(stdfVersion); }
-    
-    public Cpu_t getCpuType() { return(cpuType); }
     
     @Override
     public String toString()

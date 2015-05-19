@@ -26,8 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
 import java.util.Arrays;
-import java.util.List;
 import com.makechip.util.Log;
 /**
 *** @author eric
@@ -35,13 +35,12 @@ import com.makechip.util.Log;
 **/
 public final class MultipleResultParametricRecord extends ParametricTestRecord
 {
-    private byte[] rtnState;
-    private double[] results; 
-    private float startIn;
-    private float incrIn;
-    private int[] rtnIndex;
-    private String unitsIn;
-    private PinList pins;
+    public final byte[] rtnState;
+    public final double[] results; 
+    public final int[] rtnIndex;
+    public final float startIn;
+    public final float incrIn;
+    public final String unitsIn;
     
     /**
     *** @param p1
@@ -49,7 +48,6 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
     public MultipleResultParametricRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.MPR, sequenceNumber, devNum, data);
-        reqFields = new RequiredParametricFields(this);
         int j = getU2(0);
         int k = getU2(0); 
         rtnState = getNibbles(j);
@@ -96,8 +94,7 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(Record_t.MPR, sequenceNumber, deviceNumber, null);
-        reqFields = new RequiredParametricFields(testNumber, headNumber, siteNumber, testFlags, paramFlags);
+        super(sequenceNumber, deviceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
         this.results = Arrays.copyOf(results, results.length);
         this.text = text;
@@ -125,11 +122,11 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
     protected void toBytes()
     {
         TByteArrayList list = new TByteArrayList();
-        list.addAll(getU4Bytes(reqFields.getTestNumber()));
-        list.addAll(getU1Bytes(reqFields.getHeadNumber()));
-        list.addAll(getU1Bytes(reqFields.getSiteNumber()));
-        list.add((byte) reqFields.getTestFlags().stream().mapToInt(b -> b.getBit()).sum());
-        list.add((byte) reqFields.getParamFlags().stream().mapToInt(b -> b.getBit()).sum());
+        list.addAll(getU4Bytes(testNumber));
+        list.addAll(getU1Bytes(headNumber));
+        list.addAll(getU1Bytes(siteNumber));
+        list.add((byte) testFlags.stream().mapToInt(b -> b.getBit()).sum());
+        list.add((byte) paramFlags.stream().mapToInt(b -> b.getBit()).sum());
         list.addAll(getU2Bytes(rtnState.length));
         list.addAll(getU2Bytes(results.length));
         list.addAll(getNibbleBytes(rtnState));
@@ -162,9 +159,15 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
+        sb.append(":").append(Log.eol);
+        sb.append("    testNumber: " + testNumber).append(Log.eol);
+        sb.append("    headNumber: " + headNumber).append(Log.eol);
+        sb.append("    siteNumber: " + siteNumber).append(Log.eol);
+        sb.append("    testFlags:");
+        testFlags.stream().forEach(p -> sb.append(" ").append(p));
+        sb.append("    paramFlags:");
+        paramFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
         sb.append(Log.eol);
-        sb.append(reqFields.toString());
         sb.append("    returned states:");
         for (byte b : rtnState) sb.append(" " + b);
         sb.append(Log.eol);
@@ -181,10 +184,10 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         	sb.append("    result scaling exponent: " + resScal).append(Log.eol);
         	sb.append("    low limit scaling exponent: " + llmScal).append(Log.eol);
         	sb.append("    high limit scaling exponent: " + hlmScal).append(Log.eol);
-        	sb.append("    low limit: " + getLoLimit()).append(Log.eol);
-        	sb.append("    high limit: " + getHiLimit()).append(Log.eol);
-        	sb.append("    starting input value: " + getStartIn()).append(Log.eol);
-        	sb.append("    increment of input condition: " + getIncrIn()).append(Log.eol);
+        	sb.append("    low limit: " + loLimit).append(Log.eol);
+        	sb.append("    high limit: " + hiLimit).append(Log.eol);
+        	sb.append("    starting input value: " + startIn).append(Log.eol);
+        	sb.append("    increment of input condition: " + incrIn).append(Log.eol);
         	if (rtnIndex != null)
         	{
         		sb.append("    array of PMR indicies:");
@@ -196,62 +199,11 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         	sb.append("    result format string: ").append(resFmt).append(Log.eol);
         	sb.append("    low limit format string: ").append(llmFmt).append(Log.eol);
         	sb.append("    high limit format string: ").append(hlmFmt).append(Log.eol);
-        	sb.append("    low spec limit value: " + getLoSpec()).append(Log.eol);
-        	sb.append("    high spec limit value: " + getHiSpec()).append(Log.eol);
+        	sb.append("    low spec limit value: " + loSpec).append(Log.eol);
+        	sb.append("    high spec limit value: " + hiSpec).append(Log.eol);
         }
         return(sb.toString());
     }
     
-    public double[] getScaledResults()
-    {
-        double[] r = new double[results.length];
-        for (int i=0; i<results.length; i++)
-        {
-            r[i] = scaleValue(results[i], findScale());
-        }
-        return(r);
-    }
-
-    public List<String> getPins() { return(pins.getPins()); }
-
-    public int[] getRtnIndex()
-    {
-        return(rtnIndex);
-    }
-
-    public int getRtnIcnt()
-    {
-        return(rtnIndex.length);
-    }
-
-    public int getRsltCnt()
-    {
-        return(results.length);
-    }
-
-    public byte[] getRtnState()
-    {
-        return(rtnState);
-    }
-
-    public double[] getResults()
-    {
-        return(results);
-    }
-
-    public float getStartIn()
-    {
-        return(startIn);
-    }
-
-    public float getIncrIn()
-    {
-        return(incrIn);
-    }
-
-    public String getUnitsIn()
-    {
-        return(unitsIn);
-    }
 
 }

@@ -50,11 +50,6 @@ public class FunctionalTestRecord extends StdfRecord
     public final int xFailAddr;     // xFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
     public final int yFailAddr;     // yFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
     public final short vecOffset;   // vecOffset is invalid if VEC_OFFSET_INVALID is set
-    public final int[] rtnIndex;
-    public final byte[] rtnState;
-    public final int[] pgmIndex;
-    public final byte[] pgmState;
-    public final byte[] failPin;
     public final String vecName;
     public final String timeSetName;
     public final String vecOpCode;
@@ -63,7 +58,13 @@ public class FunctionalTestRecord extends StdfRecord
     public final String progTxt;
     public final String rsltTxt;
     public final short patGenNum;
-    public final byte[] enComps;
+    
+    private final int[] rtnIndex;
+    private final byte[] rtnState;
+    private final int[] pgmIndex;
+    private final byte[] pgmState;
+    private final byte[] failPin;
+    private final byte[] enComps;
     
     public FunctionalTestRecord(int sequenceNumber, int devNum, byte[] data)
     {
@@ -217,6 +218,12 @@ public class FunctionalTestRecord extends StdfRecord
     public boolean noPassFailIndication() { return(testFlags.contains(TestFlag_t.NO_PASS_FAIL)); }
     public boolean fail() { return(testFlags.contains(TestFlag_t.FAIL)); }
     
+    public int[] getRtnIndex() { return(Arrays.copyOf(rtnIndex, rtnIndex.length)); }
+    public byte[] getRtnState() { return(Arrays.copyOf(rtnState, rtnState.length)); }
+    public int[] getPgmIndex() { return(Arrays.copyOf(pgmIndex, pgmIndex.length)); }
+    public byte[] getPgmState() { return(Arrays.copyOf(pgmState, pgmState.length)); }
+    public byte[] getFailPin() { return(Arrays.copyOf(failPin, failPin.length)); }
+    public byte[] getEnComps() { return(Arrays.copyOf(enComps, enComps.length)); }
 
     @Override
     public String toString()

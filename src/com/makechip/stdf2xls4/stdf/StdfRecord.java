@@ -13,11 +13,11 @@ public abstract class StdfRecord
     public static final short MISSING_SHORT = Short.MIN_VALUE;
     public static final String MISSING_STRING = "";
     public static final byte[] MISSING_BYTE_ARRAY = new byte[0];
-	private Record_t type;
+	public final Record_t type;
 	private int ptr;
 	protected byte[] bytes;
-	protected final int sequenceNumber;
-	protected final int devNum;
+	public final int sequenceNumber;
+	public final int devNum;
 
 	protected StdfRecord(Record_t type, int sequenceNumber, int devNum, byte[] bytes)
 	{
@@ -62,10 +62,6 @@ public abstract class StdfRecord
 	protected int getPtr() { return(ptr); }
 	protected int getSize() { return(bytes.length); }
    
-	public int getSequenceNumber() { return(sequenceNumber); }
-	public int getDeviceNumber()   { return(devNum); }
-	public Record_t getRecordType() { return(type); }
-	
     protected String getCn()
     {
         if (bytes.length <= ptr) return(MISSING_STRING);

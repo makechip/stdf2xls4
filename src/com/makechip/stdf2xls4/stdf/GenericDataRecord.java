@@ -27,6 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -39,7 +40,7 @@ import com.makechip.util.Log;
 **/
 public class GenericDataRecord extends StdfRecord
 {
-    private final List<Data> list;
+    public final List<Data> list;
 	
 	public static final class Data
 	{
@@ -95,24 +96,24 @@ public class GenericDataRecord extends StdfRecord
 		return(new PadData(Data_t.getDataType(type), cnt));
 	}
 	
-	private void getField(PadData v)
+	private void getField(List<Data> l, PadData v)
 	{
 		if (v == null) Log.msg("V IS NULL");
 		if (v.getType() == null) Log.msg("v.type IS NULL");
         switch (v.getType())
         {
-        case U_1: list.add(new Data(v, getU1((short) 0))); break;
-        case U_2: list.add(new Data(v, getU2(0))); break;
-        case U_4: list.add(new Data(v, getU4(0))); break;
-        case I_1: list.add(new Data(v, getI1((byte) 0))); break;
-        case I_2: list.add(new Data(v, getI2((short) 0))); break;
-        case I_4: list.add(new Data(v, getI4(0))); break;
-        case R_4: list.add(new Data(v, getR4(0.0f))); break;
-        case R_8: list.add(new Data(v, getR8(0.0))); break;
-        case C_N: list.add(new Data(v, getCn())); break;
-        case B_N: list.add(new Data(v, getBn())); break;
-        case D_N: list.add(new Data(v, getDn())); break;
-        case N_N: list.add(new Data(v, getNibbles(1))); break;
+        case U_1: l.add(new Data(v, getU1((short) 0))); break;
+        case U_2: l.add(new Data(v, getU2(0))); break;
+        case U_4: l.add(new Data(v, getU4(0))); break;
+        case I_1: l.add(new Data(v, getI1((byte) 0))); break;
+        case I_2: l.add(new Data(v, getI2((short) 0))); break;
+        case I_4: l.add(new Data(v, getI4(0))); break;
+        case R_4: l.add(new Data(v, getR4(0.0f))); break;
+        case R_8: l.add(new Data(v, getR8(0.0))); break;
+        case C_N: l.add(new Data(v, getCn())); break;
+        case B_N: l.add(new Data(v, getBn())); break;
+        case D_N: l.add(new Data(v, getDn())); break;
+        case N_N: l.add(new Data(v, getNibbles(1))); break;
        	default: throw new RuntimeException("Unknown data type in GenericDataRecord");
         }
 	}
@@ -146,9 +147,10 @@ public class GenericDataRecord extends StdfRecord
     public GenericDataRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.GDR, sequenceNumber, devNum, data);
-        list = new ArrayList<Data>();
+        List<Data> l = new ArrayList<Data>();
         int fields = getU2(0);
-        Stream.generate(() -> getType()).limit(fields).forEach(v -> getField(v));
+        Stream.generate(() -> getType()).limit(fields).forEach(v -> getField(l, v));
+        list = Collections.unmodifiableList(l);
     }
     
     public GenericDataRecord(int sequenceNumber, int devNum, List<Data> list)
@@ -157,8 +159,6 @@ public class GenericDataRecord extends StdfRecord
     	this.list = new ArrayList<Data>(list);
     }
 
-    public List<Data> getData() { return(list); }
-    
     @Override
     public String toString()
     {

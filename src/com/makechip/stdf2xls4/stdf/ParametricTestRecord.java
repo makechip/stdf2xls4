@@ -27,7 +27,8 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.util.EnumSet;
+import java.util.Collections;
+import java.util.Set;
 
 import com.makechip.util.Log;
 /**
@@ -36,11 +37,15 @@ import com.makechip.util.Log;
 **/
 public class ParametricTestRecord extends StdfRecord
 {
-	protected RequiredParametricFields reqFields;
+	public final long testNumber;
+	public final short headNumber;
+	public final short siteNumber;
+	public final Set<TestFlag_t> testFlags;
+	public final Set<ParamFlag_t> paramFlags;
     protected double result; 
     protected String text;
     protected String alarmName;
-    protected EnumSet<OptFlag_t> optFlags; 
+    protected Set<OptFlag_t> optFlags; 
     protected byte resScal; // if RES_SCAL_INVALID set, then use default res_scal
     // if LO_LIMIT_LLM_SCAL_INVALID set, then use default llmScal;
     // if NO_LO_LIMIT set then llmScal is invalid
@@ -61,13 +66,13 @@ public class ParametricTestRecord extends StdfRecord
     protected float loSpec; // if NO_LO_SPEC_LIMIT set then loSpec is invalid
     protected float hiSpec; // if NO_HI_SPEC_LIMIT set the hiSpec is invalid
     
-    public boolean alarm() { return(reqFields.alarm()); }
-    public boolean unreliable() { return(reqFields.unreliable()); }
-    public boolean timeout() { return(reqFields.timeout()); }
-    public boolean notExecuted() { return(reqFields.notExecuted()); }
-    public boolean abort() { return(reqFields.abort()); }
-    public boolean noPassFailIndication() { return(reqFields.noPassFailIndication()); }
-    public boolean fail() { return(reqFields.fail()); }
+    public boolean alarm() { return(testFlags.contains(TestFlag_t.ALARM)); }
+    public boolean unreliable() { return(testFlags.contains(TestFlag_t.UNRELIABLE)); }
+    public boolean timeout() { return(testFlags.contains(TestFlag_t.TIMEOUT)); }
+    public boolean notExecuted() { return(testFlags.contains(TestFlag_t.NOT_EXECUTED)); }
+    public boolean abort() { return(testFlags.contains(TestFlag_t.ABORT)); }
+    public boolean noPassFailIndication() { return(testFlags.contains(TestFlag_t.NO_PASS_FAIL)); }
+    public boolean fail() { return(testFlags.contains(TestFlag_t.FAIL)); }
     
     
     /**
@@ -81,15 +86,19 @@ public class ParametricTestRecord extends StdfRecord
     protected ParametricTestRecord(Record_t type, int sequenceNumber, int devNum, byte[] data)
     {
         super(type, sequenceNumber, devNum, data);
-    }
+		testNumber = getU4(StdfRecord.MISSING_INT);
+	    headNumber = getU1((short) 0);	
+	    siteNumber = getU1((short) 0);	
+	    testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(getByte()));
+	    paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(getByte()));
+   }
     
     /**
     *** @param p1
     **/
     public ParametricTestRecord(int sequenceNumber, int devNum, byte[] data)
     {
-        super(Record_t.PTR, sequenceNumber, devNum, data);
-        reqFields = new RequiredParametricFields(this);
+    	this(Record_t.PTR, sequenceNumber, devNum, data);
         result = getR4(MISSING_FLOAT);
         getParametricFields();
         units = getCn();
@@ -124,12 +133,12 @@ public class ParametricTestRecord extends StdfRecord
             final int testNumber,
             final int headNumber,
             final int siteNumber,
-            final EnumSet<TestFlag_t> testFlags,
-            final EnumSet<ParamFlag_t> paramFlags,
+            final byte testFlags,
+            final byte paramFlags,
     	    final float result, 
     	    final String text,
     	    final String alarmName,
-    	    final EnumSet<OptFlag_t> optFlags, 
+    	    final byte optFlags, 
     	    final byte resScal, // if RES_SCAL_INVALID set, then use default res_scal
     	    final byte llmScal,
     	    final byte hlmScal, 
@@ -143,15 +152,15 @@ public class ParametricTestRecord extends StdfRecord
     	    final float hiSpec)
     {
         super(Record_t.PTR, sequenceNumber, deviceNumber, null);
-        reqFields = new RequiredParametricFields(testNumber, headNumber, siteNumber, testFlags, paramFlags);
+        this.testNumber = testNumber;
+        this.headNumber = (short) headNumber;
+        this.siteNumber = (short) siteNumber;
+        this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
+        this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
         this.result = result;
         this.text = text;
         this.alarmName = alarmName;
-        if (optFlags != null)
-        {
-            this.optFlags = EnumSet.noneOf(OptFlag_t.class);
-            optFlags.stream().forEach(p -> this.optFlags.add(p));
-        }
+        if (optFlags != MISSING_BYTE) this.optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(optFlags));
         else this.optFlags = null;
         this.resScal = resScal;
         this.llmScal = llmScal;
@@ -166,15 +175,32 @@ public class ParametricTestRecord extends StdfRecord
         this.hiSpec = hiSpec;
     }
     
+    protected ParametricTestRecord(
+            final int sequenceNumber,
+            final int deviceNumber,
+            final int testNumber,
+            final int headNumber,
+            final int siteNumber,
+            final byte testFlags,
+            final byte paramFlags)
+    {
+    	super(Record_t.MPR, sequenceNumber, deviceNumber, null);
+    	this.testNumber = testNumber;
+    	this.headNumber = (short) headNumber;
+    	this.siteNumber = (short) siteNumber;
+    	this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
+    	this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
+    }
+    
     @Override
     protected void toBytes()
     {
         TByteArrayList list = new TByteArrayList();
-        list.addAll(getU4Bytes(reqFields.getTestNumber()));
-        list.addAll(getU1Bytes(reqFields.getHeadNumber()));
-        list.addAll(getU1Bytes(reqFields.getSiteNumber()));
-        list.add((byte) reqFields.getTestFlags().stream().mapToInt(b -> b.getBit()).sum());
-        list.add((byte) reqFields.getParamFlags().stream().mapToInt(b -> b.getBit()).sum());
+        list.addAll(getU4Bytes(testNumber));
+        list.addAll(getU1Bytes(headNumber));
+        list.addAll(getU1Bytes(siteNumber));
+        list.add((byte) testFlags.stream().mapToInt(b -> b.getBit()).sum());
+        list.add((byte) paramFlags.stream().mapToInt(b -> b.getBit()).sum());
         list.addAll(getR4Bytes((float) result));
         list.addAll(getCnBytes(text));
         list.addAll(getCnBytes(alarmName));
@@ -201,7 +227,14 @@ public class ParametricTestRecord extends StdfRecord
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(":").append(Log.eol);
-        sb.append(reqFields.toString());
+        sb.append("    testNumber: " + testNumber).append(Log.eol);
+        sb.append("    headNumber: " + headNumber).append(Log.eol);
+        sb.append("    siteNumber: " + siteNumber).append(Log.eol);
+        sb.append("    testFlags:");
+        testFlags.stream().forEach(p -> sb.append(" ").append(p));
+        sb.append("    paramFlags:");
+        paramFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
+        sb.append(Log.eol);
         sb.append("    result: " + result).append(Log.eol);
         sb.append("    test name: ").append(text).append(Log.eol);
         sb.append("    alarm name: ").append(alarmName).append(Log.eol);
@@ -223,221 +256,6 @@ public class ParametricTestRecord extends StdfRecord
         	sb.append("    high spec limit value: " + hiSpec).append(Log.eol);
         }
         return(sb.toString());
-    }
-
-    /**
-     * @return the optFlags
-     */
-    public EnumSet<OptFlag_t> getOptFlags()
-    {
-        return(optFlags);
-    }
-
-    /**
-     * @return the resScal
-     */
-    public byte getResScal()
-    {
-        return(resScal);
-    }
-
-    /**
-     * @return the llmScal
-     */
-    public byte getLlmScal()
-    {
-        return(llmScal);
-    }
-
-    /**
-     * @return the hlmScal
-     */
-    public byte getHlmScal()
-    {
-        return(hlmScal);
-    }
-
-    /**
-     * @return the loLimit
-     */
-    public float getLoLimit()
-    {
-        if (optFlags.contains(OptFlag_t.NO_LO_LIMIT)) return(MISSING_FLOAT); 
-        return(loLimit);
-    }
-
-    /**
-     * @return the hiLimit
-     */
-    public float getHiLimit()
-    {
-        if (optFlags.contains(OptFlag_t.NO_HI_LIMIT)) return(MISSING_FLOAT); 
-        return(hiLimit);
-    }
-
-    /**
-     * @return the units
-     */
-    public String getUnits()
-    {
-        return(units);
-    }
-
-    /**
-     * @return the resFmt
-     */
-    public String getResFmt()
-    {
-        return(resFmt);
-    }
-
-    /**
-     * @return the llmFmt
-     */
-    public String getLlmFmt()
-    {
-        return(llmFmt);
-    }
-
-    /**
-     * @return the hlmFmt
-     */
-    public String getHlmFmt()
-    {
-        return(hlmFmt);
-    }
-
-    /**
-     * @return the loSpec
-     */
-    public float getLoSpec()
-    {
-        if (optFlags.contains(OptFlag_t.NO_LO_SPEC_LIMIT)) return(MISSING_FLOAT);
-        return(loSpec);
-    }
-
-    /**
-     * @return the hiSpec
-     */
-    public float getHiSpec()
-    {
-        if (optFlags.contains(OptFlag_t.NO_HI_SPEC_LIMIT)) return(MISSING_FLOAT);
-        return(hiSpec);
-    }
-
-    /**
-     * @return the testNumber
-     */
-    public long getTestNumber()
-    {
-        return(reqFields.getTestNumber());
-    }
-
-
-    /**
-     * @return the headNumber
-     */
-    public short getHeadNumber()
-    {
-        return(reqFields.getHeadNumber());
-    }
-
-
-    /**
-     * @return the siteNumber
-     */
-    public short getSiteNumber()
-    {
-        return(reqFields.getSiteNumber());
-    }
-
-
-    /**
-     * @return the testFlags
-     */
-    public EnumSet<TestFlag_t> getTestFlags()
-    {
-        return(reqFields.getTestFlags());
-    }
-
-
-    /**
-     * @return the paramFlags
-     */
-    public EnumSet<ParamFlag_t> getParamFlags()
-    {
-        return(reqFields.getParamFlags());
-    }
-
-
-    /**
-     * @return the result
-     */
-    public double getResult()
-    {
-        return(result);
-    }
-
-    public float getScaledResult()
-    {
-    	//return(scaleValue(result, findScale()));
-    	return(0.0f);
-    }
-    
-    public float getScaledLoLimit()
-    {
-        //if (optFlags.contains(OptFlag_t.NO_LO_LIMIT)) return(MISSING_FLOAT); 
-        //return(tracker.scaledLoLimits.get(testId));
-    	return(0.0f);
-    }
-    
-    public float getScaledHiLimit()
-    {
-        //if (optFlags.contains(OptFlag_t.NO_HI_LIMIT)) return(MISSING_FLOAT); 
-        //return(tracker.scaledHiLimits.get(testId));
-    	return(0.0f);
-    }
-    
-    public String getScaledUnits()
-    {
-        //return(tracker.scaledUnits.get(testId));
-    	return("");
-    }
-    
-    protected int findScale()
-    {
-        float llim = 0.0f; // Math.abs(tracker.loLimDefaults.get(testId));
-        float hlim = 0.0f; // Math.abs(tracker.hiLimDefaults.get(testId));
-        float val = 0.0f;
-        if (optFlags.contains(OptFlag_t.NO_LO_LIMIT)) val = hlim;
-        else if (optFlags.contains(OptFlag_t.NO_HI_LIMIT)) val = llim;
-        else val = (hlim > llim) ? hlim : llim;
-        int scale = 0;
-        if (val <= 1.0E-6f) scale = 9;
-        else if (val <= 0.001f) scale = 6;
-        else if (val <= 1.0f) scale = 3;
-        else if (val <= 1000.0f) scale = 0;
-        else if (val <= 1000000.0f) scale = -3;
-        else if (val <= 1E9f) scale = -6;
-        else scale = -9;
-        return(scale);
-    }
-
-    /**
-     * @return the text
-     */
-    public String getTestName()
-    {
-        return(text);
-    }
-
-
-    /**
-     * @return the alarmName
-     */
-    public String getAlarmName()
-    {
-        return(alarmName);
     }
 
 }

@@ -33,7 +33,7 @@ import com.makechip.util.Log;
 **/
 public class BeginProgramSelectionRecord extends StdfRecord
 {
-    private String seqName;
+    public final String seqName;
     
     /**
     *** @param p1
@@ -50,8 +50,6 @@ public class BeginProgramSelectionRecord extends StdfRecord
     	super(Record_t.BPS, sequenceNumber, devNum, null);
     	this.seqName = seqName;
     }
-    
-    public String getSeqName() { return(seqName); }
     
     @Override
     public String toString()

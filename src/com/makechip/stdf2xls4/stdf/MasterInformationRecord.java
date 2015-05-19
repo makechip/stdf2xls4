@@ -37,45 +37,45 @@ import com.makechip.util.Log;
 **/
 public class MasterInformationRecord extends StdfRecord
 {
-    private final long jobDate;
-    private final long testDate;
-    private final short stationNumber;
-    private final char testModeCode;
-    private final char lotRetestCode;
-    private final char dataProtectionCode;
-    private final int burnInTime;
-    private final char cmdModeCode;
-    private final String lotID;
-    private final String partType;
-    private final String nodeName;
-    private final String testerType;
-    private final String jobName;
-    private final String jobRevisionNumber;
-    private final String sublotID;
-    private final String operatorName;
-    private final String execSoftware;
-    private final String execSoftwareVersion;
-    private final String stepCode;
-    private final String temperature;
-    private final String userText;
-    private final String auxDataFile;
-    private final String packageType;
-    private final String familyID;
-    private final String dateCode;
-    private final String facilityID;
-    private final String floorID;
-    private final String fabID;
-    private final String frequency;
-    private final String specName;
-    private final String specVersion;
-    private final String flowID;
-    private final String setupID;
-    private final String designRevision;
-    private final String engLotID;
-    private final String romCodeID;
-    private final String testerSerialNumber;
-    private final String supervisorID;
-    private long fileTimeStamp; // not an STDF value; for filename timestamp tracking 
+    public final long jobDate;
+    public final long testDate;
+    public final short stationNumber;
+    public final char testModeCode;
+    public final char lotRetestCode;
+    public final char dataProtectionCode;
+    public final int burnInTime;
+    public final char cmdModeCode;
+    public final String lotID;
+    public final String partType;
+    public final String nodeName;
+    public final String testerType;
+    public final String jobName;
+    public final String jobRevisionNumber;
+    public final String sublotID;
+    public final String operatorName;
+    public final String execSoftware;
+    public final String execSoftwareVersion;
+    public final String stepCode;
+    public final String temperature;
+    public final String userText;
+    public final String auxDataFile;
+    public final String packageType;
+    public final String familyID;
+    public final String dateCode;
+    public final String facilityID;
+    public final String floorID;
+    public final String fabID;
+    public final String frequency;
+    public final String specName;
+    public final String specVersion;
+    public final String flowID;
+    public final String setupID;
+    public final String designRevision;
+    public final String engLotID;
+    public final String romCodeID;
+    public final String testerSerialNumber;
+    public final String supervisorID;
+    public long fileTimeStamp; // not an STDF value; for filename timestamp tracking 
     
     public MasterInformationRecord(int sequenceNumber, int devNum,
         long jobDate,
@@ -253,9 +253,6 @@ public class MasterInformationRecord extends StdfRecord
         bytes = l.toArray();
 	}
 
-    public void setFileTimeStamp(long value) { fileTimeStamp = value; }
-    public long getFileTimeStamp() { return(fileTimeStamp); }
-
     @Override
     public String toString()
     {
@@ -303,347 +300,6 @@ public class MasterInformationRecord extends StdfRecord
         sb.append("    tester serial number: ").append(testerSerialNumber).append(Log.eol);
         sb.append("    supervisor ID: ").append(supervisorID).append(Log.eol);
         return(sb.toString());
-    }
-
-    /**
-     * @return the jobDate
-     */
-    public String getJobDate()
-    {
-        return(new Date(1000L * jobDate).toString());
-    }
-
-
-    /**
-     * @return the testDate
-     */
-    public String getTestDate()
-    {
-        return(new Date(1000L * testDate).toString());
-    }
-
-
-    /**
-     * @return the stationNumber
-     */
-    public short getStationNumber()
-    {
-        return stationNumber;
-    }
-
-
-    /**
-     * @return the testModeCode
-     */
-    public String getTestModeCode()
-    {
-        return "" + testModeCode;
-    }
-
-
-    /**
-     * @return the lotRetestCode
-     */
-    public String getLotRetestCode()
-    {
-        return "" + lotRetestCode;
-    }
-
-
-    /**
-     * @return the dataProtectionCode
-     */
-    public String getDataProtectionCode()
-    {
-        return "" + dataProtectionCode;
-    }
-
-
-    /**
-     * @return the burnInTime
-     */
-    public int getBurnInTime()
-    {
-        return burnInTime;
-    }
-
-
-    /**
-     * @return the cmdModeCode
-     */
-    public String getCmdModeCode()
-    {
-        return "" + cmdModeCode;
-    }
-
-
-    /**
-     * @return the lotID
-     */
-    public String getLotID()
-    {
-        return lotID;
-    }
-
-
-    /**
-     * @return the partType
-     */
-    public String getPartType()
-    {
-        return partType;
-    }
-
-
-    /**
-     * @return the nodeName
-     */
-    public String getNodeName()
-    {
-        return nodeName;
-    }
-
-
-    /**
-     * @return the testerType
-     */
-    public String getTesterType()
-    {
-        return testerType;
-    }
-
-
-    /**
-     * @return the jobName
-     */
-    public String getJobName()
-    {
-        return jobName;
-    }
-
-
-    /**
-     * @return the jobRevisionNumber
-     */
-    public String getJobRevisionNumber()
-    {
-        return jobRevisionNumber;
-    }
-
-
-    /**
-     * @return the sublotID
-     */
-    public String getSublotID()
-    {
-        return sublotID;
-    }
-
-
-    /**
-     * @return the operatorName
-     */
-    public String getOperatorName()
-    {
-        return operatorName;
-    }
-
-
-    /**
-     * @return the execSoftware
-     */
-    public String getExecSoftware()
-    {
-        return execSoftware;
-    }
-
-
-    /**
-     * @return the execSoftwareVersion
-     */
-    public String getExecSoftwareVersion()
-    {
-        return execSoftwareVersion;
-    }
-
-
-    /**
-     * @return the stepCode
-     */
-    public String getStepCode()
-    {
-        return stepCode;
-    }
-
-
-    /**
-     * @return the temperature
-     */
-    public String getTemperature()
-    {
-        return temperature;
-    }
-
-
-    /**
-     * @return the userText
-     */
-    public String getUserText()
-    {
-        return userText;
-    }
-
-
-    /**
-     * @return the auxDataFile
-     */
-    public String getAuxDataFile()
-    {
-        return auxDataFile;
-    }
-
-
-    /**
-     * @return the packageType
-     */
-    public String getPackageType()
-    {
-        return packageType;
-    }
-
-
-    /**
-     * @return the familyID
-     */
-    public String getFamilyID()
-    {
-        return familyID;
-    }
-
-
-    /**
-     * @return the dateCode
-     */
-    public String getDateCode()
-    {
-        return dateCode;
-    }
-
-
-    /**
-     * @return the facilityID
-     */
-    public String getFacilityID()
-    {
-        return facilityID;
-    }
-
-
-    /**
-     * @return the floorID
-     */
-    public String getFloorID()
-    {
-        return floorID;
-    }
-
-
-    /**
-     * @return the fabID
-     */
-    public String getFabID()
-    {
-        return fabID;
-    }
-
-
-    /**
-     * @return the frequency
-     */
-    public String getFrequency()
-    {
-        return frequency;
-    }
-
-
-    /**
-     * @return the specName
-     */
-    public String getSpecName()
-    {
-        return specName;
-    }
-
-
-    /**
-     * @return the specVersion
-     */
-    public String getSpecVersion()
-    {
-        return specVersion;
-    }
-
-
-    /**
-     * @return the flowID
-     */
-    public String getFlowID()
-    {
-        return flowID;
-    }
-
-
-    /**
-     * @return the setupID
-     */
-    public String getSetupID()
-    {
-        return setupID;
-    }
-
-
-    /**
-     * @return the designRevision
-     */
-    public String getDesignRevision()
-    {
-        return designRevision;
-    }
-
-
-    /**
-     * @return the engLotID
-     */
-    public String getEngLotID()
-    {
-        return engLotID;
-    }
-
-
-    /**
-     * @return the romCodeID
-     */
-    public String getRomCodeID()
-    {
-        return romCodeID;
-    }
-
-
-    /**
-     * @return the testerSerialNumber
-     */
-    public String getTesterSerialNumber()
-    {
-        return testerSerialNumber;
-    }
-
-
-    /**
-     * @return the supervisorID
-     */
-    public String getSupervisorID()
-    {
-        return supervisorID;
     }
 
 }
