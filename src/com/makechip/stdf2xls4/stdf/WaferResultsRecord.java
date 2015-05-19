@@ -27,8 +27,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.util.Date;
-
 import com.makechip.util.Log;
 
 /**
@@ -37,20 +35,20 @@ import com.makechip.util.Log;
 **/
 public class WaferResultsRecord extends StdfRecord
 {
-    private final short headNumber;
-    private final short siteGroupNumber;
-    private final long finishDate;
-    private final long partCount;
-    private final long retestCount;
-    private final long abortCount;
-    private final long passCount;
-    private final long functionalCount;
-    private final String waferID;
-    private final String fabWaferID;
-    private final String waferFrameID;
-    private final String waferMaskID;
-    private final String userWaferDesc;
-    private final String execWaferDesc;
+    public final short headNumber;
+    public final short siteGroupNumber;
+    public final long finishDate;
+    public final long partCount;
+    public final long retestCount;
+    public final long abortCount;
+    public final long passCount;
+    public final long functionalCount;
+    public final String waferID;
+    public final String fabWaferID;
+    public final String waferFrameID;
+    public final String waferMaskID;
+    public final String userWaferDesc;
+    public final String execWaferDesc;
     
     /**
     *** @param p1
@@ -148,118 +146,6 @@ public class WaferResultsRecord extends StdfRecord
         sb.append("    user wafer description: ").append(userWaferDesc).append(Log.eol);
         sb.append("    exec wafer description: ").append(execWaferDesc).append(Log.eol);
         return(sb.toString());
-    }
-
-    /**
-     * @return the headNumber
-     */
-    public short getHeadNumber()
-    {
-        return headNumber;
-    }
-
-    /**
-     * @return the siteGroupNumber
-     */
-    public short getSiteGroupNumber()
-    {
-        return siteGroupNumber;
-    }
-
-    /**
-     * @return the finishDate
-     */
-    public String getFinishDate()
-    {
-        return(new Date(finishDate * 1000L).toString());
-    }
-
-    /**
-     * @return the partCount
-     */
-    public long getPartCount()
-    {
-        return partCount;
-    }
-
-    /**
-     * @return the retestCount
-     */
-    public long getRetestCount()
-    {
-        return retestCount;
-    }
-
-    /**
-     * @return the abortCount
-     */
-    public long getAbortCount()
-    {
-        return abortCount;
-    }
-
-    /**
-     * @return the passCount
-     */
-    public long getPassCount()
-    {
-        return passCount;
-    }
-
-    /**
-     * @return the functionalCount
-     */
-    public long getFunctionalCount()
-    {
-        return functionalCount;
-    }
-
-    /**
-     * @return the waferID
-     */
-    public String getWaferID()
-    {
-        return waferID;
-    }
-
-    /**
-     * @return the fabWaferID
-     */
-    public String getFabWaferID()
-    {
-        return fabWaferID;
-    }
-
-    /**
-     * @return the waferFrameID
-     */
-    public String getWaferFrameID()
-    {
-        return waferFrameID;
-    }
-
-    /**
-     * @return the waferMaskID
-     */
-    public String getWaferMaskID()
-    {
-        return waferMaskID;
-    }
-
-    /**
-     * @return the userWaferDesc
-     */
-    public String getUserWaferDesc()
-    {
-        return userWaferDesc;
-    }
-
-    /**
-     * @return the execWaferDesc
-     */
-    public String getExecWaferDesc()
-    {
-        return execWaferDesc;
     }
 
 }

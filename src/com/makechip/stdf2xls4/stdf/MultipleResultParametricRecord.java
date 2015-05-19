@@ -28,19 +28,41 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+
 import com.makechip.util.Log;
 /**
 *** @author eric
 *** @version $Id: MultipleResultParametricRecord.java 258 2008-10-22 01:22:44Z ericw $
 **/
-public final class MultipleResultParametricRecord extends ParametricTestRecord
+public final class MultipleResultParametricRecord extends StdfRecord
 {
-    public final byte[] rtnState;
-    public final double[] results; 
-    public final int[] rtnIndex;
+	public final long testNumber;
+	public final short headNumber;
+	public final short siteNumber;
+	public final Set<TestFlag_t> testFlags;
+	public final Set<ParamFlag_t> paramFlags;
+    private final byte[] rtnState;
+    private final double[] results; 
+	public final String testName;
+	public final String alarmName;
+	public final Set<OptFlag_t> optFlags;
+	public final byte resScal;
+	public final byte llmScal;
+	public final byte hlmScal;
+	public final float loLimit;
+	public final float hiLimit;
     public final float startIn;
     public final float incrIn;
+    private final int[] rtnIndex;
+    public final String units;
     public final String unitsIn;
+    public final String resFmt;
+    public final String llmFmt;
+    public final String hlmFmt;
+    public final float loSpec;
+    public final float hiSpec;
     
     /**
     *** @param p1
@@ -48,19 +70,35 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
     public MultipleResultParametricRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.MPR, sequenceNumber, devNum, data);
+        testNumber = getU4(MISSING_INT);
+        headNumber = getU1(MISSING_BYTE);
+        siteNumber = getU1(MISSING_BYTE);
+        testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(getByte()));
+        paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(getByte()));
         int j = getU2(0);
         int k = getU2(0); 
         rtnState = getNibbles(j);
         results =  new double[k];
         Arrays.setAll(results, p -> getR4(-Float.MAX_VALUE));
-        getParametricFields(); 
+        testName = getCn();
+        alarmName = getCn();
+        optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(getByte()));
+        resScal = getI1(MISSING_BYTE);
+        llmScal = getI1(MISSING_BYTE);
+        hlmScal = getI1(MISSING_BYTE);
+        loLimit = getR4(MISSING_FLOAT);
+        hiLimit = getR4(MISSING_FLOAT);
         startIn = getR4(MISSING_FLOAT);
         incrIn = getR4(MISSING_FLOAT);
         rtnIndex = new int[j];
-        Arrays.setAll(rtnIndex, p -> getU2(-1));
+        Arrays.setAll(rtnIndex, p -> getU2(MISSING_INT));
         units = getCn();
         unitsIn = getCn();
-        getLastFields(); 
+        resFmt = getCn();
+        llmFmt = getCn();
+        hlmFmt = getCn();
+        loSpec = getR4(MISSING_FLOAT);
+        hiSpec = getR4(MISSING_FLOAT);
     }
     
     public MultipleResultParametricRecord(
@@ -75,7 +113,7 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
             final int k,
             final byte[] rtnState,
             final double[] results,
-    	    final String text,
+    	    final String testName,
     	    final String alarmName,
     	    final byte optFlags, 
     	    final byte resScal, // if RES_SCAL_INVALID set, then use default res_scal
@@ -94,10 +132,15 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(sequenceNumber, deviceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
+        super(Record_t.MPR, sequenceNumber, deviceNumber, null);
+        this.testNumber = testNumber;
+        this.headNumber = (short) headNumber;
+        this.siteNumber = (short) siteNumber;
+        this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
+        this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
         this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
         this.results = Arrays.copyOf(results, results.length);
-        this.text = text;
+        this.testName = testName;
         this.alarmName = alarmName;
         if (optFlags != (byte) -1) this.optFlags = OptFlag_t.getBits(optFlags);
         else this.optFlags = null;
@@ -131,7 +174,7 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         list.addAll(getU2Bytes(results.length));
         list.addAll(getNibbleBytes(rtnState));
         Arrays.stream(results).forEach(p -> list.addAll(getR4Bytes((float) p)));
-        list.addAll(getCnBytes(text));
+        list.addAll(getCnBytes(testName));
         list.addAll(getCnBytes(alarmName));
         if (optFlags != null)
         {
@@ -174,7 +217,7 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         sb.append("    results:");
         Arrays.stream(results).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
-        sb.append("    test name: ").append(text).append(Log.eol);
+        sb.append("    test name: ").append(testName).append(Log.eol);
         sb.append("    alarm name: ").append(alarmName).append(Log.eol);
         if (optFlags != null) 
         {
@@ -204,6 +247,10 @@ public final class MultipleResultParametricRecord extends ParametricTestRecord
         }
         return(sb.toString());
     }
-    
+
+    public final byte[] getRtnState() { return(Arrays.copyOf(rtnState, rtnState.length)); }
+    public final double[] getResults() { return(Arrays.copyOf(results, results.length)); }
+    public final int[] getRtnIndex() { return(Arrays.copyOf(rtnIndex, rtnIndex.length)); }
+   
 
 }

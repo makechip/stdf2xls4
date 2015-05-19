@@ -26,7 +26,9 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Set;
 
 import com.makechip.util.Log;
 
@@ -37,22 +39,22 @@ import com.makechip.util.Log;
 public class TestSynopsisRecord extends StdfRecord
 {
     
-    private final short headNumber;
-    private final short siteNumber;
-    private final char testType;
-    private final long testNumber;
-    private final long numExecs;
-    private final long numFailures;
-    private final long numAlarms;
-    private final String testName;
-    private final String sequencerName;
-    private final String testLabel;
-    private EnumSet<TestOptFlag_t> optFlags; 
-    private float testTime;
-    private float testMin;
-    private float testMax;
-    private float testSum;
-    private float testSumSquares;
+    public final short headNumber;
+    public final short siteNumber;
+    public final char testType;
+    public final long testNumber;
+    public final long numExecs;
+    public final long numFailures;
+    public final long numAlarms;
+    public final String testName;
+    public final String sequencerName;
+    public final String testLabel;
+    public Set<TestOptFlag_t> optFlags; 
+    public float testTime;
+    public float testMin;
+    public float testMax;
+    public float testSum;
+    public float testSumSquares;
     
     /**
     *** @param p1
@@ -71,7 +73,7 @@ public class TestSynopsisRecord extends StdfRecord
         testName = getCn();
         sequencerName = getCn();
         testLabel = getCn();
-        optFlags = TestOptFlag_t.getBits((byte) getU1((short) 0));
+        optFlags = Collections.unmodifiableSet(TestOptFlag_t.getBits((byte) getU1((short) 0)));
         testTime = getR4(-1.0f);
         testMin = getR4(-Float.MAX_VALUE);
         testMax = getR4(-Float.MAX_VALUE);
@@ -168,182 +170,6 @@ public class TestSynopsisRecord extends StdfRecord
         sb.append("    sum of result values: " + testSum).append(Log.eol);
         sb.append("    sum of squares of result values: " + testSumSquares).append(Log.eol);
         return(sb.toString());
-    }
-
-    /**
-     * @return the optFlags
-     */
-    public EnumSet<TestOptFlag_t> getOptFlags()
-    {
-        return optFlags;
-    }
-
-    /**
-     * @param optFlags the optFlags to set
-     */
-    public void setOptFlags(EnumSet<TestOptFlag_t> optFlags)
-    {
-        this.optFlags = optFlags;
-    }
-
-    /**
-     * @return the testTime
-     */
-    public float getTestTime()
-    {
-        return testTime;
-    }
-
-    /**
-     * @param testTime the testTime to set
-     */
-    public void setTestTime(float testTime)
-    {
-        this.testTime = testTime;
-    }
-
-    /**
-     * @return the testMin
-     */
-    public float getTestMin()
-    {
-        return testMin;
-    }
-
-    /**
-     * @param testMin the testMin to set
-     */
-    public void setTestMin(float testMin)
-    {
-        this.testMin = testMin;
-    }
-
-    /**
-     * @return the testMax
-     */
-    public float getTestMax()
-    {
-        return testMax;
-    }
-
-    /**
-     * @param testMax the testMax to set
-     */
-    public void setTestMax(float testMax)
-    {
-        this.testMax = testMax;
-    }
-
-    /**
-     * @return the testSum
-     */
-    public float getTestSum()
-    {
-        return testSum;
-    }
-
-    /**
-     * @param testSum the testSum to set
-     */
-    public void setTestSum(float testSum)
-    {
-        this.testSum = testSum;
-    }
-
-    /**
-     * @return the testSumSquares
-     */
-    public float getTestSumSquares()
-    {
-        return testSumSquares;
-    }
-
-    /**
-     * @param testSumSquares the testSumSquares to set
-     */
-    public void setTestSumSquares(float testSumSquares)
-    {
-        this.testSumSquares = testSumSquares;
-    }
-
-    /**
-     * @return the headNumber
-     */
-    public short getHeadNumber()
-    {
-        return headNumber;
-    }
-
-    /**
-     * @return the siteNumber
-     */
-    public short getSiteNumber()
-    {
-        return siteNumber;
-    }
-
-    /**
-     * @return the testType
-     */
-    public char getTestType()
-    {
-        return testType;
-    }
-
-    /**
-     * @return the testNumber
-     */
-    public long getTestNumber()
-    {
-        return testNumber;
-    }
-
-    /**
-     * @return the numExecs
-     */
-    public long getNumExecs()
-    {
-        return numExecs;
-    }
-
-    /**
-     * @return the numFailures
-     */
-    public long getNumFailures()
-    {
-        return numFailures;
-    }
-
-    /**
-     * @return the numAlarms
-     */
-    public long getNumAlarms()
-    {
-        return numAlarms;
-    }
-
-    /**
-     * @return the testName
-     */
-    public String getTestName()
-    {
-        return testName;
-    }
-
-    /**
-     * @return the sequencerName
-     */
-    public String getSequencerName()
-    {
-        return sequencerName;
-    }
-
-    /**
-     * @return the testLabel
-     */
-    public String getTestLabel()
-    {
-        return testLabel;
     }
 
 }

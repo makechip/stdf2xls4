@@ -36,8 +36,8 @@ import com.makechip.util.Log;
 **/
 public class PartInformationRecord extends StdfRecord
 {
-    private final short headNumber;
-    private final short siteNumber;
+    public final short headNumber;
+    public final short siteNumber;
     
     /**
     *** @param p1
@@ -74,22 +74,6 @@ public class PartInformationRecord extends StdfRecord
         sb.append("    head number: " + headNumber).append(Log.eol);
         sb.append("    site number: " + siteNumber).append(Log.eol);
         return(sb.toString());
-    }
-
-    /**
-     * @return the headNumber
-     */
-    public short getHeadNumber()
-    {
-        return headNumber;
-    }
-
-    /**
-     * @return the siteNumber
-     */
-    public short getSiteNumber()
-    {
-        return siteNumber;
     }
 
 }

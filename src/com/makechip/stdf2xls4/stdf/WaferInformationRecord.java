@@ -27,8 +27,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.util.Date;
-
 import com.makechip.util.Log;
 
 
@@ -38,10 +36,10 @@ import com.makechip.util.Log;
 **/
 public class WaferInformationRecord extends StdfRecord
 {
-    private final short headNumber;
-    private final short siteGroupNumber;
-    private final long startDate;
-    private final String waferID;
+    public final short headNumber;
+    public final short siteGroupNumber;
+    public final long startDate;
+    public final String waferID;
     
     /**
     *** @param p1
@@ -91,37 +89,4 @@ public class WaferInformationRecord extends StdfRecord
         return(sb.toString());
     }
     
-
-    /**
-     * @return the headNumber
-     */
-    public short getHeadNumber()
-    {
-        return headNumber;
-    }
-
-    /**
-     * @return the siteGroupNumber
-     */
-    public short getSiteGroupNumber()
-    {
-        return siteGroupNumber;
-    }
-
-    /**
-     * @return the startDate
-     */
-    public String getStartDate()
-    {
-        return(new Date(startDate * 1000L).toString());
-    }
-
-    /**
-     * @return the waferID
-     */
-    public String getWaferID()
-    {
-        return waferID;
-    }
-
 }

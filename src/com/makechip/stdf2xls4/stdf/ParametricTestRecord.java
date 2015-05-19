@@ -42,29 +42,21 @@ public class ParametricTestRecord extends StdfRecord
 	public final short siteNumber;
 	public final Set<TestFlag_t> testFlags;
 	public final Set<ParamFlag_t> paramFlags;
-    protected double result; 
-    protected String text;
-    protected String alarmName;
-    protected Set<OptFlag_t> optFlags; 
-    protected byte resScal; // if RES_SCAL_INVALID set, then use default res_scal
-    // if LO_LIMIT_LLM_SCAL_INVALID set, then use default llmScal;
-    // if NO_LO_LIMIT set then llmScal is invalid
-    protected byte llmScal;
-    // if HI_LIMIT_HLM_SCAL_INVALID set, then use default hlmScal;
-    // if NO_HI_LIMIT set then hlmScal is invalid
-    protected byte hlmScal; 
-    // if LO_LIMIT_LLM_SCAL_INVALID set, then use default loLimit;
-    // if NO_LO_LIMIT set then LoLimit is invalid
-    protected float loLimit; 
-    // if HI_LIMIT_HLM_SCAL_INVALID set, then use default hiLimit;
-    // if NO_HI_LIMIT set then hiLimit is invalid
-    protected float hiLimit;
-    protected String units;
-    protected String resFmt;
-    protected String llmFmt;
-    protected String hlmFmt;
-    protected float loSpec; // if NO_LO_SPEC_LIMIT set then loSpec is invalid
-    protected float hiSpec; // if NO_HI_SPEC_LIMIT set the hiSpec is invalid
+    public final double result; 
+    public final String testName;
+    public final String alarmName;
+    public final Set<OptFlag_t> optFlags; 
+    public final byte resScal;
+    public final byte llmScal;
+    public final byte hlmScal; 
+    public final float loLimit; 
+    public final float hiLimit;
+    public final String units;
+    public final String resFmt;
+    public final String llmFmt;
+    public final String hlmFmt;
+    public final float loSpec;
+    public final float hiSpec;
     
     public boolean alarm() { return(testFlags.contains(TestFlag_t.ALARM)); }
     public boolean unreliable() { return(testFlags.contains(TestFlag_t.UNRELIABLE)); }
@@ -76,55 +68,32 @@ public class ParametricTestRecord extends StdfRecord
     
     
     /**
-     * For Use by MultipleResultParametricTestRecord which inherits from this class.
-     * @param type
-     * @param tracker
-     * @param sequenceNumber
-     * @param devNum
-     * @param data
-     */
-    protected ParametricTestRecord(Record_t type, int sequenceNumber, int devNum, byte[] data)
-    {
-        super(type, sequenceNumber, devNum, data);
-		testNumber = getU4(StdfRecord.MISSING_INT);
-	    headNumber = getU1((short) 0);	
-	    siteNumber = getU1((short) 0);	
-	    testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(getByte()));
-	    paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(getByte()));
-   }
-    
-    /**
     *** @param p1
     **/
     public ParametricTestRecord(int sequenceNumber, int devNum, byte[] data)
     {
-    	this(Record_t.PTR, sequenceNumber, devNum, data);
+    	super(Record_t.PTR, sequenceNumber, devNum, data);
+    	testNumber = getU4(MISSING_INT);
+    	headNumber = getU1(MISSING_BYTE);
+    	siteNumber = getU1(MISSING_BYTE);
+    	testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(getByte()));
+    	paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(getByte()));
         result = getR4(MISSING_FLOAT);
-        getParametricFields();
-        units = getCn();
-        getLastFields();
-    }
-    
-    protected void getLastFields()
-    {
-        resFmt = getCn();
-        llmFmt = getCn();
-        hlmFmt = getCn();
-        loSpec = getR4(MISSING_FLOAT);
-        hiSpec = getR4(MISSING_FLOAT);
-    }
-    
-    protected void getParametricFields()
-    {
-        text = getCn(); 
+        testName = getCn(); 
         alarmName = getCn();
         if (getSize() <= getPtr()) optFlags = null;
-        else optFlags = OptFlag_t.getBits(getByte());
+        else optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(getByte()));
         resScal = getI1(MISSING_BYTE); 
         llmScal = getI1(MISSING_BYTE);
         hlmScal = getI1(MISSING_BYTE); 
         loLimit = getR4(MISSING_FLOAT); 
         hiLimit = getR4(MISSING_FLOAT);
+        units = getCn();
+        resFmt = getCn();
+        llmFmt = getCn();
+        hlmFmt = getCn();
+        loSpec = getR4(MISSING_FLOAT);
+        hiSpec = getR4(MISSING_FLOAT);
     }
     
     public ParametricTestRecord(
@@ -136,7 +105,7 @@ public class ParametricTestRecord extends StdfRecord
             final byte testFlags,
             final byte paramFlags,
     	    final float result, 
-    	    final String text,
+    	    final String testName,
     	    final String alarmName,
     	    final byte optFlags, 
     	    final byte resScal, // if RES_SCAL_INVALID set, then use default res_scal
@@ -158,7 +127,7 @@ public class ParametricTestRecord extends StdfRecord
         this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
         this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
         this.result = result;
-        this.text = text;
+        this.testName = testName;
         this.alarmName = alarmName;
         if (optFlags != MISSING_BYTE) this.optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(optFlags));
         else this.optFlags = null;
@@ -175,23 +144,6 @@ public class ParametricTestRecord extends StdfRecord
         this.hiSpec = hiSpec;
     }
     
-    protected ParametricTestRecord(
-            final int sequenceNumber,
-            final int deviceNumber,
-            final int testNumber,
-            final int headNumber,
-            final int siteNumber,
-            final byte testFlags,
-            final byte paramFlags)
-    {
-    	super(Record_t.MPR, sequenceNumber, deviceNumber, null);
-    	this.testNumber = testNumber;
-    	this.headNumber = (short) headNumber;
-    	this.siteNumber = (short) siteNumber;
-    	this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
-    	this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
-    }
-    
     @Override
     protected void toBytes()
     {
@@ -202,7 +154,7 @@ public class ParametricTestRecord extends StdfRecord
         list.add((byte) testFlags.stream().mapToInt(b -> b.getBit()).sum());
         list.add((byte) paramFlags.stream().mapToInt(b -> b.getBit()).sum());
         list.addAll(getR4Bytes((float) result));
-        list.addAll(getCnBytes(text));
+        list.addAll(getCnBytes(testName));
         list.addAll(getCnBytes(alarmName));
         if (optFlags != null)
         {
@@ -236,7 +188,7 @@ public class ParametricTestRecord extends StdfRecord
         paramFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
         sb.append(Log.eol);
         sb.append("    result: " + result).append(Log.eol);
-        sb.append("    test name: ").append(text).append(Log.eol);
+        sb.append("    test name: ").append(testName).append(Log.eol);
         sb.append("    alarm name: ").append(alarmName).append(Log.eol);
         if (optFlags != null)
         {

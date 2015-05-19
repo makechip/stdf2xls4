@@ -36,14 +36,14 @@ import com.makechip.util.Log;
 **/
 public class PinMapRecord extends StdfRecord
 {
-    private final int pmrIdx;
-    private final int channelType;
-    private final String channelName;
-    private final String physicalPinName;
-    private final String logicalPinName;
-    private final short headNumber;
-    private final short siteNumber;
-    private final String pinName;
+    public final int pmrIdx;
+    public final int channelType;
+    public final String channelName;
+    public final String physicalPinName;
+    public final String logicalPinName;
+    public final short headNumber;
+    public final short siteNumber;
+    public final String pinName;
     
     /**
     *** @param p1
@@ -117,67 +117,6 @@ public class PinMapRecord extends StdfRecord
         sb.append("    head number: " + headNumber); sb.append(Log.eol);
         sb.append("    site number: " + siteNumber); sb.append(Log.eol);
         return(sb.toString());
-    }
-
-    /**
-     * @return the pmrIdx
-     */
-    public int getPmrIdx()
-    {
-        return pmrIdx;
-    }
-
-    /**
-     * @return the channelType
-     */
-    public int getChannelType()
-    {
-        return channelType;
-    }
-
-    /**
-     * @return the channelName
-     */
-    public String getChannelName()
-    {
-        return channelName;
-    }
-
-    /**
-     * @return the physicalPinName
-     */
-    public String getPhysicalPinName()
-    {
-        return physicalPinName;
-    }
-
-    /**
-     * @return the logicalPinName
-     */
-    public String getLogicalPinName()
-    {
-        return logicalPinName;
-    }
-
-    /**
-     * @return the headNumber
-     */
-    public short getHeadNumber()
-    {
-        return headNumber;
-    }
-
-    /**
-     * @return the siteNumber
-     */
-    public short getSiteNumber()
-    {
-        return siteNumber;
-    }
-    
-    public String getPinName()
-    {
-    	return(pinName);
     }
 
 }

@@ -82,7 +82,7 @@ public class RetestDataRecord extends StdfRecord
      */
     public int[] getRetestBins()
     {
-        return retestBins;
+        return Arrays.copyOf(retestBins, retestBins.length);
     }
 
     

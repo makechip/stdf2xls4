@@ -36,13 +36,13 @@ import com.makechip.util.Log;
 **/
 public class PartCountRecord extends StdfRecord
 {
-    private final short headNumber;
-    private final short siteNumber;
-    private final long partsTested;
-    private final long partsReTested;
-    private final long aborts;
-    private final long good;
-    private final long functional;
+    public final short headNumber;
+    public final short siteNumber;
+    public final long partsTested;
+    public final long partsReTested;
+    public final long aborts;
+    public final long good;
+    public final long functional;
     
     /**
     *** @param p1
@@ -105,62 +105,6 @@ public class PartCountRecord extends StdfRecord
         sb.append("    number good: " + good).append(Log.eol);
         sb.append("    number functional: " + functional).append(Log.eol);
         return(sb.toString());
-    }
-
-    /**
-     * @return the headNumber
-     */
-    public short getHeadNumber()
-    {
-        return headNumber;
-    }
-
-    /**
-     * @return the siteNumber
-     */
-    public short getSiteNumber()
-    {
-        return siteNumber;
-    }
-
-    /**
-     * @return the partsTested
-     */
-    public long getPartsTested()
-    {
-        return partsTested;
-    }
-
-    /**
-     * @return the partsReTested
-     */
-    public long getPartsReTested()
-    {
-        return partsReTested;
-    }
-
-    /**
-     * @return the aborts
-     */
-    public long getAborts()
-    {
-        return aborts;
-    }
-
-    /**
-     * @return the good
-     */
-    public long getGood()
-    {
-        return good;
-    }
-
-    /**
-     * @return the functional
-     */
-    public long getFunctional()
-    {
-        return functional;
     }
 
 }

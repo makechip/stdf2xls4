@@ -38,26 +38,26 @@ import com.makechip.util.Log;
 **/
 public class SiteDescriptionRecord extends StdfRecord
 {
-    private final short headNumber;
-    private final short siteGroupNumber;
-    private final short numSites;
+    public final short headNumber;
+    public final short siteGroupNumber;
+    public final short numSites;
     private final int[] siteNumbers;
-    private final String handlerType;
-    private final String handlerID;
-    private final String probeCardType;
-    private final String probeCardID;
-    private final String loadBoardType;
-    private final String loadBoardID;
-    private final String dibBoardType;
-    private final String dibBoardID;
-    private final String ifaceCableType;
-    private final String ifaceCableID;
-    private final String contactorType;
-    private final String contactorID;
-    private final String laserType;
-    private final String laserID;
-    private final String equipType;
-    private final String equipID;
+    public final String handlerType;
+    public final String handlerID;
+    public final String probeCardType;
+    public final String probeCardID;
+    public final String loadBoardType;
+    public final String loadBoardID;
+    public final String dibBoardType;
+    public final String dibBoardID;
+    public final String ifaceCableType;
+    public final String ifaceCableID;
+    public final String contactorType;
+    public final String contactorID;
+    public final String laserType;
+    public final String laserID;
+    public final String equipType;
+    public final String equipID;
     
     /**
     *** @param p1
@@ -192,161 +192,9 @@ public class SiteDescriptionRecord extends StdfRecord
         return(sb.toString());
     }
 
-    /**
-     * @return the headNumber
-     */
-    public short getHeadNumber()
-    {
-        return headNumber;
-    }
-
-    /**
-     * @return the siteGroupNumber
-     */
-    public short getSiteGroupNumber()
-    {
-        return siteGroupNumber;
-    }
-
-    /**
-     * @return the numSites
-     */
-    public short getNumSites()
-    {
-        return numSites;
-    }
-
-    /**
-     * @return the siteNumbers
-     */
     public int[] getSiteNumbers()
     {
-        return siteNumbers;
-    }
-
-    /**
-     * @return the handlerType
-     */
-    public String getHandlerType()
-    {
-        return handlerType;
-    }
-    
-    public String getHandlerID()
-    {
-    	return handlerID;
-    }
-
-    /**
-     * @return the probeCardType
-     */
-    public String getProbeCardType()
-    {
-        return probeCardType;
-    }
-
-    /**
-     * @return the probeCardID
-     */
-    public String getProbeCardID()
-    {
-        return probeCardID;
-    }
-
-    /**
-     * @return the loadBoardType
-     */
-    public String getLoadBoardType()
-    {
-        return loadBoardType;
-    }
-
-    /**
-     * @return the loadBoardID
-     */
-    public String getLoadBoardID()
-    {
-        return loadBoardID;
-    }
-
-    /**
-     * @return the dibBoardType
-     */
-    public String getDibBoardType()
-    {
-        return dibBoardType;
-    }
-
-    /**
-     * @return the dibBoardID
-     */
-    public String getDibBoardID()
-    {
-        return dibBoardID;
-    }
-
-    /**
-     * @return the ifaceCableType
-     */
-    public String getIfaceCableType()
-    {
-        return ifaceCableType;
-    }
-
-    /**
-     * @return the ifaceCableID
-     */
-    public String getIfaceCableID()
-    {
-        return ifaceCableID;
-    }
-
-    /**
-     * @return the contactorType
-     */
-    public String getContactorType()
-    {
-        return contactorType;
-    }
-
-    /**
-     * @return the contactorID
-     */
-    public String getContactorID()
-    {
-        return contactorID;
-    }
-
-    /**
-     * @return the laserType
-     */
-    public String getLaserType()
-    {
-        return laserType;
-    }
-
-    /**
-     * @return the laserID
-     */
-    public String getLaserID()
-    {
-        return laserID;
-    }
-
-    /**
-     * @return the equipType
-     */
-    public String getEquipType()
-    {
-        return equipType;
-    }
-
-    /**
-     * @return the equipID
-     */
-    public String getEquipID()
-    {
-        return equipID;
+        return Arrays.copyOf(siteNumbers, siteNumbers.length);
     }
 
 }

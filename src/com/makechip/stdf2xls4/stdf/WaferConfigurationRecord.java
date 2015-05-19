@@ -36,15 +36,15 @@ import com.makechip.util.Log;
 **/
 public class WaferConfigurationRecord extends StdfRecord
 {
-    private final float waferSize;
-    private final float dieHeight;
-    private final float dieWidth;
-    private final short units;
-    private final char flatOrient;
-    private final short centerX;
-    private final short centerY;
-    private final char posX;
-    private final char posY;
+    public final float waferSize;
+    public final float dieHeight;
+    public final float dieWidth;
+    public final short units;
+    public final char flatOrient;
+    public final short centerX;
+    public final short centerY;
+    public final char posX;
+    public final char posY;
     
     /**
     *** @param p1
@@ -121,78 +121,6 @@ public class WaferConfigurationRecord extends StdfRecord
         sb.append("    positive X-direction: " + posX).append(Log.eol);
         sb.append("    positive Y-direction: " + posY).append(Log.eol);
         return(sb.toString());
-    }
-
-    /**
-     * @return the waferSize
-     */
-    public float getWaferSize()
-    {
-        return waferSize;
-    }
-
-    /**
-     * @return the dieHeight
-     */
-    public float getDieHeight()
-    {
-        return dieHeight;
-    }
-
-    /**
-     * @return the dieWidth
-     */
-    public float getDieWidth()
-    {
-        return dieWidth;
-    }
-
-    /**
-     * @return the units
-     */
-    public short getUnits()
-    {
-        return units;
-    }
-
-    /**
-     * @return the flatOrient
-     */
-    public char getFlatOrient()
-    {
-        return flatOrient;
-    }
-
-    /**
-     * @return the centerX
-     */
-    public short getCenterX()
-    {
-        return centerX;
-    }
-
-    /**
-     * @return the centerY
-     */
-    public short getCenterY()
-    {
-        return centerY;
-    }
-
-    /**
-     * @return the posX
-     */
-    public char getPosX()
-    {
-        return posX;
-    }
-
-    /**
-     * @return the posU
-     */
-    public char getPosY()
-    {
-        return posY;
     }
 
 }

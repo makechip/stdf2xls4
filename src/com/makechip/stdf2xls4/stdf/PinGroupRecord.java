@@ -37,8 +37,8 @@ import com.makechip.util.Log;
 **/
 public class PinGroupRecord extends StdfRecord
 {
-    private final int groupIndex;
-    private final String groupName;
+    public final int groupIndex;
+    public final String groupName;
     private final int[] pmrIdx;
     
     /**
@@ -89,27 +89,11 @@ public class PinGroupRecord extends StdfRecord
     }
     
     /**
-     * @return the groupIndex
-     */
-    public int getGroupIndex()
-    {
-        return groupIndex;
-    }
-
-    /**
-     * @return the groupName
-     */
-    public String getGroupName()
-    {
-        return groupName;
-    }
-
-    /**
      * @return the pmrIdx
      */
     public int[] getPmrIdx()
     {
-        return pmrIdx;
+        return Arrays.copyOf(pmrIdx, pmrIdx.length);
     }
 
     

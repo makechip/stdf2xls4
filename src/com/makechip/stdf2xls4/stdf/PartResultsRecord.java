@@ -27,7 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.Set;
 
 import com.makechip.util.Log;
 
@@ -39,25 +39,17 @@ public class PartResultsRecord extends StdfRecord
 {
 	private static int sn = -1;
     
-    private final short headNumber;
-    private final short siteNumber;
-    private final EnumSet<PartInfoFlag_t> partInfoFlags;
-    private final int numExecs;
-    private final int hwBinNumber;
-    private final int swBinNumber;
-    private final short xCoord;
-    private final short yCoord;
-    private final long testTime;
+    public final short headNumber;
+    public final short siteNumber;
+    public final Set<PartInfoFlag_t> partInfoFlags;
+    public final int numExecs;
+    public final int hwBinNumber;
+    public final int swBinNumber;
+    public final short xCoord;
+    public final short yCoord;
+    public final long testTime;
     private String partID;
-    
-    
-    public void setPartID(String partID)
-    {
-        this.partID = partID;
-    }
-
-
-    private final String partDescription;
+    public final String partDescription;
     private final byte[] repair;
     
     public boolean abnormalEOT() { return(partInfoFlags.contains(PartInfoFlag_t.ABNORMAL_END_OF_TEST)); }
@@ -166,87 +158,6 @@ public class PartResultsRecord extends StdfRecord
     }
 
     /**
-     * @return the headNumber
-     */
-    public short getHeadNumber()
-    {
-        return headNumber;
-    }
-
-
-    /**
-     * @return the siteNumber
-     */
-    public short getSiteNumber()
-    {
-        return siteNumber;
-    }
-
-
-    /**
-     * @return the partInfoFlags
-     */
-    public EnumSet<PartInfoFlag_t> getPartInfoFlags()
-    {
-        return partInfoFlags;
-    }
-
-
-    /**
-     * @return the numExecs
-     */
-    public int getNumExecs()
-    {
-        return numExecs;
-    }
-
-
-    /**
-     * @return the hwBinNumber
-     */
-    public int getHwBinNumber()
-    {
-        return hwBinNumber;
-    }
-
-
-    /**
-     * @return the swBinNumber
-     */
-    public int getSwBinNumber()
-    {
-        return swBinNumber;
-    }
-
-
-    /**
-     * @return the xCoord
-     */
-    public short getxCoord()
-    {
-        return xCoord;
-    }
-
-
-    /**
-     * @return the yCoord
-     */
-    public short getyCoord()
-    {
-        return yCoord;
-    }
-
-
-    /**
-     * @return the testTime
-     */
-    public long getTestTime()
-    {
-        return testTime;
-    }
-
-
-    /**
      * @return the partID
      */
     public String getPartID()
@@ -254,21 +165,11 @@ public class PartResultsRecord extends StdfRecord
         return partID;
     }
 
-
-    /**
-     * @return the partDescription
-     */
-    public String getPartDescription()
-    {
-        return partDescription;
-    }
-
-
     /**
      * @return the repair
      */
     public byte[] getRepair()
     {
-        return repair;
+        return Arrays.copyOf(repair, repair.length);
     }
 }
