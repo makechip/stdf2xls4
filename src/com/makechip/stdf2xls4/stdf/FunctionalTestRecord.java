@@ -31,6 +31,9 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 import com.makechip.util.Log;
 /**
 *** @author eric
@@ -65,6 +68,9 @@ public class FunctionalTestRecord extends StdfRecord
     private final byte[] pgmState;
     private final byte[] failPin;
     private final byte[] enComps;
+    
+    @Override
+    public boolean isTestRecord() { return(true); }
     
     public FunctionalTestRecord(int sequenceNumber, int devNum, byte[] data)
     {

@@ -1,19 +1,21 @@
-package com.makechip.stdf2xls4.stdf;
+package com.makechip.stdf2xls4.stdfapi;
 
-import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TLongByteHashMap;
 import gnu.trove.map.hash.TLongFloatHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.map.hash.TObjectByteHashMap;
 import gnu.trove.map.hash.TObjectFloatHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import gnu.trove.map.hash.TShortObjectHashMap;
 
 import java.util.EnumSet;
 import java.util.IdentityHashMap;
 
-public class DefaultMPRValueMap
+import com.makechip.stdf2xls4.stdf.StdfRecord;
+import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
+
+public class DefaultPTRValueMap
 {
+    // for PTR and MPR
     TLongObjectHashMap<EnumSet<OptFlag_t>> poptDefaults;
     TObjectByteHashMap<TestID> resScalDefaults;
     TLongByteHashMap nresScalDefaults;
@@ -41,31 +43,22 @@ public class DefaultMPRValueMap
     TObjectFloatHashMap<TestID> scaledHiLimits;
     IdentityHashMap<TestID, String> scaledUnits;
     TObjectIntHashMap<TestID> scales;
-    TObjectFloatHashMap<TestID> startInDefaults;
-    TLongFloatHashMap nstartInDefaults;
-    TObjectFloatHashMap<TestID> incrInDefaults;
-    TLongFloatHashMap nincrInDefaults;
-    IdentityHashMap<TestID, int[]> rtnIndexDefaults;
-    TLongObjectHashMap<int[]> nrtnIndexDefaults;
-    IdentityHashMap<TestID, String> unitsInDefaults;
-    TLongObjectHashMap<String> nunitsInDefaults;
-    TShortObjectHashMap<TIntObjectHashMap<String>> pinmap;
-    IdentityHashMap<TestID, PinList> mprPins;
-    TLongObjectHashMap<PinList> nmprPins;
+    
 
-	public DefaultMPRValueMap()
+	public DefaultPTRValueMap()
 	{
+        // for PTR and MPR
         poptDefaults      = new TLongObjectHashMap<EnumSet<OptFlag_t>>();
         resScalDefaults   = new TObjectByteHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_BYTE);
-        nresScalDefaults  = new TLongByteHashMap(100, 0.7F, -1L, StdfRecord.MISSING_BYTE);
+        nresScalDefaults  = new TLongByteHashMap(100, 0.7F, -1, StdfRecord.MISSING_BYTE);
         llmScalDefaults   = new TObjectByteHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_BYTE);
-        nllmScalDefaults  = new TLongByteHashMap(100, 0.7F, -1L, StdfRecord.MISSING_BYTE);
+        nllmScalDefaults  = new TLongByteHashMap(100, 0.7F, -1, StdfRecord.MISSING_BYTE);
         hlmScalDefaults   = new TObjectByteHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_BYTE);
-        nhlmScalDefaults  = new TLongByteHashMap(100, 0.7F, -1L, StdfRecord.MISSING_BYTE);
+        nhlmScalDefaults  = new TLongByteHashMap(100, 0.7F, -1, StdfRecord.MISSING_BYTE);
         loLimDefaults     = new TObjectFloatHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_FLOAT);
-        nloLimDefaults    = new TLongFloatHashMap(100, 0.7F, -1L, StdfRecord.MISSING_FLOAT);
+        nloLimDefaults    = new TLongFloatHashMap(100, 0.7F, -1, StdfRecord.MISSING_FLOAT);
         hiLimDefaults     = new TObjectFloatHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_FLOAT);
-        nhiLimDefaults    = new TLongFloatHashMap(100, 0.7F, -1L, StdfRecord.MISSING_FLOAT);
+        nhiLimDefaults    = new TLongFloatHashMap(100, 0.7F, -1, StdfRecord.MISSING_FLOAT);
         unitDefaults      = new IdentityHashMap<TestID, String>();
         nunitDefaults     = new TLongObjectHashMap<String>();
         resFmtDefaults    = new IdentityHashMap<TestID, String>();
@@ -75,24 +68,14 @@ public class DefaultMPRValueMap
         hlmFmtDefaults    = new IdentityHashMap<TestID, String>();
         nhlmFmtDefaults   = new TLongObjectHashMap<String>();
         loSpecDefaults    = new TObjectFloatHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_FLOAT);
-        nloSpecDefaults   = new TLongFloatHashMap(100, 0.7F, -1L, StdfRecord.MISSING_FLOAT);
+        nloSpecDefaults   = new TLongFloatHashMap(100, 0.7F, -1, StdfRecord.MISSING_FLOAT);
         hiSpecDefaults    = new TObjectFloatHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_FLOAT);
-        nhiSpecDefaults   = new TLongFloatHashMap(100, 0.7F, -1L, StdfRecord.MISSING_FLOAT);
+        nhiSpecDefaults   = new TLongFloatHashMap(100, 0.7F, -1, StdfRecord.MISSING_FLOAT);
         scaledLoLimits    = new TObjectFloatHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_FLOAT);
         scaledHiLimits    = new TObjectFloatHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_FLOAT);
         scaledUnits       = new IdentityHashMap<TestID, String>();
         scales            = new TObjectIntHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_INT);
-        startInDefaults   = new TObjectFloatHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_FLOAT);
-        nstartInDefaults  = new TLongFloatHashMap(100, 0.7F, -1L, StdfRecord.MISSING_FLOAT);
-        incrInDefaults    = new TObjectFloatHashMap<TestID>(100, 0.7F, StdfRecord.MISSING_FLOAT);
-        nincrInDefaults   = new TLongFloatHashMap(100, 0.7F, -1L, StdfRecord.MISSING_FLOAT);
-        rtnIndexDefaults  = new IdentityHashMap<TestID, int[]>();
-        nrtnIndexDefaults = new TLongObjectHashMap<int[]>();
-        unitsInDefaults   = new IdentityHashMap<TestID, String>();
-        nunitsInDefaults  = new TLongObjectHashMap<String>();
-        pinmap            = new TShortObjectHashMap<TIntObjectHashMap<String>>();
-        mprPins           = new IdentityHashMap<TestID, PinList>();
-        nmprPins          = new TLongObjectHashMap<PinList>();
     }
+	    
 
 }

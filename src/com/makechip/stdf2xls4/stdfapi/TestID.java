@@ -22,9 +22,10 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.makechip.stdf2xls4.stdf;
+package com.makechip.stdf2xls4.stdfapi;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 
 import com.makechip.util.Identity;
 import com.makechip.util.factory.IdentityFactoryIO;
@@ -33,45 +34,36 @@ import com.makechip.util.Immutable;
 
 public final class TestID implements Identity, Immutable 
 {
-	private static IdentityFactoryLON<String, TestID> map2 = 
-		new IdentityFactoryLON<String, TestID>(String.class, TestID.class);
-    private static IdentityFactoryIO<TestID, String, TestID> pmap =
-        new IdentityFactoryIO<TestID, String, TestID>(TestID.class, String.class, TestID.class);
-	private static HashMap<String, TestID> map1 = new HashMap<String, TestID>();
-    
     private final long testNum;
     private final String testName;
     private String pin;
-
     private int dupNum;
    
-    private TestID(long testNum, String testName)
+    protected TestID(long testNum, String testName)
     {
         this.testNum = testNum;
         this.testName = testName;
         dupNum = 0;
     }
     
-    private TestID(long testNum, String testName, int dupNum)
-    {
-        this.testNum = testNum;
-        this.testName = testName;
-        this.dupNum = dupNum;
-    }
-    
-    private TestID(TestID id, String pin)
-    {
-        this(id.getTestNumber(), id.getTestName());
-        this.pin = pin;
-        dupNum = 0;
-    }
-    
-    public static TestID getTestID(long testNum, String testName, int dupNum)
-    {
-    	return(map2.getValue(testNum, testName, dupNum));
-    }
-    
-    public static TestID getTestID(long testNum, String testName)
+    /**
+     * The test ID is computed with the following algorithm:
+     * 1. If the test name has not been encountered, Then the test ID
+     *    is based on the name alone.
+     * 2. If the test name has been encountered, then if the test
+     *    number has not been encountered the test ID is based on the 
+     *    test number alone.
+     * 3. If both the test name and the test number have been encountered,
+     *    then the test ID is based on both the test name and the test number
+     * 4. If the test name and the test number have been encountered,
+     *    then the test ID is based on the test name, the test number,
+     *    and a duplicate count number.
+     * @param idb
+     * @param testNum
+     * @param testName
+     * @return
+     */
+    public static TestID getTestID(IdentityDatabase idb, long testNum, String testName)
     {
     	TestID id = map1.get(testName);
     	if (id != null)
@@ -84,24 +76,9 @@ public final class TestID implements Identity, Immutable
         return(id);
     }
     
-    public static TestID getTestID(TestID id, String pin)
-    {
-        return(pmap.getValue(id, pin));
-    }
-    
     public static TestID findTestID(long testNum, String testName)
     {
     	return(map2.getExistingValue(testNum, testName, 0));
-    }
-    
-    public static TestID findTestID(long testNum, String testName, int dupNum)
-    {
-    	return(map2.getExistingValue(testNum, testName, dupNum));
-    }
-    
-    public static TestID findTestID(TestID id, String pin)
-    {
-    	return(pmap.getExistingValue(id, pin));
     }
     
     @Override
@@ -127,14 +104,10 @@ public final class TestID implements Identity, Immutable
         return(pin == null ? testName : testName + " [" + pin + "]"); 
     }
     
-    public int getDupNum() { return(dupNum); }
-    
-    public String getPin() { return(pin); }
-
     @Override
     public int getInstanceCount()
     {
-        return(map2.getInstanceCount() + pmap.getInstanceCount() + map1.size());
+        return(-1);
     }
     
 }

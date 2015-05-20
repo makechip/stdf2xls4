@@ -29,6 +29,8 @@ import gnu.trove.list.array.TByteArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
 /**

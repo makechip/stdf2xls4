@@ -22,7 +22,7 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.makechip.stdf2xls4.stdf;
+package com.makechip.stdf2xls4.stdfapi;
 
 import java.util.ArrayList;
 import java.util.Collections;

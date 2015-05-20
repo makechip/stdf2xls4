@@ -22,42 +22,37 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-
-package com.makechip.stdf2xls4.stdf;
+package com.makechip.stdf2xls4.stdf.enums;
 
 import java.util.EnumSet;
 
-public enum ParamFlag_t
+public enum FTROptFlag_t 
 {
-    SCALE_ERROR(1),
-    DRIFT_ERROR(2),
-    OSCILLATION(4),
-    VALUE_HIGH(8),
-    VALUE_LOW(16),
-    ALTERNATE_PASS(32),
-    LO_LIMIT_EQ_PASS(64),
-    HI_LIMIT_EQ_PASS(128);
-    
-    private final byte bit;
-    
-    private ParamFlag_t(int bit)
+	CYCLE_CNT_INVALID(1),
+	REL_VADDR_INVALID(2),
+	REPEAT_CNT_INVALID(4),
+	NUM_FAIL_INVALID(8),
+	XY_FAIL_ADDR_INVALID(16),
+	VEC_OFFSET_INVALID(32);
+	
+	private final byte bit;
+	
+	private FTROptFlag_t(int bit)
+	{
+		this.bit = (byte) bit;
+	}
+	
+	public byte getBit() { return(bit); }
+	
+    public static EnumSet<FTROptFlag_t> getBits(byte b)
     {
-    	this.bit = (byte) bit;
-    }
-    
-    public byte getBit() { return(bit); }
-    
-    public static EnumSet<ParamFlag_t> getBits(byte b)
-    {
-        EnumSet<ParamFlag_t> set = EnumSet.noneOf(ParamFlag_t.class);
-        if ((b & (byte) 1)   == (byte) 1)   set.add(ParamFlag_t.SCALE_ERROR);
-        if ((b & (byte) 2)   == (byte) 2)   set.add(ParamFlag_t.DRIFT_ERROR);
-        if ((b & (byte) 4)   == (byte) 4)   set.add(ParamFlag_t.OSCILLATION);
-        if ((b & (byte) 8)   == (byte) 8)   set.add(ParamFlag_t.VALUE_HIGH);
-        if ((b & (byte) 16)  == (byte) 16)  set.add(ParamFlag_t.VALUE_LOW);
-        if ((b & (byte) 32)  == (byte) 32)  set.add(ParamFlag_t.ALTERNATE_PASS);
-        if ((b & (byte) 64)  == (byte) 64)  set.add(ParamFlag_t.LO_LIMIT_EQ_PASS);
-        if ((b & (byte) 128) == (byte) 128) set.add(ParamFlag_t.HI_LIMIT_EQ_PASS);
+        EnumSet<FTROptFlag_t> set = EnumSet.noneOf(FTROptFlag_t.class);
+        if ((b & (byte) 1) == (byte) 1) set.add(CYCLE_CNT_INVALID);
+        if ((b & (byte) 2) == (byte) 2) set.add(REL_VADDR_INVALID);
+        if ((b & (byte) 4) == (byte) 4) set.add(REPEAT_CNT_INVALID);
+        if ((b & (byte) 8) == (byte) 8) set.add(NUM_FAIL_INVALID);
+        if ((b & (byte) 16) == (byte) 16) set.add(XY_FAIL_ADDR_INVALID);
+        if ((b & (byte) 32) == (byte) 32) set.add(VEC_OFFSET_INVALID);
         return(set);
     }
 

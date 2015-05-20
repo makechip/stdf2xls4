@@ -1,8 +1,11 @@
-package com.makechip.stdf2xls4.stdf;
+package com.makechip.stdf2xls4.stdfapi;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.map.hash.TLongShortHashMap;
+
 import java.util.EnumSet;
+
+import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 
 public class DefaultFTRValueMap
 {

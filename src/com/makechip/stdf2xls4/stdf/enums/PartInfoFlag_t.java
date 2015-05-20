@@ -1,4 +1,4 @@
-package com.makechip.stdf2xls4.stdf;
+package com.makechip.stdf2xls4.stdf.enums;
 
 import java.util.EnumSet;
 

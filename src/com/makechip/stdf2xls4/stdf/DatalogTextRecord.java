@@ -25,6 +25,7 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
 /**
@@ -50,6 +51,9 @@ public class DatalogTextRecord extends StdfRecord
     	super(Record_t.DTR, sequenceNumber, devNum, null);
     	this.text = text;
     }
+    
+    @Override
+    public boolean isTestRecord() { return(text.trim().startsWith("TEXT_DATA")); }
     
     @Override
     public String toString()

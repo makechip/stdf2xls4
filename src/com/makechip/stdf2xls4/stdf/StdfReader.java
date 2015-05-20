@@ -33,10 +33,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.makechip.stdf2xls4.stdf.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
-import static com.makechip.stdf2xls4.stdf.Record_t.*;
+import static com.makechip.stdf2xls4.stdf.enums.Record_t.*;
 
 /**
 *** @author eric

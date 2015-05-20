@@ -28,6 +28,8 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Arrays;
+
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
 

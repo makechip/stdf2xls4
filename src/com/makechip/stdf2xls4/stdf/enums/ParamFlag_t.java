@@ -23,36 +23,42 @@
  * 02110-1301, USA.
  */
 
-package com.makechip.stdf2xls4.stdf;
+package com.makechip.stdf2xls4.stdf.enums;
 
 import java.util.EnumSet;
 
-public enum TestOptFlag_t
+public enum ParamFlag_t
 {
-    TEST_MIN_INVALID(1),
-    TEST_MAX_INVALID(2),
-    TEST_TIME_INVALID(4),
-    TEST_SUMS_INVALID(16),
-    TEST_SQRS_INVALID(32);
-   
+    SCALE_ERROR(1),
+    DRIFT_ERROR(2),
+    OSCILLATION(4),
+    VALUE_HIGH(8),
+    VALUE_LOW(16),
+    ALTERNATE_PASS(32),
+    LO_LIMIT_EQ_PASS(64),
+    HI_LIMIT_EQ_PASS(128);
+    
     private final byte bit;
     
-    private TestOptFlag_t(int bit)
+    private ParamFlag_t(int bit)
     {
     	this.bit = (byte) bit;
     }
     
     public byte getBit() { return(bit); }
     
-    public static EnumSet<TestOptFlag_t> getBits(byte b)
+    public static EnumSet<ParamFlag_t> getBits(byte b)
     {
-        EnumSet<TestOptFlag_t> optFlags = EnumSet.noneOf(TestOptFlag_t.class); 
-        if ((b & (byte) 1)   == (byte) 1)   optFlags.add(TestOptFlag_t.TEST_MIN_INVALID);
-        if ((b & (byte) 2)   == (byte) 2)   optFlags.add(TestOptFlag_t.TEST_MAX_INVALID);
-        if ((b & (byte) 4)   == (byte) 4)   optFlags.add(TestOptFlag_t.TEST_TIME_INVALID);
-        if ((b & (byte) 16)  == (byte) 16)  optFlags.add(TestOptFlag_t.TEST_SUMS_INVALID);
-        if ((b & (byte) 32)  == (byte) 32)  optFlags.add(TestOptFlag_t.TEST_SQRS_INVALID);
-        return(optFlags);
+        EnumSet<ParamFlag_t> set = EnumSet.noneOf(ParamFlag_t.class);
+        if ((b & (byte) 1)   == (byte) 1)   set.add(ParamFlag_t.SCALE_ERROR);
+        if ((b & (byte) 2)   == (byte) 2)   set.add(ParamFlag_t.DRIFT_ERROR);
+        if ((b & (byte) 4)   == (byte) 4)   set.add(ParamFlag_t.OSCILLATION);
+        if ((b & (byte) 8)   == (byte) 8)   set.add(ParamFlag_t.VALUE_HIGH);
+        if ((b & (byte) 16)  == (byte) 16)  set.add(ParamFlag_t.VALUE_LOW);
+        if ((b & (byte) 32)  == (byte) 32)  set.add(ParamFlag_t.ALTERNATE_PASS);
+        if ((b & (byte) 64)  == (byte) 64)  set.add(ParamFlag_t.LO_LIMIT_EQ_PASS);
+        if ((b & (byte) 128) == (byte) 128) set.add(ParamFlag_t.HI_LIMIT_EQ_PASS);
+        return(set);
     }
 
 }

@@ -25,6 +25,7 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
 /**

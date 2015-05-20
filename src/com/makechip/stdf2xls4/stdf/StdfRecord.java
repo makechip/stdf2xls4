@@ -4,6 +4,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
+
 
 public abstract class StdfRecord
 {
@@ -43,6 +46,8 @@ public abstract class StdfRecord
 	}
 	
 	protected abstract void toBytes();
+	
+	public boolean isTestRecord() { return(false); }
 	
 	public byte[] getBytes() 
 	{ 

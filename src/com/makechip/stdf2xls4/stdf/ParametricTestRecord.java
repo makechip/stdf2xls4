@@ -30,6 +30,10 @@ import gnu.trove.list.array.TByteArrayList;
 import java.util.Collections;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
+import com.makechip.stdf2xls4.stdf.enums.ParamFlag_t;
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 import com.makechip.util.Log;
 /**
 *** @author eric
@@ -66,6 +70,8 @@ public class ParametricTestRecord extends StdfRecord
     public boolean noPassFailIndication() { return(testFlags.contains(TestFlag_t.NO_PASS_FAIL)); }
     public boolean fail() { return(testFlags.contains(TestFlag_t.FAIL)); }
     
+    @Override
+    public boolean isTestRecord() { return(true); }
     
     /**
     *** @param p1

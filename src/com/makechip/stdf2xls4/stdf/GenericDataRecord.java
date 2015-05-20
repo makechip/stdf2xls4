@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
 /**

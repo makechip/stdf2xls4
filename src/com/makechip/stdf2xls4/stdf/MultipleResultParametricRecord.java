@@ -31,6 +31,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
+import com.makechip.stdf2xls4.stdf.enums.ParamFlag_t;
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 import com.makechip.util.Log;
 /**
 *** @author eric
@@ -63,6 +67,9 @@ public final class MultipleResultParametricRecord extends StdfRecord
     public final String hlmFmt;
     public final float loSpec;
     public final float hiSpec;
+    
+    @Override
+    public boolean isTestRecord() { return(true); }
     
     /**
     *** @param p1

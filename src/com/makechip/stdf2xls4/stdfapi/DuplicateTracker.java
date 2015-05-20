@@ -22,17 +22,40 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
+package com.makechip.stdf2xls4.stdfapi;
 
-package com.makechip.stdf2xls4.stdf;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-public enum Error_t
+import com.makechip.util.Log;
+
+public class DuplicateTracker
 {
-    PASS,
-    FAIL,
-    INVALID,
-    UNRELIABLE,
-    ALARM,
-    TIMEOUT,
-    ABORT;
+	private static ConcurrentMap<TestID, Integer> map = new ConcurrentHashMap<TestID, Integer>();
+    
+    public DuplicateTracker()
+    {
+    }
+    
+    public TestID getId(int testNumber, String testName)
+    {
+    	TestID id = TestID.getTestID(testNumber, testName);
+    	Integer dupNum = map.get(id);
+    	if (dupNum == null) 
+    	{
+    		map.put(id, 1);
+    		return(id);
+    	}
+    	else
+    	{
+    		dupNum++;
+    		id = TestID.getTestID(testNumber, testName, dupNum);
+    		Log.warning("Duplicate test ID: " + id);
+    		map.put(id, dupNum);
+    	}
+    	return(id);
+    }
+    
+    public void reset() { map.clear(); }
 
 }

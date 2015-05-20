@@ -22,38 +22,40 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.makechip.stdf2xls4.stdf;
+
+package com.makechip.stdf2xls4.stdf.enums;
 
 import java.util.EnumSet;
 
-public enum FTROptFlag_t 
+public enum TestFlag_t
 {
-	CYCLE_CNT_INVALID(1),
-	REL_VADDR_INVALID(2),
-	REPEAT_CNT_INVALID(4),
-	NUM_FAIL_INVALID(8),
-	XY_FAIL_ADDR_INVALID(16),
-	VEC_OFFSET_INVALID(32);
-	
-	private final byte bit;
-	
-	private FTROptFlag_t(int bit)
-	{
-		this.bit = (byte) bit;
-	}
-	
-	public byte getBit() { return(bit); }
-	
-    public static EnumSet<FTROptFlag_t> getBits(byte b)
+    ALARM(1),
+    UNRELIABLE(4),
+    TIMEOUT(8),
+    NOT_EXECUTED(16),
+    ABORT(32),
+    NO_PASS_FAIL(64),
+    FAIL(128);
+    
+    private final byte bit;
+    
+    private TestFlag_t(int bit)
     {
-        EnumSet<FTROptFlag_t> set = EnumSet.noneOf(FTROptFlag_t.class);
-        if ((b & (byte) 1) == (byte) 1) set.add(CYCLE_CNT_INVALID);
-        if ((b & (byte) 2) == (byte) 2) set.add(REL_VADDR_INVALID);
-        if ((b & (byte) 4) == (byte) 4) set.add(REPEAT_CNT_INVALID);
-        if ((b & (byte) 8) == (byte) 8) set.add(NUM_FAIL_INVALID);
-        if ((b & (byte) 16) == (byte) 16) set.add(XY_FAIL_ADDR_INVALID);
-        if ((b & (byte) 32) == (byte) 32) set.add(VEC_OFFSET_INVALID);
+    	this.bit = (byte) bit;
+    }
+    
+    public byte getBit() { return(bit); }
+    
+    public static EnumSet<TestFlag_t> getBits(byte b)
+    {
+        EnumSet<TestFlag_t> set = EnumSet.noneOf(TestFlag_t.class);
+        if ((b & (byte) 1) == (byte) 1) set.add(ALARM);
+        if ((b & (byte) 4) == (byte) 4) set.add(UNRELIABLE);
+        if ((b & (byte) 8) == (byte) 8) set.add(TIMEOUT);
+        if ((b & (byte) 16) == (byte) 16) set.add(NOT_EXECUTED);
+        if ((b & (byte) 32) == (byte) 32) set.add(ABORT);
+        if ((b & (byte) 64) == (byte) 64) set.add(NO_PASS_FAIL);
+        if ((b & (byte) 128) == (byte) 128) set.add(FAIL);
         return(set);
     }
-
 }

@@ -23,7 +23,7 @@
  * 02110-1301, USA.
  */
 
-package com.makechip.stdf2xls4.stdf;
+package com.makechip.stdf2xls4.stdf.enums;
 
 import java.util.EnumSet;
 

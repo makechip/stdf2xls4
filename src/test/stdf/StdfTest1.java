@@ -2,7 +2,6 @@ package test.stdf;
 
 import static org.junit.Assert.*;
 
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -13,6 +12,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.makechip.stdf2xls4.stdf.*;
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
+import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
 
 /**
  * @author eric
