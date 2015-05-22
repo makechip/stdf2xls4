@@ -3,10 +3,12 @@ package com.makechip.stdf2xls4.stdfapi;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 
+import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
@@ -32,10 +34,11 @@ public class StdfAPI
 	                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
 	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
 	}
-    private HashMap<HashMap<String, String>, HashMap<String, HashMap<TestID, StdfRecord>>> map;
+    private HashMap<HashMap<String, String>, IdentityHashMap<SnOrXy, HashMap<TestID, StdfRecord>>> map;
 	private List<String> stdfFiles;
 	private List<StdfRecord> allRecords;
 	private boolean timeStampedFiles;
+	private boolean wafersort;
 	private IdentityDatabase idb;
 
 	public StdfAPI(List<String> stdfFiles)
@@ -71,7 +74,36 @@ public class StdfAPI
 	
 	private void mapTests(HashMap<String, String> hdr, List<List<StdfRecord>> devList)
 	{
-		boolean wafersort = hdr.containsKey(HeaderUtil.WAFER_ID);
+		wafersort = hdr.containsKey(HeaderUtil.WAFER_ID);
+		devList.stream().forEach(p -> buildList(hdr, p));
+	}
+	
+	private void buildList(HashMap<String, String> hdr, List<StdfRecord> list)
+	{
+		StdfRecord r = list.stream().filter(p -> p instanceof PartResultsRecord).findFirst().orElse(null);
+		assert r != null;
+		PartResultsRecord prr = PartResultsRecord.class.cast(r);
+		MasterInformationRecord mir = null;
+		SnOrXy snxy = null;
+		if (timeStampedFiles)
+		{
+			mir = (MasterInformationRecord) list.stream().filter(p -> p instanceof MasterInformationRecord).findFirst().orElse(null);
+		}
+		if (wafersort)
+		{
+	    	short x = prr.xCoord;
+	    	short y = prr.yCoord;
+		    if (timeStampedFiles)
+		    {
+		    	long timeStamp = mir.fileTimeStamp;
+		        snxy = TimeXY.getTimeXY(timeStamp, x, y);	
+		    }
+		    else snxy = XY.getXY(x, y);
+		}
+		else
+		{
+			
+		}
 	}
 	
 	private void createHeaders(HeaderUtil hdr, HashMap<HashMap<String, String>, List<List<StdfRecord>>> devList, List<StdfRecord> l)
