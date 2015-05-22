@@ -24,38 +24,53 @@
  */
 package com.makechip.stdf2xls4.stdfapi;
 
-import com.makechip.util.Identity;
 import com.makechip.util.Immutable;
+import com.makechip.util.factory.IdentityFactoryO;
 
-public final class PinTestID extends TestID implements Identity, Immutable 
+public class SN extends SnOrXy implements Immutable, Comparable<SN>
 {
-    public final String pin;
-   
-    private PinTestID(TestID id, String pin)
+    private static IdentityFactoryO<String, SN> map = new IdentityFactoryO<String, SN>(String.class, SN.class);
+    private String serialNumber;
+    
+    protected SN(String serialNumber)
     {
-    	super(id.testNum, id.testName, id.dupNum);
-    	this.pin = pin;
+        super();
+        this.serialNumber = serialNumber;
     }
     
-    public static PinTestID getTestID(IdentityDatabase idb, TestID id, String pin)
+    public static SN getSN(String serialNumber)
     {
-        return(idb.testIdPinMap.getValue(id, pin));
+        return(map.getValue(serialNumber));
     }
     
     @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append("" + testNum).append("_").append(testName);
-        if (dupNum != 0) sb.append("_" + dupNum);
-        sb.append(" [").append(pin).append("]");
-        return(sb.toString());
-    }
+	public String getSerialNumber() { return(serialNumber); }
     
     @Override
     public int getInstanceCount()
     {
-        return(-1);
+        return(map.getInstanceCount());
     }
-    
+
+    @Override
+    public short getX()
+    {
+        return(Short.MIN_VALUE);
+    }
+
+    @Override
+    public short getY()
+    {
+        return(Short.MIN_VALUE);
+    }
+
+    @Override
+    public int compareTo(SN sn)
+    {
+    	//int a = Integer.parseInt(serialNumber);
+    	//int b = Integer.parseInt(sn.getSerialNumber());
+    	//return(a - b);
+        return(serialNumber.compareTo(sn.getSerialNumber()));
+    }
+
 }

@@ -2,9 +2,11 @@ package com.makechip.stdf2xls4.stdfapi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
+
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
@@ -27,55 +29,60 @@ public class StdfAPI
 	private static Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 	{
 	    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
-	                        (l, elem) -> {if(sep.test(elem)){l.add(new ArrayList<>());} else l.get(l.size()-1).add(elem);},
+	                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
 	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
 	}
-
+    private HashMap<HashMap<String, String>, HashMap<String, HashMap<TestID, StdfRecord>>> map;
 	private List<String> stdfFiles;
 	private List<StdfRecord> allRecords;
-	@SuppressWarnings("unused")
 	private boolean timeStampedFiles;
+	private IdentityDatabase idb;
 
 	public StdfAPI(List<String> stdfFiles)
 	{
 		this.stdfFiles = stdfFiles;
 		allRecords = new ArrayList<StdfRecord>();
 		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
+		idb = new IdentityDatabase();
+		map = new HashMap<>();
 	}
 	
 	public void initialize()
 	{
 		// load the stdf records
-		stdfFiles.stream().forEach(p -> { 
-				StdfReader r = new StdfReader(p); 
-				try { r.read(); }
-				catch (Exception e) { Log.fatal(e); }
-			    r.stream().forEach(s -> allRecords.add(s.createRecord()));	
-		});
-		createTestIds();
+		if (timeStampedFiles)
+		{
+		    stdfFiles.stream().forEach(p -> new StdfReader(p).read().stream().forEach(s -> allRecords.add(s.createRecord(getTimeStamp(p)))));
+		}
+		else
+		{
+		    stdfFiles.stream().forEach(p -> new StdfReader(p).read().stream().forEach(s -> allRecords.add(s.createRecord())));
+		}
 		// put the records for each device into separate lists
 		List<List<StdfRecord>> ll = allRecords.stream().collect(splitBySeparator(r -> r instanceof PartResultsRecord));
-		
+		// Map each device test list by header
+		HashMap<String, String> header = new HashMap<>();
+		HeaderUtil hdr = new HeaderUtil(header);
+		HashMap<HashMap<String, String>, List<List<StdfRecord>>> devList = new HashMap<>();
+		ll.stream().forEach(p -> createHeaders(hdr, devList, p));
+		// now create the TestIDs, and for each header build a map testID -> test record
+		devList.keySet().stream().forEach(p -> mapTests(p, devList.get(p)));
 	}
 	
-	private void createTestIds()
+	private void mapTests(HashMap<String, String> hdr, List<List<StdfRecord>> devList)
 	{
-		
+		boolean wafersort = hdr.containsKey(HeaderUtil.WAFER_ID);
 	}
 	
-	public static void main(String[] args)
+	private void createHeaders(HeaderUtil hdr, HashMap<HashMap<String, String>, List<List<StdfRecord>>> devList, List<StdfRecord> l)
 	{
-		if (args.length != 1)
-		{
-			System.out.println("Usage: java com.makechip.stdf2xls.stdf.StdfAPI <stdfFiles>");
-			System.exit(1);
-		}
-		List<String> files = new ArrayList<String>();
-	    Arrays.stream(args).forEach(p -> files.add(p));	
-		//StdfAPI api = new StdfAPI(files);
+		l.stream().forEach(r -> hdr.setHeader(r));
+		List<List<StdfRecord>> dl = devList.get(hdr.header);
+		if (dl == null) devList.put(hdr.header, dl = new ArrayList<>());
+		dl.add(l);
 	}
 	
-    private static boolean hasTimeStamp(String name)
+    private boolean hasTimeStamp(String name)
     {
     	int dotIndex = 0;
     	if (name.toLowerCase().endsWith(".std")) dotIndex = name.length() - 4;
@@ -87,8 +94,35 @@ public class StdfAPI
     	long timeStamp = 0L;
     	try { timeStamp = Long.parseLong(stamp); }
     	catch (Exception e) { return(false); }
+    	// the timestamp must belong to the 21st century.
     	if (timeStamp < 20000000000000L || timeStamp > 21000000000000L) return(false);
     	return(true);
     }
+	
+    private long getTimeStamp(String name)
+    {
+    	int dotIndex = 0;
+    	if (name.toLowerCase().endsWith(".std")) dotIndex = name.length() - 4;
+    	else dotIndex = name.length() - 5;
+    	int bIndex = dotIndex - 14;
+    	String stamp = name.substring(bIndex, dotIndex);
+    	long timeStamp = 0L;
+    	try { timeStamp = Long.parseLong(stamp); }
+    	catch (Exception e) { Log.fatal("Program bug: timeStamp is in filename, but will not parse correctly"); }
+    	return(timeStamp);
+    }
+    
+	public static void main(String[] args)
+	{
+		if (args.length != 1)
+		{
+			System.out.println("Usage: java com.makechip.stdf2xls.stdf.StdfAPI <stdfFiles>");
+			System.exit(1);
+		}
+		List<String> files = new ArrayList<String>();
+	    Arrays.stream(args).forEach(p -> files.add(p));	
+		StdfAPI api = new StdfAPI(files);
+		api.initialize();
+	}
 	
 }

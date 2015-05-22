@@ -24,38 +24,38 @@
  */
 package com.makechip.stdf2xls4.stdfapi;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import com.makechip.util.Identity;
 
-import com.makechip.util.Log;
-
-public class DuplicateTracker
+public abstract class SnOrXy implements Identity
 {
-	private static ConcurrentMap<TestID, Integer> map = new ConcurrentHashMap<TestID, Integer>();
     
-    public DuplicateTracker()
+    protected SnOrXy()
     {
     }
     
-    public TestID getId(int testNumber, String testName)
-    {
-    	TestID id = TestID.getTestID(testNumber, testName);
-    	Integer dupNum = map.get(id);
-    	if (dupNum == null) 
-    	{
-    		map.put(id, 1);
-    		return(id);
-    	}
-    	else
-    	{
-    		dupNum++;
-    		id = TestID.getTestID(testNumber, testName, dupNum);
-    		Log.warning("Duplicate test ID: " + id);
-    		map.put(id, dupNum);
-    	}
-    	return(id);
-    }
+    /**
+     * This method will return null if this object represents an x-y coordinate.
+     * @return The serial number.  Null if this object represents an x-y coordinate.
+     */
+    public abstract String getSerialNumber();
     
-    public void reset() { map.clear(); }
+    /**
+     * Get the X-coordinate.
+     * @return The X-coordinate; Short.MIN_VALUE if this object in not an X-Y coordinate.
+     */
+    public abstract short getX();
+    
+    /**
+     * Get the Y-coordinate.
+     * @return The Y-coordinate; Short.MIN_VALUE if this object in not an X-Y coordinate.
+     */
+    public abstract short getY();
+    
+    @Override
+	public String toString()
+    {
+    	if (getSerialNumber() == null) return("X = " + getX() + " Y = " + getY());
+    	return("SN = " + getSerialNumber());
+    }
 
 }

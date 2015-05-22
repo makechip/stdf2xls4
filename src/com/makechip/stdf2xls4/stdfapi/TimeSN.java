@@ -26,36 +26,65 @@ package com.makechip.stdf2xls4.stdfapi;
 
 import com.makechip.util.Identity;
 import com.makechip.util.Immutable;
+import com.makechip.util.factory.IdentityFactoryLO;
 
-public final class PinTestID extends TestID implements Identity, Immutable 
+public final class TimeSN extends SnOrXy implements Identity, Immutable, Comparable<TimeSN>
 {
-    public final String pin;
-   
-    private PinTestID(TestID id, String pin)
+    private static IdentityFactoryLO<String, TimeSN> map = new IdentityFactoryLO<String, TimeSN>(String.class, TimeSN.class);
+    private final String serialNumber;
+    private final long timeStamp;
+    
+    private TimeSN(long timeStamp, String serialNumber)
     {
-    	super(id.testNum, id.testName, id.dupNum);
-    	this.pin = pin;
+        super();
+        this.timeStamp = timeStamp;
+        this.serialNumber = serialNumber;
     }
     
-    public static PinTestID getTestID(IdentityDatabase idb, TestID id, String pin)
+    public static TimeSN getTimeSN(long timeStamp, String serialNumber)
     {
-        return(idb.testIdPinMap.getValue(id, pin));
+        return(map.getValue(timeStamp, serialNumber));
     }
     
     @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append("" + testNum).append("_").append(testName);
-        if (dupNum != 0) sb.append("_" + dupNum);
-        sb.append(" [").append(pin).append("]");
-        return(sb.toString());
-    }
+	public String getSerialNumber() { return(serialNumber); }
     
     @Override
     public int getInstanceCount()
     {
-        return(-1);
+        return(map.getInstanceCount());
     }
-    
+
+    @Override
+    public short getX()
+    {
+        return(Short.MIN_VALUE);
+    }
+
+    @Override
+    public short getY()
+    {
+        return(Short.MIN_VALUE);
+    }
+
+    @Override
+    public int compareTo(TimeSN sn)
+    {
+    	if (!serialNumber.equals(sn.getSerialNumber())) return(serialNumber.compareTo(sn.getSerialNumber()));
+    	if (timeStamp != sn.getTimeStamp())
+    	{
+    		if ((timeStamp - sn.getTimeStamp()) > 0) return(1);
+    		return(-1);
+    	}
+        return(0);
+    }
+
+	/**
+	 * @return the timeStamp
+	 */
+	public long getTimeStamp() 
+	{
+		return timeStamp;
+	}
+
 }

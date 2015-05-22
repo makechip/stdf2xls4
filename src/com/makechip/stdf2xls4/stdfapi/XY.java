@@ -24,38 +24,77 @@
  */
 package com.makechip.stdf2xls4.stdfapi;
 
-import com.makechip.util.Identity;
 import com.makechip.util.Immutable;
 
-public final class PinTestID extends TestID implements Identity, Immutable 
+import gnu.trove.map.hash.TShortObjectHashMap;
+
+public final class XY extends SnOrXy implements Comparable<XY>, Immutable
 {
-    public final String pin;
-   
-    private PinTestID(TestID id, String pin)
+    private static TShortObjectHashMap<TShortObjectHashMap<XY>> map = new TShortObjectHashMap<TShortObjectHashMap<XY>>();
+    private final short x;
+    private final short y;
+    
+    private XY(short x, short y)
     {
-    	super(id.testNum, id.testName, id.dupNum);
-    	this.pin = pin;
+        super();
+        this.x = x;
+        this.y = y;
     }
     
-    public static PinTestID getTestID(IdentityDatabase idb, TestID id, String pin)
+    public static XY getXY(short x, short y)
     {
-        return(idb.testIdPinMap.getValue(id, pin));
+        TShortObjectHashMap<XY> m1 = map.get(x);
+        if (m1 == null)
+        {
+            m1 = new TShortObjectHashMap<XY>();
+            map.put(x, m1);
+        }
+        XY xy = m1.get(y);
+        if (xy == null)
+        {
+            xy = new XY(x, y);
+            m1.put(y, xy);
+        }
+        return(xy);
+    }
+    
+    @Override
+	public short getX()
+    {
+        return(x);
+    }
+    
+    @Override
+	public short getY()
+    {
+        return(y);
+    }
+
+    @Override
+    public int compareTo(XY xy)
+    {
+        if (x != xy.getX()) return(x - xy.getX());
+        return(y - xy.getY());
     }
     
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("" + testNum).append("_").append(testName);
-        if (dupNum != 0) sb.append("_" + dupNum);
-        sb.append(" [").append(pin).append("]");
-        return(sb.toString());
+        return("" + x + ", " + y);
     }
-    
+
     @Override
     public int getInstanceCount()
     {
-        return(-1);
+        int i = 0;
+        for (TShortObjectHashMap<XY> m1 : map.values()) i+= m1.size();
+        return(i);
+    }
+
+    @Override
+    public String getSerialNumber()
+    {
+        return(null);
     }
     
 }

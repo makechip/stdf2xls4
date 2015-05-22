@@ -88,7 +88,7 @@ public class StdfReader
     	return(type == FTR || type == MPR || type == PTR || type == PRR || type == WIR || type == DTR);
     }
     
-    public void read()
+    public StdfReader read()
     {
     	records = new ArrayList<RecordBytes>();
         try (DataInputStream rdr = new DataInputStream(new BufferedInputStream(new FileInputStream(filename), 1000000)))
@@ -122,6 +122,7 @@ public class StdfReader
         }
         catch (IOException e) { Log.fatal(e); }
         catch (StdfException e2) { Log.fatal(e2.getMessage()); }
+        return(this);
     }
     
     public void read(byte[] bytes)

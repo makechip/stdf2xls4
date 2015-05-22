@@ -37,9 +37,19 @@ public class RecordBytes implements Comparable<RecordBytes>
 		return((int) (sequenceNumber - arg0.getSequenceNumber()));
 	}
 	
+	public StdfRecord createRecord(long timeStamp)
+	{
+		if (type == Record_t.MIR)
+		{
+			MasterInformationRecord r = new MasterInformationRecord(sequenceNumber, devNum, bytes);
+			r.fileTimeStamp = timeStamp;
+			return(r);
+		}
+		return(createRecord());
+	}
+	
 	public StdfRecord createRecord()
 	{
-		//Log.msg("Record type = " + type + " length = " + bytes.length);
 		switch (type)
 		{
 		case DTR: return(new DatalogTextRecord(sequenceNumber, devNum, bytes));

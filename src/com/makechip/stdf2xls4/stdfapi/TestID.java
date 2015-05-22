@@ -24,38 +24,30 @@
  */
 package com.makechip.stdf2xls4.stdfapi;
 
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-
 import com.makechip.util.Identity;
-import com.makechip.util.factory.IdentityFactoryIO;
-import com.makechip.util.factory.IdentityFactoryLON;
 import com.makechip.util.Immutable;
 
-public final class TestID implements Identity, Immutable 
+class TestID implements Identity, Immutable 
 {
-    private final long testNum;
-    private final String testName;
-    private String pin;
-    private int dupNum;
+    public final long testNum;
+    public final String testName;
+    public final int dupNum;
    
     protected TestID(long testNum, String testName)
     {
+    	this(testNum, testName, 0);
+    }
+    
+    protected TestID(long testNum, String testName, int dupNum)
+    {
         this.testNum = testNum;
         this.testName = testName;
-        dupNum = 0;
+        this.dupNum = dupNum;    	
     }
     
     /**
      * The test ID is computed with the following algorithm:
-     * 1. If the test name has not been encountered, Then the test ID
-     *    is based on the name alone.
-     * 2. If the test name has been encountered, then if the test
-     *    number has not been encountered the test ID is based on the 
-     *    test number alone.
-     * 3. If both the test name and the test number have been encountered,
-     *    then the test ID is based on both the test name and the test number
-     * 4. If the test name and the test number have been encountered,
+     * 1. If the test name and the test number have been encountered,
      *    then the test ID is based on the test name, the test number,
      *    and a duplicate count number.
      * @param idb
@@ -63,45 +55,31 @@ public final class TestID implements Identity, Immutable
      * @param testName
      * @return
      */
-    public static TestID getTestID(IdentityDatabase idb, long testNum, String testName)
+    public static TestID createTestID(IdentityDatabase idb, long testNum, String testName)
     {
-    	TestID id = map1.get(testName);
-    	if (id != null)
+    	// 1. check testName and testNumber
+    	TestID id = idb.idMap.getExistingValue(testNum, testName, 0);
+    	if (id == null)
     	{
-    		if (id.getTestNumber() == testNum) return(id);
-    		return(map2.getValue(testNum, testName, 0));
+    		TestID d = idb.idMap.getValue(testNum, testName, 0);
+    		idb.testIdDupMap.put(d, 0);
+    		return(d);
     	}
-    	id = new TestID(testNum, testName);
-    	map1.put(testName, id);
-        return(id);
-    }
-    
-    public static TestID findTestID(long testNum, String testName)
-    {
-    	return(map2.getExistingValue(testNum, testName, 0));
+        // 4. Need duplicate ID
+    	int dnum = idb.testIdDupMap.get(id);
+    	dnum++;
+    	TestID d = idb.idMap.getValue(testNum, testName, dnum);
+    	idb.testIdDupMap.put(id,  dnum);
+    	return(d);
     }
     
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("" + getTestNumber());
-        sb.append(" "); sb.append(testName);
-        if (dupNum != 0) sb.append(" " + dupNum);
-        if (pin != null)
-        {
-            sb.append(" [");
-            sb.append(pin);
-            sb.append("]");
-        }
+        sb.append("" + testNum).append("_").append(testName);
+        if (dupNum != 0) sb.append("_" + dupNum);
         return(sb.toString());
-    }
-    
-    public long getTestNumber() { return(testNum); }
-    
-    public String getTestName() 
-    { 
-        return(pin == null ? testName : testName + " [" + pin + "]"); 
     }
     
     @Override
