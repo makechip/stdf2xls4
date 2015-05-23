@@ -39,11 +39,8 @@ import com.makechip.util.Log;
 *** @author eric
 *** @version $Id: FunctionalTestRecord.java 258 2008-10-22 01:22:44Z eric $
 **/
-public class FunctionalTestRecord extends StdfRecord
+public class FunctionalTestRecord extends TestRecord
 {
-	public final long testNumber;
-	public final short headNumber;
-	public final short siteNumber;
 	public final Set<TestFlag_t> testFlags;
     public final Set<FTROptFlag_t> optFlags;
     public final long cycleCount;    // cycle count is invalid if CYCLE_CNT_INVALID is set
@@ -75,9 +72,6 @@ public class FunctionalTestRecord extends StdfRecord
     public FunctionalTestRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.FTR, sequenceNumber, devNum, data);
-        testNumber = getU4(MISSING_INT);
-        headNumber = getU1(MISSING_SHORT);
-        siteNumber = getU1(MISSING_SHORT);
         EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());
         testFlags = Collections.unmodifiableSet(s);
         if (getSize() <= getPtr()) optFlags = null;
@@ -116,7 +110,7 @@ public class FunctionalTestRecord extends StdfRecord
     public FunctionalTestRecord(
         final int sequenceNumber,
         final int deviceNumber,
-        final int testNumber,
+        final long testNumber,
         final short headNumber,
         final short siteNumber,
         final byte testFlags,
@@ -143,10 +137,7 @@ public class FunctionalTestRecord extends StdfRecord
         final short patGenNum,
         final byte[] enComps)
     {
-        super(Record_t.FTR, sequenceNumber, deviceNumber, null);	
-        this.testNumber = testNumber;
-        this.headNumber = headNumber;
-        this.siteNumber = siteNumber;
+        super(Record_t.FTR, sequenceNumber, deviceNumber, testNumber, headNumber, siteNumber);	
         EnumSet<TestFlag_t> s1 = TestFlag_t.getBits(testFlags);
         this.testFlags = Collections.unmodifiableSet(s1);
         EnumSet<FTROptFlag_t> s2 = FTROptFlag_t.getBits(optFlags);
@@ -282,6 +273,18 @@ public class FunctionalTestRecord extends StdfRecord
         sb.append(Log.eol);
         return(sb.toString());
     }
+
+	@Override
+	public String getTestName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void setTestName(String testName) {
+		// TODO Auto-generated method stub
+		
+	}
     
    
 }

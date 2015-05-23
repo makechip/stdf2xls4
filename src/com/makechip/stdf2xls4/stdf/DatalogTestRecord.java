@@ -53,11 +53,8 @@ public class DatalogTestRecord extends TestRecord
     public DatalogTestRecord(int sequenceNumber, int devNum, String text)
     {
     	super(sequenceNumber, devNum, null);
-    	this.text = text;
+    	this.text = valueText;
     }
-    
-    @Override
-    public boolean isTestRecord() { return(text.trim().startsWith("TEXT_DATA")); }
     
     @Override
     public String toString()
@@ -72,6 +69,18 @@ public class DatalogTestRecord extends TestRecord
 	protected void toBytes()
 	{
 		bytes = getCnBytes(text);
+	}
+
+	@Override
+	public String getTestName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void setTestName(String testName) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
