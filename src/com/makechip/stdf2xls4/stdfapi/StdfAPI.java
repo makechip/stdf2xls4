@@ -3,12 +3,18 @@ package com.makechip.stdf2xls4.stdfapi;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 
+import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
+import com.makechip.stdf2xls4.stdf.FunctionalTestRecord;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
+import com.makechip.stdf2xls4.stdf.MultipleResultParametricRecord;
+import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
@@ -28,13 +34,15 @@ import com.makechip.util.Log;
  */
 public class StdfAPI
 {
+    public static final String TEXT_DATA = "TEXT_DATA";
+    public static final String SERIAL_MARKER = "S/N";
 	private static Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 	{
 	    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
 	                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
 	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
 	}
-    private HashMap<HashMap<String, String>, IdentityHashMap<SnOrXy, HashMap<TestID, StdfRecord>>> map;
+    private HashMap<HashMap<String, String>, TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>>> map;
 	private List<String> stdfFiles;
 	private List<StdfRecord> allRecords;
 	private boolean timeStampedFiles;
@@ -93,17 +101,60 @@ public class StdfAPI
 		{
 	    	short x = prr.xCoord;
 	    	short y = prr.yCoord;
-		    if (timeStampedFiles)
-		    {
-		    	long timeStamp = mir.fileTimeStamp;
-		        snxy = TimeXY.getTimeXY(timeStamp, x, y);	
-		    }
+		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.fileTimeStamp, x, y);	
 		    else snxy = XY.getXY(x, y);
 		}
 		else
 		{
-			
+			// first check if the SN is in a text record
+			StdfRecord rt = list.stream().filter(p -> p instanceof DatalogTextRecord)
+					.filter(p -> isSn((DatalogTextRecord) p)).findFirst().orElse(null);
+			if (rt != null)
+			{
+				DatalogTextRecord dtr = (DatalogTextRecord) rt;
+				StringTokenizer st = new StringTokenizer(dtr.text, ": \t");
+				st.nextToken(); // burn "TEXT_DATA"
+				st.nextToken(); // burn "S/N"
+				String sn = st.nextToken();
+				if (timeStampedFiles) snxy = TimeSN.getTimeSN(mir.fileTimeStamp, sn);
+				else snxy = SN.getSN(sn);
+			}
+			else
+			{
+				if (timeStampedFiles) snxy = TimeSN.getTimeSN(mir.fileTimeStamp, prr.getPartID());
+				else snxy = SN.getSN(prr.getPartID());
+			}
 		}
+		// Now build map: header -> SnOrXy -> TestID -> test record
+		TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>> m1 = map.get(hdr);
+		if (m1 == null)
+		{
+			m1 = new TreeMap<>();
+			map.put(hdr, m1);
+		}
+		final LinkedHashMap<TestID, StdfRecord> m2 = (m1.get(snxy) == null) ? new LinkedHashMap<>() : m1.get(snxy);
+		m1.put(snxy, m2);
+		list.stream().filter(p -> isTestRecord(r)).forEach(p -> addRecord(m2, p));
+	}
+	
+	private void addRecord(LinkedHashMap<TestID, StdfRecord> m, StdfRecord p)
+	{
+		
+	}
+	
+	private boolean isSn(DatalogTextRecord r)
+	{
+		return(r.text.contains(TEXT_DATA) && r.text.contains(":") && r.text.contains(SERIAL_MARKER));
+	}
+	
+	private boolean isTestRecord(StdfRecord r)
+	{
+	    if (r instanceof DatalogTextRecord)
+	    {
+	    	DatalogTextRecord dtr = (DatalogTextRecord) r;
+	    	if (dtr.text.contains(TEXT_DATA) && dtr.text.contains(":") && !dtr.text.contains(SERIAL_MARKER)) return(true);
+	    }
+	    return(r instanceof FunctionalTestRecord || r instanceof ParametricTestRecord || r instanceof MultipleResultParametricRecord);
 	}
 	
 	private void createHeaders(HeaderUtil hdr, HashMap<HashMap<String, String>, List<List<StdfRecord>>> devList, List<StdfRecord> l)
