@@ -17,7 +17,7 @@ public abstract class StdfRecord
     public static final String MISSING_STRING = "";
     public static final byte[] MISSING_BYTE_ARRAY = new byte[0];
 	public final Record_t type;
-	private int ptr;
+	protected int ptr;
 	protected byte[] bytes;
 	public final int sequenceNumber;
 	public final int devNum;

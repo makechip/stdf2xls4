@@ -39,7 +39,7 @@ import com.makechip.util.Log;
 *** @author eric
 *** @version $Id: ParametricTestRecord.java 258 2008-10-22 01:22:44Z ericw $
 **/
-public class ParametricTestRecord extends StdfRecord
+public class ParametricTestRecord extends TestRecord
 {
 	public final long testNumber;
 	public final short headNumber;
@@ -47,7 +47,7 @@ public class ParametricTestRecord extends StdfRecord
 	public final Set<TestFlag_t> testFlags;
 	public final Set<ParamFlag_t> paramFlags;
     public final double result; 
-    public final String testName;
+    private final String testName;
     public final String alarmName;
     public final Set<OptFlag_t> optFlags; 
     public final byte resScal;
@@ -215,5 +215,15 @@ public class ParametricTestRecord extends StdfRecord
         }
         return(sb.toString());
     }
+	@Override
+	public String getTestName()
+	{
+		return testName;
+	}
+	@Override
+	void setTestName(String testName)
+	{
+		// not needed
+	}
 
 }

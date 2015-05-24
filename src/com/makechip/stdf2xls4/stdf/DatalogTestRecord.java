@@ -38,7 +38,8 @@ import com.makechip.util.Log;
 **/
 public class DatalogTestRecord extends TestRecord
 {
-    public final String text;
+    private final String text;
+    private String testName;
     
     /**
     *** @param p1
@@ -47,13 +48,14 @@ public class DatalogTestRecord extends TestRecord
     public DatalogTestRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(sequenceNumber, devNum, data);
-        text = "";
+        ptr = 0;
+        text = getCn();
     }
     
     public DatalogTestRecord(int sequenceNumber, int devNum, String text)
     {
     	super(sequenceNumber, devNum, null);
-    	this.text = valueText;
+    	this.text = text;
     }
     
     @Override
@@ -61,7 +63,7 @@ public class DatalogTestRecord extends TestRecord
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(":").append(Log.eol);
-        sb.append("    TEXT_DAT: ").append(text).append(Log.eol);
+        sb.append("    TEXT_DATA: ").append(text).append(Log.eol);
         return(sb.toString());
     }
 
@@ -72,15 +74,15 @@ public class DatalogTestRecord extends TestRecord
 	}
 
 	@Override
-	public String getTestName() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getTestName() 
+	{
+		return(testName);
 	}
 
 	@Override
-	protected void setTestName(String testName) {
-		// TODO Auto-generated method stub
-		
+	protected void setTestName(String testName) 
+	{
+		this.testName = testName;
 	}
 
 }

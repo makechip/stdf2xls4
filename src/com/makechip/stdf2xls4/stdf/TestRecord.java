@@ -41,7 +41,7 @@ public abstract class TestRecord extends StdfRecord
 	
 	public abstract String getTestName();
 	
-	protected abstract void setTestName(String testName);
+	abstract void setTestName(String testName);
 	
 	protected TestRecord(int sequenceNumber, int devNum, byte[] data)
 	{

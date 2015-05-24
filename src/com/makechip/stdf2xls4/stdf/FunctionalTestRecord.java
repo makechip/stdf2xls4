@@ -53,7 +53,7 @@ public class FunctionalTestRecord extends TestRecord
     public final String vecName;
     public final String timeSetName;
     public final String vecOpCode;
-    public final String testName;
+    private String testName;
     public final String alarmName;
     public final String progTxt;
     public final String rsltTxt;
@@ -275,15 +275,15 @@ public class FunctionalTestRecord extends TestRecord
     }
 
 	@Override
-	public String getTestName() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getTestName() 
+	{
+		return testName;
 	}
 
 	@Override
-	protected void setTestName(String testName) {
-		// TODO Auto-generated method stub
-		
+	protected void setTestName(String testName) 
+	{
+		this.testName = testName;
 	}
     
    

@@ -1,10 +1,14 @@
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
+
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 public class RecordBytes implements Comparable<RecordBytes>
 {
-	private byte[] bytes;
+    public static final String TEXT_DATA = "TEXT_DATA";
+    public static final String SERIAL_MARKER = "S/N";
+    private byte[] bytes;
 	private Record_t type;
 	private int sequenceNumber;
 	private int devNum;
@@ -37,7 +41,7 @@ public class RecordBytes implements Comparable<RecordBytes>
 		return((int) (sequenceNumber - arg0.getSequenceNumber()));
 	}
 	
-	public StdfRecord createRecord(long timeStamp)
+	public StdfRecord createRecord(TLongObjectHashMap<String> tnameMap, long timeStamp)
 	{
 		if (type == Record_t.MIR)
 		{
@@ -45,31 +49,48 @@ public class RecordBytes implements Comparable<RecordBytes>
 			r.fileTimeStamp = timeStamp;
 			return(r);
 		}
-		return(createRecord());
+		return(createRecord(tnameMap));
 	}
 	
-	public StdfRecord createRecord()
+	public StdfRecord createRecord(TLongObjectHashMap<String> tnameMap)
 	{
 		switch (type)
 		{
-		case DTR: return(new DatalogTextRecord(sequenceNumber, devNum, bytes));
+		case DTR: String text = new String(bytes);
+		          if (text.contains(TEXT_DATA) && text.contains(":") && !text.contains(SERIAL_MARKER))
+		          {
+		        	  return(new DatalogTestRecord(sequenceNumber, devNum, bytes));
+		          }
+				  return(new DatalogTextRecord(sequenceNumber, devNum, bytes));
 		case EPS: return(new EndProgramSelectionRecord(sequenceNumber, devNum, bytes));
 		case FAR: return(new FileAttributesRecord(sequenceNumber, devNum, bytes));
 		case ATR: return(new AuditTrailRecord(sequenceNumber, devNum, bytes));
 		case BPS: return(new BeginProgramSelectionRecord(sequenceNumber, devNum, bytes));
-		case FTR: return(new FunctionalTestRecord(sequenceNumber, devNum, bytes)); // ***
+		case FTR: // For some reason the testName is an optional field in a FunctionalTestRecord,
+			      // but not optional in a ParametricTestRecord or a MultipleResultParametricRecord.
+			      // For this reason we track and set the test names of FunctionalTestRecords here.
+			      FunctionalTestRecord ftr = new FunctionalTestRecord(sequenceNumber, devNum, bytes);
+			      long tnum = ftr.testNumber;
+			      String tname = tnameMap.get(tnum);
+			      if (tname == null && !ftr.getTestName().equals(""))
+			      {
+			    	  tnameMap.put(tnum, tname);
+			      }
+		          if (tname == null) tname = "";
+		          if (ftr.getTestName().equals("")) ftr.setTestName(tname);
+			      return(ftr);
 		case GDR: return(new GenericDataRecord(sequenceNumber, devNum, bytes));
 		case HBR: return(new HardwareBinRecord(sequenceNumber, devNum, bytes));
 		case MIR: return(new MasterInformationRecord(sequenceNumber, devNum, bytes));
-		case MPR: return(new MultipleResultParametricRecord(sequenceNumber, devNum, bytes)); // ***
+		case MPR: return(new MultipleResultParametricRecord(sequenceNumber, devNum, bytes));
 		case MRR: return(new MasterResultsRecord(sequenceNumber, devNum, bytes));
 		case PCR: return(new PartCountRecord(sequenceNumber, devNum, bytes));
 		case PGR: return(new PinGroupRecord(sequenceNumber, devNum, bytes));
 		case PIR: return(new PartInformationRecord(sequenceNumber, devNum, bytes));
 		case PLR: return(new PinListRecord(sequenceNumber, devNum, bytes));
-		case PMR: return(new PinMapRecord(sequenceNumber, devNum, bytes)); // ***
+		case PMR: return(new PinMapRecord(sequenceNumber, devNum, bytes));
 		case PRR: return(new PartResultsRecord(sequenceNumber, devNum, bytes));
-		case PTR: return(new ParametricTestRecord(sequenceNumber, devNum, bytes)); // ***
+		case PTR: return(new ParametricTestRecord(sequenceNumber, devNum, bytes));
 		case RDR: return(new RetestDataRecord(sequenceNumber, devNum, bytes));
 		case SBR: return(new SoftwareBinRecord(sequenceNumber, devNum, bytes));
 		case SDR: return(new SiteDescriptionRecord(sequenceNumber, devNum, bytes));

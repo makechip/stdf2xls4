@@ -40,7 +40,7 @@ import com.makechip.util.Log;
 *** @author eric
 *** @version $Id: MultipleResultParametricRecord.java 258 2008-10-22 01:22:44Z ericw $
 **/
-public final class MultipleResultParametricRecord extends StdfRecord
+public final class MultipleResultParametricRecord extends TestRecord
 {
 	public final long testNumber;
 	public final short headNumber;
@@ -49,7 +49,7 @@ public final class MultipleResultParametricRecord extends StdfRecord
 	public final Set<ParamFlag_t> paramFlags;
     private final byte[] rtnState;
     private final double[] results; 
-	public final String testName;
+	private final String testName;
 	public final String alarmName;
 	public final Set<OptFlag_t> optFlags;
 	public final byte resScal;
@@ -258,6 +258,18 @@ public final class MultipleResultParametricRecord extends StdfRecord
     public final byte[] getRtnState() { return(Arrays.copyOf(rtnState, rtnState.length)); }
     public final double[] getResults() { return(Arrays.copyOf(results, results.length)); }
     public final int[] getRtnIndex() { return(Arrays.copyOf(rtnIndex, rtnIndex.length)); }
+
+	@Override
+	public String getTestName()
+	{
+		return testName;
+	}
+
+	@Override
+	void setTestName(String testName)
+	{
+		// not needed
+	}
    
 
 }

@@ -1,5 +1,7 @@
 package com.makechip.stdf2xls4.stdfapi;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,13 +13,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
-import com.makechip.stdf2xls4.stdf.FunctionalTestRecord;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
-import com.makechip.stdf2xls4.stdf.MultipleResultParametricRecord;
-import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
+import com.makechip.stdf2xls4.stdf.RecordBytes;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
+import com.makechip.stdf2xls4.stdf.TestRecord;
 import com.makechip.util.Log;
 
 /**
@@ -34,14 +35,15 @@ import com.makechip.util.Log;
  */
 public class StdfAPI
 {
-    public static final String TEXT_DATA = "TEXT_DATA";
-    public static final String SERIAL_MARKER = "S/N";
+    public static final String TEXT_DATA = RecordBytes.TEXT_DATA;
+    public static final String SERIAL_MARKER = RecordBytes.SERIAL_MARKER;
 	private static Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 	{
 	    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
 	                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
 	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
 	}
+	private final TLongObjectHashMap<String> tnameMap;
     private HashMap<HashMap<String, String>, TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>>> map;
 	private List<String> stdfFiles;
 	private List<StdfRecord> allRecords;
@@ -54,6 +56,7 @@ public class StdfAPI
 		this.stdfFiles = stdfFiles;
 		allRecords = new ArrayList<StdfRecord>();
 		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
+		tnameMap = new TLongObjectHashMap<>();
 		idb = new IdentityDatabase();
 		map = new HashMap<>();
 	}
@@ -63,11 +66,11 @@ public class StdfAPI
 		// load the stdf records
 		if (timeStampedFiles)
 		{
-		    stdfFiles.stream().forEach(p -> new StdfReader(p).read().stream().forEach(s -> allRecords.add(s.createRecord(getTimeStamp(p)))));
+		    stdfFiles.stream().forEach(p -> new StdfReader(p).read().stream().forEach(s -> allRecords.add(s.createRecord(tnameMap, getTimeStamp(p)))));
 		}
 		else
 		{
-		    stdfFiles.stream().forEach(p -> new StdfReader(p).read().stream().forEach(s -> allRecords.add(s.createRecord())));
+		    stdfFiles.stream().forEach(p -> new StdfReader(p).read().stream().forEach(s -> allRecords.add(s.createRecord(tnameMap))));
 		}
 		// put the records for each device into separate lists
 		List<List<StdfRecord>> ll = allRecords.stream().collect(splitBySeparator(r -> r instanceof PartResultsRecord));
@@ -134,27 +137,19 @@ public class StdfAPI
 		}
 		final LinkedHashMap<TestID, StdfRecord> m2 = (m1.get(snxy) == null) ? new LinkedHashMap<>() : m1.get(snxy);
 		m1.put(snxy, m2);
-		list.stream().filter(p -> isTestRecord(r)).forEach(p -> addRecord(m2, p));
+		list.stream().filter(p -> p instanceof TestRecord).map(p -> TestRecord.class.cast(p)).forEach(p -> addRecord(m2, p));
+		idb.testIdDupMap.clear();
 	}
 	
-	private void addRecord(LinkedHashMap<TestID, StdfRecord> m, StdfRecord p)
+	private void addRecord(LinkedHashMap<TestID, StdfRecord> m, TestRecord p)
 	{
-		
+		TestID id = TestID.createTestID(idb, p.testNumber, p.getTestName());
+		m.put(id, p);
 	}
 	
 	private boolean isSn(DatalogTextRecord r)
 	{
 		return(r.text.contains(TEXT_DATA) && r.text.contains(":") && r.text.contains(SERIAL_MARKER));
-	}
-	
-	private boolean isTestRecord(StdfRecord r)
-	{
-	    if (r instanceof DatalogTextRecord)
-	    {
-	    	DatalogTextRecord dtr = (DatalogTextRecord) r;
-	    	if (dtr.text.contains(TEXT_DATA) && dtr.text.contains(":") && !dtr.text.contains(SERIAL_MARKER)) return(true);
-	    }
-	    return(r instanceof FunctionalTestRecord || r instanceof ParametricTestRecord || r instanceof MultipleResultParametricRecord);
 	}
 	
 	private void createHeaders(HeaderUtil hdr, HashMap<HashMap<String, String>, List<List<StdfRecord>>> devList, List<StdfRecord> l)

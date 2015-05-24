@@ -1,6 +1,7 @@
 package test.stdf;
 
 import static org.junit.Assert.*;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -97,7 +98,8 @@ public class StdfTest1
 	{
 		StdfReader rdr = new StdfReader();
 		rdr.read(stdf.getBytes());
-		List<StdfRecord> list = rdr.stream().map(RecordBytes::createRecord).collect(Collectors.toList());
+		final TLongObjectHashMap<String> map = new TLongObjectHashMap<>();
+		List<StdfRecord> list = rdr.stream().map(p -> p.createRecord(map)).collect(Collectors.toList());
 		assertEquals(26, list.size());
 		stack = new Stack<StdfRecord>();
 		Stack<StdfRecord> tmp = new Stack<StdfRecord>();
@@ -360,7 +362,7 @@ public class StdfTest1
 		assertEquals("vecName", ftr.vecName);
 		assertEquals("timeSetName", ftr.timeSetName);
 		assertEquals("vecOpCode", ftr.vecOpCode);
-		assertEquals("label",ftr.testName);
+		assertEquals("label", ftr.getTestName());
 		assertEquals("alarmName", ftr.alarmName);
 		assertEquals("progTxt", ftr.progTxt);
 		assertEquals("rsltTxt", ftr.rsltTxt);
@@ -445,7 +447,7 @@ public class StdfTest1
 	    assertEquals(2.0, mpr.getResults()[1], 5);
 	    assertEquals(3.0, mpr.getResults()[2], 5);
 	    assertEquals(4.0, mpr.getResults()[3], 5);
-	    assertEquals("text", mpr.testName);
+	    assertEquals("text", mpr.getTestName());
 	    assertEquals("alarmName", mpr.alarmName);
 	    assertEquals(0, mpr.optFlags.size());
 	    assertEquals(0, mpr.resScal);
@@ -483,7 +485,7 @@ public class StdfTest1
 	    assertEquals(0, ptr.testFlags.size());
 	    assertEquals(0, ptr.paramFlags.size());
 	    assertEquals(5.5f, ptr.result, 5);
-	    assertEquals("text", ptr.testName);
+	    assertEquals("text", ptr.getTestName());
 	    assertEquals("alarmName", ptr.alarmName);
 	    assertEquals(0, ptr.optFlags.size());
 	    assertEquals(1, ptr.resScal);
