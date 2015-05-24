@@ -41,9 +41,6 @@ import com.makechip.util.Log;
 **/
 public class ParametricTestRecord extends TestRecord
 {
-	public final long testNumber;
-	public final short headNumber;
-	public final short siteNumber;
 	public final Set<TestFlag_t> testFlags;
 	public final Set<ParamFlag_t> paramFlags;
     public final double result; 
@@ -79,9 +76,6 @@ public class ParametricTestRecord extends TestRecord
     public ParametricTestRecord(int sequenceNumber, int devNum, byte[] data)
     {
     	super(Record_t.PTR, sequenceNumber, devNum, data);
-    	testNumber = getU4(MISSING_INT);
-    	headNumber = getU1(MISSING_BYTE);
-    	siteNumber = getU1(MISSING_BYTE);
     	testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(getByte()));
     	paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(getByte()));
         result = getR4(MISSING_FLOAT);
@@ -105,9 +99,9 @@ public class ParametricTestRecord extends TestRecord
     public ParametricTestRecord(
             final int sequenceNumber,
             final int deviceNumber,
-            final int testNumber,
-            final int headNumber,
-            final int siteNumber,
+            final long testNumber,
+            final short headNumber,
+            final short siteNumber,
             final byte testFlags,
             final byte paramFlags,
     	    final float result, 
@@ -126,10 +120,7 @@ public class ParametricTestRecord extends TestRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(Record_t.PTR, sequenceNumber, deviceNumber, null);
-        this.testNumber = testNumber;
-        this.headNumber = (short) headNumber;
-        this.siteNumber = (short) siteNumber;
+        super(Record_t.PTR, sequenceNumber, deviceNumber, testNumber, headNumber, siteNumber);
         this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
         this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
         this.result = result;

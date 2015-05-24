@@ -15,7 +15,7 @@ public abstract class TestRecord extends StdfRecord
 	protected TestRecord(Record_t type, int sequenceNumber, int devNum, byte[] data)
 	{
 		super(type, sequenceNumber, devNum, data);
-		this.testNumber = getU4(MISSING_INT);
+		this.testNumber = getU4(MISSING_LONG);
 		this.headNumber = getU1(MISSING_SHORT);
 		this.siteNumber = getU1(MISSING_SHORT);
 		valueText = null;

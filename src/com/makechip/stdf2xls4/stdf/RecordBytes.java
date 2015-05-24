@@ -3,6 +3,7 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.util.Log;
 
 public class RecordBytes implements Comparable<RecordBytes>
 {
@@ -57,6 +58,7 @@ public class RecordBytes implements Comparable<RecordBytes>
 		switch (type)
 		{
 		case DTR: String text = new String(bytes);
+		          Log.msg("DTR string = " + text);
 		          if (text.contains(TEXT_DATA) && text.contains(":") && !text.contains(SERIAL_MARKER))
 		          {
 		        	  return(new DatalogTestRecord(sequenceNumber, devNum, bytes));

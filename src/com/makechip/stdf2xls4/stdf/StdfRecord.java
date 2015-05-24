@@ -13,6 +13,7 @@ public abstract class StdfRecord
     public static final float MISSING_FLOAT = Float.MAX_VALUE;
     public static final byte MISSING_BYTE = (byte) -127;
     public static final int MISSING_INT = Integer.MIN_VALUE;
+    public static final long MISSING_LONG = Long.MIN_VALUE;
     public static final short MISSING_SHORT = Short.MIN_VALUE;
     public static final String MISSING_STRING = "";
     public static final byte[] MISSING_BYTE_ARRAY = new byte[0];

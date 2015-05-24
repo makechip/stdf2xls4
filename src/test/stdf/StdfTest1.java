@@ -70,11 +70,11 @@ public class StdfTest1
 		stdf.add(new GenericDataRecord(snum++, dnum, lgd));
 		stdf.add(new HardwareBinRecord(snum++, dnum, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
 		stdf.add(new MasterResultsRecord(snum++, dnum, 1000L, 'C', "lotDesc", "execDesc"));
-		stdf.add(new MultipleResultParametricRecord(snum++, dnum, 22, 1, 0, (byte) 0,
+		stdf.add(new MultipleResultParametricRecord(snum++, dnum, 22L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 2, 4, new byte[] { 1, 2 }, new double[] { 1.0, 2.0, 3.0, 4.0 },
 			"text", "alarmName", (byte) 0, (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 5, 6 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
-		stdf.add(new ParametricTestRecord(snum++, dnum, 44, 1, 0, (byte) 0,
+		stdf.add(new ParametricTestRecord(snum++, dnum, 44L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 5.5f, "text", "alarmName", (byte) 0,
 			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
 		stdf.add(new PartCountRecord(snum++, dnum, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
