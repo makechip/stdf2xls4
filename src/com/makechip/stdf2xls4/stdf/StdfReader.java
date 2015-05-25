@@ -45,13 +45,21 @@ import static com.makechip.stdf2xls4.stdf.enums.Record_t.*;
 **/
 public class StdfReader
 {
-    private String filename;
+    private final String filename;
     public static Cpu_t cpuType;
+    private final long timeStamp;
     private List<RecordBytes> records;
     
     public StdfReader(String filename)
     {
         this.filename = filename;
+        this.timeStamp = 0L;
+    }
+    
+    public StdfReader(String filename, boolean timeStampedFilePerDevice)
+    {
+    	this.filename = filename;
+    	this.timeStamp = timeStampedFilePerDevice ? getTimeStamp(filename) : 0L;
     }
     
     /**
@@ -59,6 +67,17 @@ public class StdfReader
      */
     public StdfReader()
     {
+    	this.filename = null;
+        this.timeStamp = 0L;
+    }
+    
+    /**
+     * Use this CTOR when reading an array of bytes.
+     */
+    public StdfReader(long timeStamp)
+    {
+    	this.filename = null;
+        this.timeStamp = timeStamp;
     }
     
     public static void main(String[] args)
@@ -80,15 +99,23 @@ public class StdfReader
         byte[] far = new byte[2];
         far[0] = bytes[4];
         far[1] = bytes[5];
-    	return(new RecordBytes(far, 0, FAR));
+    	return(new RecordBytes(far, 0, FAR, 0, 0L));
     }
     
-    private boolean isDeviceRecord(Record_t type)
+    private long getTimeStamp(String name)
     {
-    	return(type == FTR || type == MPR || type == PTR || type == PRR || type == WIR || type == DTR);
+    	int dotIndex = 0;
+    	if (name.toLowerCase().endsWith(".std")) dotIndex = name.length() - 4;
+    	else dotIndex = name.length() - 5;
+    	int bIndex = dotIndex - 14;
+    	String stamp = name.substring(bIndex, dotIndex);
+    	long timeStamp = 0L;
+    	try { timeStamp = Long.parseLong(stamp); }
+    	catch (Exception e) { Log.fatal("Program bug: timeStamp is in filename, but will not parse correctly"); }
+    	return(timeStamp);
     }
     
-    public StdfReader read()
+   public StdfReader read()
     {
     	records = new ArrayList<RecordBytes>();
         try (DataInputStream rdr = new DataInputStream(new BufferedInputStream(new FileInputStream(filename), 1000000)))
@@ -114,8 +141,7 @@ public class StdfReader
                 byte[] record = new byte[recLen];
                 len = rdr.read(record);
                 if (len != recLen) throw new RuntimeException("Error: record could not be read");
-                if (isDeviceRecord(type)) records.add(new RecordBytes(record, seqNum, type, devNum));
-                else records.add(new RecordBytes(record, seqNum, type));
+                records.add(new RecordBytes(record, seqNum, type, devNum, timeStamp));
                 if (type == PRR) devNum++;
                 seqNum++;
         	}                
@@ -158,8 +184,7 @@ public class StdfReader
     	    	//Log.msg("ptr = " + ptr + " recLen = " + recLen + " bytes.length = " + bytes.length);
     	    	if (ptr > bytes.length - recLen) throw new RuntimeException("Error: record could not be read");
     	    	for (int i=0; i<recLen; i++) record[i] = bytes[ptr++];
-    	    	if (isDeviceRecord(type)) records.add(new RecordBytes(record, seqNum, type, devNum));
-    	    	else records.add(new RecordBytes(record, seqNum, type));
+    	    	records.add(new RecordBytes(record, seqNum, type, devNum, timeStamp));
     	    	if (type == PRR) devNum++;
     	    	seqNum++;
     	    }

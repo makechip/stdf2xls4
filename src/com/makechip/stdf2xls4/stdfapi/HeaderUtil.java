@@ -33,9 +33,9 @@ public class HeaderUtil
     public final HashMap<String, String> header;
     private final List<String> legacyTags;
 
-	public HeaderUtil(HashMap<String, String> header)
+	public HeaderUtil()
 	{
-		this.header = header;
+		header = new HashMap<>();
 		legacyTags = new ArrayList<>();
 		legacyTags.add(CUSTOMER);
 		legacyTags.add(DEVICE_NUMBER);

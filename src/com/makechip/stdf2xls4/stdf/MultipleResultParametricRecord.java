@@ -32,18 +32,14 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
-import com.makechip.stdf2xls4.stdf.enums.ParamFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 import com.makechip.util.Log;
 /**
 *** @author eric
 *** @version $Id: MultipleResultParametricRecord.java 258 2008-10-22 01:22:44Z ericw $
 **/
-public final class MultipleResultParametricRecord extends TestRecord
+public final class MultipleResultParametricRecord extends ParametricRecord
 {
-	public final Set<TestFlag_t> testFlags;
-	public final Set<ParamFlag_t> paramFlags;
     private final byte[] rtnState;
     private final double[] results; 
 	private final String testName;
@@ -74,8 +70,6 @@ public final class MultipleResultParametricRecord extends TestRecord
     public MultipleResultParametricRecord(int sequenceNumber, int devNum, byte[] data)
     {
         super(Record_t.MPR, sequenceNumber, devNum, data);
-        testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(getByte()));
-        paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(getByte()));
         int j = getU2(0);
         int k = getU2(0); 
         rtnState = getNibbles(j);
@@ -133,9 +127,7 @@ public final class MultipleResultParametricRecord extends TestRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(Record_t.MPR, sequenceNumber, deviceNumber, testNumber, headNumber, siteNumber);
-        this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
-        this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
+        super(Record_t.MPR, sequenceNumber, deviceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
         this.results = Arrays.copyOf(results, results.length);
         this.testName = testName;
@@ -260,6 +252,54 @@ public final class MultipleResultParametricRecord extends TestRecord
 	void setTestName(String testName)
 	{
 		// not needed
+	}
+
+	@Override
+	public String getAlarmName()
+	{
+		return alarmName;
+	}
+
+	@Override
+	public Set<OptFlag_t> getOptFlags()
+	{
+		return optFlags;
+	}
+
+	@Override
+	public byte getResScal()
+	{
+		return resScal;
+	}
+
+	@Override
+	public byte getLlmScal()
+	{
+		return llmScal;
+	}
+
+	@Override
+	public byte getHlmScal()
+	{
+		return hlmScal;
+	}
+
+	@Override
+	public float getLoLimit()
+	{
+		return loLimit;
+	}
+
+	@Override
+	public float getHiLimit()
+	{
+		return hiLimit;
+	}
+
+	@Override
+	public String getUnits()
+	{
+		return units;
 	}
    
 

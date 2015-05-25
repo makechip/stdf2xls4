@@ -145,7 +145,7 @@ public class StdfTest1
 		assertTrue(r instanceof MasterInformationRecord);
 		MasterInformationRecord mir = (MasterInformationRecord) r;
 		assertEquals(2, mir.sequenceNumber);
-		assertEquals(-1, mir.devNum);
+		assertEquals(1, mir.devNum);
 		assertEquals(1000L, mir.jobDate);
 		assertEquals(2000L, mir.testDate);
 		assertEquals((short) 1, mir.stationNumber);
@@ -184,7 +184,7 @@ public class StdfTest1
 		assertEquals("romCodeID", mir.romCodeID);
 		assertEquals("testerSerialNumber", mir.testerSerialNumber);
 		assertEquals("supervisorID", mir.supervisorID);
-		assertEquals(-1, mir.fileTimeStamp);
+		assertEquals(0, mir.timeStamp);
 	}
 	
 	// RetestDataRecord rdr = new RetestDataRecord(snum++, dnum, new int[] { 1, 2, 3, 4 });
@@ -195,7 +195,7 @@ public class StdfTest1
 		assertTrue(r instanceof RetestDataRecord);
 		RetestDataRecord rdr = (RetestDataRecord) r;
 		assertEquals(3, rdr.sequenceNumber);
-		assertEquals(-1, rdr.devNum);
+		assertEquals(1, rdr.devNum);
 		int[] bins = rdr.getRetestBins();
 		assertEquals(1, bins[0]);
 		assertEquals(2, bins[1]);

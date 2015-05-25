@@ -24,8 +24,12 @@
  */
 package com.makechip.stdf2xls4.stdfapi;
 
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+
 import com.makechip.util.Identity;
 import com.makechip.util.Immutable;
+import com.makechip.util.factory.IdentityFactoryLON;
 
 class TestID implements Identity, Immutable 
 {
@@ -55,21 +59,44 @@ class TestID implements Identity, Immutable
      * @param testName
      * @return
      */
-    public static TestID createTestID(IdentityDatabase idb, long testNum, String testName)
+    public static TestID createTestID(HashMap<String, String> hdr, IdentityDatabase idb, long testNum, String testName)
     {
     	// 1. check testName and testNumber
-    	TestID id = idb.idMap.getExistingValue(testNum, testName, 0);
+    	IdentityFactoryLON<String, TestID> idf = idb.idMap.get(hdr);
+    	if (idf == null)
+    	{
+    		idf = new IdentityFactoryLON<>(String.class, TestID.class);
+    		idb.idMap.put(hdr, idf);
+    	}
+    	TestID id = idf.getExistingValue(testNum, testName, 0);
     	if (id == null)
     	{
-    		TestID d = idb.idMap.getValue(testNum, testName, 0);
-    		idb.testIdDupMap.put(d, 0);
+    		TestID d = idf.getValue(testNum, testName, 0);
+    		IdentityHashMap<TestID, Integer> idupMap = idb.testIdDupMap.get(hdr);
+    		if (idupMap == null)
+    		{
+    			idupMap = new IdentityHashMap<>();
+    			idb.testIdDupMap.put(hdr, idupMap);
+    		}
+    		idupMap.put(d, 0);
     		return(d);
     	}
         // 4. Need duplicate ID
-    	int dnum = idb.testIdDupMap.get(id);
+   		IdentityHashMap<TestID, Integer> idupMap = idb.testIdDupMap.get(hdr);
+   		if (idupMap == null)
+   		{
+   			idupMap = new IdentityHashMap<>();
+   			idb.testIdDupMap.put(hdr, idupMap);
+   		}
+    	Integer dnum = idupMap.get(id);
+    	if (dnum == null)
+    	{
+    		idupMap.put(id, 0);
+    		return(id);
+    	}
     	dnum++;
-    	TestID d = idb.idMap.getValue(testNum, testName, dnum);
-    	idb.testIdDupMap.put(id,  dnum);
+    	TestID d = idf.getValue(testNum, testName, dnum);
+    	idupMap.put(id,  dnum);
     	return(d);
     }
     

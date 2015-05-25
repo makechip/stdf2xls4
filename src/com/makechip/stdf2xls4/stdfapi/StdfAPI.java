@@ -2,11 +2,13 @@ package com.makechip.stdf2xls4.stdfapi;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.function.Predicate;
@@ -14,11 +16,14 @@ import java.util.stream.Collector;
 
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
+import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
 import com.makechip.stdf2xls4.stdf.RecordBytes;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestRecord;
+import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
 /**
@@ -44,9 +49,9 @@ public class StdfAPI
 	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
 	}
 	private final TLongObjectHashMap<String> tnameMap;
-    private HashMap<HashMap<String, String>, TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>>> map;
+    private HashMap<HashMap<String, String>, TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>>> recordMap;
+    private HashMap<HashMap<String, String>, TreeMap<SnOrXy, DeviceResult>> deviceMap;
 	private List<String> stdfFiles;
-	private List<StdfRecord> allRecords;
 	private boolean timeStampedFiles;
 	private boolean wafersort;
 	private IdentityDatabase idb;
@@ -54,33 +59,67 @@ public class StdfAPI
 	public StdfAPI(List<String> stdfFiles)
 	{
 		this.stdfFiles = stdfFiles;
-		allRecords = new ArrayList<StdfRecord>();
+		new ArrayList<StdfRecord>();
 		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
 		tnameMap = new TLongObjectHashMap<>();
 		idb = new IdentityDatabase();
-		map = new HashMap<>();
+		recordMap = new HashMap<>();
+		deviceMap = new HashMap<>();
 	}
 	
 	public void initialize()
 	{
-		// load the stdf records
-		if (timeStampedFiles)
-		{
-		    stdfFiles.stream().forEach(p -> new StdfReader(p).read().stream().forEach(s -> allRecords.add(s.createRecord(tnameMap, getTimeStamp(p)))));
-		}
-		else
-		{
-		    stdfFiles.stream().forEach(p -> new StdfReader(p).read().stream().forEach(s -> allRecords.add(s.createRecord(tnameMap))));
-		}
-		// put the records for each device into separate lists
-		List<List<StdfRecord>> ll = allRecords.stream().collect(splitBySeparator(r -> r instanceof PartResultsRecord));
-		// Map each device test list by header
-		HashMap<String, String> header = new HashMap<>();
-		HeaderUtil hdr = new HeaderUtil(header);
+		HeaderUtil hdr = new HeaderUtil();
 		HashMap<HashMap<String, String>, List<List<StdfRecord>>> devList = new HashMap<>();
-		ll.stream().forEach(p -> createHeaders(hdr, devList, p));
+		// load the stdf records
+	    // group records by device	
+		    stdfFiles.stream()
+			.map(p -> new StdfReader(p, timeStampedFiles))
+			.flatMap(rdr -> rdr.read().stream())
+			.map(s -> s.createRecord(tnameMap))
+			.collect(splitBySeparator(r -> r instanceof PartResultsRecord))
+			.stream()
+			.forEach(p -> createHeaders(hdr, devList, p));
 		// now create the TestIDs, and for each header build a map testID -> test record
 		devList.keySet().stream().forEach(p -> mapTests(p, devList.get(p)));
+		// find default values
+		for (Map<String, String> h : recordMap.keySet())
+		{
+			Map<SnOrXy, LinkedHashMap<TestID, StdfRecord>> m1 = recordMap.get(h);
+			for (SnOrXy sn : m1.keySet())
+			{
+				Map<TestID, StdfRecord> m3 = m1.get(sn);
+				for (TestID id : m3.keySet())
+				{
+					StdfRecord r = m3.get(id);
+					if (r instanceof ParametricRecord)
+					{
+						ParametricRecord pr = (ParametricRecord) r;
+						if (pr.getResScal() != StdfRecord.MISSING_BYTE && !pr.getOptFlags().contains(OptFlag_t.RES_SCAL_INVALID))
+						{
+							
+						}
+					}
+				}
+			}
+		}
+		// scale units, limits and values
+		
+		// break MultipleResultParametricRecords into per-pin result objects
+		
+		
+		
+		// create result objects, adding default values
+		for (Map<String, String> h : recordMap.keySet())
+		{
+			Map<SnOrXy, LinkedHashMap<TestID, StdfRecord>> m1 = recordMap.get(h);
+			for (SnOrXy sn : m1.keySet())
+			{
+				Map<TestID, StdfRecord> m3 = m1.get(sn);
+			}
+		}
+		
+		
 	}
 	
 	private void mapTests(HashMap<String, String> hdr, List<List<StdfRecord>> devList)
@@ -92,7 +131,7 @@ public class StdfAPI
 	private void buildList(HashMap<String, String> hdr, List<StdfRecord> list)
 	{
 		StdfRecord r = list.stream().filter(p -> p instanceof PartResultsRecord).findFirst().orElse(null);
-		assert r != null;
+		if (r == null) return;
 		PartResultsRecord prr = PartResultsRecord.class.cast(r);
 		MasterInformationRecord mir = null;
 		SnOrXy snxy = null;
@@ -104,7 +143,7 @@ public class StdfAPI
 		{
 	    	short x = prr.xCoord;
 	    	short y = prr.yCoord;
-		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.fileTimeStamp, x, y);	
+		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.timeStamp, x, y);	
 		    else snxy = XY.getXY(x, y);
 		}
 		else
@@ -119,31 +158,32 @@ public class StdfAPI
 				st.nextToken(); // burn "TEXT_DATA"
 				st.nextToken(); // burn "S/N"
 				String sn = st.nextToken();
-				if (timeStampedFiles) snxy = TimeSN.getTimeSN(mir.fileTimeStamp, sn);
+				if (timeStampedFiles) snxy = TimeSN.getTimeSN(mir.timeStamp, sn);
 				else snxy = SN.getSN(sn);
 			}
 			else
 			{
-				if (timeStampedFiles) snxy = TimeSN.getTimeSN(mir.fileTimeStamp, prr.getPartID());
+				Log.msg("prr.id = " + prr.getPartID());
+				if (timeStampedFiles) snxy = TimeSN.getTimeSN(mir.timeStamp, prr.getPartID());
 				else snxy = SN.getSN(prr.getPartID());
 			}
 		}
 		// Now build map: header -> SnOrXy -> TestID -> test record
-		TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>> m1 = map.get(hdr);
+		TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>> m1 = recordMap.get(hdr);
 		if (m1 == null)
 		{
 			m1 = new TreeMap<>();
-			map.put(hdr, m1);
+			recordMap.put(hdr, m1);
 		}
 		final LinkedHashMap<TestID, StdfRecord> m2 = (m1.get(snxy) == null) ? new LinkedHashMap<>() : m1.get(snxy);
 		m1.put(snxy, m2);
-		list.stream().filter(p -> p instanceof TestRecord).map(p -> TestRecord.class.cast(p)).forEach(p -> addRecord(m2, p));
+		list.stream().filter(p -> p instanceof TestRecord).map(p -> TestRecord.class.cast(p)).forEach(p -> addRecord(hdr, m2, p));
 		idb.testIdDupMap.clear();
 	}
 	
-	private void addRecord(LinkedHashMap<TestID, StdfRecord> m, TestRecord p)
+	private void addRecord(HashMap<String, String> hdr, LinkedHashMap<TestID, StdfRecord> m, TestRecord p)
 	{
-		TestID id = TestID.createTestID(idb, p.testNumber, p.getTestName());
+		TestID id = TestID.createTestID(hdr, idb, p.testNumber, p.getTestName());
 		m.put(id, p);
 	}
 	
@@ -177,19 +217,6 @@ public class StdfAPI
     	return(true);
     }
 	
-    private long getTimeStamp(String name)
-    {
-    	int dotIndex = 0;
-    	if (name.toLowerCase().endsWith(".std")) dotIndex = name.length() - 4;
-    	else dotIndex = name.length() - 5;
-    	int bIndex = dotIndex - 14;
-    	String stamp = name.substring(bIndex, dotIndex);
-    	long timeStamp = 0L;
-    	try { timeStamp = Long.parseLong(stamp); }
-    	catch (Exception e) { Log.fatal("Program bug: timeStamp is in filename, but will not parse correctly"); }
-    	return(timeStamp);
-    }
-    
 	public static void main(String[] args)
 	{
 		if (args.length != 1)
@@ -201,6 +228,27 @@ public class StdfAPI
 	    Arrays.stream(args).forEach(p -> files.add(p));	
 		StdfAPI api = new StdfAPI(files);
 		api.initialize();
+		try (FileWriter fw = new FileWriter("stdfapi.log")) 
+		{
+			for (HashMap<String, String> h : api.recordMap.keySet())
+			{
+				fw.write("H: " + h.hashCode() + " " + h.toString());
+				fw.write(Log.eol);
+				TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>> tm = api.recordMap.get(h);
+				for (SnOrXy sn : tm.keySet())
+				{
+					fw.write("    sn: " + sn.hashCode() + " " + sn.toString());
+     				fw.write(Log.eol);
+					Map<TestID, StdfRecord> lm = tm.get(sn);
+					for (TestID id : lm.keySet())
+					{
+						fw.write("        id: " + id.hashCode() + " " + id);
+        				fw.write(Log.eol);
+					}
+				}
+			}
+		}
+		catch (Exception e) { Log.fatal(e); }
 	}
 	
 }

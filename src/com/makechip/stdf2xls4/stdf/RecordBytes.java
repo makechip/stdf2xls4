@@ -3,29 +3,25 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 public class RecordBytes implements Comparable<RecordBytes>
 {
     public static final String TEXT_DATA = "TEXT_DATA";
     public static final String SERIAL_MARKER = "S/N";
     private byte[] bytes;
-	private Record_t type;
-	private int sequenceNumber;
-	private int devNum;
+	private final Record_t type;
+	private final int sequenceNumber;
+	private final int devNum;
+	private final long timeStamp;
 
-	public RecordBytes(byte[] bytes, int sequenceNumber, Record_t type, int devNum) throws StdfException
+	public RecordBytes(byte[] bytes, int sequenceNumber, Record_t type, int devNum, long timeStamp) throws StdfException
 	{
 		this.bytes = bytes;
 		this.sequenceNumber = sequenceNumber;
 		this.type = type;
 		this.devNum = devNum;
+		this.timeStamp = timeStamp;
 		if (type == null) throw new StdfException("Unknown record type: " + bytes[0] + bytes[1]);
-	}
-	
-	public RecordBytes(byte[] bytes, int sequenceNumber, Record_t type) throws StdfException
-	{
-		this(bytes, sequenceNumber, type, -1);
 	}
 	
 	byte[] getBytes() { return(bytes); }
@@ -42,23 +38,11 @@ public class RecordBytes implements Comparable<RecordBytes>
 		return((int) (sequenceNumber - arg0.getSequenceNumber()));
 	}
 	
-	public StdfRecord createRecord(TLongObjectHashMap<String> tnameMap, long timeStamp)
-	{
-		if (type == Record_t.MIR)
-		{
-			MasterInformationRecord r = new MasterInformationRecord(sequenceNumber, devNum, bytes);
-			r.fileTimeStamp = timeStamp;
-			return(r);
-		}
-		return(createRecord(tnameMap));
-	}
-	
 	public StdfRecord createRecord(TLongObjectHashMap<String> tnameMap)
 	{
 		switch (type)
 		{
 		case DTR: String text = new String(bytes);
-		          Log.msg("DTR string = " + text);
 		          if (text.contains(TEXT_DATA) && text.contains(":") && !text.contains(SERIAL_MARKER))
 		          {
 		        	  return(new DatalogTestRecord(sequenceNumber, devNum, bytes));
@@ -83,7 +67,7 @@ public class RecordBytes implements Comparable<RecordBytes>
 			      return(ftr);
 		case GDR: return(new GenericDataRecord(sequenceNumber, devNum, bytes));
 		case HBR: return(new HardwareBinRecord(sequenceNumber, devNum, bytes));
-		case MIR: return(new MasterInformationRecord(sequenceNumber, devNum, bytes));
+		case MIR: return(new MasterInformationRecord(sequenceNumber, devNum, timeStamp, bytes));
 		case MPR: return(new MultipleResultParametricRecord(sequenceNumber, devNum, bytes));
 		case MRR: return(new MasterResultsRecord(sequenceNumber, devNum, bytes));
 		case PCR: return(new PartCountRecord(sequenceNumber, devNum, bytes));

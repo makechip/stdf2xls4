@@ -24,8 +24,11 @@
  */
 package com.makechip.stdf2xls4.stdfapi;
 
+import java.util.HashMap;
+
 import com.makechip.util.Identity;
 import com.makechip.util.Immutable;
+import com.makechip.util.factory.IdentityFactoryIO;
 
 public final class PinTestID extends TestID implements Identity, Immutable 
 {
@@ -37,9 +40,15 @@ public final class PinTestID extends TestID implements Identity, Immutable
     	this.pin = pin;
     }
     
-    public static PinTestID getTestID(IdentityDatabase idb, TestID id, String pin)
+    public static PinTestID getTestID(HashMap<String, String> hdr, IdentityDatabase idb, TestID id, String pin)
     {
-        return(idb.testIdPinMap.getValue(id, pin));
+    	IdentityFactoryIO<TestID, String, PinTestID> io = idb.testIdPinMap.get(hdr);
+    	if (io == null)
+    	{
+    		io = new IdentityFactoryIO<>(TestID.class, String.class, PinTestID.class);
+    		idb.testIdPinMap.put(hdr,  io);
+    	}
+        return(io.getValue(id, pin));
     }
     
     @Override

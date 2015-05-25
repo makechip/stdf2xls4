@@ -31,18 +31,14 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
-import com.makechip.stdf2xls4.stdf.enums.ParamFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 import com.makechip.util.Log;
 /**
 *** @author eric
 *** @version $Id: ParametricTestRecord.java 258 2008-10-22 01:22:44Z ericw $
 **/
-public class ParametricTestRecord extends TestRecord
+public class ParametricTestRecord extends ParametricRecord
 {
-	public final Set<TestFlag_t> testFlags;
-	public final Set<ParamFlag_t> paramFlags;
     public final double result; 
     private final String testName;
     public final String alarmName;
@@ -59,25 +55,12 @@ public class ParametricTestRecord extends TestRecord
     public final float loSpec;
     public final float hiSpec;
     
-    public boolean alarm() { return(testFlags.contains(TestFlag_t.ALARM)); }
-    public boolean unreliable() { return(testFlags.contains(TestFlag_t.UNRELIABLE)); }
-    public boolean timeout() { return(testFlags.contains(TestFlag_t.TIMEOUT)); }
-    public boolean notExecuted() { return(testFlags.contains(TestFlag_t.NOT_EXECUTED)); }
-    public boolean abort() { return(testFlags.contains(TestFlag_t.ABORT)); }
-    public boolean noPassFailIndication() { return(testFlags.contains(TestFlag_t.NO_PASS_FAIL)); }
-    public boolean fail() { return(testFlags.contains(TestFlag_t.FAIL)); }
-    
-    @Override
-    public boolean isTestRecord() { return(true); }
-    
     /**
     *** @param p1
     **/
     public ParametricTestRecord(int sequenceNumber, int devNum, byte[] data)
     {
     	super(Record_t.PTR, sequenceNumber, devNum, data);
-    	testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(getByte()));
-    	paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(getByte()));
         result = getR4(MISSING_FLOAT);
         testName = getCn(); 
         alarmName = getCn();
@@ -120,9 +103,7 @@ public class ParametricTestRecord extends TestRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(Record_t.PTR, sequenceNumber, deviceNumber, testNumber, headNumber, siteNumber);
-        this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
-        this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
+        super(Record_t.PTR, sequenceNumber, deviceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.result = result;
         this.testName = testName;
         this.alarmName = alarmName;
@@ -215,6 +196,54 @@ public class ParametricTestRecord extends TestRecord
 	void setTestName(String testName)
 	{
 		// not needed
+	}
+
+	@Override
+	public String getAlarmName()
+	{
+		return alarmName;
+	}
+
+	@Override
+	public Set<OptFlag_t> getOptFlags()
+	{
+		return optFlags;
+	}
+
+	@Override
+	public byte getResScal()
+	{
+		return resScal;
+	}
+
+	@Override
+	public byte getLlmScal()
+	{
+		return llmScal;
+	}
+
+	@Override
+	public byte getHlmScal()
+	{
+		return hlmScal;
+	}
+
+	@Override
+	public float getLoLimit()
+	{
+		return loLimit;
+	}
+
+	@Override
+	public float getHiLimit()
+	{
+		return hiLimit;
+	}
+
+	@Override
+	public String getUnits()
+	{
+		return units;
 	}
 
 }
