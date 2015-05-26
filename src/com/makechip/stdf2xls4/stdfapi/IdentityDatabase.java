@@ -311,11 +311,14 @@ final class IdentityDatabase
     
     public void setResScalDefaults(Map<String, String> hdr, TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>> map)
     {
-    	map.keySet().stream()
+    	ParametricRecord pr = map.keySet().stream()
     	    .flatMap(p -> map.get(p).values().stream())
     	    .filter(q -> q instanceof ParametricRecord)
-    	    .filter(r -> ((ParametricRecord) r).getResScal() != StdfRecord.MISSING_BYTE && !((ParametricRecord) r).getOptFlags().contains(OptFlag_t.RES_SCAL_INVALID))
+    	    .map(t -> ParametricRecord.class.cast(t))
+    	    .filter(r -> r.getResScal() != StdfRecord.MISSING_BYTE)
+    	    .filter(s -> !s.getOptFlags().contains(OptFlag_t.RES_SCAL_INVALID))
     	    .findFirst().orElse(null);
+    	setDefaultResScal(hdr,)
     }
     
 	public IdentityDatabase()
