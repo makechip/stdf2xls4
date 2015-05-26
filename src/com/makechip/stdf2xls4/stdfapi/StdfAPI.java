@@ -83,6 +83,7 @@ public class StdfAPI
 		// now create the TestIDs, and for each header build a map testID -> test record
 		devList.keySet().stream().forEach(p -> mapTests(p, devList.get(p)));
 		// find default values
+		recordMap.keySet().stream().forEach(p -> idb.setResScalDefaults(p, recordMap.get(p)));
 		for (Map<String, String> h : recordMap.keySet())
 		{
 			Map<SnOrXy, LinkedHashMap<TestID, StdfRecord>> m1 = recordMap.get(h);
@@ -97,7 +98,8 @@ public class StdfAPI
 						ParametricRecord pr = (ParametricRecord) r;
 						if (pr.getResScal() != StdfRecord.MISSING_BYTE && !pr.getOptFlags().contains(OptFlag_t.RES_SCAL_INVALID))
 						{
-							
+						    idb.setDefaultResScale(h, id, pr.getResScal());	
+						    break;
 						}
 					}
 				}
