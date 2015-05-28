@@ -49,8 +49,8 @@ public class StdfAPI
 	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
 	}
 	private final TLongObjectHashMap<String> tnameMap;
-    private HashMap<HashMap<String, String>, TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>>> recordMap;
-    private HashMap<HashMap<String, String>, TreeMap<SnOrXy, DeviceResult>> deviceMap;
+    private HashMap<Map<String, String>, Map<SnOrXy, Map<TestID, StdfRecord>>> recordMap;
+    private HashMap<HashMap<String, String>, Map<SnOrXy, DeviceResult>> deviceMap;
 	private List<String> stdfFiles;
 	private boolean timeStampedFiles;
 	private boolean wafersort;
@@ -83,10 +83,10 @@ public class StdfAPI
 		// now create the TestIDs, and for each header build a map testID -> test record
 		devList.keySet().stream().forEach(p -> mapTests(p, devList.get(p)));
 		// find default values
-		recordMap.keySet().stream().forEach(p -> idb.setResScalDefaults(p, recordMap.get(p)));
+//		recordMap.keySet().stream().forEach(p -> idb.setResScalDefaults(p, recordMap.get(p)));
 		for (Map<String, String> h : recordMap.keySet())
 		{
-			Map<SnOrXy, LinkedHashMap<TestID, StdfRecord>> m1 = recordMap.get(h);
+			Map<SnOrXy, Map<TestID, StdfRecord>> m1 = recordMap.get(h);
 			for (SnOrXy sn : m1.keySet())
 			{
 				Map<TestID, StdfRecord> m3 = m1.get(sn);
@@ -98,7 +98,7 @@ public class StdfAPI
 						ParametricRecord pr = (ParametricRecord) r;
 						if (pr.getResScal() != StdfRecord.MISSING_BYTE && !pr.getOptFlags().contains(OptFlag_t.RES_SCAL_INVALID))
 						{
-						    idb.setDefaultResScale(h, id, pr.getResScal());	
+						    idb.setDefaultResScal(h, id, pr.getResScal());	
 						    break;
 						}
 					}
@@ -114,7 +114,7 @@ public class StdfAPI
 		// create result objects, adding default values
 		for (Map<String, String> h : recordMap.keySet())
 		{
-			Map<SnOrXy, LinkedHashMap<TestID, StdfRecord>> m1 = recordMap.get(h);
+			Map<SnOrXy, Map<TestID, StdfRecord>> m1 = recordMap.get(h);
 			for (SnOrXy sn : m1.keySet())
 			{
 				Map<TestID, StdfRecord> m3 = m1.get(sn);
@@ -171,19 +171,19 @@ public class StdfAPI
 			}
 		}
 		// Now build map: header -> SnOrXy -> TestID -> test record
-		TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>> m1 = recordMap.get(hdr);
+		Map<SnOrXy, Map<TestID, StdfRecord>> m1 = recordMap.get(hdr);
 		if (m1 == null)
 		{
-			m1 = new TreeMap<>();
+			m1 = new LinkedHashMap<>();
 			recordMap.put(hdr, m1);
 		}
-		final LinkedHashMap<TestID, StdfRecord> m2 = (m1.get(snxy) == null) ? new LinkedHashMap<>() : m1.get(snxy);
+		final Map<TestID, StdfRecord> m2 = (m1.get(snxy) == null) ? new LinkedHashMap<>() : m1.get(snxy);
 		m1.put(snxy, m2);
 		list.stream().filter(p -> p instanceof TestRecord).map(p -> TestRecord.class.cast(p)).forEach(p -> addRecord(hdr, m2, p));
 		idb.testIdDupMap.clear();
 	}
 	
-	private void addRecord(HashMap<String, String> hdr, LinkedHashMap<TestID, StdfRecord> m, TestRecord p)
+	private void addRecord(HashMap<String, String> hdr, Map<TestID, StdfRecord> m, TestRecord p)
 	{
 		TestID id = TestID.createTestID(hdr, idb, p.testNumber, p.getTestName());
 		m.put(id, p);
@@ -232,11 +232,11 @@ public class StdfAPI
 		api.initialize();
 		try (FileWriter fw = new FileWriter("stdfapi.log")) 
 		{
-			for (HashMap<String, String> h : api.recordMap.keySet())
+			for (Map<String, String> h : api.recordMap.keySet())
 			{
 				fw.write("H: " + h.hashCode() + " " + h.toString());
 				fw.write(Log.eol);
-				TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>> tm = api.recordMap.get(h);
+				Map<SnOrXy, Map<TestID, StdfRecord>> tm = api.recordMap.get(h);
 				for (SnOrXy sn : tm.keySet())
 				{
 					fw.write("    sn: " + sn.hashCode() + " " + sn.toString());

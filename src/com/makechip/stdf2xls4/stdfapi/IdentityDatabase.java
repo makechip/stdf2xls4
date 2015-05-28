@@ -6,11 +6,13 @@ import gnu.trove.map.hash.TObjectFloatHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.map.hash.TShortObjectHashMap;
 
+import java.util.AbstractMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
@@ -26,7 +28,7 @@ final class IdentityDatabase
     public final HashMap<Map<String, String>, IdentityFactoryIO<TestID, String, PinTestID>> testIdPinMap;
 
     // default value maps for MPR and PTR types
-    public final HashMap<Map<String, String>, IdentityHashMap<TestID, EnumSet<OptFlag_t>>> poptDefaults;
+    public final HashMap<Map<String, String>, IdentityHashMap<TestID, Set<OptFlag_t>>> poptDefaults;
     public final HashMap<Map<String, String>, IdentityHashMap<TestID, String>> unitDefaults;
     public final HashMap<Map<String, String>, IdentityHashMap<TestID, String>> scaledUnits;
 
@@ -146,9 +148,9 @@ final class IdentityDatabase
     	m.put(id, scale);
     }
     
-    public EnumSet<OptFlag_t> getDefaultOptFlags(Map<String, String> hdr, TestID id)
+    public Set<OptFlag_t> getDefaultOptFlags(Map<String, String> hdr, TestID id)
     {
-    	IdentityHashMap<TestID, EnumSet<OptFlag_t>> m = poptDefaults.get(hdr);
+    	IdentityHashMap<TestID, Set<OptFlag_t>> m = poptDefaults.get(hdr);
     	if (m == null)
     	{
     		m = new IdentityHashMap<>();
@@ -157,9 +159,9 @@ final class IdentityDatabase
     	return(m.get(id));
     }
     
-    public void setDefaultOptFlags(Map<String, String> hdr, TestID id, EnumSet<OptFlag_t> optDef)
+    public void setDefaultOptFlags(Map<String, String> hdr, TestID id, Set<OptFlag_t> optDef)
     {
-    	IdentityHashMap<TestID, EnumSet<OptFlag_t>> m = poptDefaults.get(hdr);
+    	IdentityHashMap<TestID, Set<OptFlag_t>> m = poptDefaults.get(hdr);
     	if (m == null)
     	{
     		m = new IdentityHashMap<>();
@@ -208,7 +210,7 @@ final class IdentityDatabase
     	TObjectByteHashMap<TestID> m = map.get(hdr);
     	if (m == null)
     	{
-    		m = new TObjectByteHashMap<>();
+    		m = new TObjectByteHashMap<>(100, 0.7F, StdfRecord.MISSING_BYTE);
     		map.put(hdr,  m);
     	}
     	return(m);
@@ -220,7 +222,7 @@ final class IdentityDatabase
     	return(m.get(id));
     }
     
-    public void setDefaultResScale(Map<String, String> hdr, TestID id, byte resScal)
+    public void setDefaultResScal(Map<String, String> hdr, TestID id, byte resScal)
     {
     	TObjectByteHashMap<TestID> m = getMap(hdr, resScalDefaults);
         m.put(id, resScal);    	
@@ -255,7 +257,7 @@ final class IdentityDatabase
     	TObjectFloatHashMap<TestID> m = map.get(hdr);
     	if (m == null)
     	{
-    		m = new TObjectFloatHashMap<>();
+    		m = new TObjectFloatHashMap<>(100, 0.7F, StdfRecord.MISSING_FLOAT);
     		map.put(hdr, m);
     	}
     	return(m);
@@ -309,16 +311,27 @@ final class IdentityDatabase
     	m.put(id, loLimit);
     }
     
-    public void setResScalDefaults(Map<String, String> hdr, TreeMap<SnOrXy, LinkedHashMap<TestID, StdfRecord>> map)
+    public void setResScalDefaults(Map<String, String> hdr, Map<SnOrXy, Map<TestID, StdfRecord>> map)
     {
-    	ParametricRecord pr = map.keySet().stream()
-    	    .flatMap(p -> map.get(p).values().stream())
-    	    .filter(q -> q instanceof ParametricRecord)
-    	    .map(t -> ParametricRecord.class.cast(t))
-    	    .filter(r -> r.getResScal() != StdfRecord.MISSING_BYTE)
-    	    .filter(s -> !s.getOptFlags().contains(OptFlag_t.RES_SCAL_INVALID))
-    	    .findFirst().orElse(null);
-    	setDefaultResScal(hdr,)
+    	map.values().stream()
+    	    .flatMap(sn -> map.get(sn).entrySet().stream())
+    	    .filter(entry -> entry.getValue() instanceof ParametricRecord)
+    	    .filter(entry -> getDefaultResScal(hdr, entry.getKey()) == StdfRecord.MISSING_BYTE)
+    	    .map(entry -> new AbstractMap.SimpleEntry<TestID, ParametricRecord>(entry.getKey(), (ParametricRecord) entry.getValue()))
+    	    .filter(e -> e.getValue().getResScal() != StdfRecord.MISSING_BYTE)
+    	    .filter(entry -> !entry.getValue().getOptFlags().contains(OptFlag_t.RES_SCAL_INVALID))
+    	    .forEach(p -> setDefaultResScal(hdr, p.getKey(), p.getValue().getResScal()));
+    }
+    
+    public void setDefaultOptFlags(Map<String, String> hdr, Map<SnOrXy, Map<TestID, StdfRecord>> map)
+    {
+    	map.values().stream()
+    	    .flatMap(sn -> map.get(sn).entrySet().stream())
+    	    .filter(entry -> entry.getValue() instanceof ParametricRecord)
+    	    .filter(entry -> getDefaultOptFlags(hdr, entry.getKey()) == null)
+    	    .map(entry -> new AbstractMap.SimpleEntry<TestID, ParametricRecord>(entry.getKey(), (ParametricRecord) entry.getValue()))
+    	    .filter(e -> e.getValue().getOptFlags() != null)
+    	    .forEach(p -> setDefaultOptFlags(hdr, p.getKey(), p.getValue().getOptFlags()));
     }
     
 	public IdentityDatabase()
