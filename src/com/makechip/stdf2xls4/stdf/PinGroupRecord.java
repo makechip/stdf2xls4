@@ -46,9 +46,9 @@ public class PinGroupRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public PinGroupRecord(int sequenceNumber, int devNum, byte[] data)
+    public PinGroupRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.PGR, sequenceNumber, devNum, data);
+        super(Record_t.PGR, sequenceNumber, data);
         groupIndex = getU2(-1);
         groupName = getCn();
         int k = getU2(0);
@@ -56,10 +56,10 @@ public class PinGroupRecord extends StdfRecord
         for (int i=0; i<k; i++) pmrIdx[i] = getU2(-1);
     }
     
-    public PinGroupRecord(int sequenceNumber, int devNum,
+    public PinGroupRecord(int sequenceNumber,
     	int groupIndex, String groupName, int[] pmrIdx)
     {
-        super(Record_t.PGR, sequenceNumber, devNum, null);
+        super(Record_t.PGR, sequenceNumber, null);
         this.groupIndex = groupIndex;
         this.groupName = groupName;
         this.pmrIdx = Arrays.copyOf(pmrIdx, pmrIdx.length);

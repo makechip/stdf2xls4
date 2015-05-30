@@ -21,13 +21,11 @@ public abstract class StdfRecord
 	protected int ptr;
 	protected byte[] bytes;
 	public final int sequenceNumber;
-	public final int devNum;
 
-	protected StdfRecord(Record_t type, int sequenceNumber, int devNum, byte[] bytes)
+	protected StdfRecord(Record_t type, int sequenceNumber, byte[] bytes)
 	{
 		this.type = type;
 		this.sequenceNumber = sequenceNumber;
-		this.devNum = devNum;
 		this.bytes = bytes;
 		ptr = 0;
 		//Log.msg("seqNum = " + sequenceNumber + " type = " + getClass().getSimpleName());

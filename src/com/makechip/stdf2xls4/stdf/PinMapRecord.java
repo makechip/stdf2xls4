@@ -50,14 +50,14 @@ public class PinMapRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public PinMapRecord(int sequenceNumber, int devNum, byte[] data)
+    public PinMapRecord(int sequenceNumber, byte[] data)
     {
-    	this(false, sequenceNumber, devNum, data);
+    	this(false, sequenceNumber, data);
     }
     
-    public PinMapRecord(boolean usePhyPinName, int sequenceNumber, int devNum, byte[] data)
+    public PinMapRecord(boolean usePhyPinName, int sequenceNumber, byte[] data)
     {
-        super(Record_t.PMR, sequenceNumber, devNum, data);
+        super(Record_t.PMR, sequenceNumber, data);
         pmrIdx = getU2(-1);
         channelType = getU2(-1);
         channelName = getCn();
@@ -70,7 +70,6 @@ public class PinMapRecord extends StdfRecord
     
     public PinMapRecord(boolean usePhyPinName,
     		            int sequenceNumber,
-    		            int devNum,
     		            int pmrIdx,
     		            int channelType,
     		            String channelName,
@@ -79,7 +78,7 @@ public class PinMapRecord extends StdfRecord
     		            short headNumber,
     		            short siteNumber)
     		            {
-    						super(Record_t.PMR, sequenceNumber, devNum, null);
+    						super(Record_t.PMR, sequenceNumber, null);
     						this.pmrIdx = pmrIdx;
     						this.channelType = channelType;
     						this.channelName = channelName;

@@ -42,7 +42,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 {
     private final byte[] rtnState;
     private final double[] results; 
-	private final String testName;
+	private TestID id;
 	public final String alarmName;
 	public final Set<OptFlag_t> optFlags;
 	public final byte resScal;
@@ -67,38 +67,56 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     /**
     *** @param p1
     **/
-    public MultipleResultParametricRecord(int sequenceNumber, int devNum, byte[] data)
+    public MultipleResultParametricRecord(int sequenceNumber, final IdentityDatabase idb, byte[] data)
     {
-        super(Record_t.MPR, sequenceNumber, devNum, data);
+        super(Record_t.MPR, sequenceNumber, data);
         int j = getU2(0);
         int k = getU2(0); 
         rtnState = getNibbles(j);
         results =  new double[k];
         Arrays.setAll(results, p -> getR4(-Float.MAX_VALUE));
-        testName = getCn();
+        String testName = getCn();
+        id = TestID.createTestID(idb, testNumber, testName);
         alarmName = getCn();
-        optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(getByte()));
-        resScal = getI1(MISSING_BYTE);
-        llmScal = getI1(MISSING_BYTE);
-        hlmScal = getI1(MISSING_BYTE);
-        loLimit = getR4(MISSING_FLOAT);
-        hiLimit = getR4(MISSING_FLOAT);
-        startIn = getR4(MISSING_FLOAT);
-        incrIn = getR4(MISSING_FLOAT);
-        rtnIndex = new int[j];
-        Arrays.setAll(rtnIndex, p -> getU2(MISSING_INT));
-        units = getCn();
-        unitsIn = getCn();
-        resFmt = getCn();
-        llmFmt = getCn();
-        hlmFmt = getCn();
-        loSpec = getR4(MISSING_FLOAT);
-        hiSpec = getR4(MISSING_FLOAT);
+        byte oflags = getByte();
+        if (oflags != MISSING_BYTE)
+        {
+        	optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(oflags));
+        	if (idb.optDefaults.get(id) == null) idb.optDefaults.put(id, optFlags);
+        }
+        else
+        {
+        	optFlags = idb.optDefaults.get(id);
+        }
+        resScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.resScalDefaults);
+        llmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.llmScalDefaults);
+        hlmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.hlmScalDefaults);
+        loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loLimDefaults);
+        hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiLimDefaults);
+        startIn = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.startInDefaults);     
+        incrIn  = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.incrInDefaults);     
+        if (j != 0)
+        {
+        	rtnIndex = new int[j];
+        	Arrays.setAll(rtnIndex, p -> getU2(MISSING_INT));
+        	if (idb.rtnIndexDefaults.get(id) == null) idb.rtnIndexDefaults.put(id, rtnIndex);
+        }
+        else
+        {
+        	rtnIndex = idb.rtnIndexDefaults.get(id);
+        }
+        units = setString(MISSING_STRING, getCn(), id , idb.unitDefaults);
+        unitsIn = setString(MISSING_STRING, getCn(), id , idb.unitsInDefaults);
+        resFmt = setString(MISSING_STRING, getCn(), id , idb.resFmtDefaults);
+        llmFmt = setString(MISSING_STRING, getCn(), id , idb.llmFmtDefaults);
+        hlmFmt = setString(MISSING_STRING, getCn(), id , idb.hlmFmtDefaults);
+        loSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loSpecDefaults);
+        hiSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiSpecDefaults);
     }
     
     public MultipleResultParametricRecord(
             final int sequenceNumber,
-            final int deviceNumber,
+            final IdentityDatabase idb,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
@@ -127,28 +145,45 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(Record_t.MPR, sequenceNumber, deviceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
+        super(Record_t.MPR, sequenceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
         this.results = Arrays.copyOf(results, results.length);
-        this.testName = testName;
+        id = TestID.createTestID(idb, testNumber, testName);
         this.alarmName = alarmName;
-        if (optFlags != (byte) -1) this.optFlags = OptFlag_t.getBits(optFlags);
-        else this.optFlags = null;
-        this.resScal = resScal;
-        this.llmScal = llmScal;
-        this.hlmScal = hlmScal;
-        this.loLimit = loLimit;
-        this.hiLimit = hiLimit;
-        this.startIn = startIn;
-        this.incrIn = incrIn;
-        this.rtnIndex = Arrays.copyOf(rtnIndex, rtnIndex.length);
-        this.units = units;
-        this.unitsIn = unitsIn;
-        this.resFmt = resFmt;
-        this.llmFmt = llmFmt;
-        this.hlmFmt = hlmFmt;
-        this.loSpec = loSpec;
-        this.hiSpec = hiSpec;
+        byte oflags = optFlags;
+        if (oflags != MISSING_BYTE)
+        {
+        	this.optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(oflags));
+        	if (idb.optDefaults.get(id) == null) idb.optDefaults.put(id, this.optFlags);
+        }
+        else
+        {
+        	this.optFlags = idb.optDefaults.get(id);
+        }
+        this.resScal = setByte(MISSING_BYTE, resScal, id, idb.resScalDefaults);
+        this.llmScal = setByte(MISSING_BYTE, llmScal, id, idb.llmScalDefaults);
+        this.hlmScal = setByte(MISSING_BYTE, hlmScal, id, idb.hlmScalDefaults);
+        this.loLimit = setFloat(MISSING_FLOAT, loLimit, id, idb.loLimDefaults);
+        this.hiLimit = setFloat(MISSING_FLOAT, hiLimit, id, idb.hiLimDefaults);
+        this.startIn = setFloat(MISSING_FLOAT, startIn, id, idb.startInDefaults);     
+        this.incrIn  = setFloat(MISSING_FLOAT, incrIn, id, idb.startInDefaults);     
+        if (j != 0)
+        {
+        	this.rtnIndex = new int[j];
+        	Arrays.copyOf(rtnIndex, rtnIndex.length);
+        	if (idb.rtnIndexDefaults.get(id) == null) idb.rtnIndexDefaults.put(id, this.rtnIndex);
+        }
+        else
+        {
+        	this.rtnIndex = idb.rtnIndexDefaults.get(id);
+        }
+        this.units = setString(MISSING_STRING, units, id , idb.unitDefaults);
+        this.unitsIn = setString(MISSING_STRING, unitsIn, id , idb.unitsInDefaults);
+        this.resFmt = setString(MISSING_STRING, getCn(), id , idb.resFmtDefaults);
+        this.llmFmt = setString(MISSING_STRING, getCn(), id , idb.llmFmtDefaults);
+        this.hlmFmt = setString(MISSING_STRING, getCn(), id , idb.hlmFmtDefaults);
+        this.loSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loSpecDefaults);
+        this.hiSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiSpecDefaults);
     }
     
     @Override
@@ -164,7 +199,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         list.addAll(getU2Bytes(results.length));
         list.addAll(getNibbleBytes(rtnState));
         Arrays.stream(results).forEach(p -> list.addAll(getR4Bytes((float) p)));
-        list.addAll(getCnBytes(testName));
+        list.addAll(getCnBytes(id.testName));
         list.addAll(getCnBytes(alarmName));
         if (optFlags != null)
         {
@@ -207,7 +242,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         sb.append("    results:");
         Arrays.stream(results).forEach(p -> sb.append(" " + p));
         sb.append(Log.eol);
-        sb.append("    test name: ").append(testName).append(Log.eol);
+        sb.append("    test name: ").append(id.testName).append(Log.eol);
         sb.append("    alarm name: ").append(alarmName).append(Log.eol);
         if (optFlags != null) 
         {
@@ -243,13 +278,13 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     public final int[] getRtnIndex() { return(Arrays.copyOf(rtnIndex, rtnIndex.length)); }
 
 	@Override
-	public String getTestName()
+	public TestID getTestId()
 	{
-		return testName;
+		return(id);
 	}
 
 	@Override
-	void setTestName(String testName)
+	protected void setTestName(String testName)
 	{
 		// not needed
 	}

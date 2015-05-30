@@ -49,41 +49,47 @@ public class StdfReader
     public static Cpu_t cpuType;
     private final long timeStamp;
     private List<RecordBytes> records;
+    private IdentityDatabase idb;
     
-    public StdfReader(String filename)
+    public StdfReader(IdentityDatabase idb, String filename)
     {
-        this.filename = filename;
-        this.timeStamp = 0L;
+        this(idb, filename, false);
     }
     
-    public StdfReader(String filename, boolean timeStampedFilePerDevice)
+    public StdfReader(IdentityDatabase idb, String filename, boolean timeStampedFilePerDevice)
     {
     	this.filename = filename;
     	this.timeStamp = timeStampedFilePerDevice ? getTimeStamp(filename) : 0L;
+    	this.idb = idb;
+    	idb.clearIdDups();
+    	idb.clearDefaults();
     }
     
     /**
      * Use this CTOR when reading an array of bytes.
      */
-    public StdfReader()
+    public StdfReader(IdentityDatabase idb)
     {
-    	this.filename = null;
-        this.timeStamp = 0L;
+    	this(idb, null, false);
     }
     
     /**
      * Use this CTOR when reading an array of bytes.
      */
-    public StdfReader(long timeStamp)
+    public StdfReader(IdentityDatabase idb, long timeStamp)
     {
     	this.filename = null;
         this.timeStamp = timeStamp;
+    	this.idb = idb;
+    	this.idb.clearIdDups();
+    	this.idb.clearDefaults();
     }
     
     public static void main(String[] args)
     {
     	if (args.length != 1) throw new RuntimeException("Missing filename argument");
-    	StdfReader r = new StdfReader(args[0]);
+    	IdentityDatabase idb = new IdentityDatabase();
+    	StdfReader r = new StdfReader(idb, args[0]);
     	r.read();
     	Log.msg("" + r.records.size() + " records read");
     }
@@ -91,15 +97,14 @@ public class StdfReader
     private RecordBytes FARcheck(int len, byte[] bytes) throws StdfException
     {
        	if (len != 6) throw new StdfException("Malformed FAR record");
-       	if (bytes[2] != (byte)  0) throw new StdfException("First STDF record is not a FAR");
-       	if (bytes[3] != (byte) 10) throw new StdfException("First STDF record is not a FAR");
+       	if (bytes[2] != (byte)  0 || bytes[3] != (byte) 10) throw new StdfException("First STDF record is not a FAR");
         cpuType = Cpu_t.getCpuType(bytes[4]);
         int stdfVersion = (bytes[5] & 0xFF);
         if (stdfVersion != 4) throw new StdfException("Unsupported STDF version: " + stdfVersion);
         byte[] far = new byte[2];
         far[0] = bytes[4];
         far[1] = bytes[5];
-    	return(new RecordBytes(far, 0, FAR, 0, 0L));
+    	return(new RecordBytes(far, 1, FAR, idb, 0L));
     }
     
     private long getTimeStamp(String name)
@@ -111,7 +116,7 @@ public class StdfReader
     	String stamp = name.substring(bIndex, dotIndex);
     	long timeStamp = 0L;
     	try { timeStamp = Long.parseLong(stamp); }
-    	catch (Exception e) { Log.fatal("Program bug: timeStamp is in filename, but will not parse correctly"); }
+    	catch (Exception e) { Log.fatal("Incorrect timestamp format in filename: " + name); }
     	return(timeStamp);
     }
     
@@ -120,29 +125,23 @@ public class StdfReader
     	records = new ArrayList<RecordBytes>();
         try (DataInputStream rdr = new DataInputStream(new BufferedInputStream(new FileInputStream(filename), 1000000)))
         {
-        	// first record should be a FAR:
         	byte[] far = new byte[6];
         	int len = rdr.read(far); 
             records.add(FARcheck(len, far));
-            int seqNum = 1;	
-            int devNum = 1;
+            int seqNum = 2;	
         	while (true)
         	{
-        		byte l0;
-        		byte l1;
         		if (rdr.available() < 2) break;
-            	l0 = rdr.readByte(); 
-            	l1 = rdr.readByte();
-                int recLen = getUnsignedInt(l0, l1);	
+            	byte l0 = rdr.readByte(); 
+                int recLen = getUnsignedInt(l0, rdr.readByte());	
                 l0 = rdr.readByte(); // type
-                l1 = rdr.readByte(); // sub-type
-                Record_t type = Record_t.getRecordType(l0, l1);
-                if (type == null) Log.msg("unkown type at seqNum = " + seqNum);
+                Record_t type = Record_t.getRecordType(l0, rdr.readByte());
+                if (type == null) Log.msg("unkown type at record number = " + seqNum);
                 byte[] record = new byte[recLen];
                 len = rdr.read(record);
                 if (len != recLen) throw new RuntimeException("Error: record could not be read");
-                records.add(new RecordBytes(record, seqNum, type, devNum, timeStamp));
-                if (type == PRR) devNum++;
+                records.add(new RecordBytes(record, seqNum, type, idb, timeStamp));
+    	    	if (type == PRR) idb.testIdDupMap.clear();
                 seqNum++;
         	}                
         }
@@ -163,29 +162,21 @@ public class StdfReader
     	    	far[i] = bytes[i];
     	    	ptr++;
     	    }
-    	    //Log.msg("bytes[" + ptr + "] = " + bytes[ptr]);
     	    records.add(FARcheck(6, far));
-    	    int seqNum = 1;
-    	    int devNum = 1;
+    	    int seqNum = 2;
     	    while (true)
     	    {
-    	    	byte l0;
-    	    	byte l1;
     	    	if (ptr > bytes.length - 2) break;
-    	    	l0 = bytes[ptr++];
-    	    	l1 = bytes[ptr++];
-    	    	int recLen = getUnsignedInt(l0, l1);
+    	    	byte l0 = bytes[ptr++];
+    	    	int recLen = getUnsignedInt(l0, bytes[ptr++]);
     	    	l0 = bytes[ptr++]; // type
-    	    	l1 = bytes[ptr++]; // sub-type
-    	    	//Log.msg("recLen = " + recLen + " type = " + l0 + " subType = " + l1);
-    	    	Record_t type = Record_t.getRecordType(l0,  l1);
-                if (type == null) Log.msg("unknown type at seqNum = " + (seqNum + 1));
+    	    	Record_t type = Record_t.getRecordType(l0,  bytes[ptr++]);
+                if (type == null) Log.msg("unknown type at record number = " + seqNum);
     	    	byte[] record = new byte[recLen];
-    	    	//Log.msg("ptr = " + ptr + " recLen = " + recLen + " bytes.length = " + bytes.length);
     	    	if (ptr > bytes.length - recLen) throw new RuntimeException("Error: record could not be read");
     	    	for (int i=0; i<recLen; i++) record[i] = bytes[ptr++];
-    	    	records.add(new RecordBytes(record, seqNum, type, devNum, timeStamp));
-    	    	if (type == PRR) devNum++;
+    	    	records.add(new RecordBytes(record, seqNum, type, idb, timeStamp));
+    	    	if (type == PRR) idb.testIdDupMap.clear();
     	    	seqNum++;
     	    }
     	}

@@ -40,22 +40,25 @@ public class DatalogTestRecord extends TestRecord
 {
     private final String text;
     private String testName;
+    private TestID id;
     
     /**
     *** @param p1
     *** @param p2
     **/
-    public DatalogTestRecord(int sequenceNumber, int devNum, byte[] data)
+    public DatalogTestRecord(int sequenceNumber, IdentityDatabase idb, byte[] data)
     {
-        super(sequenceNumber, devNum, data);
+        super(sequenceNumber, data);
         ptr = 0;
         text = getCn();
+        id = TestID.createTestID(idb, testNumber, testName);
     }
     
-    public DatalogTestRecord(int sequenceNumber, int devNum, String text)
+    public DatalogTestRecord(int sequenceNumber, IdentityDatabase idb, String text)
     {
-    	super(sequenceNumber, devNum, null);
+    	super(sequenceNumber, null);
     	this.text = text;
+        id = TestID.createTestID(idb, testNumber, testName);
     }
     
     @Override
@@ -74,9 +77,9 @@ public class DatalogTestRecord extends TestRecord
 	}
 
 	@Override
-	public String getTestName() 
+	public TestID getTestId() 
 	{
-		return(testName);
+		return(id);
 	}
 
 	@Override

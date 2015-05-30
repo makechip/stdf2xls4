@@ -50,9 +50,9 @@ public class PinListRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public PinListRecord(int sequenceNumber, int devNum, byte[] data)
+    public PinListRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.PLR, sequenceNumber, devNum, data);
+        super(Record_t.PLR, sequenceNumber, data);
         int k = getU2(0);
         pinIndex = new int[k];
         Arrays.setAll(pinIndex, p -> getU2(-1));
@@ -86,7 +86,7 @@ public class PinListRecord extends StdfRecord
 		bytes = l.toArray();
 	}
 	
-	public PinListRecord(int sequenceNumber, int devNum,
+	public PinListRecord(int sequenceNumber,
 	    int[] pinIndex,
 	    int[] mode,
 	    int[] radix,
@@ -95,7 +95,7 @@ public class PinListRecord extends StdfRecord
 	    String[] pgmChal,
 	    String[] rtnChal)
 	{
-		super(Record_t.PLR, sequenceNumber, devNum, null);
+		super(Record_t.PLR, sequenceNumber, null);
 		this.pinIndex = Arrays.copyOf(pinIndex, pinIndex.length);
 		this.mode = Arrays.copyOf(mode, mode.length);
 		this.radix = Arrays.copyOf(radix, radix.length);

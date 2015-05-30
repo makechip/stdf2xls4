@@ -27,9 +27,9 @@ package com.makechip.stdf2xls4.stdfapi;
 
 import java.util.EnumSet;
 
+import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.enums.Error_t;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
-import com.makechip.stdf2xls4.stdfapi.TestID;
 import com.makechip.util.Log;
 
 public abstract class TestResult

@@ -46,9 +46,9 @@ public class HardwareBinRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public HardwareBinRecord(int sequenceNumber, int devNum, byte[] data)
+    public HardwareBinRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.HBR, sequenceNumber, devNum, data);
+        super(Record_t.HBR, sequenceNumber, data);
         headNumber = getU1((short) 0);
         siteNumber = getU1((short) 0);
         hwBin = getU2(-1);
@@ -57,10 +57,10 @@ public class HardwareBinRecord extends StdfRecord
         binName = getCn();
     }
     
-    public HardwareBinRecord(int sequenceNumber, int devNum, short headNumber,
+    public HardwareBinRecord(int sequenceNumber, short headNumber,
     		short siteNumber, int hwBin, long binCnt, char pf, String binName)
     {
-    	super(Record_t.HBR, sequenceNumber, devNum, null);
+    	super(Record_t.HBR, sequenceNumber, null);
     	this.headNumber = headNumber;
     	this.siteNumber = siteNumber;
     	this.hwBin = hwBin;

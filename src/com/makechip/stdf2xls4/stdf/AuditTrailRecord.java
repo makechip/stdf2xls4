@@ -43,9 +43,9 @@ public class AuditTrailRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public AuditTrailRecord(int sequenceNumber, int devNum, byte[] data)
+    public AuditTrailRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.ATR, sequenceNumber, devNum, data);
+        super(Record_t.ATR, sequenceNumber, data);
         date = getU4(0);
         cmdLine = getCn();
     }
@@ -56,7 +56,7 @@ public class AuditTrailRecord extends StdfRecord
     		final long date,
     		final String cmdLine)
     {
-    	super(Record_t.ATR, sequenceNumber, devNum, null);
+    	super(Record_t.ATR, sequenceNumber, null);
     	this.date = date;
     	this.cmdLine = cmdLine;
     }

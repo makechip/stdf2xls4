@@ -54,17 +54,17 @@ public class WaferResultsRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public WaferResultsRecord(int sequenceNumber, int devNum, byte[] data)
+    public WaferResultsRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.WRR, sequenceNumber, devNum, data);
+        super(Record_t.WRR, sequenceNumber, data);
         headNumber = getU1((short) -1);
-        siteGroupNumber = getU1((short) -1);
-        finishDate = getU4(-1);
-        partCount = getU4(-1);
-        retestCount = getU4(-1);
-        abortCount = getU4(-1);
-        passCount = getU4(-1);
-        functionalCount = getU4(-1);
+        siteGroupNumber = getU1((short) 255);
+        finishDate = getU4(-1L);
+        partCount = getU4(-1L);
+        retestCount = getU4(4294967295L);
+        abortCount = getU4(4294967295L);
+        passCount = getU4(4294967295L);
+        functionalCount = getU4(4294967295L);
         waferID = getCn();
         fabWaferID = getCn();
         waferFrameID = getCn();
@@ -94,7 +94,7 @@ public class WaferResultsRecord extends StdfRecord
 		bytes = l.toArray();
 	}
 	
-	public WaferResultsRecord(int sequenceNumber, int devNum,
+	public WaferResultsRecord(int sequenceNumber,
         short headNumber,
         short siteGroupNumber,
         long finishDate,
@@ -110,7 +110,7 @@ public class WaferResultsRecord extends StdfRecord
         String userWaferDesc,
         String execWaferDesc)
     {
-		super(Record_t.WRR, sequenceNumber, devNum, null);
+		super(Record_t.WRR, sequenceNumber, null);
 		this.headNumber = headNumber;
 		this.siteGroupNumber = siteGroupNumber;
 		this.finishDate = finishDate;

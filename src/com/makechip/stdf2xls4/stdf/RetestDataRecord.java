@@ -44,17 +44,17 @@ public class RetestDataRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public RetestDataRecord(int sequenceNumber, int devNum, byte[] data)
+    public RetestDataRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.RDR, sequenceNumber, devNum, data);
+        super(Record_t.RDR, sequenceNumber, data);
         int k = getU2(0);
         retestBins = new int[k];
         Arrays.setAll(retestBins, p -> getU2(-1));
     }
     
-    public RetestDataRecord(int sequenceNumber, int devNum, int[] retestBins)
+    public RetestDataRecord(int sequenceNumber, int[] retestBins)
     {
-    	super(Record_t.RDR, sequenceNumber, devNum, null);
+    	super(Record_t.RDR, sequenceNumber, null);
     	this.retestBins = Arrays.copyOf(retestBins, retestBins.length);
     }
 

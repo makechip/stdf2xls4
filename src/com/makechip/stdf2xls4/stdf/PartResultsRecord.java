@@ -61,9 +61,9 @@ public class PartResultsRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public PartResultsRecord(int sequenceNumber, int devNum, byte[] data)
+    public PartResultsRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.PRR, sequenceNumber, devNum, data);
+        super(Record_t.PRR, sequenceNumber, data);
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
         byte f = getI1((byte) 0);
@@ -84,7 +84,7 @@ public class PartResultsRecord extends StdfRecord
         repair = getBn();
     }
     
-    public PartResultsRecord(int sequenceNumber, int devNum,
+    public PartResultsRecord(int sequenceNumber,
     	short headNumber,
     	short siteNumber,
     	byte partInfoFlags,
@@ -98,7 +98,7 @@ public class PartResultsRecord extends StdfRecord
     	String partDescription,
     	byte[] repair)
     {
-    	super(Record_t.PRR, sequenceNumber, devNum, null);
+    	super(Record_t.PRR, sequenceNumber, null);
     	this.headNumber = headNumber;
     	this.siteNumber = siteNumber;
     	this.partInfoFlags = PartInfoFlag_t.getBits(partInfoFlags);

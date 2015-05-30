@@ -78,7 +78,7 @@ public class MasterInformationRecord extends StdfRecord
     public final String supervisorID;
     public long timeStamp; // not an STDF value; for filename timestamp tracking 
     
-    public MasterInformationRecord(int sequenceNumber, int devNum,
+    public MasterInformationRecord(int sequenceNumber,
         long jobDate,
         long testDate,
         short stationNumber,
@@ -119,7 +119,7 @@ public class MasterInformationRecord extends StdfRecord
         String supervisorID,
         long timeStamp)
     {
-        super(Record_t.MIR, sequenceNumber, devNum, null);
+        super(Record_t.MIR, sequenceNumber, null);
         this.jobDate = jobDate;
         this.testDate = testDate;
         this.stationNumber = stationNumber;
@@ -165,9 +165,9 @@ public class MasterInformationRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public MasterInformationRecord(int sequenceNumber, int devNum, long timeStamp, byte[] data)
+    public MasterInformationRecord(int sequenceNumber, long timeStamp, byte[] data)
     {
-        super(Record_t.MIR, sequenceNumber, devNum, data);
+        super(Record_t.MIR, sequenceNumber, data);
         jobDate = getU4(0);
         testDate = getU4(0);
         stationNumber = getU1((byte) 0);

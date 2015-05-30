@@ -46,22 +46,23 @@ public class MasterResultsRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public MasterResultsRecord(int sequenceNumber, int devNum, byte[] data)
+    public MasterResultsRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.MRR, sequenceNumber, devNum, data);
+        super(Record_t.MRR, sequenceNumber, data);
         finishDate = getU4(0);
-        dispCode = getFixedLengthString(1);
+        String s = getFixedLengthString(1);
+        if (s.equals(MISSING_STRING)) dispCode = " "; else dispCode = s;
         lotDesc = getCn();
         execDesc = getCn();
     }
     
-    public MasterResultsRecord(int sequenceNumber, int devNum,
+    public MasterResultsRecord(int sequenceNumber,
     		long finishDate,
     		char dispCode,
     		String lotDesc,
     		String execDesc)
     {
-    	super(Record_t.MRR, sequenceNumber, devNum, null);
+    	super(Record_t.MRR, sequenceNumber, null);
     	this.finishDate = finishDate;
     	this.dispCode = "" + dispCode;
     	this.lotDesc = lotDesc;

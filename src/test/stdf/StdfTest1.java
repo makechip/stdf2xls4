@@ -1,8 +1,6 @@
 package test.stdf;
 
 import static org.junit.Assert.*;
-import gnu.trove.map.hash.TLongObjectHashMap;
-
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -23,6 +21,7 @@ import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
  */
 public class StdfTest1
 {
+	static IdentityDatabase idb = new IdentityDatabase();
     static StdfWriter stdf;
     static Stack<StdfRecord> stack;
 	/**
@@ -33,30 +32,30 @@ public class StdfTest1
 	{
 		int snum = 1;
 		int dnum = 1;
-		FileAttributesRecord far = new FileAttributesRecord(snum++, dnum, 4, Cpu_t.PC);
+		FileAttributesRecord far = new FileAttributesRecord(snum++, 4, Cpu_t.PC);
 		List<AuditTrailRecord> atrs = new ArrayList<AuditTrailRecord>();
 		atrs.add(new AuditTrailRecord(snum++, dnum, 100000000L, "cmdline"));
-		MasterInformationRecord mir = new MasterInformationRecord(snum++, dnum, 1000L, 2000L, (short) 1,
+		MasterInformationRecord mir = new MasterInformationRecord(snum++, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID",
 			"partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  "sublotID", "operatorName",
 			"execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", "auxDataFile",
 			"packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
 			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber",
 			"supervisorID", 1234L);
-		RetestDataRecord rdr = new RetestDataRecord(snum++, dnum, new int[] { 1, 2, 3, 4 });
+		RetestDataRecord rdr = new RetestDataRecord(snum++, new int[] { 1, 2, 3, 4 });
 		List<SiteDescriptionRecord> sdrs = new ArrayList<SiteDescriptionRecord>();
-		sdrs.add(new SiteDescriptionRecord(snum++, dnum, (short) 1, (short) 2, (short) 1, new int[] { 0 },
+		sdrs.add(new SiteDescriptionRecord(snum++, (short) 1, (short) 2, (short) 1, new int[] { 0 },
 			"handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID",
 			"dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID",
 			"laserType", "laserID", "equipType", "equipID"));
 		stdf = new StdfWriter(far, atrs, mir, rdr, sdrs);
-		stdf.add(new PinMapRecord(false, snum++, dnum, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(false, snum++, dnum, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(false, snum++, dnum, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(false, snum++, dnum, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
-		stdf.add(new BeginProgramSelectionRecord(snum++, dnum, "beginProgramSelectionRecord"));
-		stdf.add(new DatalogTextRecord(snum++, dnum, "datalogTextRecord"));
-		stdf.add(new FunctionalTestRecord(snum++, dnum, 3, (short) 2, (short) 1, (byte) 0,
+		stdf.add(new PinMapRecord(false, snum++, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(false, snum++, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(false, snum++, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(false, snum++, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
+		stdf.add(new BeginProgramSelectionRecord(snum++, "beginProgramSelectionRecord"));
+		stdf.add(new DatalogTextRecord(snum++, "datalogTextRecord"));
+		stdf.add(new FunctionalTestRecord(snum++, idb, 3, (short) 2, (short) 1, (byte) 0,
 			(byte) 0, 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
 			new byte[] { (byte) 4, (byte) 3, (byte) 2, (byte) 1 }, new int[] { 3, 4, 5, 6 },
 			new byte[] { (byte) 0, (byte) 1, (byte) 2, (byte) 3 }, new byte[] { (byte) 3, (byte) 2, (byte) 1, (byte) 0 },
@@ -67,28 +66,28 @@ public class StdfTest1
 		List<GenericDataRecord.Data> lgd = new ArrayList<GenericDataRecord.Data>(); 
 		lgd.add(d1);
 		lgd.add(d2);
-		stdf.add(new GenericDataRecord(snum++, dnum, lgd));
-		stdf.add(new HardwareBinRecord(snum++, dnum, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
-		stdf.add(new MasterResultsRecord(snum++, dnum, 1000L, 'C', "lotDesc", "execDesc"));
-		stdf.add(new MultipleResultParametricRecord(snum++, dnum, 22L, (short) 1, (short) 0, (byte) 0,
+		stdf.add(new GenericDataRecord(snum++, lgd));
+		stdf.add(new HardwareBinRecord(snum++, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
+		stdf.add(new MasterResultsRecord(snum++, 1000L, 'C', "lotDesc", "execDesc"));
+		stdf.add(new MultipleResultParametricRecord(snum++, idb, 22L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 2, 4, new byte[] { 1, 2 }, new double[] { 1.0, 2.0, 3.0, 4.0 },
 			"text", "alarmName", (byte) 0, (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 5, 6 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
-		stdf.add(new ParametricTestRecord(snum++, dnum, 44L, (short) 1, (short) 0, (byte) 0,
+		stdf.add(new ParametricTestRecord(snum++, idb, 44L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 5.5f, "text", "alarmName", (byte) 0,
 			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
-		stdf.add(new PartCountRecord(snum++, dnum, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
-		stdf.add(new PartInformationRecord(snum++, dnum, (short) 1, (short) 0));
-		stdf.add(new PartResultsRecord(snum++, dnum, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
+		stdf.add(new PartCountRecord(snum++, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
+		stdf.add(new PartInformationRecord(snum++, (short) 1, (short) 0));
+		stdf.add(new PartResultsRecord(snum++, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
 			10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 }));
-		stdf.add(new PinListRecord(snum++, dnum, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
+		stdf.add(new PinListRecord(snum++, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
 			new String[] { "a", "b" }, new String[] { "c", "d" }, new String[] { "e", "f" }, new String[] { "g", "h" }));
-		stdf.add(new SoftwareBinRecord(snum++, dnum, (short) 1, (short) 0, 5, 45, "F", "binName"));
-	    stdf.add(new TestSynopsisRecord(snum++, dnum, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+		stdf.add(new SoftwareBinRecord(snum++, (short) 1, (short) 0, 5, 45, 'F', "binName"));
+	    stdf.add(new TestSynopsisRecord(snum++, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
 	    	"sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f));	
-	    stdf.add(new WaferConfigurationRecord(snum++, dnum, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5'));
-	    stdf.add(new WaferInformationRecord(snum++, dnum, (short) 1, (short) 0, 1000L, "waferID"));
-		stdf.add(new WaferResultsRecord(snum++, dnum, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
+	    stdf.add(new WaferConfigurationRecord(snum++, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5'));
+	    stdf.add(new WaferInformationRecord(snum++, (short) 1, (short) 0, 1000L, "waferID"));
+		stdf.add(new WaferResultsRecord(snum++, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
 			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc"));
 		stdf.write("x.stdf");
 	}
@@ -96,10 +95,9 @@ public class StdfTest1
 	@Test
 	public void testA()
 	{
-		StdfReader rdr = new StdfReader();
+		StdfReader rdr = new StdfReader(idb);
 		rdr.read(stdf.getBytes());
-		final TLongObjectHashMap<String> map = new TLongObjectHashMap<>();
-		List<StdfRecord> list = rdr.stream().map(p -> p.createRecord(map)).collect(Collectors.toList());
+		List<StdfRecord> list = rdr.stream().map(p -> p.createRecord()).collect(Collectors.toList());
 		assertEquals(26, list.size());
 		stack = new Stack<StdfRecord>();
 		Stack<StdfRecord> tmp = new Stack<StdfRecord>();
@@ -145,7 +143,6 @@ public class StdfTest1
 		assertTrue(r instanceof MasterInformationRecord);
 		MasterInformationRecord mir = (MasterInformationRecord) r;
 		assertEquals(2, mir.sequenceNumber);
-		assertEquals(1, mir.devNum);
 		assertEquals(1000L, mir.jobDate);
 		assertEquals(2000L, mir.testDate);
 		assertEquals((short) 1, mir.stationNumber);
@@ -195,7 +192,6 @@ public class StdfTest1
 		assertTrue(r instanceof RetestDataRecord);
 		RetestDataRecord rdr = (RetestDataRecord) r;
 		assertEquals(3, rdr.sequenceNumber);
-		assertEquals(1, rdr.devNum);
 		int[] bins = rdr.getRetestBins();
 		assertEquals(1, bins[0]);
 		assertEquals(2, bins[1]);
@@ -306,7 +302,6 @@ public class StdfTest1
 	public void testI()
 	{
 		StdfRecord r = stack.pop();
-		assertEquals(1, r.devNum);
 		assertTrue(r instanceof DatalogTextRecord);
 		assertEquals(10, r.sequenceNumber);
 		DatalogTextRecord dtr = (DatalogTextRecord) r;
@@ -324,7 +319,6 @@ public class StdfTest1
 	{
 		StdfRecord r = stack.pop();
 		assertTrue(r instanceof FunctionalTestRecord);
-		assertEquals(1, r.devNum);
 		assertEquals(11, r.sequenceNumber);
 		FunctionalTestRecord ftr = (FunctionalTestRecord) r;
 		assertEquals(3, ftr.testNumber);
@@ -362,7 +356,7 @@ public class StdfTest1
 		assertEquals("vecName", ftr.vecName);
 		assertEquals("timeSetName", ftr.timeSetName);
 		assertEquals("vecOpCode", ftr.vecOpCode);
-		assertEquals("label", ftr.getTestName());
+		assertEquals("label", ftr.getTestId().testName);
 		assertEquals("alarmName", ftr.alarmName);
 		assertEquals("progTxt", ftr.progTxt);
 		assertEquals("rsltTxt", ftr.rsltTxt);
@@ -432,7 +426,6 @@ public class StdfTest1
 	public void testN()
 	{
 		StdfRecord r = stack.pop();
-		assertEquals(1, r.devNum);
 		assertTrue(r instanceof MultipleResultParametricRecord);
 		assertEquals(15, r.sequenceNumber);
 		MultipleResultParametricRecord mpr = (MultipleResultParametricRecord) r;
@@ -447,7 +440,7 @@ public class StdfTest1
 	    assertEquals(2.0, mpr.getResults()[1], 5);
 	    assertEquals(3.0, mpr.getResults()[2], 5);
 	    assertEquals(4.0, mpr.getResults()[3], 5);
-	    assertEquals("text", mpr.getTestName());
+	    assertEquals("text", mpr.getTestId().testName);
 	    assertEquals("alarmName", mpr.alarmName);
 	    assertEquals(0, mpr.optFlags.size());
 	    assertEquals(0, mpr.resScal);
@@ -475,7 +468,6 @@ public class StdfTest1
 	public void testO()
 	{
 		StdfRecord r = stack.pop();
-		assertEquals(1, r.devNum);
 		assertTrue(r instanceof ParametricTestRecord);
 		assertEquals(16, r.sequenceNumber);
 		ParametricTestRecord ptr = (ParametricTestRecord) r;
@@ -485,7 +477,7 @@ public class StdfTest1
 	    assertEquals(0, ptr.testFlags.size());
 	    assertEquals(0, ptr.paramFlags.size());
 	    assertEquals(5.5f, ptr.result, 5);
-	    assertEquals("text", ptr.getTestName());
+	    assertEquals("text", ptr.getTestId().testName);
 	    assertEquals("alarmName", ptr.alarmName);
 	    assertEquals(0, ptr.optFlags.size());
 	    assertEquals(1, ptr.resScal);
@@ -536,7 +528,6 @@ public class StdfTest1
 	public void testR()
 	{
 		StdfRecord r = stack.pop();
-		assertEquals(1, r.devNum);
 		assertTrue(r instanceof PartResultsRecord);
 		assertEquals(19, r.sequenceNumber);
 		PartResultsRecord ptr = (PartResultsRecord) r;
@@ -648,7 +639,6 @@ public class StdfTest1
 	public void testW()
 	{
 		StdfRecord r = stack.pop();
-		assertEquals(2, r.devNum);
 		assertTrue(r instanceof WaferInformationRecord);
 		assertEquals(24, r.sequenceNumber);
 		WaferInformationRecord ptr = (WaferInformationRecord) r;

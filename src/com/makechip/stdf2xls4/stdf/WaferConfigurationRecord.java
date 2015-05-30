@@ -51,9 +51,9 @@ public class WaferConfigurationRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public WaferConfigurationRecord(int sequenceNumber, int devNum, byte[] data)
+    public WaferConfigurationRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.WCR, sequenceNumber, devNum, data);
+        super(Record_t.WCR, sequenceNumber, data);
         waferSize = getR4(0.0f);
         dieHeight = getR4(0.0f);
         dieWidth = getR4(0.0f);
@@ -84,7 +84,7 @@ public class WaferConfigurationRecord extends StdfRecord
 	    bytes = l.toArray();
 	}
 	
-	public WaferConfigurationRecord(int sequenceNumber, int devNum,
+	public WaferConfigurationRecord(int sequenceNumber,
         float waferSize,
         float dieHeight,
         float dieWidth,
@@ -95,7 +95,7 @@ public class WaferConfigurationRecord extends StdfRecord
         char posX,
         char posY)
     {
-	    super(Record_t.WCR, sequenceNumber, devNum, null);
+	    super(Record_t.WCR, sequenceNumber, null);
 	    this.waferSize = waferSize;
 	    this.dieHeight = dieHeight;
 	    this.dieWidth = dieWidth;

@@ -22,9 +22,7 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.makechip.stdf2xls4.stdfapi;
-
-import java.util.HashMap;
+package com.makechip.stdf2xls4.stdf;
 
 import com.makechip.util.Identity;
 import com.makechip.util.Immutable;
@@ -32,30 +30,26 @@ import com.makechip.util.factory.IdentityFactoryIO;
 
 public final class PinTestID extends TestID implements Identity, Immutable 
 {
+	private static IdentityFactoryIO<TestID, String, PinTestID> pinMap
+	    = new IdentityFactoryIO<>(TestID.class, String.class, PinTestID.class);
     public final String pin;
    
     private PinTestID(TestID id, String pin)
     {
-    	super(id.testNum, id.testName, id.dupNum);
+    	super(id.testNumber, id.testName, id.dupNum);
     	this.pin = pin;
     }
     
-    public static PinTestID getTestID(HashMap<String, String> hdr, IdentityDatabase idb, TestID id, String pin)
+    public static PinTestID getTestID(IdentityDatabase idb, TestID id, String pin)
     {
-    	IdentityFactoryIO<TestID, String, PinTestID> io = idb.testIdPinMap.get(hdr);
-    	if (io == null)
-    	{
-    		io = new IdentityFactoryIO<>(TestID.class, String.class, PinTestID.class);
-    		idb.testIdPinMap.put(hdr,  io);
-    	}
-        return(io.getValue(id, pin));
+        return(pinMap.getValue(id, pin));
     }
     
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("" + testNum).append("_").append(testName);
+        sb.append("" + testNumber).append("_").append(testName);
         if (dupNum != 0) sb.append("_" + dupNum);
         sb.append(" [").append(pin).append("]");
         return(sb.toString());

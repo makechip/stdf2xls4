@@ -44,16 +44,16 @@ public class PartInformationRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public PartInformationRecord(int sequenceNumber, int devNum, byte[] data)
+    public PartInformationRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.PIR, sequenceNumber, devNum, data);
+        super(Record_t.PIR, sequenceNumber, data);
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
     }
     
-    public PartInformationRecord(int sequenceNumber, int devNum, short headNumber, short siteNumber)
+    public PartInformationRecord(int sequenceNumber, short headNumber, short siteNumber)
     {
-    	super(Record_t.PIR, sequenceNumber, devNum, null);
+    	super(Record_t.PIR, sequenceNumber, null);
     	this.headNumber = headNumber;
     	this.siteNumber = siteNumber;
     }

@@ -45,11 +45,11 @@ public class WaferInformationRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public WaferInformationRecord(int sequenceNumber, int devNum, byte[] data)
+    public WaferInformationRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.WIR, sequenceNumber, devNum, data);
+        super(Record_t.WIR, sequenceNumber, data);
         headNumber = getU1((short) -1);
-        siteGroupNumber = getU1((short) -1);
+        siteGroupNumber = getU1((short) 255);
         startDate = getU4(-1);
         waferID = getCn();
     }
@@ -65,13 +65,13 @@ public class WaferInformationRecord extends StdfRecord
 		bytes = l.toArray();
 	}
 	
-	public WaferInformationRecord(int sequenceNumber, int devNum,
+	public WaferInformationRecord(int sequenceNumber,
 		short headNumber,
 		short siteGroupNumber,
 		long startDate,
 		String waferID)
 	{
-		super(Record_t.WIR, sequenceNumber, devNum, null);
+		super(Record_t.WIR, sequenceNumber, null);
 		this.headNumber = headNumber;
 		this.siteGroupNumber = siteGroupNumber;
 		this.startDate = startDate;

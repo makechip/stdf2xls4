@@ -1,7 +1,5 @@
 package com.makechip.stdf2xls4.stdfapi;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
-
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,20 +8,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
+import com.makechip.stdf2xls4.stdf.IdentityDatabase;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
 import com.makechip.stdf2xls4.stdf.RecordBytes;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
-import com.makechip.stdf2xls4.stdf.TestRecord;
+import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
-import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
 /**
@@ -40,6 +37,7 @@ import com.makechip.util.Log;
  */
 public class StdfAPI
 {
+	private IdentityDatabase idb;
     public static final String TEXT_DATA = RecordBytes.TEXT_DATA;
     public static final String SERIAL_MARKER = RecordBytes.SERIAL_MARKER;
 	private static Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
@@ -48,23 +46,20 @@ public class StdfAPI
 	                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
 	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
 	}
-	private final TLongObjectHashMap<String> tnameMap;
     private HashMap<Map<String, String>, Map<SnOrXy, Map<TestID, StdfRecord>>> recordMap;
-    private HashMap<HashMap<String, String>, Map<SnOrXy, DeviceResult>> deviceMap;
+    //private HashMap<HashMap<String, String>, Map<SnOrXy, DeviceResult>> deviceMap;
 	private List<String> stdfFiles;
 	private boolean timeStampedFiles;
 	private boolean wafersort;
-	private IdentityDatabase idb;
 
 	public StdfAPI(List<String> stdfFiles)
 	{
+		idb = new IdentityDatabase();
 		this.stdfFiles = stdfFiles;
 		new ArrayList<StdfRecord>();
 		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
-		tnameMap = new TLongObjectHashMap<>();
-		idb = new IdentityDatabase();
 		recordMap = new HashMap<>();
-		deviceMap = new HashMap<>();
+//		deviceMap = new HashMap<>();
 	}
 	
 	public void initialize()
@@ -74,16 +69,15 @@ public class StdfAPI
 		// load the stdf records
 	    // group records by device	
 		    stdfFiles.stream()
-			.map(p -> new StdfReader(p, timeStampedFiles))
+			.map(p -> new StdfReader(idb, p, timeStampedFiles))
 			.flatMap(rdr -> rdr.read().stream())
-			.map(s -> s.createRecord(tnameMap))
+			.map(s -> s.createRecord())
 			.collect(splitBySeparator(r -> r instanceof PartResultsRecord))
 			.stream()
 			.forEach(p -> createHeaders(hdr, devList, p));
 		// now create the TestIDs, and for each header build a map testID -> test record
 		devList.keySet().stream().forEach(p -> mapTests(p, devList.get(p)));
 		// find default values
-//		recordMap.keySet().stream().forEach(p -> idb.setResScalDefaults(p, recordMap.get(p)));
 		for (Map<String, String> h : recordMap.keySet())
 		{
 			Map<SnOrXy, Map<TestID, StdfRecord>> m1 = recordMap.get(h);
@@ -98,7 +92,6 @@ public class StdfAPI
 						ParametricRecord pr = (ParametricRecord) r;
 						if (pr.getResScal() != StdfRecord.MISSING_BYTE && !pr.getOptFlags().contains(OptFlag_t.RES_SCAL_INVALID))
 						{
-						    idb.setDefaultResScal(h, id, pr.getResScal());	
 						    break;
 						}
 					}
@@ -112,14 +105,6 @@ public class StdfAPI
 		
 		
 		// create result objects, adding default values
-		for (Map<String, String> h : recordMap.keySet())
-		{
-			Map<SnOrXy, Map<TestID, StdfRecord>> m1 = recordMap.get(h);
-			for (SnOrXy sn : m1.keySet())
-			{
-				Map<TestID, StdfRecord> m3 = m1.get(sn);
-			}
-		}
 		
 		
 	}
@@ -179,15 +164,8 @@ public class StdfAPI
 		}
 		final Map<TestID, StdfRecord> m2 = (m1.get(snxy) == null) ? new LinkedHashMap<>() : m1.get(snxy);
 		m1.put(snxy, m2);
-		list.stream().filter(p -> p instanceof TestRecord).map(p -> TestRecord.class.cast(p)).forEach(p -> addRecord(hdr, m2, p));
-		idb.testIdDupMap.clear();
 	}
 	
-	private void addRecord(HashMap<String, String> hdr, Map<TestID, StdfRecord> m, TestRecord p)
-	{
-		TestID id = TestID.createTestID(hdr, idb, p.testNumber, p.getTestName());
-		m.put(id, p);
-	}
 	
 	private boolean isSn(DatalogTextRecord r)
 	{

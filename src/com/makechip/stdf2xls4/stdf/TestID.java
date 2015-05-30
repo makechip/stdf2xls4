@@ -22,29 +22,25 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.makechip.stdf2xls4.stdfapi;
-
-import java.util.HashMap;
-import java.util.IdentityHashMap;
+package com.makechip.stdf2xls4.stdf;
 
 import com.makechip.util.Identity;
 import com.makechip.util.Immutable;
-import com.makechip.util.factory.IdentityFactoryLON;
 
-class TestID implements Identity, Immutable 
+public class TestID implements Identity, Immutable 
 {
-    public final long testNum;
+    public final long testNumber;
     public final String testName;
     public final int dupNum;
    
-    protected TestID(long testNum, String testName)
+    protected TestID(long testNumber, String testName)
     {
-    	this(testNum, testName, 0);
+    	this(testNumber, testName, 0);
     }
     
-    protected TestID(long testNum, String testName, int dupNum)
+    protected TestID(long testNumber, String testName, int dupNum)
     {
-        this.testNum = testNum;
+        this.testNumber = testNumber;
         this.testName = testName;
         this.dupNum = dupNum;    	
     }
@@ -59,44 +55,21 @@ class TestID implements Identity, Immutable
      * @param testName
      * @return
      */
-    public static TestID createTestID(HashMap<String, String> hdr, IdentityDatabase idb, long testNum, String testName)
+    public static TestID createTestID(IdentityDatabase idb, long testNum, String testName)
     {
     	// 1. check testName and testNumber
-    	IdentityFactoryLON<String, TestID> idf = idb.idMap.get(hdr);
-    	if (idf == null)
-    	{
-    		idf = new IdentityFactoryLON<>(String.class, TestID.class);
-    		idb.idMap.put(hdr, idf);
-    	}
-    	TestID id = idf.getExistingValue(testNum, testName, 0);
+    	TestID id = idb.idMap.getExistingValue(testNum, testName, 0);
     	if (id == null)
     	{
-    		TestID d = idf.getValue(testNum, testName, 0);
-    		IdentityHashMap<TestID, Integer> idupMap = idb.testIdDupMap.get(hdr);
-    		if (idupMap == null)
-    		{
-    			idupMap = new IdentityHashMap<>();
-    			idb.testIdDupMap.put(hdr, idupMap);
-    		}
-    		idupMap.put(d, 0);
+    		TestID d = idb.idMap.getValue(testNum, testName, 0);
+    		idb.testIdDupMap.put(d, 0);
     		return(d);
     	}
-        // 4. Need duplicate ID
-   		IdentityHashMap<TestID, Integer> idupMap = idb.testIdDupMap.get(hdr);
-   		if (idupMap == null)
-   		{
-   			idupMap = new IdentityHashMap<>();
-   			idb.testIdDupMap.put(hdr, idupMap);
-   		}
-    	Integer dnum = idupMap.get(id);
-    	if (dnum == null)
-    	{
-    		idupMap.put(id, 0);
-    		return(id);
-    	}
+        // 2. Need duplicate ID
+    	Integer dnum = idb.testIdDupMap.get(id);
     	dnum++;
-    	TestID d = idf.getValue(testNum, testName, dnum);
-    	idupMap.put(id,  dnum);
+    	TestID d = idb.idMap.getValue(testNum, testName, dnum);
+    	idb.testIdDupMap.put(id,  dnum);
     	return(d);
     }
     
@@ -104,7 +77,7 @@ class TestID implements Identity, Immutable
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("" + testNum).append("_").append(testName);
+        sb.append("" + testNumber).append("_").append(testName);
         if (dupNum != 0) sb.append("_" + dupNum);
         return(sb.toString());
     }

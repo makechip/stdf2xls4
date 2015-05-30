@@ -53,7 +53,6 @@ public class FunctionalTestRecord extends TestRecord
     public final String vecName;
     public final String timeSetName;
     public final String vecOpCode;
-    private String testName;
     public final String alarmName;
     public final String progTxt;
     public final String rsltTxt;
@@ -65,51 +64,105 @@ public class FunctionalTestRecord extends TestRecord
     private final byte[] pgmState;
     private final byte[] failPin;
     private final byte[] enComps;
+    private final TestID id;
     
     @Override
     public boolean isTestRecord() { return(true); }
     
-    public FunctionalTestRecord(int sequenceNumber, int devNum, byte[] data)
+    public FunctionalTestRecord(int sequenceNumber, IdentityDatabase idb, byte[] data)
     {
-        super(Record_t.FTR, sequenceNumber, devNum, data);
+        super(Record_t.FTR, sequenceNumber, data);
         EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());
         testFlags = Collections.unmodifiableSet(s);
-        if (getSize() <= getPtr()) optFlags = null;
-        else 
+        byte oflags = getByte();
+        optFlags = (oflags == MISSING_BYTE) ? null : Collections.unmodifiableSet(FTROptFlag_t.getBits(oflags));
+        if (optFlags == null)
         {
-        	EnumSet<FTROptFlag_t> opt = FTROptFlag_t.getBits(getByte());
-        	optFlags = Collections.unmodifiableSet(opt);
+        	cycleCount = MISSING_INT;
+        	relVaddr = MISSING_INT;
+        	rptCnt = MISSING_INT;
+        	numFail = MISSING_INT;
+        	xFailAddr = MISSING_INT;
+        	yFailAddr = MISSING_INT;
+        	vecOffset = MISSING_SHORT;
+        	rtnIndex = new int[0];
+        	rtnState = new byte[0];
+        	pgmIndex = new int[0];
+        	pgmState = new byte[0];
+        	failPin = new byte[0];
+        	vecName = "";
+        	timeSetName = "";
+        	vecOpCode = "";
+        	String testName = idb.tnameDefaults.get(testNumber);
+        	if (testName == null) testName = "";
+        	id = TestID.createTestID(idb, testNumber, testName);
+        	alarmName = "";
+        	progTxt = "";
+        	rsltTxt = "";
+        	patGenNum = MISSING_SHORT;
+        	enComps = new byte[0];
         }
-        cycleCount = getU4(MISSING_INT);
-        relVaddr = getU4(MISSING_INT);
-        rptCnt = getU4(MISSING_INT);
-        numFail = getU4(MISSING_INT);
-        xFailAddr = getI4(MISSING_INT);
-        yFailAddr = getI4(MISSING_INT);
-        vecOffset = getI2(MISSING_SHORT);
-        int j = getU2(0);
-        int k = getU2(0);
-        rtnIndex = new int[j];
-        for (int i=0; i<j; i++) rtnIndex[i] = getU2(MISSING_INT);
-        rtnState = getNibbles(j); 
-        pgmIndex = new int[k];
-        for (int i=0; i<k; i++) pgmIndex[i] = getU2(MISSING_INT);
-        pgmState = getNibbles(k);
-        failPin = getDn();
-        vecName = getCn();
-        timeSetName = getCn();
-        vecOpCode = getCn();
-        testName = getCn();
-        alarmName = getCn();
-        progTxt = getCn();
-        rsltTxt = getCn();
-        patGenNum = getU1(MISSING_SHORT);
-        enComps = getDn();
+        else
+        {
+            cycleCount = getU4(MISSING_INT);
+            relVaddr = getU4(MISSING_INT);
+            rptCnt = getU4(MISSING_INT);
+            numFail = getU4(MISSING_INT);
+            xFailAddr = getI4(MISSING_INT);
+            yFailAddr = getI4(MISSING_INT);
+            vecOffset = getI2(MISSING_SHORT);
+            int j = getU2(0);
+            int k = getU2(0);
+            rtnIndex = new int[j];
+            for (int i=0; i<j; i++) rtnIndex[i] = getU2(MISSING_INT);
+            rtnState = getNibbles(j); 
+            pgmIndex = new int[k];
+            for (int i=0; i<k; i++) pgmIndex[i] = getU2(MISSING_INT);
+            pgmState = getNibbles(k);
+            failPin = getDn();
+            vecName = getCn();
+            timeSetName = getCn();
+            vecOpCode = getCn();
+            String testName = getCn();
+            if (!testName.equals(MISSING_STRING))
+            {
+        	    if (idb.tnameDefaults.get(testNumber) == null) idb.tnameDefaults.put(testNumber, testName);
+            }
+            else
+            {
+        	    testName = idb.tnameDefaults.get(testNumber);
+            }
+            if (testName == null) testName = "";
+            id = TestID.createTestID(idb, testNumber, testName);
+            alarmName = getCn();
+            progTxt = getCn();
+            rsltTxt = getCn();
+            short p = getU1(MISSING_SHORT);
+            if (p != MISSING_SHORT)
+            {
+            	if (idb.pgDefaults.get(testNumber) == MISSING_SHORT) idb.pgDefaults.put(testNumber, p);
+            }
+            else
+            {
+            	p = idb.pgDefaults.get(testNumber);
+            }
+            patGenNum = p;
+            byte[] ec = getDn();
+            if (ec.length != 0)
+            {
+            	if (idb.ecDefaults.get(testNumber) == null) idb.ecDefaults.put(testNumber, ec);
+            }
+            else
+            {
+            	ec = idb.ecDefaults.get(testNumber);
+            }
+            enComps = ec;
+        }
     }
     
     public FunctionalTestRecord(
         final int sequenceNumber,
-        final int deviceNumber,
+        IdentityDatabase idb,
         final long testNumber,
         final short headNumber,
         final short siteNumber,
@@ -137,7 +190,7 @@ public class FunctionalTestRecord extends TestRecord
         final short patGenNum,
         final byte[] enComps)
     {
-        super(Record_t.FTR, sequenceNumber, deviceNumber, testNumber, headNumber, siteNumber);	
+        super(Record_t.FTR, sequenceNumber, testNumber, headNumber, siteNumber);	
         EnumSet<TestFlag_t> s1 = TestFlag_t.getBits(testFlags);
         this.testFlags = Collections.unmodifiableSet(s1);
         EnumSet<FTROptFlag_t> s2 = FTROptFlag_t.getBits(optFlags);
@@ -157,12 +210,40 @@ public class FunctionalTestRecord extends TestRecord
         this.vecName = vecName;
         this.timeSetName = timeSetName;
         this.vecOpCode = vecOpCode;
-        this.testName = label;
+        String testName = label;
+        if (!testName.equals(MISSING_STRING))
+        {
+        	if (idb.tnameDefaults.get(testNumber) == null) idb.tnameDefaults.put(testNumber, testName);
+        }
+        else
+        {
+        	testName = idb.tnameDefaults.get(testNumber);
+        }
+        if (testName == null) testName = "";
+        id = TestID.createTestID(idb, testNumber, testName);
         this.alarmName = alarmName;
         this.progTxt = progTxt;
         this.rsltTxt = rsltTxt;
-        this.patGenNum = patGenNum;
-        this.enComps = enComps;
+        short p = patGenNum;
+        if (p != MISSING_SHORT)
+        {
+        	if (idb.pgDefaults.get(testNumber) == MISSING_SHORT) idb.pgDefaults.put(testNumber, p);
+        }
+        else
+        {
+        	p = idb.pgDefaults.get(testNumber);
+        }
+        this.patGenNum = p;
+        byte[] ec = enComps;
+        if (ec.length != 0)
+        {
+        	if (idb.ecDefaults.get(testNumber) == null) idb.ecDefaults.put(testNumber, ec);
+        }
+        else
+        {
+        	ec = idb.ecDefaults.get(testNumber);
+        }
+        this.enComps = ec;
     }
     
     @Override
@@ -197,7 +278,7 @@ public class FunctionalTestRecord extends TestRecord
             list.addAll(getCnBytes(vecName));
             list.addAll(getCnBytes(timeSetName));
             list.addAll(getCnBytes(vecOpCode));
-            list.addAll(getCnBytes(testName));
+            list.addAll(getCnBytes(id.testName));
             list.addAll(getCnBytes(alarmName));
             list.addAll(getCnBytes(progTxt));
             list.addAll(getCnBytes(rsltTxt));
@@ -260,7 +341,7 @@ public class FunctionalTestRecord extends TestRecord
         sb.append("    vecName: ").append(vecName).append(Log.eol);
         sb.append("    timeSetName: ").append(timeSetName).append(Log.eol);
         sb.append("    vecOpCode: ").append(vecOpCode).append(Log.eol);
-        sb.append("    test name: ").append(testName).append(Log.eol);
+        sb.append("    test name: ").append(id.testName).append(Log.eol);
         sb.append("    alarmName: ").append(alarmName).append(Log.eol);
         sb.append("    progTxt: ").append(progTxt).append(Log.eol);
         sb.append("    rsltTxt: ").append(rsltTxt).append(Log.eol);
@@ -275,15 +356,14 @@ public class FunctionalTestRecord extends TestRecord
     }
 
 	@Override
-	public String getTestName() 
+	public TestID getTestId() 
 	{
-		return testName;
+		return(id);
 	}
 
 	@Override
 	protected void setTestName(String testName) 
 	{
-		this.testName = testName;
 	}
     
    

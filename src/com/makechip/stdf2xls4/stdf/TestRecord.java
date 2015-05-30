@@ -12,40 +12,40 @@ public abstract class TestRecord extends StdfRecord
 	public final short siteNumber;
 	protected final String valueText;
 	
-	protected TestRecord(Record_t type, int sequenceNumber, int devNum, byte[] data)
+	protected TestRecord(Record_t type, int sequenceNumber, byte[] data)
 	{
-		super(type, sequenceNumber, devNum, data);
+		super(type, sequenceNumber, data);
 		this.testNumber = getU4(MISSING_LONG);
 		this.headNumber = getU1(MISSING_SHORT);
 		this.siteNumber = getU1(MISSING_SHORT);
 		valueText = null;
 	}
 	
-	protected TestRecord(Record_t type, int sequenceNumber, int devNum, long testNumber, short headNumber, short siteNumber)
+	protected TestRecord(Record_t type, int sequenceNumber, long testNumber, short headNumber, short siteNumber)
 	{
-		super(type, sequenceNumber, devNum, null);
+		super(type, sequenceNumber, null);
 		this.testNumber = testNumber;
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
 		valueText = null;
 	}
 	
-	protected TestRecord(int sequenceNumber, int devNum, String testName, String valueText, long testNumber, short headNumber, short siteNumber)
+	protected TestRecord(int sequenceNumber, String testName, String valueText, long testNumber, short headNumber, short siteNumber)
 	{
-		super(Record_t.DTR, sequenceNumber, devNum, null);
+		super(Record_t.DTR, sequenceNumber, null);
 		this.testNumber = testNumber;
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
 		this.valueText = valueText;
 	}
 	
-	public abstract String getTestName();
+	public abstract TestID getTestId();
 	
-	abstract void setTestName(String testName);
+	protected abstract void setTestName(String testName);
 	
-	protected TestRecord(int sequenceNumber, int devNum, byte[] data)
+	protected TestRecord(int sequenceNumber, byte[] data)
 	{
-		super(Record_t.DTR, sequenceNumber, devNum, data);
+		super(Record_t.DTR, sequenceNumber, data);
 		String text = getCn();
 		StringTokenizer st = new StringTokenizer(text, ": \t");
 	    st.nextToken(); // burn TEXT_DATA

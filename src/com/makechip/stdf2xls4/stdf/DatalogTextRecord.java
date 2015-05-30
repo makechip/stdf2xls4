@@ -40,15 +40,15 @@ public class DatalogTextRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public DatalogTextRecord(int sequenceNumber, int devNum, byte[] data)
+    public DatalogTextRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.DTR, sequenceNumber, devNum, data);
+        super(Record_t.DTR, sequenceNumber, data);
         text = getCn();
     }
     
-    public DatalogTextRecord(int sequenceNumber, int devNum, String text)
+    public DatalogTextRecord(int sequenceNumber, String text)
     {
-    	super(Record_t.DTR, sequenceNumber, devNum, null);
+    	super(Record_t.DTR, sequenceNumber, null);
     	this.text = text;
     }
     

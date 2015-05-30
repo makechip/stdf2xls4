@@ -49,21 +49,15 @@ public class SoftwareBinRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public SoftwareBinRecord(int sequenceNumber, int devNum, byte[] data)
+    public SoftwareBinRecord(int sequenceNumber, byte[] data)
     {
-        super(Record_t.SBR, sequenceNumber, devNum, data);
+        super(Record_t.SBR, sequenceNumber, data);
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
         swBinNumber = getU2(-1);
         count = getU2(0);
         String s = getFixedLengthString(1);
-        byte[] b = s.getBytes();
-        if (b.length == 1)
-        {
-        	if (b[0] == (byte) 0) pf = "0";
-        	else pf = s;
-        }
-        else pf = s;
+        pf = (s.equals(MISSING_STRING)) ? " " : s;
         binName = getCn();
     }
 
@@ -80,20 +74,20 @@ public class SoftwareBinRecord extends StdfRecord
 		bytes = l.toArray();
 	}
 	
-	public SoftwareBinRecord(int sequenceNumber, int devNum,
+	public SoftwareBinRecord(int sequenceNumber,
 		short headNumber,
 		short siteNumber,
 		int swBinNumber,
 		int count,
-		String pf,
+		char pf,
 		String binName)
 	{
-		super(Record_t.SBR, sequenceNumber, devNum, null);
+		super(Record_t.SBR, sequenceNumber, null);
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
 		this.swBinNumber = swBinNumber;
 		this.count = count;
-		this.pf = pf;
+		this.pf = "" + pf;
 		this.binName = binName;
 	}
     

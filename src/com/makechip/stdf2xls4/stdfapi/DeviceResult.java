@@ -29,8 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.stream.Stream;
 
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
+import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
-import com.makechip.stdf2xls4.stdfapi.TestID;
 import com.makechip.util.Log;
 
 public class DeviceResult
