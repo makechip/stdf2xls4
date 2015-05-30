@@ -1,6 +1,7 @@
 package test.stdf;
 
 import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -14,6 +15,7 @@ import com.makechip.stdf2xls4.stdf.*;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
+import com.makechip.util.Log;
 
 /**
  * @author eric
@@ -24,6 +26,7 @@ public class StdfTest1
 	static IdentityDatabase idb = new IdentityDatabase();
     static StdfWriter stdf;
     static Stack<StdfRecord> stack;
+    static StdfReader rdr;
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -42,13 +45,13 @@ public class StdfTest1
 			"packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
 			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber",
 			"supervisorID", 1234L);
-		RetestDataRecord rdr = new RetestDataRecord(snum++, new int[] { 1, 2, 3, 4 });
+		RetestDataRecord srdr = new RetestDataRecord(snum++, new int[] { 1, 2, 3, 4 });
 		List<SiteDescriptionRecord> sdrs = new ArrayList<SiteDescriptionRecord>();
 		sdrs.add(new SiteDescriptionRecord(snum++, (short) 1, (short) 2, (short) 1, new int[] { 0 },
 			"handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID",
 			"dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID",
 			"laserType", "laserID", "equipType", "equipID"));
-		stdf = new StdfWriter(far, atrs, mir, rdr, sdrs);
+		stdf = new StdfWriter(far, atrs, mir, srdr, sdrs);
 		stdf.add(new PinMapRecord(false, snum++, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
 		stdf.add(new PinMapRecord(false, snum++, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
 		stdf.add(new PinMapRecord(false, snum++, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
@@ -95,7 +98,9 @@ public class StdfTest1
 	@Test
 	public void testA()
 	{
-		StdfReader rdr = new StdfReader(idb);
+		Log.msg("testA");
+		idb = new IdentityDatabase();
+		rdr = new StdfReader(idb);
 		rdr.read(stdf.getBytes());
 		List<StdfRecord> list = rdr.stream().map(p -> p.createRecord()).collect(Collectors.toList());
 		assertEquals(26, list.size());

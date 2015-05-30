@@ -169,8 +169,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         this.incrIn  = setFloat(MISSING_FLOAT, incrIn, id, idb.startInDefaults);     
         if (j != 0)
         {
-        	this.rtnIndex = new int[j];
-        	Arrays.copyOf(rtnIndex, rtnIndex.length);
+        	this.rtnIndex = Arrays.copyOf(rtnIndex, rtnIndex.length);
         	if (idb.rtnIndexDefaults.get(id) == null) idb.rtnIndexDefaults.put(id, this.rtnIndex);
         }
         else
@@ -179,11 +178,11 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         }
         this.units = setString(MISSING_STRING, units, id , idb.unitDefaults);
         this.unitsIn = setString(MISSING_STRING, unitsIn, id , idb.unitsInDefaults);
-        this.resFmt = setString(MISSING_STRING, getCn(), id , idb.resFmtDefaults);
-        this.llmFmt = setString(MISSING_STRING, getCn(), id , idb.llmFmtDefaults);
-        this.hlmFmt = setString(MISSING_STRING, getCn(), id , idb.hlmFmtDefaults);
-        this.loSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loSpecDefaults);
-        this.hiSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiSpecDefaults);
+        this.resFmt = setString(MISSING_STRING, resFmt, id , idb.resFmtDefaults);
+        this.llmFmt = setString(MISSING_STRING, llmFmt, id , idb.llmFmtDefaults);
+        this.hlmFmt = setString(MISSING_STRING, hlmFmt, id , idb.hlmFmtDefaults);
+        this.loSpec = setFloat(MISSING_FLOAT, loSpec, id, idb.loSpecDefaults);
+        this.hiSpec = setFloat(MISSING_FLOAT, hiSpec, id, idb.hiSpecDefaults);
     }
     
     @Override

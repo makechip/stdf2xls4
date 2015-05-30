@@ -11,6 +11,7 @@ import java.util.Set;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.TestID;
+import com.makechip.util.Log;
 import com.makechip.util.factory.IdentityFactoryLON;
 
 public final class IdentityDatabase
@@ -42,7 +43,7 @@ public final class IdentityDatabase
     public final IdentityHashMap<TestID, int[]> rtnIndexDefaults;
     public final IdentityHashMap<TestID, String> unitsInDefaults;
     
-    public void clearIdDups() { testIdDupMap.clear(); }
+    public void clearIdDups() { Log.msg("CLEARING DUPS"); testIdDupMap.clear(); }
     
     public void clearDefaults()
     {
@@ -70,6 +71,7 @@ public final class IdentityDatabase
     
     public IdentityDatabase()
     {
+    	Log.msg("IDB CTOR");
     	testIdDupMap = new IdentityHashMap<>();
     	idMap = new IdentityFactoryLON<>(String.class, TestID.class);
     	pgDefaults = new TLongShortHashMap(100, 0.7f, Long.MIN_VALUE, StdfRecord.MISSING_SHORT);

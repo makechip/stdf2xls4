@@ -104,7 +104,7 @@ public class StdfReader
         byte[] far = new byte[2];
         far[0] = bytes[4];
         far[1] = bytes[5];
-    	return(new RecordBytes(far, 1, FAR, idb, 0L));
+    	return(new RecordBytes(far, 0, FAR, idb, 0L));
     }
     
     private long getTimeStamp(String name)
@@ -128,7 +128,7 @@ public class StdfReader
         	byte[] far = new byte[6];
         	int len = rdr.read(far); 
             records.add(FARcheck(len, far));
-            int seqNum = 2;	
+            int seqNum = 1;	
         	while (true)
         	{
         		if (rdr.available() < 2) break;
@@ -141,7 +141,7 @@ public class StdfReader
                 len = rdr.read(record);
                 if (len != recLen) throw new RuntimeException("Error: record could not be read");
                 records.add(new RecordBytes(record, seqNum, type, idb, timeStamp));
-    	    	if (type == PRR) idb.testIdDupMap.clear();
+    	    	if (type == PRR) idb.clearIdDups();
                 seqNum++;
         	}                
         }
@@ -163,7 +163,7 @@ public class StdfReader
     	    	ptr++;
     	    }
     	    records.add(FARcheck(6, far));
-    	    int seqNum = 2;
+    	    int seqNum = 1;
     	    while (true)
     	    {
     	    	if (ptr > bytes.length - 2) break;
@@ -176,7 +176,7 @@ public class StdfReader
     	    	if (ptr > bytes.length - recLen) throw new RuntimeException("Error: record could not be read");
     	    	for (int i=0; i<recLen; i++) record[i] = bytes[ptr++];
     	    	records.add(new RecordBytes(record, seqNum, type, idb, timeStamp));
-    	    	if (type == PRR) idb.testIdDupMap.clear();
+    	    	if (type == PRR) idb.clearIdDups();
     	    	seqNum++;
     	    }
     	}
