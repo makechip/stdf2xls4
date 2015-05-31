@@ -1,9 +1,11 @@
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.map.hash.TLongShortHashMap;
 import gnu.trove.map.hash.TObjectByteHashMap;
 import gnu.trove.map.hash.TObjectFloatHashMap;
+import gnu.trove.map.hash.TShortObjectHashMap;
 
 import java.util.IdentityHashMap;
 import java.util.Set;
@@ -42,6 +44,11 @@ public final class IdentityDatabase
     public final TObjectFloatHashMap<TestID> incrInDefaults;
     public final IdentityHashMap<TestID, int[]> rtnIndexDefaults;
     public final IdentityHashMap<TestID, String> unitsInDefaults;
+    
+    // pin index maps:
+    private final TShortObjectHashMap<TIntObjectHashMap<String>> chanMap;
+    private final TShortObjectHashMap<TIntObjectHashMap<String>> physMap;
+    private final TShortObjectHashMap<TIntObjectHashMap<String>> logMap;
     
     public void clearIdDups() { Log.msg("CLEARING DUPS"); testIdDupMap.clear(); }
     
@@ -95,8 +102,63 @@ public final class IdentityDatabase
     	incrInDefaults = new TObjectFloatHashMap<TestID>(100, 0.7f, StdfRecord.MISSING_FLOAT);
     	rtnIndexDefaults = new IdentityHashMap<TestID, int[]>(100);
     	unitsInDefaults = new IdentityHashMap<TestID, String>(100);
+    	chanMap = new TShortObjectHashMap<>();
+    	physMap = new TShortObjectHashMap<>();
+    	logMap = new TShortObjectHashMap<>();
     }
    
-
+    void addChannelNameIndex(short site, int index, String channelName)
+    {
+    	TIntObjectHashMap<String> m = chanMap.get(site);
+    	if (m == null)
+    	{
+    		m = new TIntObjectHashMap<>();
+    		chanMap.put(site, m);
+    	}
+    	m.put(index, channelName);
+    }
+    
+    void addPhysicalPinIndex(short site, int index, String physicalPin)
+    {
+    	TIntObjectHashMap<String> m = physMap.get(site);
+    	if (m == null)
+    	{
+    		m = new TIntObjectHashMap<>();
+    		physMap.put(site, m);
+    	}
+    	m.put(index, physicalPin);
+    }
+    
+    void addLogicalPinIndex(short site, int index, String physicalPin)
+    {
+    	TIntObjectHashMap<String> m = logMap.get(site);
+    	if (m == null)
+    	{
+    		m = new TIntObjectHashMap<>();
+    		logMap.put(site, m);
+    	}
+    	m.put(index, physicalPin);
+    }
+    
+    public String getChannelName(short site, int index)
+    {
+    	TIntObjectHashMap<String> m = chanMap.get(site);
+        if (m == null) return(null);
+        return(m.get(index));
+    }
+    
+    public String getPhysicalPinName(short site, int index)
+    {
+    	TIntObjectHashMap<String> m = physMap.get(site);
+    	if (m == null) return(null);
+    	return(m.get(index));
+    }
+    
+    public String getLogicalPinName(short site, int index)
+    {
+    	TIntObjectHashMap<String> m = logMap.get(site);
+    	if (m == null) return(null);
+    	return(m.get(index));
+    }
 
 }

@@ -2,7 +2,6 @@ package com.makechip.stdf2xls4.stdfapi;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -11,7 +10,7 @@ import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.WaferInformationRecord;
 
-public class HeaderUtil
+class HeaderUtil
 {
     public static final String HEADER_TAG = ">>> ";
     public static final String WAFER_ID = "WAFER_ID:";
@@ -30,12 +29,12 @@ public class HeaderUtil
     public static final String LOT = "LOT #:";
     public static final String STEP = "STEP #:";
     public static final String TEMPERATURE = "TEMPERATURE:";
-    public final HashMap<String, String> header;
+    final PageHeader header;
     private final List<String> legacyTags;
 
-	public HeaderUtil()
+	HeaderUtil()
 	{
-		header = new HashMap<>();
+		header = new PageHeader();
 		legacyTags = new ArrayList<>();
 		legacyTags.add(CUSTOMER);
 		legacyTags.add(DEVICE_NUMBER);
@@ -52,7 +51,7 @@ public class HeaderUtil
 		legacyTags.add(TEMPERATURE);
 	}
 	
-	public void setHeader(StdfRecord r)
+	void setHeader(StdfRecord r)
 	{
         if (r instanceof DatalogTextRecord)
         {
@@ -66,35 +65,29 @@ public class HeaderUtil
                 String label = st.nextToken();
                 if (!st.hasMoreTokens()) throw new RuntimeException("Invalid header item: " + t);
                 String value = st.nextToken();
-                header.put(label.trim(), value.trim());
+                header.add(label.trim(), value.trim());
             }
             else
             {
             	String tag = legacyTags.stream().filter(s -> t.toUpperCase().contains(s)).findFirst().orElse(null);
-            	if (tag != null) header.put(tag, getTextField(tag, t));
+            	if (tag != null) header.add(tag, getTextField(tag, t));
             }
             return;
         }
         else if (r instanceof MasterInformationRecord)
         {
         	MasterInformationRecord mir = MasterInformationRecord.class.cast(r);
-        	header.put(TESTER, mir.nodeName);
-        	header.put(JOB, mir.jobRevisionNumber);
-        	header.put(TESTER_TYPE, mir.testerType);
-        	header.put(TEST_PROGRAM, mir.jobName);
+        	header.add(TESTER, mir.nodeName);
+        	header.add(JOB, mir.jobRevisionNumber);
+        	header.add(TESTER_TYPE, mir.testerType);
+        	header.add(TEST_PROGRAM, mir.jobName);
         }
         else if (r instanceof WaferInformationRecord)
         {
         	WaferInformationRecord wir = WaferInformationRecord.class.cast(r);
-        	header.put(WAFER_ID, wir.waferID);
+        	header.add(WAFER_ID, wir.waferID);
         }
 	}
-	
-	
-	
-	
-	
-	
 	
 	private String getTextField(String key, String text)
     {

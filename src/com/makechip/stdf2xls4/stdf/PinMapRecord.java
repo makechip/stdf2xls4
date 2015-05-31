@@ -44,18 +44,8 @@ public class PinMapRecord extends StdfRecord
     public final String logicalPinName;
     public final short headNumber;
     public final short siteNumber;
-    public final String pinName;
     
-    /**
-    *** @param p1
-    *** @param p2
-    **/
-    public PinMapRecord(int sequenceNumber, byte[] data)
-    {
-    	this(false, sequenceNumber, data);
-    }
-    
-    public PinMapRecord(boolean usePhyPinName, int sequenceNumber, byte[] data)
+    public PinMapRecord(int sequenceNumber, IdentityDatabase idb, byte[] data)
     {
         super(Record_t.PMR, sequenceNumber, data);
         pmrIdx = getU2(-1);
@@ -65,7 +55,6 @@ public class PinMapRecord extends StdfRecord
         logicalPinName = getCn();
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) 1);
-        pinName = (usePhyPinName) ? physicalPinName : channelName; 
     }
     
     public PinMapRecord(boolean usePhyPinName,
@@ -86,7 +75,6 @@ public class PinMapRecord extends StdfRecord
     						this.logicalPinName = logicalPinName;
     						this.headNumber = headNumber;
     						this.siteNumber = siteNumber;
-    						pinName = usePhyPinName ? physicalPinName : channelName;
     		            }
     
 	@Override

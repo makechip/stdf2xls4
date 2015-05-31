@@ -26,7 +26,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import com.makechip.util.Identity;
 import com.makechip.util.Immutable;
-import com.makechip.util.Log;
 
 public class TestID implements Identity, Immutable 
 {
@@ -60,30 +59,20 @@ public class TestID implements Identity, Immutable
     {
     	// 1. check testName and testNumber
     	TestID id = idb.idMap.getExistingValue(testNum, testName, 0);
-    	Log.msg("id1 = " + id);
-    	Log.msg("map size1 = " + idb.testIdDupMap.size());
     	if (id == null)
     	{
     		TestID d = idb.idMap.getValue(testNum, testName, 0);
-    		Log.msg("id2 = " + d);
     		idb.testIdDupMap.put(d, 0);
-    		Log.msg("dupNum2 = " + idb.testIdDupMap.get(d));
-    		Log.msg("idb = " + idb);
     		return(d);
     	}
         // 2. Need duplicate ID
-    	Log.msg("id3 = " + id);
-    	Log.msg("map size3 = " + idb.testIdDupMap.size());
     	Integer dnum = idb.testIdDupMap.get(id);
-   		Log.msg("dupNum3 = " + idb.testIdDupMap.get(id));
-   		Log.msg("idb = " + idb);
     	dnum++;
     	TestID d = idb.idMap.getValue(testNum, testName, dnum);
     	idb.testIdDupMap.put(id,  dnum);
     	return(d);
     }
     
-    /*
     @Override
     public String toString()
     {
@@ -92,7 +81,7 @@ public class TestID implements Identity, Immutable
         if (dupNum != 0) sb.append("_" + dupNum);
         return(sb.toString());
     }
-    */
+    
     @Override
     public int getInstanceCount()
     {
