@@ -33,11 +33,13 @@ public final class PinTestID extends TestID implements Identity, Immutable
 	private static IdentityFactoryIO<TestID, String, PinTestID> pinMap
 	    = new IdentityFactoryIO<>(TestID.class, String.class, PinTestID.class);
     public final String pin;
+    public final TestID id;
    
     private PinTestID(TestID id, String pin)
     {
     	super(id.testNumber, id.testName, id.dupNum);
     	this.pin = pin;
+    	this.id = id;
     }
     
     public static PinTestID getTestID(IdentityDatabase idb, TestID id, String pin)

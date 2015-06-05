@@ -17,6 +17,7 @@ import com.makechip.stdf2xls4.stdf.RecordBytes;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestRecord;
+import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
 
 /**
  * This is not a general purpose API for STDF.  It is mainly to
@@ -84,6 +85,11 @@ public final class StdfAPI
 			.findFirst()
 			.orElse(null);
 		if (prr == null) return;
+		int hwBin = prr.hwBinNumber;
+		int swBin = prr.swBinNumber;
+		boolean fail = prr.partInfoFlags.contains(PartInfoFlag_t.PART_FAILED);
+		boolean abnormalEOT = prr.partInfoFlags.contains(PartInfoFlag_t.ABNORMAL_END_OF_TEST);
+		boolean noPassFailIndication = prr.partInfoFlags.contains(PartInfoFlag_t.NO_PASS_FAIL_INDICATION);
 		MasterInformationRecord mir = null;
 		SnOrXy snxy = null;
 		if (timeStampedFiles)
@@ -118,7 +124,10 @@ public final class StdfAPI
 			.filter(p -> p instanceof TestRecord)
 			.map(p -> TestRecord.class.cast(p))
 			.collect(Collectors.toList());
-		tdb.addRecords(hdr, snxy, l);
+		String temperature = hdr.get(HeaderUtil.TEMPERATURE);
+		if (temperature == null) temperature = mir.temperature;
+		DeviceHeader dh = new DeviceHeader(snxy, hwBin, swBin, fail, abnormalEOT, noPassFailIndication,temperature);
+		tdb.addRecords(hdr, dh, l);
 	}
 	
 	

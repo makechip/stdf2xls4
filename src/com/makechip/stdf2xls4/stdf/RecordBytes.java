@@ -58,7 +58,7 @@ public class RecordBytes implements Comparable<RecordBytes>
 		case PGR: return(new PinGroupRecord(sequenceNumber, bytes));
 		case PIR: return(new PartInformationRecord(sequenceNumber, bytes));
 		case PLR: return(new PinListRecord(sequenceNumber, bytes));
-		case PMR: return(new PinMapRecord(sequenceNumber, bytes));
+		case PMR: return(new PinMapRecord(sequenceNumber, idb, bytes));
 		case PRR: return(new PartResultsRecord(sequenceNumber, bytes));
 		case PTR: return(new ParametricTestRecord(sequenceNumber, idb, bytes));
 		case RDR: return(new RetestDataRecord(sequenceNumber, bytes));

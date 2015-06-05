@@ -52,10 +52,10 @@ public class StdfTest1
 			"dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID",
 			"laserType", "laserID", "equipType", "equipID"));
 		stdf = new StdfWriter(far, atrs, mir, srdr, sdrs);
-		stdf.add(new PinMapRecord(false, snum++, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(false, snum++, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(false, snum++, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(false, snum++, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(snum++, idb, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(snum++, idb, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(snum++, idb, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(snum++, idb, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
 		stdf.add(new BeginProgramSelectionRecord(snum++, "beginProgramSelectionRecord"));
 		stdf.add(new DatalogTextRecord(snum++, "datalogTextRecord"));
 		stdf.add(new FunctionalTestRecord(snum++, idb, 3, (short) 2, (short) 1, (byte) 0,

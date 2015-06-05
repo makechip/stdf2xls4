@@ -46,9 +46,9 @@ public final class IdentityDatabase
     public final IdentityHashMap<TestID, String> unitsInDefaults;
     
     // pin index maps:
-    private final TShortObjectHashMap<TIntObjectHashMap<String>> chanMap;
-    private final TShortObjectHashMap<TIntObjectHashMap<String>> physMap;
-    private final TShortObjectHashMap<TIntObjectHashMap<String>> logMap;
+    final TShortObjectHashMap<TIntObjectHashMap<String>> chanMap;
+    final TShortObjectHashMap<TIntObjectHashMap<String>> physMap;
+    final TShortObjectHashMap<TIntObjectHashMap<String>> logMap;
     
     public void clearIdDups() { Log.msg("CLEARING DUPS"); testIdDupMap.clear(); }
     
@@ -107,39 +107,6 @@ public final class IdentityDatabase
     	logMap = new TShortObjectHashMap<>();
     }
    
-    void addChannelNameIndex(short site, int index, String channelName)
-    {
-    	TIntObjectHashMap<String> m = chanMap.get(site);
-    	if (m == null)
-    	{
-    		m = new TIntObjectHashMap<>();
-    		chanMap.put(site, m);
-    	}
-    	m.put(index, channelName);
-    }
-    
-    void addPhysicalPinIndex(short site, int index, String physicalPin)
-    {
-    	TIntObjectHashMap<String> m = physMap.get(site);
-    	if (m == null)
-    	{
-    		m = new TIntObjectHashMap<>();
-    		physMap.put(site, m);
-    	}
-    	m.put(index, physicalPin);
-    }
-    
-    void addLogicalPinIndex(short site, int index, String physicalPin)
-    {
-    	TIntObjectHashMap<String> m = logMap.get(site);
-    	if (m == null)
-    	{
-    		m = new TIntObjectHashMap<>();
-    		logMap.put(site, m);
-    	}
-    	m.put(index, physicalPin);
-    }
-    
     public String getChannelName(short site, int index)
     {
     	TIntObjectHashMap<String> m = chanMap.get(site);

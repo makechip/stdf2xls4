@@ -26,6 +26,7 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
@@ -55,10 +56,58 @@ public class PinMapRecord extends StdfRecord
         logicalPinName = getCn();
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) 1);
+        TIntObjectHashMap<String> m1 = idb.chanMap.get(siteNumber);
+        if (m1 == null)
+        {
+        	m1 = new TIntObjectHashMap<>();
+        	idb.chanMap.put(siteNumber, m1);
+        	m1.put(pmrIdx, channelName);
+        }
+        else
+        {
+        	String name = m1.get(pmrIdx);
+        	if (name == null) m1.put(pmrIdx, channelName);
+        	else
+        	{
+        		if (!name.equals(channelName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + channelName);
+        	}
+        }
+        TIntObjectHashMap<String> m2 = idb.physMap.get(siteNumber);
+        if (m2 == null)
+        {
+        	m2 = new TIntObjectHashMap<>();
+        	idb.physMap.put(siteNumber, m2);
+        	m2.put(siteNumber, physicalPinName);
+        }
+        else
+        {
+        	String name = m2.get(pmrIdx);
+        	if (name == null) m2.put(pmrIdx, physicalPinName);
+        	else
+        	{
+        		if (!name.equals(physicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + physicalPinName);
+        	}
+        }
+        TIntObjectHashMap<String> m3 = idb.logMap.get(siteNumber);
+        if (m3 == null)
+        {
+        	m3 = new TIntObjectHashMap<>();
+        	idb.logMap.put(siteNumber, m3);
+        	m3.put(pmrIdx, logicalPinName);
+        }
+        else
+        {
+        	String name = m3.get(pmrIdx);
+        	if (name == null) m3.put(pmrIdx, logicalPinName);
+        	else
+        	{
+        		if (!name.equals(logicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + logicalPinName);
+        	}
+        }
     }
     
-    public PinMapRecord(boolean usePhyPinName,
-    		            int sequenceNumber,
+    public PinMapRecord(int sequenceNumber,
+    		            IdentityDatabase idb,
     		            int pmrIdx,
     		            int channelType,
     		            String channelName,
@@ -75,6 +124,54 @@ public class PinMapRecord extends StdfRecord
     						this.logicalPinName = logicalPinName;
     						this.headNumber = headNumber;
     						this.siteNumber = siteNumber;
+    				        TIntObjectHashMap<String> m1 = idb.chanMap.get(siteNumber);
+    				        if (m1 == null)
+    				        {
+    				        	m1 = new TIntObjectHashMap<>();
+    				        	idb.chanMap.put(siteNumber, m1);
+    				        	m1.put(pmrIdx, channelName);
+    				        }
+    				        else
+    				        {
+    				        	String name = m1.get(pmrIdx);
+    				        	if (name == null) m1.put(pmrIdx, channelName);
+    				        	else
+    				        	{
+    				        		if (!name.equals(channelName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + channelName);
+    				        	}
+    				        }
+    				        TIntObjectHashMap<String> m2 = idb.physMap.get(siteNumber);
+    				        if (m2 == null)
+    				        {
+    				        	m2 = new TIntObjectHashMap<>();
+    				        	idb.physMap.put(siteNumber, m2);
+    				        	m2.put(siteNumber, physicalPinName);
+    				        }
+    				        else
+    				        {
+    				        	String name = m2.get(pmrIdx);
+    				        	if (name == null) m2.put(pmrIdx, physicalPinName);
+    				        	else
+    				        	{
+    				        		if (!name.equals(physicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + physicalPinName);
+    				        	}
+    				        }
+    				        TIntObjectHashMap<String> m3 = idb.logMap.get(siteNumber);
+    				        if (m3 == null)
+    				        {
+    				        	m3 = new TIntObjectHashMap<>();
+    				        	idb.logMap.put(siteNumber, m3);
+    				        	m3.put(pmrIdx, logicalPinName);
+    				        }
+    				        else
+    				        {
+    				        	String name = m3.get(pmrIdx);
+    				        	if (name == null) m3.put(pmrIdx, logicalPinName);
+    				        	else
+    				        	{
+    				        		if (!name.equals(logicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + logicalPinName);
+    				        	}
+    				        }
     		            }
     
 	@Override
