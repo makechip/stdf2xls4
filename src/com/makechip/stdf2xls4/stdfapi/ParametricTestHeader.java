@@ -29,7 +29,6 @@ public class ParametricTestHeader extends TestHeader
 		this.hiLimit = hiLimit;
 		this.noLoLimit = loLimit == StdfRecord.MISSING_FLOAT;
 		this.noHiLimit = hiLimit == StdfRecord.MISSING_FLOAT;
-		
 	}
 	
 	@Override

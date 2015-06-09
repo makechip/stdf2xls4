@@ -27,43 +27,16 @@ package com.makechip.stdf2xls4.stdfapi;
 
 import java.util.EnumSet;
 
-import static com.makechip.stdf2xls4.stdf.enums.TestFlag_t.*;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 
-public class TestResult
+public class ParametricTestResult extends TestResult
 {
-    private final EnumSet<TestFlag_t> flags;
-
-    public TestResult(final EnumSet<TestFlag_t> flags)
+    public final float result;
+    
+    public ParametricTestResult(final EnumSet<TestFlag_t> flags, float result)
     {
-    	if (flags != null) this.flags = EnumSet.copyOf(flags); else this.flags = null;
+    	super(flags);
+    	this.result = result;
     }
     
-    boolean fail()
-    {
-    	return(flags.contains(ALARM) || flags.contains(UNRELIABLE) || flags.contains(TIMEOUT) ||
-    		   flags.contains(ABORT) || flags.contains(NO_PASS_FAIL) || flags.contains(FAIL));
-    }
-    
-    boolean pass()
-    {
-    	return(!fail());
-    }
-    
-    boolean alarm() { return(flags.contains(ALARM)); }
-    
-    boolean unreliable() { return(flags.contains(UNRELIABLE)); }
-    
-    boolean timeout() { return(flags.contains(TIMEOUT)); }
-    
-    boolean abort() { return(flags.contains(ABORT)); }
-    
-    boolean noPassFail() { return(flags.contains(NO_PASS_FAIL)); }
-    
-    @Override
-    public String toString()
-    {
-        return(pass() ? "PASS" : "FAIL");
-    }
-
 }

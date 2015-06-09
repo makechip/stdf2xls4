@@ -42,7 +42,7 @@ public final class PinTestID extends TestID implements Identity, Immutable
     	this.id = id;
     }
     
-    public static PinTestID getTestID(IdentityDatabase idb, TestID id, String pin)
+    public static PinTestID getTestID(DefaultValueDatabase idb, TestID id, String pin)
     {
         return(pinMap.getValue(id, pin));
     }

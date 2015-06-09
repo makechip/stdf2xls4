@@ -46,7 +46,7 @@ public class PinMapRecord extends StdfRecord
     public final short headNumber;
     public final short siteNumber;
     
-    public PinMapRecord(int sequenceNumber, IdentityDatabase idb, byte[] data)
+    public PinMapRecord(int sequenceNumber, DefaultValueDatabase idb, byte[] data)
     {
         super(Record_t.PMR, sequenceNumber, data);
         pmrIdx = getU2(-1);
@@ -107,7 +107,7 @@ public class PinMapRecord extends StdfRecord
     }
     
     public PinMapRecord(int sequenceNumber,
-    		            IdentityDatabase idb,
+    		            DefaultValueDatabase idb,
     		            int pmrIdx,
     		            int channelType,
     		            String channelName,

@@ -49,14 +49,14 @@ public class StdfReader
     public static Cpu_t cpuType;
     private final long timeStamp;
     private List<RecordBytes> records;
-    private IdentityDatabase idb;
+    private DefaultValueDatabase idb;
     
-    public StdfReader(IdentityDatabase idb, String filename)
+    public StdfReader(DefaultValueDatabase idb, String filename)
     {
         this(idb, filename, false);
     }
     
-    public StdfReader(IdentityDatabase idb, String filename, boolean timeStampedFilePerDevice)
+    public StdfReader(DefaultValueDatabase idb, String filename, boolean timeStampedFilePerDevice)
     {
     	this.filename = filename;
     	this.timeStamp = timeStampedFilePerDevice ? getTimeStamp(filename) : 0L;
@@ -68,7 +68,7 @@ public class StdfReader
     /**
      * Use this CTOR when reading an array of bytes.
      */
-    public StdfReader(IdentityDatabase idb)
+    public StdfReader(DefaultValueDatabase idb)
     {
     	this(idb, null, false);
     }
@@ -76,7 +76,7 @@ public class StdfReader
     /**
      * Use this CTOR when reading an array of bytes.
      */
-    public StdfReader(IdentityDatabase idb, long timeStamp)
+    public StdfReader(DefaultValueDatabase idb, long timeStamp)
     {
     	this.filename = null;
         this.timeStamp = timeStamp;
@@ -88,7 +88,7 @@ public class StdfReader
     public static void main(String[] args)
     {
     	if (args.length != 1) throw new RuntimeException("Missing filename argument");
-    	IdentityDatabase idb = new IdentityDatabase();
+    	DefaultValueDatabase idb = new DefaultValueDatabase();
     	StdfReader r = new StdfReader(idb, args[0]);
     	r.read();
     	Log.msg("" + r.records.size() + " records read");

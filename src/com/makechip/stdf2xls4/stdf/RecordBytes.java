@@ -6,13 +6,13 @@ public class RecordBytes implements Comparable<RecordBytes>
 {
     public static final String TEXT_DATA = "TEXT_DATA";
     public static final String SERIAL_MARKER = "S/N";
-    private IdentityDatabase idb;
+    private DefaultValueDatabase idb;
     private byte[] bytes;
 	private final Record_t type;
 	private final int sequenceNumber;
 	private final long timeStamp;
 
-	public RecordBytes(byte[] bytes, int sequenceNumber, Record_t type, IdentityDatabase idb, long timeStamp) throws StdfException
+	public RecordBytes(byte[] bytes, int sequenceNumber, Record_t type, DefaultValueDatabase idb, long timeStamp) throws StdfException
 	{
 		this.bytes = bytes;
 		this.sequenceNumber = sequenceNumber;

@@ -23,7 +23,7 @@ import com.makechip.util.Log;
  */
 public class StdfTest1
 {
-	static IdentityDatabase idb = new IdentityDatabase();
+	static DefaultValueDatabase idb = new DefaultValueDatabase();
     static StdfWriter stdf;
     static Stack<StdfRecord> stack;
     static StdfReader rdr;
@@ -99,7 +99,7 @@ public class StdfTest1
 	public void testA()
 	{
 		Log.msg("testA");
-		idb = new IdentityDatabase();
+		idb = new DefaultValueDatabase();
 		rdr = new StdfReader(idb);
 		rdr.read(stdf.getBytes());
 		List<StdfRecord> list = rdr.stream().map(p -> p.createRecord()).collect(Collectors.toList());

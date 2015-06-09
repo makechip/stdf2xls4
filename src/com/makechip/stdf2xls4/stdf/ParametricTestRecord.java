@@ -58,7 +58,7 @@ public class ParametricTestRecord extends ParametricRecord
     /**
     *** @param p1
     **/
-    public ParametricTestRecord(int sequenceNumber, IdentityDatabase idb, byte[] data)
+    public ParametricTestRecord(int sequenceNumber, DefaultValueDatabase idb, byte[] data)
     {
     	super(Record_t.PTR, sequenceNumber, data);
         result = getR4(MISSING_FLOAT);
@@ -78,8 +78,18 @@ public class ParametricTestRecord extends ParametricRecord
         resScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.resScalDefaults);
         llmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.llmScalDefaults);
         hlmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.hlmScalDefaults);
-        loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loLimDefaults);
-        hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiLimDefaults);
+        if (optFlags.contains(OptFlag_t.NO_LO_LIMIT))
+        {
+        	loLimit = MISSING_FLOAT;
+        	getR4(MISSING_FLOAT);
+        }
+        else loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loLimDefaults);
+        if (optFlags.contains(OptFlag_t.NO_HI_LIMIT))
+        {
+        	hiLimit = MISSING_FLOAT;
+        	getR4(MISSING_FLOAT);
+        }
+        else hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiLimDefaults);
         units = setString(MISSING_STRING, getCn(), id , idb.unitDefaults);
         resFmt = setString(MISSING_STRING, getCn(), id , idb.resFmtDefaults);
         llmFmt = setString(MISSING_STRING, getCn(), id , idb.llmFmtDefaults);
@@ -90,7 +100,7 @@ public class ParametricTestRecord extends ParametricRecord
     
     public ParametricTestRecord(
             final int sequenceNumber,
-            final IdentityDatabase idb,
+            final DefaultValueDatabase idb,
             final long testNumber,
             final short headNumber,
             final short siteNumber,

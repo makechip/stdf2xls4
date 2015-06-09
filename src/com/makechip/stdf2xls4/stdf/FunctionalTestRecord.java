@@ -69,7 +69,7 @@ public class FunctionalTestRecord extends TestRecord
     @Override
     public boolean isTestRecord() { return(true); }
     
-    public FunctionalTestRecord(int sequenceNumber, IdentityDatabase idb, byte[] data)
+    public FunctionalTestRecord(int sequenceNumber, DefaultValueDatabase idb, byte[] data)
     {
         super(Record_t.FTR, sequenceNumber, data);
         EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());
@@ -162,7 +162,7 @@ public class FunctionalTestRecord extends TestRecord
     
     public FunctionalTestRecord(
         final int sequenceNumber,
-        IdentityDatabase idb,
+        DefaultValueDatabase idb,
         final long testNumber,
         final short headNumber,
         final short siteNumber,

@@ -16,7 +16,7 @@ import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.util.Log;
 import com.makechip.util.factory.IdentityFactoryLON;
 
-public final class IdentityDatabase
+public final class DefaultValueDatabase
 {
 	public final IdentityHashMap<TestID, Integer> testIdDupMap;
 	public final IdentityFactoryLON<String, TestID> idMap;
@@ -50,7 +50,7 @@ public final class IdentityDatabase
     final TShortObjectHashMap<TIntObjectHashMap<String>> physMap;
     final TShortObjectHashMap<TIntObjectHashMap<String>> logMap;
     
-    public void clearIdDups() { Log.msg("CLEARING DUPS"); testIdDupMap.clear(); }
+    public void clearIdDups() { testIdDupMap.clear(); }
     
     public void clearDefaults()
     {
@@ -76,7 +76,7 @@ public final class IdentityDatabase
     	unitsInDefaults.clear();
     }
     
-    public IdentityDatabase()
+    public DefaultValueDatabase()
     {
     	Log.msg("IDB CTOR");
     	testIdDupMap = new IdentityHashMap<>();

@@ -55,7 +55,7 @@ public class TestID implements Identity, Immutable
      * @param testName
      * @return
      */
-    public static TestID createTestID(IdentityDatabase idb, long testNum, String testName)
+    public static TestID createTestID(DefaultValueDatabase idb, long testNum, String testName)
     {
     	// 1. check testName and testNumber
     	TestID id = idb.idMap.getExistingValue(testNum, testName, 0);

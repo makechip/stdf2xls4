@@ -1,22 +1,17 @@
 package com.makechip.stdf2xls4.stdfapi;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import com.makechip.util.Log;
 
 public class PageHeader
 {
-	private HashMap<String, String> hdrMap;
+	private final Map<String, String> hdrMap;
 
-	public PageHeader()
+	public PageHeader(Map<String, String> hdr)
 	{
-		hdrMap = new HashMap<>();
-	}
-	
-	public void add(String name, String value)
-	{
-		hdrMap.put(name, value);
+		hdrMap = hdr;
 	}
 	
 	public String get(String name)

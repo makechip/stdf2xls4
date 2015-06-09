@@ -1,23 +1,32 @@
 package com.makechip.stdf2xls4.stdfapi;
 
+import gnu.trove.map.hash.TObjectFloatHashMap;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
-import com.makechip.stdf2xls4.stdf.IdentityDatabase;
+import com.makechip.stdf2xls4.stdf.DefaultValueDatabase;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
+import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
 import com.makechip.stdf2xls4.stdf.RecordBytes;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
+import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.TestRecord;
+import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
+
+import static com.makechip.stdf2xls4.stdf.StdfRecord.*;
 
 /**
  * This is not a general purpose API for STDF.  It is mainly to
@@ -33,10 +42,13 @@ import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
  */
 public final class StdfAPI
 {
-	private final IdentityDatabase idb;
-	private final TestRecordDatabase tdb;
+	private final DefaultValueDatabase idb;
+	private final Map<PageHeader, Boolean> tester;
+	private TestRecordDatabase tdb;
+	private final boolean dynamicLimits;
     public static final String TEXT_DATA = RecordBytes.TEXT_DATA;
     public static final String SERIAL_MARKER = RecordBytes.SERIAL_MARKER;
+    private final Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap;
 	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 	{
 	    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
@@ -47,13 +59,103 @@ public final class StdfAPI
 	private boolean timeStampedFiles;
 	private boolean wafersort;
 
-	public StdfAPI(List<String> stdfFiles)
+	public StdfAPI(List<String> stdfFiles, boolean dynamicLimits)
 	{
-		idb = new IdentityDatabase();
-		tdb = new TestRecordDatabase();
+		this.dynamicLimits = dynamicLimits;
+		if (dynamicLimits) dynamicLimitMap = new HashMap<>(); else dynamicLimitMap = null;
+		idb = new DefaultValueDatabase();
 		this.stdfFiles = stdfFiles;
 		new ArrayList<StdfRecord>();
 		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
+		tester = new HashMap<>();
+	}
+	
+	private void checkLoLimits(PageHeader hdr, TObjectFloatHashMap<TestID> lmap, List<List<StdfRecord>> list)
+	{
+		list.stream().flatMap(p -> p.stream()).
+			filter(r -> r instanceof ParametricRecord).
+			map(s -> ParametricRecord.class.cast(s)).forEach(q -> checkLoLimit(q, lmap, hdr));
+	}
+	
+	private void checkLoLimit(ParametricRecord r, TObjectFloatHashMap<TestID> m, PageHeader hdr)
+	{
+		Map<TestID, Boolean> m1 = dynamicLimitMap.get(hdr);
+		if (m1 != null)
+		{
+			if (m1.get(r.getTestId()) == true) return;
+		}
+        if (!r.getOptFlags().contains(OptFlag_t.NO_LO_LIMIT))
+        {
+            float ll1 = m.get(r.getTestId());
+        	if (ll1 == MISSING_FLOAT)
+        	{
+        	    ll1 = r.getLoLimit();
+        	    m.put(r.getTestId(), ll1);
+        	}
+        	else
+        	{
+        		if (r.getLoLimit() < ll1 - 0.0001 * ll1 || r.getLoLimit() > ll1 + 0.0001 * ll1)
+        		{
+        			if (m1 == null)
+        			{
+        				m1 = new IdentityHashMap<>();
+        				dynamicLimitMap.put(hdr, m1);
+        			}
+        			m1.put(r.getTestId(), true);
+        		}
+        	}
+        }
+	}
+	
+	private void checkHiLimits(PageHeader hdr, TObjectFloatHashMap<TestID> hmap, List<List<StdfRecord>> list)
+	{
+		list.stream().flatMap(p -> p.stream()).
+			filter(r -> r instanceof ParametricRecord).
+			map(s -> ParametricRecord.class.cast(s)).forEach(q -> checkHiLimit(q, hmap, hdr));
+	}
+	
+	private void checkHiLimit(ParametricRecord r, TObjectFloatHashMap<TestID> m, PageHeader hdr)
+	{
+		Map<TestID, Boolean> m1 = dynamicLimitMap.get(hdr);
+		if (m1 != null)
+		{
+			if (m1.get(r.getTestId()) == true) return;
+		}
+        if (!r.getOptFlags().contains(OptFlag_t.NO_HI_LIMIT))
+        {
+            float hl1 = m.get(r.getTestId());
+        	if (hl1 == MISSING_FLOAT)
+        	{
+        	    hl1 = r.getHiLimit();
+        	    m.put(r.getTestId(), hl1);
+        	}
+        	else
+        	{
+        		if (r.getHiLimit() < hl1 - 0.0001 * hl1 || r.getHiLimit() > hl1 + 0.0001 * hl1)
+        		{
+        			if (m1 == null)
+        			{
+        				m1 = new IdentityHashMap<>();
+        				dynamicLimitMap.put(hdr, m1);
+        			}
+        			m1.put(r.getTestId(), true);
+        		}
+        	}
+        }
+	}
+	
+	private void identifyTester(PageHeader hdr, List<List<StdfRecord>> list)
+	{
+		MasterInformationRecord r = list.stream().
+				                        flatMap(p -> p.stream()).
+				                        filter(q -> q instanceof MasterInformationRecord).
+				                        map(s -> MasterInformationRecord.class.cast(s)).
+				                        findFirst().orElse(null);
+		if (r == null) return;
+		boolean fusion = false;
+		if (r.testerType.equalsIgnoreCase("Fusion_CX")) fusion = true;
+		if (r.testerType.equalsIgnoreCase("CXT")) fusion = true;
+        tester.put(hdr, fusion);
 	}
 	
 	public void initialize()
@@ -67,7 +169,18 @@ public final class StdfAPI
 			.collect(splitBySeparator(r -> r instanceof PartResultsRecord))
 			.stream()
 			.forEach(p -> createHeaders(new HeaderUtil(), devList, p));
-	    // now build TestRecord databse:
+		// determine tester type:
+		devList.keySet().stream().forEach(p -> identifyTester(p, devList.get(p)));
+		// now check for dynamicLimits
+		if (dynamicLimits)
+		{
+			devList.keySet().stream().
+			    forEach(p -> checkLoLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p)));
+		    devList.keySet().stream().
+		        forEach(p -> checkHiLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p)));	
+		}	
+		tdb = new TestRecordDatabase(tester, idb, dynamicLimitMap);
+	    // now build TestRecord database:
 		devList.keySet().stream().forEach(p -> mapTests(p, devList.get(p)));
 	}
 	
@@ -139,8 +252,8 @@ public final class StdfAPI
 	private void createHeaders(HeaderUtil hdr, HashMap<PageHeader, List<List<StdfRecord>>> devList, List<StdfRecord> l)
 	{
 		l.stream().forEach(r -> hdr.setHeader(r));
-		List<List<StdfRecord>> dl = devList.get(hdr.header);
-		if (dl == null) devList.put(hdr.header, dl = new ArrayList<>());
+		List<List<StdfRecord>> dl = devList.get(hdr.getHeader());
+		if (dl == null) devList.put(hdr.getHeader(), dl = new ArrayList<>());
 		dl.add(l);
 	}
 	
@@ -170,7 +283,7 @@ public final class StdfAPI
 		}
 		List<String> files = new ArrayList<String>();
 	    Arrays.stream(args).forEach(p -> files.add(p));	
-		StdfAPI api = new StdfAPI(files);
+		StdfAPI api = new StdfAPI(files, false);
 		api.initialize();
 	}
 	

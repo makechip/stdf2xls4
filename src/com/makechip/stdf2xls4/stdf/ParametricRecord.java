@@ -103,5 +103,14 @@ public abstract class ParametricRecord extends TestRecord
 	
 	public abstract String getUnits();
 	
+	public boolean hasLoLimit()
+	{
+		return(!getOptFlags().contains(OptFlag_t.NO_LO_LIMIT));
+	}
+	
+	public boolean hasHiLimit()
+	{
+		return(!getOptFlags().contains(OptFlag_t.NO_HI_LIMIT));
+	}
 
 }

@@ -46,7 +46,7 @@ public class DatalogTestRecord extends TestRecord
     *** @param p1
     *** @param p2
     **/
-    public DatalogTestRecord(int sequenceNumber, IdentityDatabase idb, byte[] data)
+    public DatalogTestRecord(int sequenceNumber, DefaultValueDatabase idb, byte[] data)
     {
         super(sequenceNumber, data);
         ptr = 0;
@@ -54,7 +54,7 @@ public class DatalogTestRecord extends TestRecord
         id = TestID.createTestID(idb, testNumber, testName);
     }
     
-    public DatalogTestRecord(int sequenceNumber, IdentityDatabase idb, String text)
+    public DatalogTestRecord(int sequenceNumber, DefaultValueDatabase idb, String text)
     {
     	super(sequenceNumber, null);
     	this.text = text;

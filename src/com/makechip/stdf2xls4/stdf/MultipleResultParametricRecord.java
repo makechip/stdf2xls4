@@ -67,7 +67,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     /**
     *** @param p1
     **/
-    public MultipleResultParametricRecord(int sequenceNumber, final IdentityDatabase idb, byte[] data)
+    public MultipleResultParametricRecord(int sequenceNumber, final DefaultValueDatabase idb, byte[] data)
     {
         super(Record_t.MPR, sequenceNumber, data);
         int j = getU2(0);
@@ -91,8 +91,18 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         resScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.resScalDefaults);
         llmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.llmScalDefaults);
         hlmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.hlmScalDefaults);
-        loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loLimDefaults);
-        hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiLimDefaults);
+        if (optFlags.contains(OptFlag_t.NO_LO_LIMIT))
+        {
+        	loLimit = MISSING_FLOAT;
+        	getR4(MISSING_FLOAT);
+        }
+        else loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loLimDefaults);
+        if (optFlags.contains(OptFlag_t.NO_HI_LIMIT))
+        {
+        	hiLimit = MISSING_FLOAT;
+        	getR4(MISSING_FLOAT);
+        }
+        else hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiLimDefaults);
         startIn = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.startInDefaults);     
         incrIn  = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.incrInDefaults);     
         if (j != 0)
@@ -116,7 +126,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     
     public MultipleResultParametricRecord(
             final int sequenceNumber,
-            final IdentityDatabase idb,
+            final DefaultValueDatabase idb,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
