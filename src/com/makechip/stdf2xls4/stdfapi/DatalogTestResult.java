@@ -25,13 +25,17 @@
 
 package com.makechip.stdf2xls4.stdfapi;
 
+import java.util.EnumSet;
+
+import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
+
 public class DatalogTestResult extends TestResult
 {
     public final String result;
     
     public DatalogTestResult(String result)
     {
-    	super(null);
+    	super(EnumSet.noneOf(TestFlag_t.class));
     	this.result = result;
     }
     

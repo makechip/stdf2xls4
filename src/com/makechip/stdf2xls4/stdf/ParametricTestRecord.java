@@ -39,7 +39,7 @@ import com.makechip.util.Log;
 **/
 public class ParametricTestRecord extends ParametricRecord
 {
-    public final double result; 
+    public final float result; 
     public final String alarmName;
     private final TestID id;
     public final Set<OptFlag_t> optFlags; 
@@ -271,6 +271,12 @@ public class ParametricTestRecord extends ParametricRecord
 	public String getUnits()
 	{
 		return units;
+	}
+
+	@Override
+	protected void setText(String text)
+	{
+		throw new RuntimeException("Error: setText() should not be called on a ParametricTestRecord");
 	}
 
 }

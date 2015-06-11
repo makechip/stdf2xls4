@@ -59,11 +59,11 @@ public class TestID implements Identity, Immutable
     {
     	// 1. check testName and testNumber
     	TestID id = idb.idMap.getExistingValue(testNum, testName, 0);
-    	if (id == null)
+    	if (id == null || idb.testIdDupMap.get(id) == null)
     	{
-    		TestID d = idb.idMap.getValue(testNum, testName, 0);
-    		idb.testIdDupMap.put(d, 0);
-    		return(d);
+    		if (id == null) id = idb.idMap.getValue(testNum, testName, 0);
+    		idb.testIdDupMap.put(id, 0);
+    		return(id);
     	}
         // 2. Need duplicate ID
     	Integer dnum = idb.testIdDupMap.get(id);

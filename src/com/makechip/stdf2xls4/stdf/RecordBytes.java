@@ -1,6 +1,7 @@
 package com.makechip.stdf2xls4.stdf;
 
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.util.Log;
 
 public class RecordBytes implements Comparable<RecordBytes>
 {
@@ -59,7 +60,7 @@ public class RecordBytes implements Comparable<RecordBytes>
 		case PIR: return(new PartInformationRecord(sequenceNumber, bytes));
 		case PLR: return(new PinListRecord(sequenceNumber, bytes));
 		case PMR: return(new PinMapRecord(sequenceNumber, idb, bytes));
-		case PRR: return(new PartResultsRecord(sequenceNumber, bytes));
+		case PRR: idb.clearIdDups(); return(new PartResultsRecord(sequenceNumber, bytes));
 		case PTR: return(new ParametricTestRecord(sequenceNumber, idb, bytes));
 		case RDR: return(new RetestDataRecord(sequenceNumber, bytes));
 		case SBR: return(new SoftwareBinRecord(sequenceNumber, bytes));

@@ -73,7 +73,7 @@ public class StdfTest1
 		stdf.add(new HardwareBinRecord(snum++, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
 		stdf.add(new MasterResultsRecord(snum++, 1000L, 'C', "lotDesc", "execDesc"));
 		stdf.add(new MultipleResultParametricRecord(snum++, idb, 22L, (short) 1, (short) 0, (byte) 0,
-			(byte) 0, 2, 4, new byte[] { 1, 2 }, new double[] { 1.0, 2.0, 3.0, 4.0 },
+			(byte) 0, 2, 4, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", (byte) 0, (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 5, 6 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
 		stdf.add(new ParametricTestRecord(snum++, idb, 44L, (short) 1, (short) 0, (byte) 0,

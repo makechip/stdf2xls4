@@ -365,6 +365,11 @@ public class FunctionalTestRecord extends TestRecord
 	protected void setTestName(String testName) 
 	{
 	}
+	
+	protected void setText(String text)
+	{
+		throw new RuntimeException("Error: setText() should not be called on a FunctionalTestRecord");
+	}
     
    
 }

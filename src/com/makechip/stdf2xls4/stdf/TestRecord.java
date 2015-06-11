@@ -10,7 +10,6 @@ public abstract class TestRecord extends StdfRecord
 	public final long testNumber;
 	public final short headNumber;
 	public final short siteNumber;
-	protected final String valueText;
 	
 	protected TestRecord(Record_t type, int sequenceNumber, byte[] data)
 	{
@@ -18,7 +17,6 @@ public abstract class TestRecord extends StdfRecord
 		this.testNumber = getU4(MISSING_LONG);
 		this.headNumber = getU1(MISSING_SHORT);
 		this.siteNumber = getU1(MISSING_SHORT);
-		valueText = null;
 	}
 	
 	protected TestRecord(Record_t type, int sequenceNumber, long testNumber, short headNumber, short siteNumber)
@@ -27,7 +25,6 @@ public abstract class TestRecord extends StdfRecord
 		this.testNumber = testNumber;
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
-		valueText = null;
 	}
 	
 	protected TestRecord(int sequenceNumber, String testName, String valueText, long testNumber, short headNumber, short siteNumber)
@@ -36,12 +33,13 @@ public abstract class TestRecord extends StdfRecord
 		this.testNumber = testNumber;
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
-		this.valueText = valueText;
 	}
 	
 	public abstract TestID getTestId();
 	
 	protected abstract void setTestName(String testName);
+	
+	protected abstract void setText(String text);
 	
 	protected TestRecord(int sequenceNumber, byte[] data)
 	{
@@ -50,7 +48,8 @@ public abstract class TestRecord extends StdfRecord
 		StringTokenizer st = new StringTokenizer(text, ": \t");
 	    st.nextToken(); // burn TEXT_DATA
 	    setTestName(st.nextToken());
-	    valueText = st.nextToken();
+	    String valueText = st.nextToken();
+	    setText(valueText);
 	    String tnum = (st.hasMoreTokens()) ? st.nextToken() : "0";
 	    long t = 0L;
 	    try { t = Long.parseLong(tnum); }

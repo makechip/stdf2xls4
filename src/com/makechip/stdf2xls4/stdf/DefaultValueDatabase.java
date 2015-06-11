@@ -78,7 +78,6 @@ public final class DefaultValueDatabase
     
     public DefaultValueDatabase()
     {
-    	Log.msg("IDB CTOR");
     	testIdDupMap = new IdentityHashMap<>();
     	idMap = new IdentityFactoryLON<>(String.class, TestID.class);
     	pgDefaults = new TLongShortHashMap(100, 0.7f, Long.MIN_VALUE, StdfRecord.MISSING_SHORT);

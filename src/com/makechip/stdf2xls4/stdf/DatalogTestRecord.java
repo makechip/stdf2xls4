@@ -38,7 +38,7 @@ import com.makechip.util.Log;
 **/
 public class DatalogTestRecord extends TestRecord
 {
-    private final String text;
+	private String text;
     private String testName;
     private TestID id;
     
@@ -50,14 +50,12 @@ public class DatalogTestRecord extends TestRecord
     {
         super(sequenceNumber, data);
         ptr = 0;
-        text = getCn();
         id = TestID.createTestID(idb, testNumber, testName);
     }
     
     public DatalogTestRecord(int sequenceNumber, DefaultValueDatabase idb, String text)
     {
     	super(sequenceNumber, null);
-    	this.text = text;
         id = TestID.createTestID(idb, testNumber, testName);
     }
     
@@ -68,6 +66,17 @@ public class DatalogTestRecord extends TestRecord
         sb.append(":").append(Log.eol);
         sb.append("    TEXT_DATA: ").append(text).append(Log.eol);
         return(sb.toString());
+    }
+    
+    public String getText()
+    {
+    	return(text);
+    }
+    
+    @Override
+    protected void setText(String text)
+    {
+    	this.text = text;
     }
 
 	@Override

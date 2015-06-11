@@ -26,17 +26,20 @@
 package com.makechip.stdf2xls4.stdfapi;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 import static com.makechip.stdf2xls4.stdf.enums.TestFlag_t.*;
+
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 
 public class TestResult
 {
-    private final EnumSet<TestFlag_t> flags;
+    private final Set<TestFlag_t> flags;
 
-    public TestResult(final EnumSet<TestFlag_t> flags)
+    public TestResult(final Set<TestFlag_t> flags)
     {
-    	if (flags != null) this.flags = EnumSet.copyOf(flags); else this.flags = null;
+    	this.flags = EnumSet.noneOf(TestFlag_t.class);
+    	flags.stream().forEach(s -> this.flags.add(s));
     }
     
     boolean fail()

@@ -141,7 +141,6 @@ public class StdfReader
                 len = rdr.read(record);
                 if (len != recLen) throw new RuntimeException("Error: record could not be read");
                 records.add(new RecordBytes(record, seqNum, type, idb, timeStamp));
-    	    	if (type == PRR) idb.clearIdDups();
                 seqNum++;
         	}                
         }
@@ -176,7 +175,6 @@ public class StdfReader
     	    	if (ptr > bytes.length - recLen) throw new RuntimeException("Error: record could not be read");
     	    	for (int i=0; i<recLen; i++) record[i] = bytes[ptr++];
     	    	records.add(new RecordBytes(record, seqNum, type, idb, timeStamp));
-    	    	if (type == PRR) idb.clearIdDups();
     	    	seqNum++;
     	    }
     	}

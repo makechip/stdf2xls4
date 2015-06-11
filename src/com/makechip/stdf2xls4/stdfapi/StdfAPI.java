@@ -25,6 +25,7 @@ import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.TestRecord;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
+import com.makechip.util.Log;
 
 import static com.makechip.stdf2xls4.stdf.StdfRecord.*;
 
@@ -158,7 +159,7 @@ public final class StdfAPI
         tester.put(hdr, fusion);
 	}
 	
-	public void initialize()
+	public void initialize(boolean sortDevices)
 	{
 		HashMap<PageHeader, List<List<StdfRecord>>> devList = new HashMap<>();
 		// load the stdf records; group records by device	
@@ -181,16 +182,16 @@ public final class StdfAPI
 		}	
 		tdb = new TestRecordDatabase(tester, idb, dynamicLimitMap);
 	    // now build TestRecord database:
-		devList.keySet().stream().forEach(p -> mapTests(p, devList.get(p)));
+		devList.keySet().stream().forEach(p -> mapTests(sortDevices, p, devList.get(p)));
 	}
 	
-	private void mapTests(PageHeader hdr, List<List<StdfRecord>> devList)
+	private void mapTests(boolean sortDevices, PageHeader hdr, List<List<StdfRecord>> devList)
 	{
 		wafersort = hdr.contains(HeaderUtil.WAFER_ID);
-		devList.stream().forEach(p -> buildList(hdr, p));
+		devList.stream().forEach(p -> buildList(sortDevices, hdr, p));
 	}
 	
-	private void buildList(PageHeader hdr, List<StdfRecord> list)
+	private void buildList(boolean sortDevices, PageHeader hdr, List<StdfRecord> list)
 	{
 		PartResultsRecord prr = list.stream()
 			.filter(p -> p instanceof PartResultsRecord)
@@ -240,7 +241,7 @@ public final class StdfAPI
 		String temperature = hdr.get(HeaderUtil.TEMPERATURE);
 		if (temperature == null) temperature = mir.temperature;
 		DeviceHeader dh = new DeviceHeader(snxy, hwBin, swBin, fail, abnormalEOT, noPassFailIndication,temperature);
-		tdb.addRecords(hdr, dh, l);
+		tdb.addRecords(sortDevices, hdr, dh, l);
 	}
 	
 	
@@ -284,7 +285,8 @@ public final class StdfAPI
 		List<String> files = new ArrayList<String>();
 	    Arrays.stream(args).forEach(p -> files.add(p));	
 		StdfAPI api = new StdfAPI(files, false);
-		api.initialize();
+		api.initialize(false);
+		Log.msg(api.toString());
 	}
 	
 }

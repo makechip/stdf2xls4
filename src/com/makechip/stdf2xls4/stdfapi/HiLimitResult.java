@@ -25,18 +25,12 @@
 
 package com.makechip.stdf2xls4.stdfapi;
 
-import java.util.Set;
-
-import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
-
-public class ParametricTestResult extends TestResult
+public class HiLimitResult extends ParametricTestResult
 {
-    public final float result;
-    
-    public ParametricTestResult(final Set<TestFlag_t> flags, float result)
+
+    public HiLimitResult(float hiLimit)
     {
-    	super(flags);
-    	this.result = result;
+    	super(null, hiLimit);
     }
     
 }

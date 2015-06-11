@@ -1,6 +1,6 @@
 package com.makechip.stdf2xls4.stdfapi;
 
-public class DeviceHeader
+public class DeviceHeader implements Comparable<DeviceHeader>
 {
 	public final SnOrXy snxy;
 	public final int hwBin;
@@ -46,6 +46,18 @@ public class DeviceHeader
 	}
 	
 	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(snxy.toString()).append(" hwBin: " + hwBin).append(" swBin: " + swBin);
+	    sb.append(" temp = ").append(temperature);
+	    if (fail) sb.append(" FAIL"); else sb.append("PASS");
+	    if (abnormalEOT) sb.append(" abnormalEOT");
+	    if (noPassFailIndication) sb.append(" no pass/fail indication");
+		return(sb.toString());
+	}
+	
+	@Override
 	public int hashCode()
 	{
 		int h = snxy.hashCode() ^ hwBin ^ swBin ^ temperature.hashCode();
@@ -53,6 +65,48 @@ public class DeviceHeader
 		if (fail) h = (h % 493321777) * 57; else h = (h % 19776931) * 79;
 		if (noPassFailIndication) h = h ^ 0xAAAAAAAA; else h = h ^ 0x55555555;
 		return(h);
+	}
+
+	@Override
+	public int compareTo(DeviceHeader o)
+	{
+		if (snxy instanceof SN)
+		{
+			if (o.snxy instanceof SN)
+			{
+				SN a = SN.class.cast(snxy);
+				SN b = SN.class.cast(o.snxy);
+				return(a.compareTo(b));
+			}
+		}
+		else if (snxy instanceof TimeSN)
+		{
+			if (o.snxy instanceof TimeSN)
+			{
+		        TimeSN a = TimeSN.class.cast(snxy);
+		        TimeSN b = TimeSN.class.cast(o.snxy);
+		        return(a.compareTo(b));
+			}
+		}
+		else if (snxy instanceof XY)
+		{
+            if (o.snxy instanceof XY)
+            {
+            	XY a = XY.class.cast(snxy);
+            	XY b = XY.class.cast(o.snxy);
+            	return(a.compareTo(b));
+            }
+		}
+		else // TimeXY
+		{
+            if (o.snxy instanceof XY)
+            {
+            	TimeXY a = TimeXY.class.cast(snxy);
+            	TimeXY b = TimeXY.class.cast(o.snxy);
+            	return(a.compareTo(b));
+            }
+		}
+		return(-1);
 	}
 
 }

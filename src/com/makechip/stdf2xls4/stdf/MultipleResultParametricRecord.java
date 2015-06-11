@@ -41,7 +41,7 @@ import com.makechip.util.Log;
 public final class MultipleResultParametricRecord extends ParametricRecord
 {
     private final byte[] rtnState;
-    private final double[] results; 
+    private final float[] results; 
 	private TestID id;
 	public final String alarmName;
 	public final Set<OptFlag_t> optFlags;
@@ -73,8 +73,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         int j = getU2(0);
         int k = getU2(0); 
         rtnState = getNibbles(j);
-        results =  new double[k];
-        Arrays.setAll(results, p -> getR4(-Float.MAX_VALUE));
+        results =  new float[k];
+        for (int i=0; i<results.length; i++) results[i] = getR4(-Float.MAX_VALUE);
         String testName = getCn();
         id = TestID.createTestID(idb, testNumber, testName);
         alarmName = getCn();
@@ -135,7 +135,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
             final int j,
             final int k,
             final byte[] rtnState,
-            final double[] results,
+            final float[] results,
     	    final String testName,
     	    final String alarmName,
     	    final byte optFlags, 
@@ -157,7 +157,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     {
         super(Record_t.MPR, sequenceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
-        this.results = Arrays.copyOf(results, results.length);
+        this.results = new float[results.length];
+        for (int i=0; i<results.length; i++) this.results[i] = results[i];
         id = TestID.createTestID(idb, testNumber, testName);
         this.alarmName = alarmName;
         byte oflags = optFlags;
@@ -207,7 +208,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         list.addAll(getU2Bytes(rtnState.length));
         list.addAll(getU2Bytes(results.length));
         list.addAll(getNibbleBytes(rtnState));
-        Arrays.stream(results).forEach(p -> list.addAll(getR4Bytes((float) p)));
+        for (int i=0; i<results.length; i++) list.addAll(getR4Bytes(results[i]));
         list.addAll(getCnBytes(id.testName));
         list.addAll(getCnBytes(alarmName));
         if (optFlags != null)
@@ -249,7 +250,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         for (byte b : rtnState) sb.append(" " + b);
         sb.append(Log.eol);
         sb.append("    results:");
-        Arrays.stream(results).forEach(p -> sb.append(" " + p));
+        for (float p : results) sb.append(" " + p);
         sb.append(Log.eol);
         sb.append("    test name: ").append(id.testName).append(Log.eol);
         sb.append("    alarm name: ").append(alarmName).append(Log.eol);
@@ -283,7 +284,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     }
 
     public final byte[] getRtnState() { return(Arrays.copyOf(rtnState, rtnState.length)); }
-    public final double[] getResults() { return(Arrays.copyOf(results, results.length)); }
+    public final float[] getResults() { return(Arrays.copyOf(results, results.length)); }
     public final int[] getRtnIndex() { return(Arrays.copyOf(rtnIndex, rtnIndex.length)); }
 
 	@Override
@@ -344,6 +345,12 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	public String getUnits()
 	{
 		return units;
+	}
+
+	@Override
+	protected void setText(String text)
+	{
+		throw new RuntimeException("Error: setText() should not be called on a MultipleResultParametricRecord");
 	}
    
 

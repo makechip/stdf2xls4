@@ -11,7 +11,7 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
 public abstract class StdfRecord
 {
     public static final float MISSING_FLOAT = Float.MAX_VALUE;
-    public static final byte MISSING_BYTE = (byte) -127;
+    public static final byte MISSING_BYTE = (byte) -1;
     public static final int MISSING_INT = Integer.MIN_VALUE;
     public static final long MISSING_LONG = Long.MIN_VALUE;
     public static final short MISSING_SHORT = Short.MIN_VALUE;
