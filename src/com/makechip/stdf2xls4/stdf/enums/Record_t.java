@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf.enums;
 
+import com.makechip.stdf2xls4.stdf.DefaultValueDatabase;
+import com.makechip.stdf2xls4.stdf.*;
 import com.makechip.util.Log;
 
 /**
@@ -33,43 +35,48 @@ import com.makechip.util.Log;
 **/
 public enum Record_t
 {
-    ATR("Audit Trail Record", (short) 0, (short) 20),
-    BPS("Begin Program Selection Record", (short) 20, (short) 10),
-    DTR("Datalog Text Record", (short) 50, (short) 30),
-    EPS("End Program Selection Record", (short) 20, (short) 20),
-    FAR("File Attributes Record", (short) 0, (short) 10),
-    FTR("Functional Test Record", (short) 15, (short) 20),
-    GDR("Generic Data Record", (short) 50, (short) 10),
-    HBR("Hardware Bin Record", (short) 1, (short) 40),
-    MIR("Master Information Record", (short) 1, (short) 10),
-    MPR("Multiple-Result Parametric Record", (short) 15, (short) 15),
-    MRR("Master Results Record", (short) 1, (short) 20),
-    PCR("Part Count Record", (short) 1, (short) 30),
-    PGR("Pin Group Record", (short) 1, (short) 62),
-    PIR("Part Information Record", (short) 5, (short) 10),
-    PLR("Pin List Record", (short) 1, (short) 63),
-    PMR("Pin Map Record", (short) 1, (short) 60),
-    PRR("Part Results Record", (short) 5, (short) 20),
-    PTR("Parametric Test Record", (short) 15, (short) 10),
-    RDR("Retest Data Record", (short) 1, (short) 70),
-    SBR("Software Bin Record", (short) 1, (short) 50),
-    SDR("Site Description Record", (short) 1, (short) 80),
-    TSR("Test Synopsis Record", (short) 10, (short) 30),
-    WCR("Wafer Configuration Record", (short) 2, (short) 30),
-    WIR("Wafer Information Record", (short) 2, (short) 10),
-    WRR("Wafer Results Record", (short) 2, (short) 20);
+    ATR("Audit Trail Record", (short) 0, (short) 20, AuditTrailRecord::new),
+    BPS("Begin Program Selection Record", (short) 20, (short) 10, BeginProgramSelectionRecord::new),
+    DTR("Datalog Text Record", (short) 50, (short) 30, DatalogTextRecord::new),
+    EPS("End Program Selection Record", (short) 20, (short) 20, EndProgramSelectionRecord::new),
+    FAR("File Attributes Record", (short) 0, (short) 10, FileAttributesRecord::new),
+    FTR("Functional Test Record", (short) 15, (short) 20, FunctionalTestRecord::new),
+    GDR("Generic Data Record", (short) 50, (short) 10, GenericDataRecord::new),
+    HBR("Hardware Bin Record", (short) 1, (short) 40, HardwareBinRecord::new),
+    MIR("Master Information Record", (short) 1, (short) 10, MasterInformationRecord::new),
+    MPR("Multiple-Result Parametric Record", (short) 15, (short) 15, MultipleResultParametricRecord::new),
+    MRR("Master Results Record", (short) 1, (short) 20, MasterResultsRecord::new),
+    PCR("Part Count Record", (short) 1, (short) 30, PartCountRecord::new),
+    PGR("Pin Group Record", (short) 1, (short) 62, PinGroupRecord::new),
+    PIR("Part Information Record", (short) 5, (short) 10, PartInformationRecord::new),
+    PLR("Pin List Record", (short) 1, (short) 63, PinListRecord::new),
+    PMR("Pin Map Record", (short) 1, (short) 60, PinMapRecord::new),
+    PRR("Part Results Record", (short) 5, (short) 20, PartResultsRecord::new),
+    PTR("Parametric Test Record", (short) 15, (short) 10, ParametricTestRecord::new),
+    RDR("Retest Data Record", (short) 1, (short) 70, RetestDataRecord::new),
+    SBR("Software Bin Record", (short) 1, (short) 50, SoftwareBinRecord::new),
+    SDR("Site Description Record", (short) 1, (short) 80, SiteDescriptionRecord::new),
+    TSR("Test Synopsis Record", (short) 10, (short) 30, TestSynopsisRecord::new),
+    WCR("Wafer Configuration Record", (short) 2, (short) 30, WaferConfigurationRecord::new),
+    WIR("Wafer Information Record", (short) 2, (short) 10, WaferInformationRecord::new),
+    WRR("Wafer Results Record", (short) 2, (short) 20, WaferResultsRecord::new);
 
     private String description;
     private short recordType;
     private short recordSubType;
+    private FuncIf ctor;
+    
+    @FunctionalInterface
+    private interface FuncIf { StdfRecord getRecord(int seqNum, DefaultValueDatabase dvd, byte[] bytes); }
 
     /**
     **/
-    private Record_t(String description, short recordType, short recordSubType)
+    private Record_t(String description, short recordType, short recordSubType, FuncIf ctor)
     {
         this.description = description;
         this.recordType = recordType;
         this.recordSubType = recordSubType;
+        this.ctor = ctor;
     }
 
     public String getDescription() { return(description); }
@@ -91,5 +98,9 @@ public enum Record_t
         return(null);
     }
 
+    public StdfRecord getInstance(int seqNum, DefaultValueDatabase dvd, byte[] bytes)
+    {
+    	return(ctor.getRecord(seqNum, dvd, bytes));
+    }
 
 }

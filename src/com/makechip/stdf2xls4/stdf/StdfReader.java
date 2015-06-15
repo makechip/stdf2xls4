@@ -48,53 +48,53 @@ public class StdfReader
     private final String filename;
     public static Cpu_t cpuType;
     private final long timeStamp;
-    private List<RecordBytes> records;
-    private DefaultValueDatabase idb;
+    private List<StdfRecord> records;
+    private DefaultValueDatabase dvd;
     
-    public StdfReader(DefaultValueDatabase idb, String filename)
+    public StdfReader(DefaultValueDatabase dvd, String filename)
     {
-        this(idb, filename, false);
+        this(dvd, filename, false);
     }
     
-    public StdfReader(DefaultValueDatabase idb, String filename, boolean timeStampedFilePerDevice)
+    public StdfReader(DefaultValueDatabase dvd, String filename, boolean timeStampedFilePerDevice)
     {
     	this.filename = filename;
     	this.timeStamp = timeStampedFilePerDevice ? getTimeStamp(filename) : 0L;
-    	this.idb = idb;
-    	idb.clearIdDups();
-    	idb.clearDefaults();
+    	this.dvd = dvd;
+    	dvd.clearIdDups();
+    	dvd.clearDefaults();
     }
     
     /**
      * Use this CTOR when reading an array of bytes.
      */
-    public StdfReader(DefaultValueDatabase idb)
+    public StdfReader(DefaultValueDatabase dvd)
     {
-    	this(idb, null, false);
+    	this(dvd, null, false);
     }
     
     /**
      * Use this CTOR when reading an array of bytes.
      */
-    public StdfReader(DefaultValueDatabase idb, long timeStamp)
+    public StdfReader(DefaultValueDatabase dvd, long timeStamp)
     {
     	this.filename = null;
         this.timeStamp = timeStamp;
-    	this.idb = idb;
-    	this.idb.clearIdDups();
-    	this.idb.clearDefaults();
+    	this.dvd = dvd;
+    	this.dvd.clearIdDups();
+    	this.dvd.clearDefaults();
     }
     
     public static void main(String[] args)
     {
     	if (args.length != 1) throw new RuntimeException("Missing filename argument");
-    	DefaultValueDatabase idb = new DefaultValueDatabase();
-    	StdfReader r = new StdfReader(idb, args[0]);
+    	DefaultValueDatabase dvd = new DefaultValueDatabase();
+    	StdfReader r = new StdfReader(dvd, args[0]);
     	r.read();
     	Log.msg("" + r.records.size() + " records read");
     }
     
-    private RecordBytes FARcheck(int len, byte[] bytes) throws StdfException
+    private StdfRecord FARcheck(int len, byte[] bytes) throws StdfException
     {
        	if (len != 6) throw new StdfException("Malformed FAR record");
        	if (bytes[2] != (byte)  0 || bytes[3] != (byte) 10) throw new StdfException("First STDF record is not a FAR");
@@ -104,7 +104,7 @@ public class StdfReader
         byte[] far = new byte[2];
         far[0] = bytes[4];
         far[1] = bytes[5];
-    	return(new RecordBytes(far, 0, FAR, idb, 0L));
+        return(Record_t.FAR.getInstance(0, dvd, far));
     }
     
     private long getTimeStamp(String name)
@@ -122,7 +122,7 @@ public class StdfReader
     
    public StdfReader read()
     {
-    	records = new ArrayList<RecordBytes>();
+    	records = new ArrayList<StdfRecord>();
         try (DataInputStream rdr = new DataInputStream(new BufferedInputStream(new FileInputStream(filename), 1000000)))
         {
         	byte[] far = new byte[6];
@@ -140,7 +140,13 @@ public class StdfReader
                 byte[] record = new byte[recLen];
                 len = rdr.read(record);
                 if (len != recLen) throw new RuntimeException("Error: record could not be read");
-                records.add(new RecordBytes(record, seqNum, type, idb, timeStamp));
+                if (type == MIR)
+                {
+                	MasterInformationRecord mir = (MasterInformationRecord) type.getInstance(seqNum, dvd, record);
+                	mir.setTimeStamp(timeStamp);
+                	records.add(mir);
+                }
+                else records.add(type.getInstance(seqNum, dvd, record));
                 seqNum++;
         	}                
         }
@@ -151,7 +157,7 @@ public class StdfReader
     
     public void read(byte[] bytes)
     {
-    	records = new ArrayList<RecordBytes>();
+    	records = new ArrayList<StdfRecord>();
     	try
     	{
     	    byte[] far = new byte[6];
@@ -174,14 +180,20 @@ public class StdfReader
     	    	byte[] record = new byte[recLen];
     	    	if (ptr > bytes.length - recLen) throw new RuntimeException("Error: record could not be read");
     	    	for (int i=0; i<recLen; i++) record[i] = bytes[ptr++];
-    	    	records.add(new RecordBytes(record, seqNum, type, idb, timeStamp));
+                if (type == MIR)
+                {
+                	MasterInformationRecord mir = (MasterInformationRecord) type.getInstance(seqNum, dvd, record);
+                	mir.setTimeStamp(timeStamp);
+                	records.add(mir);
+                }
+                else records.add(type.getInstance(seqNum, dvd, record));
     	    	seqNum++;
     	    }
     	}
     	catch (StdfException e) { Log.fatal(e); }
     }
     
-    public Stream<RecordBytes> stream() { return(records.stream()); }
+    public Stream<StdfRecord> stream() { return(records.stream()); }
 
     public int getUnsignedInt(byte b0, byte b1)
     {

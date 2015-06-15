@@ -10,6 +10,8 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 public abstract class StdfRecord
 {
+    public static final String TEXT_DATA = "TEXT_DATA";
+    public static final String SERIAL_MARKER = "S/N";
     public static final float MISSING_FLOAT = Float.MAX_VALUE;
     public static final byte MISSING_BYTE = (byte) -1;
     public static final int MISSING_INT = Integer.MIN_VALUE;

@@ -44,7 +44,7 @@ public class FileAttributesRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public FileAttributesRecord(int sequenceNumber, byte[] data)
+    public FileAttributesRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.FAR, sequenceNumber, data);
         cpuType = Cpu_t.getCpuType(data[0]);

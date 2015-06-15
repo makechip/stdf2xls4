@@ -49,7 +49,7 @@ public class SoftwareBinRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public SoftwareBinRecord(int sequenceNumber, byte[] data)
+    public SoftwareBinRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.SBR, sequenceNumber, data);
         headNumber = getU1((short) -1);

@@ -12,10 +12,11 @@ import java.util.TreeMap;
 import com.makechip.stdf2xls4.stdf.DefaultValueDatabase;
 import com.makechip.stdf2xls4.stdf.MultipleResultParametricRecord;
 import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
+import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
 import com.makechip.stdf2xls4.stdf.PinTestID;
+import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.TestRecord;
-import com.makechip.stdf2xls4.stdf.DatalogTestRecord;
 import com.makechip.stdf2xls4.stdf.FunctionalTestRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -86,12 +87,12 @@ public class TestRecordDatabase
 		return(sb.toString());
 	}
 	
-	private TestResult getTestResult(TestRecord r)
+	private TestResult getTestResult(StdfRecord r)
 	{
 		TestResult tr = null;
 		switch (r.type)
 		{
-		case DTR: tr = new DatalogTestResult(((DatalogTestRecord) r).getText()); break;
+		case DTR: tr = new DatalogTestResult(((DatalogTextRecord) r).text); break;
 		case FTR: tr = new TestResult(((FunctionalTestRecord) r).testFlags); break;
 		case PTR: tr = new ParametricTestResult(((ParametricRecord) r).testFlags, ((ParametricTestRecord) r).result); break;
 		case MPR: MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);

@@ -76,7 +76,7 @@ public class MasterInformationRecord extends StdfRecord
     public final String romCodeID;
     public final String testerSerialNumber;
     public final String supervisorID;
-    public long timeStamp; // not an STDF value; for filename timestamp tracking 
+    private long timeStamp; // not an STDF value; for filename timestamp tracking 
     
     public MasterInformationRecord(int sequenceNumber,
         long jobDate,
@@ -165,7 +165,7 @@ public class MasterInformationRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public MasterInformationRecord(int sequenceNumber, long timeStamp, byte[] data)
+    public MasterInformationRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.MIR, sequenceNumber, data);
         jobDate = getU4(0);
@@ -206,7 +206,6 @@ public class MasterInformationRecord extends StdfRecord
         romCodeID = getCn();
         testerSerialNumber = getCn();
         supervisorID = getCn();
-        this.timeStamp = timeStamp;
     }
     
 	@Override
@@ -302,5 +301,9 @@ public class MasterInformationRecord extends StdfRecord
         sb.append("    supervisor ID: ").append(supervisorID).append(Log.eol);
         return(sb.toString());
     }
+    
+    void setTimeStamp(long timeStamp) { this.timeStamp = timeStamp; }
+    
+    public long getTimeStamp() { return(timeStamp); }
 
 }

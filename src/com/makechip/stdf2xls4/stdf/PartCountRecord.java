@@ -49,7 +49,7 @@ public class PartCountRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public PartCountRecord(int sequenceNumber, byte[] data)
+    public PartCountRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PCR, sequenceNumber, data);
         headNumber = getU1((short) -1);

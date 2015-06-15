@@ -61,7 +61,7 @@ public class PartResultsRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public PartResultsRecord(int sequenceNumber, byte[] data)
+    public PartResultsRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PRR, sequenceNumber, data);
         headNumber = getU1((short) -1);

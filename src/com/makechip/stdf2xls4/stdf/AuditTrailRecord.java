@@ -43,7 +43,7 @@ public class AuditTrailRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public AuditTrailRecord(int sequenceNumber, byte[] data)
+    public AuditTrailRecord(int sequenceNumber, DefaultValueDatabase dvb, byte[] data)
     {
         super(Record_t.ATR, sequenceNumber, data);
         date = getU4(0);

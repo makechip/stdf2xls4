@@ -46,7 +46,7 @@ public class PinGroupRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public PinGroupRecord(int sequenceNumber, byte[] data)
+    public PinGroupRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PGR, sequenceNumber, data);
         groupIndex = getU2(-1);

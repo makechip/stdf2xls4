@@ -64,7 +64,7 @@ public class SiteDescriptionRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public SiteDescriptionRecord(int sequenceNumber, byte[] data)
+    public SiteDescriptionRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.SDR, sequenceNumber, data);
         headNumber = getU1((short) -1);

@@ -40,7 +40,7 @@ public class DatalogTextRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public DatalogTextRecord(int sequenceNumber, byte[] data)
+    public DatalogTextRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.DTR, sequenceNumber, data);
         text = getCn();
@@ -53,7 +53,11 @@ public class DatalogTextRecord extends StdfRecord
     }
     
     @Override
-    public boolean isTestRecord() { return(text.trim().startsWith("TEXT_DATA")); }
+    public boolean isTestRecord() 
+    { 
+    	String s = text.trim();
+    	return(s.startsWith("TEXT_DATA") && text.contains(":") && !text.contains(SERIAL_MARKER)); 
+    }
     
     @Override
     public String toString()

@@ -54,7 +54,7 @@ public class WaferResultsRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public WaferResultsRecord(int sequenceNumber, byte[] data)
+    public WaferResultsRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.WRR, sequenceNumber, data);
         headNumber = getU1((short) -1);

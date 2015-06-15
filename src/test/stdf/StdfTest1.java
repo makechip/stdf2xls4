@@ -102,7 +102,7 @@ public class StdfTest1
 		idb = new DefaultValueDatabase();
 		rdr = new StdfReader(idb);
 		rdr.read(stdf.getBytes());
-		List<StdfRecord> list = rdr.stream().map(p -> p.createRecord()).collect(Collectors.toList());
+		List<StdfRecord> list = rdr.stream().collect(Collectors.toList());
 		assertEquals(26, list.size());
 		stack = new Stack<StdfRecord>();
 		Stack<StdfRecord> tmp = new Stack<StdfRecord>();
@@ -186,7 +186,7 @@ public class StdfTest1
 		assertEquals("romCodeID", mir.romCodeID);
 		assertEquals("testerSerialNumber", mir.testerSerialNumber);
 		assertEquals("supervisorID", mir.supervisorID);
-		assertEquals(0, mir.timeStamp);
+		assertEquals(0, mir.getTimeStamp());
 	}
 	
 	// RetestDataRecord rdr = new RetestDataRecord(snum++, dnum, new int[] { 1, 2, 3, 4 });

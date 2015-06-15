@@ -18,7 +18,6 @@ import com.makechip.stdf2xls4.stdf.DefaultValueDatabase;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
-import com.makechip.stdf2xls4.stdf.RecordBytes;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
@@ -47,8 +46,8 @@ public final class StdfAPI
 	private final Map<PageHeader, Boolean> tester;
 	private TestRecordDatabase tdb;
 	private final boolean dynamicLimits;
-    public static final String TEXT_DATA = RecordBytes.TEXT_DATA;
-    public static final String SERIAL_MARKER = RecordBytes.SERIAL_MARKER;
+    public static final String TEXT_DATA = StdfRecord.TEXT_DATA;
+    public static final String SERIAL_MARKER = StdfRecord.SERIAL_MARKER;
     private final Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap;
 	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 	{
@@ -166,7 +165,6 @@ public final class StdfAPI
 		    stdfFiles.stream()
 			.map(p -> new StdfReader(idb, p, timeStampedFiles))
 			.flatMap(rdr -> rdr.read().stream())
-			.map(s -> s.createRecord())
 			.collect(splitBySeparator(r -> r instanceof PartResultsRecord))
 			.stream()
 			.forEach(p -> createHeaders(new HeaderUtil(), devList, p));
@@ -212,7 +210,7 @@ public final class StdfAPI
 		}
 		if (wafersort)
 		{
-		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.timeStamp, prr.xCoord, prr.yCoord);	
+		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.getTimeStamp(), prr.xCoord, prr.yCoord);	
 		    else snxy = XY.getXY(prr.xCoord, prr.yCoord);
 		}
 		else
@@ -227,11 +225,11 @@ public final class StdfAPI
 				st.nextToken(); // burn "TEXT_DATA"
 				st.nextToken(); // burn "S/N"
 				String sn = st.nextToken();
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.timeStamp, sn) : SN.getSN(sn);
+				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.getTimeStamp(), sn) : SN.getSN(sn);
 			}
 			else
 			{
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.timeStamp, prr.getPartID()) : SN.getSN(prr.getPartID());
+				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.getTimeStamp(), prr.getPartID()) : SN.getSN(prr.getPartID());
 			}
 		}
 		List<TestRecord> l = list.stream()
