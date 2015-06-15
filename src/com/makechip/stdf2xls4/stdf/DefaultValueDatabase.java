@@ -13,7 +13,6 @@ import java.util.Set;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.TestID;
-import com.makechip.util.Log;
 import com.makechip.util.factory.IdentityFactoryLON;
 
 public final class DefaultValueDatabase
