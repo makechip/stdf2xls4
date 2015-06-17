@@ -26,12 +26,9 @@ package com.makechip.stdf2xls4.stdf;
 
 import com.makechip.util.Identity;
 import com.makechip.util.Immutable;
-import com.makechip.util.factory.IdentityFactoryIO;
 
 public final class PinTestID extends TestID implements Identity, Immutable 
 {
-	private static IdentityFactoryIO<TestID, String, PinTestID> pinMap
-	    = new IdentityFactoryIO<>(TestID.class, String.class, PinTestID.class);
     public final String pin;
     public final TestID id;
    
@@ -42,9 +39,9 @@ public final class PinTestID extends TestID implements Identity, Immutable
     	this.id = id;
     }
     
-    public static PinTestID getTestID(DefaultValueDatabase idb, TestID id, String pin)
+    public static PinTestID getTestID(TestIdDatabase tdb, TestID id, String pin)
     {
-        return(pinMap.getValue(id, pin));
+        return(tdb.pinMap.getValue(id, pin));
     }
     
     @Override

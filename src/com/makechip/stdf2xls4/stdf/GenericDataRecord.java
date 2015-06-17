@@ -146,7 +146,7 @@ public class GenericDataRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public GenericDataRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public GenericDataRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.GDR, sequenceNumber, data);
         List<Data> l = new ArrayList<Data>();

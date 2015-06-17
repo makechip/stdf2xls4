@@ -76,9 +76,11 @@ public class MasterInformationRecord extends StdfRecord
     public final String romCodeID;
     public final String testerSerialNumber;
     public final String supervisorID;
-    private long timeStamp; // not an STDF value; for filename timestamp tracking 
+    public final long timeStamp; // not an STDF value; for filename timestamp tracking 
     
-    public MasterInformationRecord(int sequenceNumber,
+    public MasterInformationRecord(
+    	DefaultValueDatabase dvd,
+    	int sequenceNumber,
         long jobDate,
         long testDate,
         short stationNumber,
@@ -132,6 +134,7 @@ public class MasterInformationRecord extends StdfRecord
         this.partType = partType;
         this.nodeName = nodeName;
         this.testerType = testerType;
+        if (testerType.equals("Fusion_CX") || testerType.equals("CTX")) dvd.setFusionCx();
         this.jobName = jobName;
         this.jobRevisionNumber = jobRevisionNumber;
         this.sublotID = sublotID;
@@ -165,9 +168,10 @@ public class MasterInformationRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public MasterInformationRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public MasterInformationRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.MIR, sequenceNumber, data);
+        timeStamp = dvd.timeStamp;
         jobDate = getU4(0);
         testDate = getU4(0);
         stationNumber = getU1((byte) 0);
@@ -180,6 +184,7 @@ public class MasterInformationRecord extends StdfRecord
         partType = getCn();
         nodeName = getCn();
         testerType = getCn();
+        if (testerType.equals("Fusion_CX") || testerType.equals("CTX")) dvd.setFusionCx();
         jobName = getCn();
         jobRevisionNumber = getCn();
         sublotID = getCn();
@@ -301,9 +306,5 @@ public class MasterInformationRecord extends StdfRecord
         sb.append("    supervisor ID: ").append(supervisorID).append(Log.eol);
         return(sb.toString());
     }
-    
-    void setTimeStamp(long timeStamp) { this.timeStamp = timeStamp; }
-    
-    public long getTimeStamp() { return(timeStamp); }
 
 }

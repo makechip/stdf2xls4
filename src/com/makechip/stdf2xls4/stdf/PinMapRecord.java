@@ -46,7 +46,7 @@ public class PinMapRecord extends StdfRecord
     public final short headNumber;
     public final short siteNumber;
     
-    public PinMapRecord(int sequenceNumber, DefaultValueDatabase idb, byte[] data)
+    public PinMapRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase idb, byte[] data)
     {
         super(Record_t.PMR, sequenceNumber, data);
         pmrIdx = getU2(-1);

@@ -46,7 +46,7 @@ public class MasterResultsRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public MasterResultsRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public MasterResultsRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.MRR, sequenceNumber, data);
         finishDate = getU4(0);

@@ -50,7 +50,7 @@ public class PinListRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public PinListRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public PinListRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PLR, sequenceNumber, data);
         int k = getU2(0);

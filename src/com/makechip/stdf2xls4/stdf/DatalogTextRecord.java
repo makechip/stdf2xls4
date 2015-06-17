@@ -40,7 +40,7 @@ public class DatalogTextRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public DatalogTextRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public DatalogTextRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.DTR, sequenceNumber, data);
         text = getCn();

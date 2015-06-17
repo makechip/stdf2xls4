@@ -69,7 +69,7 @@ public class FunctionalTestRecord extends TestRecord
     @Override
     public boolean isTestRecord() { return(true); }
     
-    public FunctionalTestRecord(int sequenceNumber, DefaultValueDatabase idb, byte[] data)
+    public FunctionalTestRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase idb, byte[] data)
     {
         super(Record_t.FTR, sequenceNumber, data);
         EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());

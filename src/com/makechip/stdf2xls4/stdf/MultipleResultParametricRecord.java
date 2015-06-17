@@ -26,10 +26,11 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -40,8 +41,7 @@ import com.makechip.util.Log;
 **/
 public final class MultipleResultParametricRecord extends ParametricRecord
 {
-    private final byte[] rtnState;
-    private final float[] results; 
+	private final LinkedHashMap<String, Float> rsltMap;
 	private TestID id;
 	public final String alarmName;
 	public final Set<OptFlag_t> optFlags;
@@ -52,7 +52,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	public final float hiLimit;
     public final float startIn;
     public final float incrIn;
+    private final byte[] rtnState;
     private final int[] rtnIndex;
+    private final float[] results;
     public final String units;
     public final String unitsIn;
     public final String resFmt;
@@ -67,66 +69,74 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     /**
     *** @param p1
     **/
-    public MultipleResultParametricRecord(int sequenceNumber, final DefaultValueDatabase idb, byte[] data)
+    public MultipleResultParametricRecord(int sequenceNumber, TestIdDatabase tdb, final DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.MPR, sequenceNumber, data);
         int j = getU2(0);
         int k = getU2(0); 
         rtnState = getNibbles(j);
         results =  new float[k];
+        rsltMap = new LinkedHashMap<>();
         for (int i=0; i<results.length; i++) results[i] = getR4(-Float.MAX_VALUE);
         String testName = getCn();
-        id = TestID.createTestID(idb, testNumber, testName);
+        id = TestID.createTestID(dvd, testNumber, testName);
         alarmName = getCn();
         byte oflags = getByte();
         if (oflags != MISSING_BYTE)
         {
         	optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(oflags));
-        	if (idb.optDefaults.get(id) == null) idb.optDefaults.put(id, optFlags);
+        	if (dvd.optDefaults.get(id) == null) dvd.optDefaults.put(id, optFlags);
         }
         else
         {
-        	optFlags = idb.optDefaults.get(id);
+        	optFlags = dvd.optDefaults.get(id);
         }
-        resScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.resScalDefaults);
-        llmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.llmScalDefaults);
-        hlmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.hlmScalDefaults);
+        resScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.resScalDefaults);
+        llmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.llmScalDefaults);
+        hlmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.hlmScalDefaults);
         if (optFlags.contains(OptFlag_t.NO_LO_LIMIT))
         {
         	loLimit = MISSING_FLOAT;
         	getR4(MISSING_FLOAT);
         }
-        else loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loLimDefaults);
+        else loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.loLimDefaults);
         if (optFlags.contains(OptFlag_t.NO_HI_LIMIT))
         {
         	hiLimit = MISSING_FLOAT;
         	getR4(MISSING_FLOAT);
         }
-        else hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiLimDefaults);
-        startIn = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.startInDefaults);     
-        incrIn  = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.incrInDefaults);     
+        else hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.hiLimDefaults);
+        startIn = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.startInDefaults);     
+        incrIn  = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.incrInDefaults);     
         if (j != 0)
         {
-        	rtnIndex = new int[j];
+            rtnIndex = new int[j];
         	Arrays.setAll(rtnIndex, p -> getU2(MISSING_INT));
-        	if (idb.rtnIndexDefaults.get(id) == null) idb.rtnIndexDefaults.put(id, rtnIndex);
+        	if (dvd.rtnIndexDefaults.get(id) == null) dvd.rtnIndexDefaults.put(id, rtnIndex);
         }
         else
         {
-        	rtnIndex = idb.rtnIndexDefaults.get(id);
+        	rtnIndex = dvd.rtnIndexDefaults.get(id);
         }
-        units = setString(MISSING_STRING, getCn(), id , idb.unitDefaults);
-        unitsIn = setString(MISSING_STRING, getCn(), id , idb.unitsInDefaults);
-        resFmt = setString(MISSING_STRING, getCn(), id , idb.resFmtDefaults);
-        llmFmt = setString(MISSING_STRING, getCn(), id , idb.llmFmtDefaults);
-        hlmFmt = setString(MISSING_STRING, getCn(), id , idb.hlmFmtDefaults);
-        loSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loSpecDefaults);
-        hiSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiSpecDefaults);
+        int n = 0;
+        for (int i : rtnIndex)
+        {
+      	    String pin = (dvd.isFusionCx()) ? dvd.getPhysicalPinName(siteNumber, i) : dvd.getChannelName(siteNumber, i);
+      	    rsltMap.put(pin, results[n]);
+      	    n++;
+        }
+        units = setString(MISSING_STRING, getCn(), id , dvd.unitDefaults);
+        unitsIn = setString(MISSING_STRING, getCn(), id , dvd.unitsInDefaults);
+        resFmt = setString(MISSING_STRING, getCn(), id , dvd.resFmtDefaults);
+        llmFmt = setString(MISSING_STRING, getCn(), id , dvd.llmFmtDefaults);
+        hlmFmt = setString(MISSING_STRING, getCn(), id , dvd.hlmFmtDefaults);
+        loSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.loSpecDefaults);
+        hiSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.hiSpecDefaults);
     }
     
     public MultipleResultParametricRecord(
             final int sequenceNumber,
-            final DefaultValueDatabase idb,
+            final DefaultValueDatabase dvd,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
@@ -157,43 +167,50 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     {
         super(Record_t.MPR, sequenceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
-        this.results = new float[results.length];
-        for (int i=0; i<results.length; i++) this.results[i] = results[i];
-        id = TestID.createTestID(idb, testNumber, testName);
+        this.results = Arrays.copyOf(results, results.length);
+        id = TestID.createTestID(dvd, testNumber, testName);
         this.alarmName = alarmName;
         byte oflags = optFlags;
         if (oflags != MISSING_BYTE)
         {
         	this.optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(oflags));
-        	if (idb.optDefaults.get(id) == null) idb.optDefaults.put(id, this.optFlags);
+        	if (dvd.optDefaults.get(id) == null) dvd.optDefaults.put(id, this.optFlags);
         }
         else
         {
-        	this.optFlags = idb.optDefaults.get(id);
+        	this.optFlags = dvd.optDefaults.get(id);
         }
-        this.resScal = setByte(MISSING_BYTE, resScal, id, idb.resScalDefaults);
-        this.llmScal = setByte(MISSING_BYTE, llmScal, id, idb.llmScalDefaults);
-        this.hlmScal = setByte(MISSING_BYTE, hlmScal, id, idb.hlmScalDefaults);
-        this.loLimit = setFloat(MISSING_FLOAT, loLimit, id, idb.loLimDefaults);
-        this.hiLimit = setFloat(MISSING_FLOAT, hiLimit, id, idb.hiLimDefaults);
-        this.startIn = setFloat(MISSING_FLOAT, startIn, id, idb.startInDefaults);     
-        this.incrIn  = setFloat(MISSING_FLOAT, incrIn, id, idb.startInDefaults);     
+        this.resScal = setByte(MISSING_BYTE, resScal, id, dvd.resScalDefaults);
+        this.llmScal = setByte(MISSING_BYTE, llmScal, id, dvd.llmScalDefaults);
+        this.hlmScal = setByte(MISSING_BYTE, hlmScal, id, dvd.hlmScalDefaults);
+        this.loLimit = setFloat(MISSING_FLOAT, loLimit, id, dvd.loLimDefaults);
+        this.hiLimit = setFloat(MISSING_FLOAT, hiLimit, id, dvd.hiLimDefaults);
+        this.startIn = setFloat(MISSING_FLOAT, startIn, id, dvd.startInDefaults);     
+        this.incrIn  = setFloat(MISSING_FLOAT, incrIn, id, dvd.startInDefaults);     
         if (j != 0)
         {
         	this.rtnIndex = Arrays.copyOf(rtnIndex, rtnIndex.length);
-        	if (idb.rtnIndexDefaults.get(id) == null) idb.rtnIndexDefaults.put(id, this.rtnIndex);
+        	if (dvd.rtnIndexDefaults.get(id) == null) dvd.rtnIndexDefaults.put(id, rtnIndex);
         }
         else
         {
-        	this.rtnIndex = idb.rtnIndexDefaults.get(id);
+        	this.rtnIndex = dvd.rtnIndexDefaults.get(id);
         }
-        this.units = setString(MISSING_STRING, units, id , idb.unitDefaults);
-        this.unitsIn = setString(MISSING_STRING, unitsIn, id , idb.unitsInDefaults);
-        this.resFmt = setString(MISSING_STRING, resFmt, id , idb.resFmtDefaults);
-        this.llmFmt = setString(MISSING_STRING, llmFmt, id , idb.llmFmtDefaults);
-        this.hlmFmt = setString(MISSING_STRING, hlmFmt, id , idb.hlmFmtDefaults);
-        this.loSpec = setFloat(MISSING_FLOAT, loSpec, id, idb.loSpecDefaults);
-        this.hiSpec = setFloat(MISSING_FLOAT, hiSpec, id, idb.hiSpecDefaults);
+        rsltMap = new LinkedHashMap<>();
+        int n = 0;
+        for (int i : rtnIndex)
+        {
+      	    String pin = (dvd.isFusionCx()) ? dvd.getPhysicalPinName(siteNumber, i) : dvd.getChannelName(siteNumber, i);
+      	    rsltMap.put(pin, results[n]);
+      	    n++;
+        }
+        this.units = setString(MISSING_STRING, units, id , dvd.unitDefaults);
+        this.unitsIn = setString(MISSING_STRING, unitsIn, id , dvd.unitsInDefaults);
+        this.resFmt = setString(MISSING_STRING, resFmt, id , dvd.resFmtDefaults);
+        this.llmFmt = setString(MISSING_STRING, llmFmt, id , dvd.llmFmtDefaults);
+        this.hlmFmt = setString(MISSING_STRING, hlmFmt, id , dvd.hlmFmtDefaults);
+        this.loSpec = setFloat(MISSING_FLOAT, loSpec, id, dvd.loSpecDefaults);
+        this.hiSpec = setFloat(MISSING_FLOAT, hiSpec, id, dvd.hiSpecDefaults);
     }
     
     @Override
@@ -286,6 +303,10 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     public final byte[] getRtnState() { return(Arrays.copyOf(rtnState, rtnState.length)); }
     public final float[] getResults() { return(Arrays.copyOf(results, results.length)); }
     public final int[] getRtnIndex() { return(Arrays.copyOf(rtnIndex, rtnIndex.length)); }
+    
+    public Stream<String> getPinNames() { return(rsltMap.keySet().stream()); }
+    
+    public float getResult(String pinName) { return(rsltMap.get(pinName)); }
 
 	@Override
 	public TestID getTestId()

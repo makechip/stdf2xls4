@@ -45,7 +45,7 @@ public class WaferInformationRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public WaferInformationRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public WaferInformationRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.WIR, sequenceNumber, data);
         headNumber = getU1((short) -1);

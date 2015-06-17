@@ -67,7 +67,7 @@ public enum Record_t
     private FuncIf ctor;
     
     @FunctionalInterface
-    private interface FuncIf { StdfRecord getRecord(int seqNum, DefaultValueDatabase dvd, byte[] bytes); }
+    private interface FuncIf { StdfRecord getRecord(int seqNum, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] bytes); }
 
     /**
     **/
@@ -98,9 +98,9 @@ public enum Record_t
         return(null);
     }
 
-    public StdfRecord getInstance(int seqNum, DefaultValueDatabase dvd, byte[] bytes)
+    public StdfRecord getInstance(int seqNum, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] bytes)
     {
-    	return(ctor.getRecord(seqNum, dvd, bytes));
+    	return(ctor.getRecord(seqNum, tdb, dvd, bytes));
     }
 
 }

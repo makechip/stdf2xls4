@@ -40,7 +40,7 @@ public class BeginProgramSelectionRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public BeginProgramSelectionRecord(int sequenceNumber, DefaultValueDatabase dvb, byte[] data)
+    public BeginProgramSelectionRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvb, byte[] data)
     {
         super(Record_t.BPS, sequenceNumber, data);
         seqName = getCn();

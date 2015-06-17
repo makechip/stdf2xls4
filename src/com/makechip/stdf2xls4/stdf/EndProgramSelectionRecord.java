@@ -37,7 +37,7 @@ public class EndProgramSelectionRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public EndProgramSelectionRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public EndProgramSelectionRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.EPS, sequenceNumber, data);
     }

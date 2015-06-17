@@ -51,7 +51,7 @@ public class WaferConfigurationRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public WaferConfigurationRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public WaferConfigurationRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.WCR, sequenceNumber, data);
         waferSize = getR4(0.0f);

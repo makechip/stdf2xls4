@@ -46,7 +46,7 @@ public class HardwareBinRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public HardwareBinRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public HardwareBinRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.HBR, sequenceNumber, data);
         headNumber = getU1((short) 0);

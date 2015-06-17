@@ -44,7 +44,7 @@ public class RetestDataRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public RetestDataRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public RetestDataRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.RDR, sequenceNumber, data);
         int k = getU2(0);

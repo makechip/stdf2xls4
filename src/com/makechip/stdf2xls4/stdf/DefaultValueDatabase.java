@@ -17,6 +17,8 @@ import com.makechip.util.factory.IdentityFactoryLON;
 
 public final class DefaultValueDatabase
 {
+	private boolean fusionCx;
+	public final long timeStamp;
 	public final IdentityHashMap<TestID, Integer> testIdDupMap;
 	public final IdentityFactoryLON<String, TestID> idMap;
 
@@ -75,8 +77,9 @@ public final class DefaultValueDatabase
     	unitsInDefaults.clear();
     }
     
-    public DefaultValueDatabase()
+    public DefaultValueDatabase(long timeStamp)
     {
+    	this.timeStamp = timeStamp;
     	testIdDupMap = new IdentityHashMap<>();
     	idMap = new IdentityFactoryLON<>(String.class, TestID.class);
     	pgDefaults = new TLongShortHashMap(100, 0.7f, Long.MIN_VALUE, StdfRecord.MISSING_SHORT);
@@ -125,5 +128,9 @@ public final class DefaultValueDatabase
     	if (m == null) return(null);
     	return(m.get(index));
     }
+    
+    void setFusionCx() { fusionCx = true; }
+    
+    public boolean isFusionCx() { return(fusionCx); }
 
 }

@@ -58,7 +58,7 @@ public class ParametricTestRecord extends ParametricRecord
     /**
     *** @param p1
     **/
-    public ParametricTestRecord(int sequenceNumber, DefaultValueDatabase idb, byte[] data)
+    public ParametricTestRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase idb, byte[] data)
     {
     	super(Record_t.PTR, sequenceNumber, data);
         result = getR4(MISSING_FLOAT);

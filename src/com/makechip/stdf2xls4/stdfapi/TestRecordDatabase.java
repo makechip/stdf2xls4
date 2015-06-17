@@ -16,6 +16,7 @@ import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
 import com.makechip.stdf2xls4.stdf.PinTestID;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
+import com.makechip.stdf2xls4.stdf.TestIdDatabase;
 import com.makechip.stdf2xls4.stdf.TestRecord;
 import com.makechip.stdf2xls4.stdf.FunctionalTestRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
@@ -24,16 +25,14 @@ import com.makechip.util.Log;
 
 public class TestRecordDatabase
 {
-	private final Map<PageHeader, Boolean> cxTester;
-	private final DefaultValueDatabase idb;
+	private final TestIdDatabase tdb;
 	private final Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap;
 	private Map<PageHeader, Map<DeviceHeader, Map<TestHeader, TestResult>>> devMap;
 	private Map<PageHeader, Map<TestHeader, Map<DeviceHeader, TestResult>>> testMap;
 
-	public TestRecordDatabase(Map<PageHeader, Boolean> cxTester, DefaultValueDatabase idb, Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap)
+	public TestRecordDatabase(TestIdDatabase tdb, Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap)
 	{
-		this.cxTester = cxTester;
-		this.idb = idb;
+		this.tdb = tdb;
 		this.dynamicLimitMap = dynamicLimitMap;
 		devMap = new HashMap<>();
 		testMap = new HashMap<>();
@@ -125,7 +124,7 @@ public class TestRecordDatabase
 				ParametricRecord pr = ParametricRecord.class.cast(r);
 				TestResult tr = new LoLimitResult(pr.getLoLimit());
 				m2a.put(h, tr);
-				TestID lid = TestID.createTestID(idb, r.getTestId().testNumber, r.getTestId().testName + "_lo");
+				TestID lid = TestID.createTestID(tdb, r.getTestId().testNumber, r.getTestId().testName + "_lo");
                 Map<DeviceHeader, TestResult> m2b = (m1b.get(lid) == null) ? (sortDevices ? new TreeMap<>() : new LinkedHashMap<>()) : m1b.get(r.getTestId());
 			    m2b.put(dh, tr);	
 				i++;
@@ -141,25 +140,22 @@ public class TestRecordDatabase
 			}
 			else
 			{
+				final int a = i;
 				MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);
-		        Boolean t = cxTester.get(hdr);
-		        boolean fusionCx = (t == true);
-			    for (int j=i; j<th.size(); j++)
+			    mpr.getPinNames().forEach(pin -> {
+			    	    int b = a;
+			            TestID pid = PinTestID.getTestID(tdb, mpr.getTestId(), pin);
+			            TestResult tr = new ParametricTestResult(mpr.testFlags, mpr.getResult(pin));
+			            m2a.put(th.get(b), tr);
+                        Map<DeviceHeader, TestResult> m2b = (m1b.get(pid) == null) ? (sortDevices ? new TreeMap<>() : new LinkedHashMap<>()) : m1b.get(pid);
+			            m2b.put(dh, tr);	
+			            b++;	
+			        });
+			    if (i < th.size())
 			    {
-			    	TestHeader h = th.get(i);
-			    	if (h instanceof HiLimitHeader) 
-			    	{
-			    		hlh = h;
-			    		break;
-			    	}
-			    	int idx = mpr.getRtnIndex()[j-i];
-	         	    String pin = (fusionCx) ? idb.getPhysicalPinName(mpr.siteNumber, idx) : idb.getChannelName(mpr.siteNumber, idx);
-			    	TestID pid = PinTestID.getTestID(idb, mpr.getTestId(), pin);
-			    	TestResult tr = new ParametricTestResult(mpr.testFlags, mpr.getResults()[j-i]);
-			    	m2a.put(h, tr);
-                    Map<DeviceHeader, TestResult> m2b = (m1b.get(pid) == null) ? (sortDevices ? new TreeMap<>() : new LinkedHashMap<>()) : m1b.get(pid);
-			        m2b.put(dh, tr);	
-			        i++;
+			        TestHeader h = th.get(i);
+			        if (h instanceof HiLimitHeader) hlh = h;
+			        else Log.fatal("Program Bug - expected HiLimitHeader, but got " + h.getClass().getSimpleName());
 			    }
 			}
 			if (hlh != null)
@@ -167,7 +163,7 @@ public class TestRecordDatabase
 				ParametricRecord pr = ParametricRecord.class.cast(r);
 				TestResult tr = new HiLimitResult(pr.getHiLimit());
 				m2a.put(th.get(i), tr);
-				TestID hid = TestID.createTestID(idb, r.getTestId().testNumber, r.getTestId().testName + "_hi");
+				TestID hid = TestID.createTestID(tdb, r.getTestId().testNumber, r.getTestId().testName + "_hi");
                 Map<DeviceHeader, TestResult> m2b = (m1b.get(hid) == null) ? (sortDevices ? new TreeMap<>() : new LinkedHashMap<>()) : m1b.get(hid);
 			    m2b.put(dh, tr);	
 			}
@@ -249,38 +245,30 @@ public class TestRecordDatabase
 		          if (hasDynamicLimits(hdr, ptr.getTestId())) list.add(new HiLimitHeader(ptr.getTestId()));
 		          break;
 		case MPR: MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);
-		          Boolean t = cxTester.get(hdr);
-		          boolean fusionCx = (t == true);
 				  if (hasDynamicLimits(hdr, mpr.getTestId())) list.add(new LoLimitHeader(mpr.getTestId()));
 				  if (mpr.hasLoLimit() && mpr.hasHiLimit())
 				  {
-			          int[] idx = mpr.getRtnIndex();			  
-			          for (int i : idx)
-			          {
-			         	  String pin = (fusionCx) ? idb.getPhysicalPinName(mpr.siteNumber, i) : idb.getChannelName(mpr.siteNumber, i);
-			          	  PinTestID pid = PinTestID.getTestID(idb, mpr.getTestId(), pin);
-			           	  list.add(new MultiParametricTestHeader(pid, mpr.units, mpr.loLimit, mpr.hiLimit));
-			          }
+					  mpr.getPinNames().
+					      forEach(pin -> { 
+					    	  				  PinTestID pid = PinTestID.getTestID(mpr.getTestId(), pin); 
+					    	  				  list.add(new MultiParametricTestHeader(pid, mpr.units, mpr.loLimit, mpr.hiLimit)); 
+					    	  			 });
 				  }
 				  else if (mpr.hasLoLimit())
 				  {
-			          int[] idx = mpr.getRtnIndex();			  
-			          for (int i : idx)
-			          {
-			        	  String pin = (fusionCx) ? idb.getPhysicalPinName(mpr.siteNumber, i) : idb.getChannelName(mpr.siteNumber, i);
-			        	  PinTestID pid = PinTestID.getTestID(idb, mpr.getTestId(), pin);
-			         	  list.add(new MultiParametricTestHeader(pid, mpr.units, mpr.loLimit));
-			          }
+					  mpr.getPinNames().
+					      forEach(pin -> {
+			        	                     PinTestID pid = PinTestID.getTestID(mpr.getTestId(), pin);
+			         	                     list.add(new MultiParametricTestHeader(pid, mpr.units, mpr.loLimit));
+			                             });
 				  }
 				  else if (mpr.hasHiLimit())
 				  {
-			          int[] idx = mpr.getRtnIndex();			  
-			          for (int i : idx)
-			          {
-			         	  String pin = (fusionCx) ? idb.getPhysicalPinName(mpr.siteNumber, i) : idb.getChannelName(mpr.siteNumber, i);
-			           	  PinTestID pid = PinTestID.getTestID(idb, mpr.getTestId(), pin);
-			           	  list.add(new MultiParametricTestHeader(pid, mpr.hiLimit, mpr.units));
-			          }
+					  mpr.getPinNames().
+					      forEach(pin -> {
+			           	                     PinTestID pid = PinTestID.getTestID(mpr.getTestId(), pin);
+			           	                     list.add(new MultiParametricTestHeader(pid, mpr.hiLimit, mpr.units));
+					                     });
 				  }
 				  if (hasDynamicLimits(hdr, mpr.getTestId())) list.add(new HiLimitHeader(mpr.getTestId()));
 				  break;

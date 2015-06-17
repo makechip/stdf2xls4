@@ -61,7 +61,7 @@ public class TestSynopsisRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public TestSynopsisRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public TestSynopsisRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.TSR, sequenceNumber, data);
         headNumber = getU1((short) -1);

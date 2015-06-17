@@ -44,7 +44,7 @@ public class PartInformationRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public PartInformationRecord(int sequenceNumber, DefaultValueDatabase dvd, byte[] data)
+    public PartInformationRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PIR, sequenceNumber, data);
         headNumber = getU1((short) -1);

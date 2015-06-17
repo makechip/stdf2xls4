@@ -37,8 +37,6 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
-import static com.makechip.stdf2xls4.stdf.enums.Record_t.*;
-
 /**
 *** @author eric
 *** @version $Id: StdfReader.java 261 2008-10-23 00:14:14Z ericw $
@@ -50,17 +48,19 @@ public class StdfReader
     private final long timeStamp;
     private List<StdfRecord> records;
     private DefaultValueDatabase dvd;
+    private TestIdDatabase tdb;
     
-    public StdfReader(DefaultValueDatabase dvd, String filename)
+    public StdfReader(TestIdDatabase tdb, String filename)
     {
-        this(dvd, filename, false);
+        this(tdb, filename, false);
     }
     
-    public StdfReader(DefaultValueDatabase dvd, String filename, boolean timeStampedFilePerDevice)
+    public StdfReader(TestIdDatabase tdb, String filename, boolean timeStampedFilePerDevice)
     {
+    	this.tdb = tdb;
     	this.filename = filename;
     	this.timeStamp = timeStampedFilePerDevice ? getTimeStamp(filename) : 0L;
-    	this.dvd = dvd;
+    	dvd = new DefaultValueDatabase(timeStamp);
     	dvd.clearIdDups();
     	dvd.clearDefaults();
     }
@@ -68,16 +68,17 @@ public class StdfReader
     /**
      * Use this CTOR when reading an array of bytes.
      */
-    public StdfReader(DefaultValueDatabase dvd)
+    public StdfReader(TestIdDatabase tdb)
     {
-    	this(dvd, null, false);
+    	this(tdb, null, false);
     }
     
     /**
      * Use this CTOR when reading an array of bytes.
      */
-    public StdfReader(DefaultValueDatabase dvd, long timeStamp)
+    public StdfReader(TestIdDatabase tdb, DefaultValueDatabase dvd, long timeStamp)
     {
+    	this.tdb = tdb;
     	this.filename = null;
         this.timeStamp = timeStamp;
     	this.dvd = dvd;
@@ -88,8 +89,8 @@ public class StdfReader
     public static void main(String[] args)
     {
     	if (args.length != 1) throw new RuntimeException("Missing filename argument");
-    	DefaultValueDatabase dvd = new DefaultValueDatabase();
-    	StdfReader r = new StdfReader(dvd, args[0]);
+    	TestIdDatabase tdb = new TestIdDatabase();
+    	StdfReader r = new StdfReader(tdb, args[0]);
     	r.read();
     	Log.msg("" + r.records.size() + " records read");
     }
@@ -104,7 +105,7 @@ public class StdfReader
         byte[] far = new byte[2];
         far[0] = bytes[4];
         far[1] = bytes[5];
-        return(Record_t.FAR.getInstance(0, dvd, far));
+        return(Record_t.FAR.getInstance(0, tdb, dvd, far));
     }
     
     private long getTimeStamp(String name)
@@ -140,13 +141,7 @@ public class StdfReader
                 byte[] record = new byte[recLen];
                 len = rdr.read(record);
                 if (len != recLen) throw new RuntimeException("Error: record could not be read");
-                if (type == MIR)
-                {
-                	MasterInformationRecord mir = (MasterInformationRecord) type.getInstance(seqNum, dvd, record);
-                	mir.setTimeStamp(timeStamp);
-                	records.add(mir);
-                }
-                else records.add(type.getInstance(seqNum, dvd, record));
+                records.add(type.getInstance(seqNum, tdb, dvd, record));
                 seqNum++;
         	}                
         }
@@ -180,13 +175,7 @@ public class StdfReader
     	    	byte[] record = new byte[recLen];
     	    	if (ptr > bytes.length - recLen) throw new RuntimeException("Error: record could not be read");
     	    	for (int i=0; i<recLen; i++) record[i] = bytes[ptr++];
-                if (type == MIR)
-                {
-                	MasterInformationRecord mir = (MasterInformationRecord) type.getInstance(seqNum, dvd, record);
-                	mir.setTimeStamp(timeStamp);
-                	records.add(mir);
-                }
-                else records.add(type.getInstance(seqNum, dvd, record));
+                records.add(type.getInstance(seqNum, tdb, dvd, record));
     	    	seqNum++;
     	    }
     	}
@@ -195,7 +184,7 @@ public class StdfReader
     
     public Stream<StdfRecord> stream() { return(records.stream()); }
 
-    public int getUnsignedInt(byte b0, byte b1)
+    private int getUnsignedInt(byte b0, byte b1)
     {
         int l = 0;
         switch (cpuType)

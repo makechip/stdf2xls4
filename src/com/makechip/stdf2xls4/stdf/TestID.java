@@ -55,21 +55,21 @@ public class TestID implements Identity, Immutable
      * @param testName
      * @return
      */
-    public static TestID createTestID(DefaultValueDatabase idb, long testNum, String testName)
+    public static TestID createTestID(TestIdDatabase tdb, long testNum, String testName)
     {
     	// 1. check testName and testNumber
-    	TestID id = idb.idMap.getExistingValue(testNum, testName, 0);
-    	if (id == null || idb.testIdDupMap.get(id) == null)
+    	TestID id = tdb.idMap.getExistingValue(testNum, testName, 0);
+    	if (id == null || tdb.testIdDupMap.get(id) == null)
     	{
-    		if (id == null) id = idb.idMap.getValue(testNum, testName, 0);
-    		idb.testIdDupMap.put(id, 0);
+    		if (id == null) id = tdb.idMap.getValue(testNum, testName, 0);
+    		tdb.testIdDupMap.put(id, 0);
     		return(id);
     	}
         // 2. Need duplicate ID
-    	Integer dnum = idb.testIdDupMap.get(id);
+    	Integer dnum = tdb.testIdDupMap.get(id);
     	dnum++;
-    	TestID d = idb.idMap.getValue(testNum, testName, dnum);
-    	idb.testIdDupMap.put(id,  dnum);
+    	TestID d = tdb.idMap.getValue(testNum, testName, dnum);
+    	tdb.testIdDupMap.put(id,  dnum);
     	return(d);
     }
     

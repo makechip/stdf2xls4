@@ -23,7 +23,7 @@ import com.makechip.util.Log;
  */
 public class StdfTest1
 {
-	static DefaultValueDatabase idb = new DefaultValueDatabase();
+	static DefaultValueDatabase idb = new DefaultValueDatabase(0L);
     static StdfWriter stdf;
     static Stack<StdfRecord> stack;
     static StdfReader rdr;
@@ -38,7 +38,7 @@ public class StdfTest1
 		FileAttributesRecord far = new FileAttributesRecord(snum++, 4, Cpu_t.PC);
 		List<AuditTrailRecord> atrs = new ArrayList<AuditTrailRecord>();
 		atrs.add(new AuditTrailRecord(snum++, dnum, 100000000L, "cmdline"));
-		MasterInformationRecord mir = new MasterInformationRecord(snum++, 1000L, 2000L, (short) 1,
+		MasterInformationRecord mir = new MasterInformationRecord(idb, snum++, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID",
 			"partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  "sublotID", "operatorName",
 			"execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", "auxDataFile",
@@ -99,8 +99,7 @@ public class StdfTest1
 	public void testA()
 	{
 		Log.msg("testA");
-		idb = new DefaultValueDatabase();
-		rdr = new StdfReader(idb);
+		rdr = new StdfReader();
 		rdr.read(stdf.getBytes());
 		List<StdfRecord> list = rdr.stream().collect(Collectors.toList());
 		assertEquals(26, list.size());
@@ -186,7 +185,7 @@ public class StdfTest1
 		assertEquals("romCodeID", mir.romCodeID);
 		assertEquals("testerSerialNumber", mir.testerSerialNumber);
 		assertEquals("supervisorID", mir.supervisorID);
-		assertEquals(0, mir.getTimeStamp());
+		assertEquals(0, mir.timeStamp);
 	}
 	
 	// RetestDataRecord rdr = new RetestDataRecord(snum++, dnum, new int[] { 1, 2, 3, 4 });

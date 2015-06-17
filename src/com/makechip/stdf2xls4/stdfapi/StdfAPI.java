@@ -42,7 +42,6 @@ import static com.makechip.stdf2xls4.stdf.StdfRecord.*;
  */
 public final class StdfAPI
 {
-	private final DefaultValueDatabase idb;
 	private final Map<PageHeader, Boolean> tester;
 	private TestRecordDatabase tdb;
 	private final boolean dynamicLimits;
@@ -63,7 +62,6 @@ public final class StdfAPI
 	{
 		this.dynamicLimits = dynamicLimits;
 		if (dynamicLimits) dynamicLimitMap = new HashMap<>(); else dynamicLimitMap = null;
-		idb = new DefaultValueDatabase();
 		this.stdfFiles = stdfFiles;
 		new ArrayList<StdfRecord>();
 		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
@@ -163,7 +161,7 @@ public final class StdfAPI
 		HashMap<PageHeader, List<List<StdfRecord>>> devList = new HashMap<>();
 		// load the stdf records; group records by device	
 		    stdfFiles.stream()
-			.map(p -> new StdfReader(idb, p, timeStampedFiles))
+			.map(p -> new StdfReader(p, timeStampedFiles))
 			.flatMap(rdr -> rdr.read().stream())
 			.collect(splitBySeparator(r -> r instanceof PartResultsRecord))
 			.stream()
@@ -210,7 +208,7 @@ public final class StdfAPI
 		}
 		if (wafersort)
 		{
-		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.getTimeStamp(), prr.xCoord, prr.yCoord);	
+		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.timeStamp, prr.xCoord, prr.yCoord);	
 		    else snxy = XY.getXY(prr.xCoord, prr.yCoord);
 		}
 		else
@@ -225,11 +223,11 @@ public final class StdfAPI
 				st.nextToken(); // burn "TEXT_DATA"
 				st.nextToken(); // burn "S/N"
 				String sn = st.nextToken();
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.getTimeStamp(), sn) : SN.getSN(sn);
+				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.timeStamp, sn) : SN.getSN(sn);
 			}
 			else
 			{
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.getTimeStamp(), prr.getPartID()) : SN.getSN(prr.getPartID());
+				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.timeStamp, prr.getPartID()) : SN.getSN(prr.getPartID());
 			}
 		}
 		List<TestRecord> l = list.stream()
