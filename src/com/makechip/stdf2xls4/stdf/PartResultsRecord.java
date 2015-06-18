@@ -64,6 +64,7 @@ public class PartResultsRecord extends StdfRecord
     public PartResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PRR, data);
+        tdb.clearIdDups();
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
         byte f = getI1((byte) 0);

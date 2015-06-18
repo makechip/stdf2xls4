@@ -104,11 +104,13 @@ public abstract class ParametricRecord extends TestRecord
 	
 	public boolean hasLoLimit()
 	{
+		if (getOptFlags() == null) return(true);
 		return(!getOptFlags().contains(OptFlag_t.NO_LO_LIMIT));
 	}
 	
 	public boolean hasHiLimit()
 	{
+		if (getOptFlags() == null) return(true);
 		return(!getOptFlags().contains(OptFlag_t.NO_HI_LIMIT));
 	}
 

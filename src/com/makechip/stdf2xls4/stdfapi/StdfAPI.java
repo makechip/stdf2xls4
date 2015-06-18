@@ -48,15 +48,16 @@ public final class StdfAPI
     public static final String TEXT_DATA = StdfRecord.TEXT_DATA;
     public static final String SERIAL_MARKER = StdfRecord.SERIAL_MARKER;
     private final Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap;
+	private final List<String> stdfFiles;
+	private boolean timeStampedFiles;
+	private boolean wafersort;
+
 	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 	{
 	    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
 	                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
 	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
 	}
-	private final List<String> stdfFiles;
-	private boolean timeStampedFiles;
-	private boolean wafersort;
 
 	public StdfAPI(List<String> stdfFiles, boolean dynamicLimits)
 	{
@@ -240,18 +241,13 @@ public final class StdfAPI
 	
     private boolean hasTimeStamp(String name)
     {
-    	int dotIndex = 0;
-    	if (name.toLowerCase().endsWith(".std")) dotIndex = name.length() - 4;
-    	else if (name.toLowerCase().endsWith(".stdf")) dotIndex = name.length() - 5;
-    	else return(false);
-    	int bIndex = dotIndex - 14;
-    	if (bIndex < 1) return(false);
-    	String stamp = name.substring(bIndex, dotIndex);
+    	String s = name.toLowerCase();
+    	int dotIndex = (s.endsWith(".std")) ? s.length() - 4 : (s.endsWith(".stdf")) ? s.length() - 5 : 0;
+    	if (dotIndex < 1) return(false);
     	long timeStamp = 0L;
-    	try { timeStamp = Long.parseLong(stamp); }
+    	try { timeStamp = Long.parseLong(s.substring(dotIndex - 14, dotIndex)); }
     	catch (Exception e) { return(false); }
-    	// the timestamp must belong to the 21st century.
-    	if (timeStamp < 20000000000000L || timeStamp > 21000000000000L) return(false);
+    	if (timeStamp < 19000000000000L || timeStamp > 22000000000000L) return(false); // the timestamp must belong to recent centuries
     	return(true);
     }
 	

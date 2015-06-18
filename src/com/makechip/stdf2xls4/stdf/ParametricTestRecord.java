@@ -78,13 +78,13 @@ public class ParametricTestRecord extends ParametricRecord
         resScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.resScalDefaults);
         llmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.llmScalDefaults);
         hlmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.hlmScalDefaults);
-        if (optFlags.contains(OptFlag_t.NO_LO_LIMIT))
+        if (optFlags != null && optFlags.contains(OptFlag_t.NO_LO_LIMIT))
         {
         	loLimit = MISSING_FLOAT;
         	getR4(MISSING_FLOAT);
         }
         else loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.loLimDefaults);
-        if (optFlags.contains(OptFlag_t.NO_HI_LIMIT))
+        if (optFlags != null && optFlags.contains(OptFlag_t.NO_HI_LIMIT))
         {
         	hiLimit = MISSING_FLOAT;
         	getR4(MISSING_FLOAT);
