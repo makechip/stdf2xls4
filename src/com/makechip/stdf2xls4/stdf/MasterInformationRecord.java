@@ -80,7 +80,6 @@ public class MasterInformationRecord extends StdfRecord
     
     public MasterInformationRecord(
     	DefaultValueDatabase dvd,
-    	int sequenceNumber,
         long jobDate,
         long testDate,
         short stationNumber,
@@ -121,7 +120,7 @@ public class MasterInformationRecord extends StdfRecord
         String supervisorID,
         long timeStamp)
     {
-        super(Record_t.MIR, sequenceNumber, null);
+        super(Record_t.MIR, null);
         this.jobDate = jobDate;
         this.testDate = testDate;
         this.stationNumber = stationNumber;
@@ -168,9 +167,9 @@ public class MasterInformationRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public MasterInformationRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public MasterInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.MIR, sequenceNumber, data);
+        super(Record_t.MIR, data);
         timeStamp = dvd.timeStamp;
         jobDate = getU4(0);
         testDate = getU4(0);

@@ -69,9 +69,9 @@ public class FunctionalTestRecord extends TestRecord
     @Override
     public boolean isTestRecord() { return(true); }
     
-    public FunctionalTestRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public FunctionalTestRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.FTR, sequenceNumber, data);
+        super(Record_t.FTR, data);
         EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());
         testFlags = Collections.unmodifiableSet(s);
         byte oflags = getByte();
@@ -161,7 +161,6 @@ public class FunctionalTestRecord extends TestRecord
     }
     
     public FunctionalTestRecord(
-        final int sequenceNumber,
         TestIdDatabase tdb,
         DefaultValueDatabase dvd,
         final long testNumber,
@@ -191,7 +190,7 @@ public class FunctionalTestRecord extends TestRecord
         final short patGenNum,
         final byte[] enComps)
     {
-        super(Record_t.FTR, sequenceNumber, testNumber, headNumber, siteNumber);	
+        super(Record_t.FTR, testNumber, headNumber, siteNumber);	
         EnumSet<TestFlag_t> s1 = TestFlag_t.getBits(testFlags);
         this.testFlags = Collections.unmodifiableSet(s1);
         EnumSet<FTROptFlag_t> s2 = FTROptFlag_t.getBits(optFlags);

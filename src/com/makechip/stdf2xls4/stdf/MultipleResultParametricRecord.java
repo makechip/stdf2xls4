@@ -69,9 +69,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     /**
     *** @param p1
     **/
-    public MultipleResultParametricRecord(int sequenceNumber, TestIdDatabase tdb, final DefaultValueDatabase dvd, byte[] data)
+    public MultipleResultParametricRecord(TestIdDatabase tdb, final DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.MPR, sequenceNumber, data);
+        super(Record_t.MPR, data);
         int j = getU2(0);
         int k = getU2(0); 
         rtnState = getNibbles(j);
@@ -135,7 +135,6 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     }
     
     public MultipleResultParametricRecord(
-            final int sequenceNumber,
             final TestIdDatabase tdb,
             final DefaultValueDatabase dvd,
             final long testNumber,
@@ -166,7 +165,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(Record_t.MPR, sequenceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
+        super(Record_t.MPR, testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
         this.results = Arrays.copyOf(results, results.length);
         id = TestID.createTestID(tdb, testNumber, testName);

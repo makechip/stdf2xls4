@@ -11,25 +11,25 @@ public abstract class TestRecord extends StdfRecord
 	public final short headNumber;
 	public final short siteNumber;
 	
-	protected TestRecord(Record_t type, int sequenceNumber, byte[] data)
+	protected TestRecord(Record_t type, byte[] data)
 	{
-		super(type, sequenceNumber, data);
+		super(type, data);
 		this.testNumber = getU4(MISSING_LONG);
 		this.headNumber = getU1(MISSING_SHORT);
 		this.siteNumber = getU1(MISSING_SHORT);
 	}
 	
-	protected TestRecord(Record_t type, int sequenceNumber, long testNumber, short headNumber, short siteNumber)
+	protected TestRecord(Record_t type, long testNumber, short headNumber, short siteNumber)
 	{
-		super(type, sequenceNumber, null);
+		super(type, null);
 		this.testNumber = testNumber;
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
 	}
 	
-	protected TestRecord(int sequenceNumber, String testName, String valueText, long testNumber, short headNumber, short siteNumber)
+	protected TestRecord(String testName, String valueText, long testNumber, short headNumber, short siteNumber)
 	{
-		super(Record_t.DTR, sequenceNumber, null);
+		super(Record_t.DTR, null);
 		this.testNumber = testNumber;
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
@@ -41,9 +41,9 @@ public abstract class TestRecord extends StdfRecord
 	
 	protected abstract void setText(String text);
 	
-	protected TestRecord(int sequenceNumber, byte[] data)
+	protected TestRecord(byte[] data)
 	{
-		super(Record_t.DTR, sequenceNumber, data);
+		super(Record_t.DTR, data);
 		String text = getCn();
 		StringTokenizer st = new StringTokenizer(text, ": \t");
 	    st.nextToken(); // burn TEXT_DATA

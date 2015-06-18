@@ -146,18 +146,18 @@ public class GenericDataRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public GenericDataRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public GenericDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.GDR, sequenceNumber, data);
+        super(Record_t.GDR, data);
         List<Data> l = new ArrayList<Data>();
         int fields = getU2(0);
         Stream.generate(() -> getType()).limit(fields).forEach(v -> getField(l, v));
         list = Collections.unmodifiableList(l);
     }
     
-    public GenericDataRecord(int sequenceNumber, List<Data> list)
+    public GenericDataRecord(List<Data> list)
     {
-    	super(Record_t.GDR, sequenceNumber, null);
+    	super(Record_t.GDR, null);
     	this.list = new ArrayList<Data>(list);
     }
 

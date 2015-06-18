@@ -58,9 +58,9 @@ public class ParametricTestRecord extends ParametricRecord
     /**
     *** @param p1
     **/
-    public ParametricTestRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public ParametricTestRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-    	super(Record_t.PTR, sequenceNumber, data);
+    	super(Record_t.PTR, data);
         result = getR4(MISSING_FLOAT);
         String testName = getCn(); 
         id = TestID.createTestID(tdb, testNumber, testName); 
@@ -99,7 +99,6 @@ public class ParametricTestRecord extends ParametricRecord
     }
     
     public ParametricTestRecord(
-            final int sequenceNumber,
             final TestIdDatabase tdb,
             final DefaultValueDatabase dvd,
             final long testNumber,
@@ -123,7 +122,7 @@ public class ParametricTestRecord extends ParametricRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(Record_t.PTR, sequenceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
+        super(Record_t.PTR, testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.result = result;
         id = TestID.createTestID(tdb, testNumber, testName);
         this.alarmName = alarmName;

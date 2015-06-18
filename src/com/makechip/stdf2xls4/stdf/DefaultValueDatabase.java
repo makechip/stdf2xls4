@@ -13,14 +13,11 @@ import java.util.Set;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.TestID;
-import com.makechip.util.factory.IdentityFactoryLON;
 
 public final class DefaultValueDatabase
 {
 	private boolean fusionCx;
 	public final long timeStamp;
-	public final IdentityHashMap<TestID, Integer> testIdDupMap;
-	public final IdentityFactoryLON<String, TestID> idMap;
 
     // for FTR
     public final TLongShortHashMap pgDefaults;
@@ -51,9 +48,7 @@ public final class DefaultValueDatabase
     final TShortObjectHashMap<TIntObjectHashMap<String>> physMap;
     final TShortObjectHashMap<TIntObjectHashMap<String>> logMap;
     
-    public void clearIdDups() { testIdDupMap.clear(); }
-    
-    public void clearDefaults()
+    void clearDefaults()
     {
     	pgDefaults.clear();
     	ecDefaults.clear();
@@ -80,8 +75,6 @@ public final class DefaultValueDatabase
     public DefaultValueDatabase(long timeStamp)
     {
     	this.timeStamp = timeStamp;
-    	testIdDupMap = new IdentityHashMap<>();
-    	idMap = new IdentityFactoryLON<>(String.class, TestID.class);
     	pgDefaults = new TLongShortHashMap(100, 0.7f, Long.MIN_VALUE, StdfRecord.MISSING_SHORT);
     	ecDefaults = new TLongObjectHashMap<>(100, 0.7f);
     	foptDefaults = new TLongObjectHashMap<>(100, 0.7f);
@@ -108,21 +101,21 @@ public final class DefaultValueDatabase
     	logMap = new TShortObjectHashMap<>();
     }
    
-    public String getChannelName(short site, int index)
+    String getChannelName(short site, int index)
     {
     	TIntObjectHashMap<String> m = chanMap.get(site);
         if (m == null) return(null);
         return(m.get(index));
     }
     
-    public String getPhysicalPinName(short site, int index)
+    String getPhysicalPinName(short site, int index)
     {
     	TIntObjectHashMap<String> m = physMap.get(site);
     	if (m == null) return(null);
     	return(m.get(index));
     }
     
-    public String getLogicalPinName(short site, int index)
+    String getLogicalPinName(short site, int index)
     {
     	TIntObjectHashMap<String> m = logMap.get(site);
     	if (m == null) return(null);
@@ -131,6 +124,6 @@ public final class DefaultValueDatabase
     
     void setFusionCx() { fusionCx = true; }
     
-    public boolean isFusionCx() { return(fusionCx); }
+    boolean isFusionCx() { return(fusionCx); }
 
 }

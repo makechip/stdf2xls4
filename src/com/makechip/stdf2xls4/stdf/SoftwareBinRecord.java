@@ -49,9 +49,9 @@ public class SoftwareBinRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public SoftwareBinRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public SoftwareBinRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.SBR, sequenceNumber, data);
+        super(Record_t.SBR, data);
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
         swBinNumber = getU2(-1);
@@ -74,15 +74,9 @@ public class SoftwareBinRecord extends StdfRecord
 		bytes = l.toArray();
 	}
 	
-	public SoftwareBinRecord(int sequenceNumber,
-		short headNumber,
-		short siteNumber,
-		int swBinNumber,
-		int count,
-		char pf,
-		String binName)
+	public SoftwareBinRecord(short headNumber, short siteNumber, int swBinNumber, int count, char pf, String binName)
 	{
-		super(Record_t.SBR, sequenceNumber, null);
+		super(Record_t.SBR, null);
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
 		this.swBinNumber = swBinNumber;

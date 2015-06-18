@@ -61,9 +61,9 @@ public class TestSynopsisRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public TestSynopsisRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public TestSynopsisRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.TSR, sequenceNumber, data);
+        super(Record_t.TSR, data);
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
         String c = getFixedLengthString(1);
@@ -106,7 +106,7 @@ public class TestSynopsisRecord extends StdfRecord
 		bytes = l.toArray();
 	}
 	
-	public TestSynopsisRecord(int sequenceNumber,
+	public TestSynopsisRecord(
 	   short headNumber,
 	   short siteNumber,
 	   char testType,
@@ -124,7 +124,7 @@ public class TestSynopsisRecord extends StdfRecord
 	   float testSum,
 	   float testSumSquares)
 	{
-		super(Record_t.TSR, sequenceNumber, null);
+		super(Record_t.TSR, null);
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
 		this.testType = testType;

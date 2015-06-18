@@ -40,15 +40,15 @@ public class BeginProgramSelectionRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public BeginProgramSelectionRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvb, byte[] data)
+    public BeginProgramSelectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvb, byte[] data)
     {
-        super(Record_t.BPS, sequenceNumber, data);
+        super(Record_t.BPS, data);
         seqName = getCn();
     }
     
-    public BeginProgramSelectionRecord(int sequenceNumber, String seqName)
+    public BeginProgramSelectionRecord(String seqName)
     {
-    	super(Record_t.BPS, sequenceNumber, null);
+    	super(Record_t.BPS, null);
     	this.seqName = seqName;
     }
     

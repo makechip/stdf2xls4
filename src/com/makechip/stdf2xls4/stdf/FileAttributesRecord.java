@@ -44,17 +44,17 @@ public class FileAttributesRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public FileAttributesRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public FileAttributesRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.FAR, sequenceNumber, data);
+        super(Record_t.FAR, data);
         cpuType = Cpu_t.getCpuType(data[0]);
         stdfVersion = (data[1] & 0xFF);
         assert stdfVersion == 4;
     }
     
-    public FileAttributesRecord(int sequenceNumber, int stdfVersion, Cpu_t cpuType)
+    public FileAttributesRecord(int stdfVersion, Cpu_t cpuType)
     {
-    	super(Record_t.FAR, sequenceNumber, null);
+    	super(Record_t.FAR, null);
     	this.stdfVersion = stdfVersion;
     	this.cpuType = cpuType;
     }

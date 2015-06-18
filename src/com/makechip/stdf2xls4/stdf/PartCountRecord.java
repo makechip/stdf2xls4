@@ -49,9 +49,9 @@ public class PartCountRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public PartCountRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public PartCountRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.PCR, sequenceNumber, data);
+        super(Record_t.PCR, data);
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
         partsTested = getU4(-1);
@@ -61,7 +61,7 @@ public class PartCountRecord extends StdfRecord
         functional = getU4(4294967295L);
     }
     
-    public PartCountRecord(int sequenceNumber,
+    public PartCountRecord(
     		short headNumber,
     		short siteNumber,
     		long partsTested,
@@ -70,7 +70,7 @@ public class PartCountRecord extends StdfRecord
     		long good,
     		long functional)
     {
-    	super(Record_t.PCR, sequenceNumber, null);
+    	super(Record_t.PCR, null);
     	this.headNumber = headNumber;
     	this.siteNumber = siteNumber;
     	this.partsTested = partsTested;

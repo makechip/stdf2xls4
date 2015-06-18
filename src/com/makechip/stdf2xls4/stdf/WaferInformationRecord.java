@@ -45,9 +45,9 @@ public class WaferInformationRecord extends StdfRecord
     /**
     *** @param p1
     **/
-    public WaferInformationRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public WaferInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.WIR, sequenceNumber, data);
+        super(Record_t.WIR, data);
         headNumber = getU1((short) -1);
         siteGroupNumber = getU1((short) 255);
         startDate = getU4(-1);
@@ -65,13 +65,13 @@ public class WaferInformationRecord extends StdfRecord
 		bytes = l.toArray();
 	}
 	
-	public WaferInformationRecord(int sequenceNumber,
+	public WaferInformationRecord(
 		short headNumber,
 		short siteGroupNumber,
 		long startDate,
 		String waferID)
 	{
-		super(Record_t.WIR, sequenceNumber, null);
+		super(Record_t.WIR, null);
 		this.headNumber = headNumber;
 		this.siteGroupNumber = siteGroupNumber;
 		this.startDate = startDate;

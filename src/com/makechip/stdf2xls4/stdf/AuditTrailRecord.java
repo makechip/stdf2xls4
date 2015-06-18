@@ -43,20 +43,16 @@ public class AuditTrailRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public AuditTrailRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvb, byte[] data)
+    public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvb, byte[] data)
     {
-        super(Record_t.ATR, sequenceNumber, data);
+        super(Record_t.ATR, data);
         date = getU4(0);
         cmdLine = getCn();
     }
     
-    public AuditTrailRecord(
-    		final int sequenceNumber,
-    		final int devNum,
-    		final long date,
-    		final String cmdLine)
+    public AuditTrailRecord(final long date, final String cmdLine)
     {
-    	super(Record_t.ATR, sequenceNumber, null);
+    	super(Record_t.ATR, null);
     	this.date = date;
     	this.cmdLine = cmdLine;
     }

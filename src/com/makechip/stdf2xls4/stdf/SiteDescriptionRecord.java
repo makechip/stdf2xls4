@@ -64,9 +64,9 @@ public class SiteDescriptionRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public SiteDescriptionRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public SiteDescriptionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.SDR, sequenceNumber, data);
+        super(Record_t.SDR, data);
         headNumber = getU1((short) -1);
         siteGroupNumber = getU1((short) -1);
         numSites = getU1((short) 0);
@@ -117,7 +117,7 @@ public class SiteDescriptionRecord extends StdfRecord
         bytes = l.toArray();
 	}
 	
-	public SiteDescriptionRecord(int sequenceNumber,
+	public SiteDescriptionRecord(
 		short headNumber,
 		short siteGroupNumber,
 		short numSites,
@@ -140,7 +140,7 @@ public class SiteDescriptionRecord extends StdfRecord
 		String equipID
 		)
 	{
-		super(Record_t.SDR, sequenceNumber, null);
+		super(Record_t.SDR, null);
 		this.headNumber = headNumber;
 		this.siteGroupNumber = siteGroupNumber;
 		this.numSites = numSites;

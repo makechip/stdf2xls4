@@ -17,23 +17,22 @@ public abstract class ParametricRecord extends TestRecord
 	public final Set<TestFlag_t> testFlags;
 	public final Set<ParamFlag_t> paramFlags;
 	
-	protected ParametricRecord(Record_t type, int sequenceNumber, byte[] data)
+	protected ParametricRecord(Record_t type, byte[] data)
 	{
-		super(type, sequenceNumber, data);
+		super(type, data);
     	testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(getByte()));
     	paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(getByte()));
 		
 	}
 	
 	protected ParametricRecord(Record_t type, 
-			                   int sequenceNumber, 
 			                   long testNumber, 
 			                   short headNumber, 
 			                   short siteNumber,
 			                   byte testFlags,
 			                   byte paramFlags)
 	{
-		super(type, sequenceNumber, testNumber, headNumber, siteNumber);
+		super(type, testNumber, headNumber, siteNumber);
 		this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
 		this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
 	}

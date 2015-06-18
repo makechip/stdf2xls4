@@ -30,6 +30,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -47,8 +48,8 @@ public class StdfReader
     public static Cpu_t cpuType;
     private final long timeStamp;
     private List<StdfRecord> records;
-    private DefaultValueDatabase dvd;
-    private TestIdDatabase tdb;
+    private final DefaultValueDatabase dvd;
+    private final TestIdDatabase tdb;
     
     public StdfReader(TestIdDatabase tdb, String filename)
     {
@@ -61,8 +62,8 @@ public class StdfReader
     	this.filename = filename;
     	this.timeStamp = timeStampedFilePerDevice ? getTimeStamp(filename) : 0L;
     	dvd = new DefaultValueDatabase(timeStamp);
-    	dvd.clearIdDups();
     	dvd.clearDefaults();
+    	records = new ArrayList<>(100);
     }
     
     /**
@@ -70,20 +71,20 @@ public class StdfReader
      */
     public StdfReader(TestIdDatabase tdb)
     {
-    	this(tdb, null, false);
+    	this(tdb, 0L);
     }
     
     /**
      * Use this CTOR when reading an array of bytes.
      */
-    public StdfReader(TestIdDatabase tdb, DefaultValueDatabase dvd, long timeStamp)
+    public StdfReader(TestIdDatabase tdb, long timeStamp)
     {
     	this.tdb = tdb;
     	this.filename = null;
         this.timeStamp = timeStamp;
-    	this.dvd = dvd;
-    	this.dvd.clearIdDups();
+    	this.dvd = new DefaultValueDatabase(timeStamp);
     	this.dvd.clearDefaults();
+    	records = new ArrayList<>(100);
     }
     
     public static void main(String[] args)
@@ -105,7 +106,7 @@ public class StdfReader
         byte[] far = new byte[2];
         far[0] = bytes[4];
         far[1] = bytes[5];
-        return(Record_t.FAR.getInstance(0, tdb, dvd, far));
+        return(Record_t.FAR.getInstance(tdb, dvd, far));
     }
     
     private long getTimeStamp(String name)
@@ -123,26 +124,18 @@ public class StdfReader
     
    public StdfReader read()
     {
-    	records = new ArrayList<StdfRecord>();
         try (DataInputStream rdr = new DataInputStream(new BufferedInputStream(new FileInputStream(filename), 1000000)))
         {
         	byte[] far = new byte[6];
         	int len = rdr.read(far); 
             records.add(FARcheck(len, far));
-            int seqNum = 1;	
-        	while (true)
+        	while (rdr.available() >= 2)
         	{
-        		if (rdr.available() < 2) break;
-            	byte l0 = rdr.readByte(); 
-                int recLen = getUnsignedInt(l0, rdr.readByte());	
-                l0 = rdr.readByte(); // type
-                Record_t type = Record_t.getRecordType(l0, rdr.readByte());
-                if (type == null) Log.msg("unkown type at record number = " + seqNum);
+                int recLen = getUnsignedInt(rdr.readByte(), rdr.readByte());	
+                Record_t type = Record_t.getRecordType(rdr.readByte(), rdr.readByte());
                 byte[] record = new byte[recLen];
                 len = rdr.read(record);
-                if (len != recLen) throw new RuntimeException("Error: record could not be read");
-                records.add(type.getInstance(seqNum, tdb, dvd, record));
-                seqNum++;
+                records.add(type.getInstance(tdb, dvd, record));
         	}                
         }
         catch (IOException e) { Log.fatal(e); }
@@ -152,31 +145,17 @@ public class StdfReader
     
     public void read(byte[] bytes)
     {
-    	records = new ArrayList<StdfRecord>();
     	try
     	{
-    	    byte[] far = new byte[6];
-    	    int ptr = 0;
-    	    for (int i=0; i<6; i++) 
-    	    {
-    	    	far[i] = bytes[i];
-    	    	ptr++;
-    	    }
+    	    byte[] far = Arrays.copyOf(bytes, 6);
+    	    int ptr = 6;
     	    records.add(FARcheck(6, far));
-    	    int seqNum = 1;
-    	    while (true)
+    	    while (ptr <= (bytes.length - 2))
     	    {
-    	    	if (ptr > bytes.length - 2) break;
-    	    	byte l0 = bytes[ptr++];
-    	    	int recLen = getUnsignedInt(l0, bytes[ptr++]);
-    	    	l0 = bytes[ptr++]; // type
-    	    	Record_t type = Record_t.getRecordType(l0,  bytes[ptr++]);
-                if (type == null) Log.msg("unknown type at record number = " + seqNum);
-    	    	byte[] record = new byte[recLen];
-    	    	if (ptr > bytes.length - recLen) throw new RuntimeException("Error: record could not be read");
-    	    	for (int i=0; i<recLen; i++) record[i] = bytes[ptr++];
-                records.add(type.getInstance(seqNum, tdb, dvd, record));
-    	    	seqNum++;
+    	    	int recLen = getUnsignedInt(bytes[ptr++], bytes[ptr++]);
+    	    	Record_t type = Record_t.getRecordType(bytes[ptr++],  bytes[ptr++]);
+                records.add(type.getInstance(tdb, dvd, Arrays.copyOfRange(bytes, ptr, ptr+recLen)));
+    	    	ptr += recLen;
     	    }
     	}
     	catch (StdfException e) { Log.fatal(e); }
@@ -187,11 +166,15 @@ public class StdfReader
     private int getUnsignedInt(byte b0, byte b1)
     {
         int l = 0;
-        switch (cpuType)
-        {
-            case SUN: l |= (b1 & 0xFF); l |= ((b0 & 0xFF) << 8); break;
-            case VAX:
-            default: l |= (b0 & 0xFF); l |= ((b1 & 0xFF) << 8);
+        if (cpuType == Cpu_t.SUN) 
+        { 
+        	l |= (b1 & 0xFF); 
+        	l |= ((b0 & 0xFF) << 8); 
+        }
+        else 
+        { 
+        	l |= (b0 & 0xFF); 
+        	l |= ((b1 & 0xFF) << 8); 
         }
         return(l);
     }
