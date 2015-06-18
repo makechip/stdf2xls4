@@ -24,6 +24,7 @@ import com.makechip.util.Log;
 public class StdfTest1
 {
 	static DefaultValueDatabase idb = new DefaultValueDatabase(0L);
+	static TestIdDatabase tdb = new TestIdDatabase();
     static StdfWriter stdf;
     static Stack<StdfRecord> stack;
     static StdfReader rdr;
@@ -58,7 +59,7 @@ public class StdfTest1
 		stdf.add(new PinMapRecord(snum++, idb, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
 		stdf.add(new BeginProgramSelectionRecord(snum++, "beginProgramSelectionRecord"));
 		stdf.add(new DatalogTextRecord(snum++, "datalogTextRecord"));
-		stdf.add(new FunctionalTestRecord(snum++, idb, 3, (short) 2, (short) 1, (byte) 0,
+		stdf.add(new FunctionalTestRecord(snum++, tdb, idb, 3, (short) 2, (short) 1, (byte) 0,
 			(byte) 0, 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
 			new byte[] { (byte) 4, (byte) 3, (byte) 2, (byte) 1 }, new int[] { 3, 4, 5, 6 },
 			new byte[] { (byte) 0, (byte) 1, (byte) 2, (byte) 3 }, new byte[] { (byte) 3, (byte) 2, (byte) 1, (byte) 0 },
@@ -72,11 +73,11 @@ public class StdfTest1
 		stdf.add(new GenericDataRecord(snum++, lgd));
 		stdf.add(new HardwareBinRecord(snum++, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
 		stdf.add(new MasterResultsRecord(snum++, 1000L, 'C', "lotDesc", "execDesc"));
-		stdf.add(new MultipleResultParametricRecord(snum++, idb, 22L, (short) 1, (short) 0, (byte) 0,
+		stdf.add(new MultipleResultParametricRecord(snum++, tdb, idb, 22L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 2, 4, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", (byte) 0, (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 5, 6 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
-		stdf.add(new ParametricTestRecord(snum++, idb, 44L, (short) 1, (short) 0, (byte) 0,
+		stdf.add(new ParametricTestRecord(snum++, tdb, idb, 44L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 5.5f, "text", "alarmName", (byte) 0,
 			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
 		stdf.add(new PartCountRecord(snum++, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
@@ -99,7 +100,7 @@ public class StdfTest1
 	public void testA()
 	{
 		Log.msg("testA");
-		rdr = new StdfReader();
+		rdr = new StdfReader(tdb);
 		rdr.read(stdf.getBytes());
 		List<StdfRecord> list = rdr.stream().collect(Collectors.toList());
 		assertEquals(26, list.size());

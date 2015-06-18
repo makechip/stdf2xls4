@@ -69,7 +69,7 @@ public class FunctionalTestRecord extends TestRecord
     @Override
     public boolean isTestRecord() { return(true); }
     
-    public FunctionalTestRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase idb, byte[] data)
+    public FunctionalTestRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.FTR, sequenceNumber, data);
         EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());
@@ -93,9 +93,9 @@ public class FunctionalTestRecord extends TestRecord
         	vecName = "";
         	timeSetName = "";
         	vecOpCode = "";
-        	String testName = idb.tnameDefaults.get(testNumber);
+        	String testName = dvd.tnameDefaults.get(testNumber);
         	if (testName == null) testName = "";
-        	id = TestID.createTestID(idb, testNumber, testName);
+        	id = TestID.createTestID(tdb, testNumber, testName);
         	alarmName = "";
         	progTxt = "";
         	rsltTxt = "";
@@ -126,35 +126,35 @@ public class FunctionalTestRecord extends TestRecord
             String testName = getCn();
             if (!testName.equals(MISSING_STRING))
             {
-        	    if (idb.tnameDefaults.get(testNumber) == null) idb.tnameDefaults.put(testNumber, testName);
+        	    if (dvd.tnameDefaults.get(testNumber) == null) dvd.tnameDefaults.put(testNumber, testName);
             }
             else
             {
-        	    testName = idb.tnameDefaults.get(testNumber);
+        	    testName = dvd.tnameDefaults.get(testNumber);
             }
             if (testName == null) testName = "";
-            id = TestID.createTestID(idb, testNumber, testName);
+            id = TestID.createTestID(tdb, testNumber, testName);
             alarmName = getCn();
             progTxt = getCn();
             rsltTxt = getCn();
             short p = getU1(MISSING_SHORT);
             if (p != MISSING_SHORT)
             {
-            	if (idb.pgDefaults.get(testNumber) == MISSING_SHORT) idb.pgDefaults.put(testNumber, p);
+            	if (dvd.pgDefaults.get(testNumber) == MISSING_SHORT) dvd.pgDefaults.put(testNumber, p);
             }
             else
             {
-            	p = idb.pgDefaults.get(testNumber);
+            	p = dvd.pgDefaults.get(testNumber);
             }
             patGenNum = p;
             byte[] ec = getDn();
             if (ec.length != 0)
             {
-            	if (idb.ecDefaults.get(testNumber) == null) idb.ecDefaults.put(testNumber, ec);
+            	if (dvd.ecDefaults.get(testNumber) == null) dvd.ecDefaults.put(testNumber, ec);
             }
             else
             {
-            	ec = idb.ecDefaults.get(testNumber);
+            	ec = dvd.ecDefaults.get(testNumber);
             }
             enComps = ec;
         }
@@ -162,7 +162,8 @@ public class FunctionalTestRecord extends TestRecord
     
     public FunctionalTestRecord(
         final int sequenceNumber,
-        DefaultValueDatabase idb,
+        TestIdDatabase tdb,
+        DefaultValueDatabase dvd,
         final long testNumber,
         final short headNumber,
         final short siteNumber,
@@ -213,35 +214,35 @@ public class FunctionalTestRecord extends TestRecord
         String testName = label;
         if (!testName.equals(MISSING_STRING))
         {
-        	if (idb.tnameDefaults.get(testNumber) == null) idb.tnameDefaults.put(testNumber, testName);
+        	if (dvd.tnameDefaults.get(testNumber) == null) dvd.tnameDefaults.put(testNumber, testName);
         }
         else
         {
-        	testName = idb.tnameDefaults.get(testNumber);
+        	testName = dvd.tnameDefaults.get(testNumber);
         }
         if (testName == null) testName = "";
-        id = TestID.createTestID(idb, testNumber, testName);
+        id = TestID.createTestID(tdb, testNumber, testName);
         this.alarmName = alarmName;
         this.progTxt = progTxt;
         this.rsltTxt = rsltTxt;
         short p = patGenNum;
         if (p != MISSING_SHORT)
         {
-        	if (idb.pgDefaults.get(testNumber) == MISSING_SHORT) idb.pgDefaults.put(testNumber, p);
+        	if (dvd.pgDefaults.get(testNumber) == MISSING_SHORT) dvd.pgDefaults.put(testNumber, p);
         }
         else
         {
-        	p = idb.pgDefaults.get(testNumber);
+        	p = dvd.pgDefaults.get(testNumber);
         }
         this.patGenNum = p;
         byte[] ec = enComps;
         if (ec.length != 0)
         {
-        	if (idb.ecDefaults.get(testNumber) == null) idb.ecDefaults.put(testNumber, ec);
+        	if (dvd.ecDefaults.get(testNumber) == null) dvd.ecDefaults.put(testNumber, ec);
         }
         else
         {
-        	ec = idb.ecDefaults.get(testNumber);
+        	ec = dvd.ecDefaults.get(testNumber);
         }
         this.enComps = ec;
     }

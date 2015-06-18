@@ -58,49 +58,50 @@ public class ParametricTestRecord extends ParametricRecord
     /**
     *** @param p1
     **/
-    public ParametricTestRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase idb, byte[] data)
+    public ParametricTestRecord(int sequenceNumber, TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
     	super(Record_t.PTR, sequenceNumber, data);
         result = getR4(MISSING_FLOAT);
         String testName = getCn(); 
-        id = TestID.createTestID(idb, testNumber, testName); 
+        id = TestID.createTestID(tdb, testNumber, testName); 
         alarmName = getCn();
         byte oflags = getByte();
         if (oflags != MISSING_BYTE)
         {
         	optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(oflags));
-        	if (idb.optDefaults.get(id) == null) idb.optDefaults.put(id, optFlags);
+        	if (dvd.optDefaults.get(id) == null) dvd.optDefaults.put(id, optFlags);
         }
         else
         {
-        	optFlags = idb.optDefaults.get(id);
+        	optFlags = dvd.optDefaults.get(id);
         }
-        resScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.resScalDefaults);
-        llmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.llmScalDefaults);
-        hlmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, idb.hlmScalDefaults);
+        resScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.resScalDefaults);
+        llmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.llmScalDefaults);
+        hlmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.hlmScalDefaults);
         if (optFlags.contains(OptFlag_t.NO_LO_LIMIT))
         {
         	loLimit = MISSING_FLOAT;
         	getR4(MISSING_FLOAT);
         }
-        else loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loLimDefaults);
+        else loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.loLimDefaults);
         if (optFlags.contains(OptFlag_t.NO_HI_LIMIT))
         {
         	hiLimit = MISSING_FLOAT;
         	getR4(MISSING_FLOAT);
         }
-        else hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiLimDefaults);
-        units = setString(MISSING_STRING, getCn(), id , idb.unitDefaults);
-        resFmt = setString(MISSING_STRING, getCn(), id , idb.resFmtDefaults);
-        llmFmt = setString(MISSING_STRING, getCn(), id , idb.llmFmtDefaults);
-        hlmFmt = setString(MISSING_STRING, getCn(), id , idb.hlmFmtDefaults);
-        loSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.loSpecDefaults);
-        hiSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, idb.hiSpecDefaults);
+        else hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.hiLimDefaults);
+        units = setString(MISSING_STRING, getCn(), id , dvd.unitDefaults);
+        resFmt = setString(MISSING_STRING, getCn(), id , dvd.resFmtDefaults);
+        llmFmt = setString(MISSING_STRING, getCn(), id , dvd.llmFmtDefaults);
+        hlmFmt = setString(MISSING_STRING, getCn(), id , dvd.hlmFmtDefaults);
+        loSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.loSpecDefaults);
+        hiSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.hiSpecDefaults);
     }
     
     public ParametricTestRecord(
             final int sequenceNumber,
-            final DefaultValueDatabase idb,
+            final TestIdDatabase tdb,
+            final DefaultValueDatabase dvd,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
@@ -124,29 +125,29 @@ public class ParametricTestRecord extends ParametricRecord
     {
         super(Record_t.PTR, sequenceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.result = result;
-        id = TestID.createTestID(idb, testNumber, testName);
+        id = TestID.createTestID(tdb, testNumber, testName);
         this.alarmName = alarmName;
         byte oflags = optFlags;
         if (oflags != MISSING_BYTE)
         {
         	this.optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(oflags));
-        	if (idb.optDefaults.get(id) == null) idb.optDefaults.put(id, Collections.unmodifiableSet(OptFlag_t.getBits(optFlags)));
+        	if (dvd.optDefaults.get(id) == null) dvd.optDefaults.put(id, Collections.unmodifiableSet(OptFlag_t.getBits(optFlags)));
         }
         else
         {
-        	this.optFlags = idb.optDefaults.get(id);
+        	this.optFlags = dvd.optDefaults.get(id);
         }
-        this.resScal = setByte(MISSING_BYTE, resScal, id, idb.resScalDefaults);
-        this.llmScal = setByte(MISSING_BYTE, llmScal, id, idb.llmScalDefaults);
-        this.hlmScal = setByte(MISSING_BYTE, hlmScal, id, idb.hlmScalDefaults);
-        this.loLimit = setFloat(MISSING_FLOAT, loLimit, id, idb.loLimDefaults);
-        this.hiLimit = setFloat(MISSING_FLOAT, hiLimit, id, idb.hiLimDefaults);
-        this.units = setString(MISSING_STRING, units, id , idb.unitDefaults);
-        this.resFmt = setString(MISSING_STRING, resFmt, id , idb.resFmtDefaults);
-        this.llmFmt = setString(MISSING_STRING, llmFmt, id , idb.llmFmtDefaults);
-        this.hlmFmt = setString(MISSING_STRING, hlmFmt, id , idb.hlmFmtDefaults);
-        this.loSpec = setFloat(MISSING_FLOAT, loSpec, id, idb.loSpecDefaults);
-        this.hiSpec = setFloat(MISSING_FLOAT, hiSpec, id, idb.hiSpecDefaults);
+        this.resScal = setByte(MISSING_BYTE, resScal, id, dvd.resScalDefaults);
+        this.llmScal = setByte(MISSING_BYTE, llmScal, id, dvd.llmScalDefaults);
+        this.hlmScal = setByte(MISSING_BYTE, hlmScal, id, dvd.hlmScalDefaults);
+        this.loLimit = setFloat(MISSING_FLOAT, loLimit, id, dvd.loLimDefaults);
+        this.hiLimit = setFloat(MISSING_FLOAT, hiLimit, id, dvd.hiLimDefaults);
+        this.units = setString(MISSING_STRING, units, id , dvd.unitDefaults);
+        this.resFmt = setString(MISSING_STRING, resFmt, id , dvd.resFmtDefaults);
+        this.llmFmt = setString(MISSING_STRING, llmFmt, id , dvd.llmFmtDefaults);
+        this.hlmFmt = setString(MISSING_STRING, hlmFmt, id , dvd.hlmFmtDefaults);
+        this.loSpec = setFloat(MISSING_FLOAT, loSpec, id, dvd.loSpecDefaults);
+        this.hiSpec = setFloat(MISSING_FLOAT, hiSpec, id, dvd.hiSpecDefaults);
     }
     
     @Override

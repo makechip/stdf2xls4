@@ -14,13 +14,13 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
-import com.makechip.stdf2xls4.stdf.DefaultValueDatabase;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
+import com.makechip.stdf2xls4.stdf.TestIdDatabase;
 import com.makechip.stdf2xls4.stdf.TestRecord;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
@@ -42,7 +42,7 @@ import static com.makechip.stdf2xls4.stdf.StdfRecord.*;
  */
 public final class StdfAPI
 {
-	private final Map<PageHeader, Boolean> tester;
+	private TestIdDatabase tiddb;
 	private TestRecordDatabase tdb;
 	private final boolean dynamicLimits;
     public static final String TEXT_DATA = StdfRecord.TEXT_DATA;
@@ -60,12 +60,12 @@ public final class StdfAPI
 
 	public StdfAPI(List<String> stdfFiles, boolean dynamicLimits)
 	{
+		tiddb = new TestIdDatabase();
 		this.dynamicLimits = dynamicLimits;
 		if (dynamicLimits) dynamicLimitMap = new HashMap<>(); else dynamicLimitMap = null;
 		this.stdfFiles = stdfFiles;
 		new ArrayList<StdfRecord>();
 		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
-		tester = new HashMap<>();
 	}
 	
 	private void checkLoLimits(PageHeader hdr, TObjectFloatHashMap<TestID> lmap, List<List<StdfRecord>> list)
@@ -142,32 +142,16 @@ public final class StdfAPI
         }
 	}
 	
-	private void identifyTester(PageHeader hdr, List<List<StdfRecord>> list)
-	{
-		MasterInformationRecord r = list.stream().
-				                        flatMap(p -> p.stream()).
-				                        filter(q -> q instanceof MasterInformationRecord).
-				                        map(s -> MasterInformationRecord.class.cast(s)).
-				                        findFirst().orElse(null);
-		if (r == null) return;
-		boolean fusion = false;
-		if (r.testerType.equalsIgnoreCase("Fusion_CX")) fusion = true;
-		if (r.testerType.equalsIgnoreCase("CXT")) fusion = true;
-        tester.put(hdr, fusion);
-	}
-	
 	public void initialize(boolean sortDevices)
 	{
 		HashMap<PageHeader, List<List<StdfRecord>>> devList = new HashMap<>();
 		// load the stdf records; group records by device	
 		    stdfFiles.stream()
-			.map(p -> new StdfReader(p, timeStampedFiles))
+			.map(p -> new StdfReader(tiddb, p, timeStampedFiles))
 			.flatMap(rdr -> rdr.read().stream())
 			.collect(splitBySeparator(r -> r instanceof PartResultsRecord))
 			.stream()
 			.forEach(p -> createHeaders(new HeaderUtil(), devList, p));
-		// determine tester type:
-		devList.keySet().stream().forEach(p -> identifyTester(p, devList.get(p)));
 		// now check for dynamicLimits
 		if (dynamicLimits)
 		{
@@ -176,7 +160,7 @@ public final class StdfAPI
 		    devList.keySet().stream().
 		        forEach(p -> checkHiLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p)));	
 		}	
-		tdb = new TestRecordDatabase(tester, idb, dynamicLimitMap);
+		tdb = new TestRecordDatabase(tiddb, dynamicLimitMap);
 	    // now build TestRecord database:
 		devList.keySet().stream().forEach(p -> mapTests(sortDevices, p, devList.get(p)));
 	}

@@ -79,7 +79,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         rsltMap = new LinkedHashMap<>();
         for (int i=0; i<results.length; i++) results[i] = getR4(-Float.MAX_VALUE);
         String testName = getCn();
-        id = TestID.createTestID(dvd, testNumber, testName);
+        id = TestID.createTestID(tdb, testNumber, testName);
         alarmName = getCn();
         byte oflags = getByte();
         if (oflags != MISSING_BYTE)
@@ -136,6 +136,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     
     public MultipleResultParametricRecord(
             final int sequenceNumber,
+            final TestIdDatabase tdb,
             final DefaultValueDatabase dvd,
             final long testNumber,
             final short headNumber,
@@ -168,7 +169,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         super(Record_t.MPR, sequenceNumber, testNumber, headNumber, siteNumber, testFlags, paramFlags);
         this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
         this.results = Arrays.copyOf(results, results.length);
-        id = TestID.createTestID(dvd, testNumber, testName);
+        id = TestID.createTestID(tdb, testNumber, testName);
         this.alarmName = alarmName;
         byte oflags = optFlags;
         if (oflags != MISSING_BYTE)
