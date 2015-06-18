@@ -12,7 +12,7 @@ import java.util.TreeMap;
 import com.makechip.stdf2xls4.stdf.MultipleResultParametricRecord;
 import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
-import com.makechip.stdf2xls4.stdf.PinTestID;
+import com.makechip.stdf2xls4.stdf.TestID.PinTestID;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.TestIdDatabase;
@@ -249,7 +249,7 @@ public class TestRecordDatabase
 				  {
 					  mpr.getPinNames().
 					      forEach(pin -> { 
-					    	  				  PinTestID pid = PinTestID.getTestID(tdb, mpr.getTestId(), pin); 
+					    	  				  PinTestID pid = TestID.PinTestID.getTestID(tdb, mpr.getTestId(), pin); 
 					    	  				  list.add(new MultiParametricTestHeader(pid, mpr.units, mpr.loLimit, mpr.hiLimit)); 
 					    	  			 });
 				  }

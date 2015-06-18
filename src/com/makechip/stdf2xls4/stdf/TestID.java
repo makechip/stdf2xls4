@@ -88,4 +88,39 @@ public class TestID implements Identity, Immutable
         return(-1);
     }
     
+    public static class PinTestID extends TestID implements Identity, Immutable
+    {
+        public final String pin;
+        public final TestID id;
+       
+        private PinTestID(TestID id, String pin)
+        {
+        	super(id.testNumber, id.testName, id.dupNum);
+        	this.pin = pin;
+        	this.id = id;
+        }
+        
+        public static TestID.PinTestID getTestID(TestIdDatabase tdb, TestID id, String pin)
+        {
+            return(tdb.pinMap.getValue(id, pin));
+        }
+        
+        @Override
+        public String toString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append("" + testNumber).append("_").append(testName);
+            if (dupNum != 0) sb.append("_" + dupNum);
+            sb.append(" [").append(pin).append("]");
+            return(sb.toString());
+        }
+        
+        @Override
+        public int getInstanceCount()
+        {
+            return(-1);
+        }
+   	
+    }
+    
 }

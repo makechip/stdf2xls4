@@ -1,6 +1,6 @@
 package com.makechip.stdf2xls4.stdfapi;
 
-import com.makechip.stdf2xls4.stdf.PinTestID;
+import com.makechip.stdf2xls4.stdf.TestID.PinTestID;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 
 public class MultiParametricTestHeader extends ParametricTestHeader

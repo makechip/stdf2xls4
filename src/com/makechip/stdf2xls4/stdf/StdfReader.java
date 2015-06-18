@@ -109,17 +109,11 @@ public class StdfReader
         return(Record_t.FAR.getInstance(tdb, dvd, far));
     }
     
-    private long getTimeStamp(String name)
+    private long getTimeStamp(String name) // throws NumberFormatException
     {
-    	int dotIndex = 0;
-    	if (name.toLowerCase().endsWith(".std")) dotIndex = name.length() - 4;
-    	else dotIndex = name.length() - 5;
-    	int bIndex = dotIndex - 14;
-    	String stamp = name.substring(bIndex, dotIndex);
-    	long timeStamp = 0L;
-    	try { timeStamp = Long.parseLong(stamp); }
-    	catch (Exception e) { Log.fatal("Incorrect timestamp format in filename: " + name); }
-    	return(timeStamp);
+    	int dotIndex = (name.toLowerCase().endsWith(".std")) ? name.length() - 4 : name.length() - 5;
+    	String stamp = name.substring(dotIndex - 14, dotIndex);
+    	return(Long.parseLong(stamp));
     }
     
    public StdfReader read()
@@ -165,18 +159,7 @@ public class StdfReader
 
     private int getUnsignedInt(byte b0, byte b1)
     {
-        int l = 0;
-        if (cpuType == Cpu_t.SUN) 
-        { 
-        	l |= (b1 & 0xFF); 
-        	l |= ((b0 & 0xFF) << 8); 
-        }
-        else 
-        { 
-        	l |= (b0 & 0xFF); 
-        	l |= ((b1 & 0xFF) << 8); 
-        }
-        return(l);
+        if (cpuType == Cpu_t.SUN) return((b1 & 0xFF) + ((b0 & 0xFF) << 8)); 
+        return((b0 & 0xFF)  + ((b1 & 0xFF) << 8)); 
     }
-    
 }

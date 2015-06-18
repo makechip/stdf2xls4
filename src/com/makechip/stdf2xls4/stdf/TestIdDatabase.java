@@ -10,7 +10,7 @@ public final class TestIdDatabase
 {
 	public final IdentityHashMap<TestID, Integer> testIdDupMap;
 	public final IdentityFactoryLON<String, TestID> idMap;
-	public final IdentityFactoryIO<TestID, String, PinTestID> pinMap;
+	public final IdentityFactoryIO<TestID, String, TestID.PinTestID> pinMap;
 
     public void clearIdDups() { testIdDupMap.clear(); }
     
@@ -18,7 +18,7 @@ public final class TestIdDatabase
     {
     	testIdDupMap = new IdentityHashMap<>();
     	idMap = new IdentityFactoryLON<>(String.class, TestID.class);
-    	pinMap = new IdentityFactoryIO<>(TestID.class, String.class, PinTestID.class);
+    	pinMap = new IdentityFactoryIO<>(TestID.class, String.class, TestID.PinTestID.class);
     }
    
 
