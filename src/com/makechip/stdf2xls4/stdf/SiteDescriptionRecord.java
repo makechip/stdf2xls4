@@ -29,7 +29,6 @@ import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Arrays;
 
-import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -94,6 +93,34 @@ public class SiteDescriptionRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
+	    bytes = toBytes(headNumber, siteGroupNumber, numSites, siteNumbers, handlerType,
+		                handlerID, probeCardType, probeCardID, loadBoardType, loadBoardID,
+		                dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, contactorType,
+		                contactorID, laserType, laserID, equipType, equipID);
+	}
+	
+	private static byte[] toBytes(
+		short headNumber,
+		short siteGroupNumber,
+		short numSites,
+		int[] siteNumbers,
+		String handlerType,
+		String handlerID,
+		String probeCardType,
+		String probeCardID,
+		String loadBoardType,
+		String loadBoardID,
+		String dibBoardType,
+		String dibBoardID,
+		String ifaceCableType,
+		String ifaceCableID,
+		String contactorType,
+		String contactorID,
+		String laserType,
+		String laserID,
+		String equipType,
+		String equipID)
+	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteGroupNumber));
@@ -115,11 +142,12 @@ public class SiteDescriptionRecord extends StdfRecord
         l.addAll(getCnBytes(laserID));
         l.addAll(getCnBytes(equipType));
         l.addAll(getCnBytes(equipID));
-        bytes = l.toArray();
+        return(l.toArray());
 	}
 	
 	public SiteDescriptionRecord(
-	    Cpu_t cpuType,
+	    TestIdDatabase tdb,
+	    DefaultValueDatabase dvd,
 		short headNumber,
 		short siteGroupNumber,
 		short numSites,
@@ -142,27 +170,10 @@ public class SiteDescriptionRecord extends StdfRecord
 		String equipID
 		)
 	{
-		super(Record_t.SDR, cpuType, null);
-		this.headNumber = headNumber;
-		this.siteGroupNumber = siteGroupNumber;
-		this.numSites = numSites;
-	    this.siteNumbers = Arrays.copyOf(siteNumbers, siteNumbers.length);
-	    this.handlerType = handlerType;
-	    this.handlerID = handlerID;
-	    this.probeCardType = probeCardType;
-	    this.probeCardID = probeCardID;
-	    this.loadBoardType = loadBoardType;
-	    this.loadBoardID = loadBoardID;
-	    this.dibBoardType = dibBoardType;
-	    this.dibBoardID = dibBoardID;
-	    this.ifaceCableType = ifaceCableType;
-	    this.ifaceCableID = ifaceCableID;
-	    this.contactorType = contactorType;
-	    this.contactorID = contactorID;
-	    this.laserType = laserType;
-	    this.laserID = laserID;
-	    this.equipType = equipType;
-	    this.equipID = equipID;
+		this(tdb, dvd, toBytes(headNumber, siteGroupNumber, numSites, siteNumbers, handlerType,
+		                handlerID, probeCardType, probeCardID, loadBoardType, loadBoardID,
+		                dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, contactorType,
+		                contactorID, laserType, laserID, equipType, equipID));
 	}
 
     @Override

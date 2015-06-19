@@ -75,19 +75,10 @@ public class PinListRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
-		TByteArrayList l = new TByteArrayList();
-		l.addAll(cpuType.getU2Bytes(pinIndex.length));
-		Arrays.stream(pinIndex).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
-		Arrays.stream(mode).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
-		Arrays.stream(radix).forEach(p -> l.addAll(getU1Bytes((short) p)));
-		Arrays.stream(pgmChar).forEach(p -> l.addAll(getCnBytes(p)));
-		Arrays.stream(rtnChar).forEach(p -> l.addAll(getCnBytes(p)));
-		Arrays.stream(pgmChal).forEach(p -> l.addAll(getCnBytes(p)));
-		Arrays.stream(rtnChal).forEach(p -> l.addAll(getCnBytes(p)));
-		bytes = l.toArray();
+		bytes = toBytes(cpuType, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal);
 	}
 	
-	public PinListRecord(
+	private static byte[] toBytes(
 		Cpu_t cpuType,
 	    int[] pinIndex,
 	    int[] mode,
@@ -97,14 +88,30 @@ public class PinListRecord extends StdfRecord
 	    String[] pgmChal,
 	    String[] rtnChal)
 	{
-		super(Record_t.PLR, cpuType, null);
-		this.pinIndex = Arrays.copyOf(pinIndex, pinIndex.length);
-		this.mode = Arrays.copyOf(mode, mode.length);
-		this.radix = Arrays.copyOf(radix, radix.length);
-		this.pgmChar = Arrays.copyOf(pgmChar, pgmChar.length);
-		this.rtnChar = Arrays.copyOf(rtnChar, pgmChar.length);
-		this.pgmChal = Arrays.copyOf(pgmChal, pgmChar.length);
-		this.rtnChal = Arrays.copyOf(rtnChal, pgmChar.length);
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(cpuType.getU2Bytes(pinIndex.length));
+		Arrays.stream(pinIndex).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
+		Arrays.stream(mode).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
+		Arrays.stream(radix).forEach(p -> l.addAll(getU1Bytes((short) p)));
+		Arrays.stream(pgmChar).forEach(p -> l.addAll(getCnBytes(p)));
+		Arrays.stream(rtnChar).forEach(p -> l.addAll(getCnBytes(p)));
+		Arrays.stream(pgmChal).forEach(p -> l.addAll(getCnBytes(p)));
+		Arrays.stream(rtnChal).forEach(p -> l.addAll(getCnBytes(p)));
+		return(l.toArray());
+	}
+	
+	public PinListRecord(
+		TestIdDatabase tdb,
+		DefaultValueDatabase dvd,
+	    int[] pinIndex,
+	    int[] mode,
+	    int[] radix,
+	    String[] pgmChar,
+	    String[] rtnChar,
+	    String[] pgmChal,
+	    String[] rtnChal)
+	{
+		this(tdb, dvd, toBytes(dvd.getCpuType(), pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal));
 	}
 
     @Override

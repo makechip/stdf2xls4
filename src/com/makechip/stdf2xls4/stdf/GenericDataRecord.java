@@ -121,7 +121,7 @@ public class GenericDataRecord extends StdfRecord
         }
 	}
 	
-	private void setField(TByteArrayList l, Data field)
+	private static void setField(Cpu_t cpuType, TByteArrayList l, Data field)
 	{
 		IntStream.generate(() -> 0).limit(field.getPadCnt()).forEach(v -> l.add((byte) 0));
 		l.add((byte) field.getType().getFieldType());
@@ -156,10 +156,9 @@ public class GenericDataRecord extends StdfRecord
         list = Collections.unmodifiableList(l);
     }
     
-    public GenericDataRecord(Cpu_t cpuType, List<Data> list)
+    public GenericDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, List<Data> list)
     {
-    	super(Record_t.GDR, cpuType, null);
-    	this.list = new ArrayList<Data>(list);
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), list));
     }
 
     @Override
@@ -174,10 +173,15 @@ public class GenericDataRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
+	    bytes = toBytes(cpuType, list);	
+	}
+	
+	private static byte[] toBytes(Cpu_t cpuType, List<Data> list)
+	{
 	    TByteArrayList l = new TByteArrayList();
 	    l.addAll(cpuType.getU2Bytes(list.size())); 
-	    list.stream().forEach(d -> setField(l, d));
-	    bytes = l.toArray();
+	    list.stream().forEach(d -> setField(cpuType, l, d));
+	    return(l.toArray());
 	}
     
     

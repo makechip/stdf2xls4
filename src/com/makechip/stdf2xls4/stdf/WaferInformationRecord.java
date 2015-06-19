@@ -58,26 +58,33 @@ public class WaferInformationRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
-		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteGroupNumber));
-		l.addAll(cpuType.getU4Bytes(startDate));
-		l.addAll(getCnBytes(waferID));
-		bytes = l.toArray();
+	    bytes = toBytes(cpuType, headNumber, siteGroupNumber, startDate, waferID);	
 	}
 	
-	public WaferInformationRecord(
+	private static byte[] toBytes(
 		Cpu_t cpuType,
 		short headNumber,
 		short siteGroupNumber,
 		long startDate,
 		String waferID)
 	{
-		super(Record_t.WIR, cpuType, null);
-		this.headNumber = headNumber;
-		this.siteGroupNumber = siteGroupNumber;
-		this.startDate = startDate;
-		this.waferID = waferID;
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteGroupNumber));
+		l.addAll(cpuType.getU4Bytes(startDate));
+		l.addAll(getCnBytes(waferID));
+		return(l.toArray());
+	}
+	
+	public WaferInformationRecord(
+		TestIdDatabase tdb,
+		DefaultValueDatabase dvd,
+		short headNumber,
+		short siteGroupNumber,
+		long startDate,
+		String waferID)
+	{
+		this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteGroupNumber, startDate, waferID));
 	}
 
     @Override

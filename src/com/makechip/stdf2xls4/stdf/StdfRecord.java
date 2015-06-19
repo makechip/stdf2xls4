@@ -246,7 +246,7 @@ public abstract class StdfRecord
         return(b);
     }
     
-    protected byte[] getBnBytes(byte[] bs)
+    protected static byte[] getBnBytes(byte[] bs)
     {
     	byte[] b = new byte[1 + bs.length];
         b[0] = (byte) bs.length;
@@ -270,7 +270,7 @@ public abstract class StdfRecord
         return(new String(b));
     }
     
-    protected byte[] getFixedLengthStringBytes(String s)
+    protected static byte[] getFixedLengthStringBytes(String s)
     {
     	return(s.getBytes());
     }

@@ -27,7 +27,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -52,20 +51,23 @@ public class PartInformationRecord extends StdfRecord
         siteNumber = getU1((short) -1);
     }
     
-    public PartInformationRecord(Cpu_t cpuType, short headNumber, short siteNumber)
+    public PartInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, short headNumber, short siteNumber)
     {
-    	super(Record_t.PIR, cpuType, null);
-    	this.headNumber = headNumber;
-    	this.siteNumber = siteNumber;
+        this(tdb, dvd, toBytes(headNumber, siteNumber));
     }
     
 	@Override
 	protected void toBytes()
 	{
+	    bytes = toBytes(headNumber, siteNumber);	
+	}
+	
+	private static byte[] toBytes(short headNumber, short siteNumber)
+	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteNumber));
-		bytes = l.toArray();
+		return(l.toArray());
 	}
 
     @Override

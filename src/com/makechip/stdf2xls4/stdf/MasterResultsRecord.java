@@ -57,24 +57,31 @@ public class MasterResultsRecord extends StdfRecord
         execDesc = getCn();
     }
     
-    public MasterResultsRecord(Cpu_t cpuType, long finishDate, char dispCode, String lotDesc, String execDesc)
+    public MasterResultsRecord(
+    	TestIdDatabase tdb,
+    	DefaultValueDatabase dvd,
+    	long finishDate, 
+    	char dispCode, 
+    	String lotDesc, 
+    	String execDesc)
     {
-    	super(Record_t.MRR, cpuType, null);
-    	this.finishDate = finishDate;
-    	this.dispCode = "" + dispCode;
-    	this.lotDesc = lotDesc;
-    	this.execDesc = execDesc;
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), finishDate, "" + dispCode, lotDesc, execDesc));
     }
     
 	@Override
 	protected void toBytes()
+	{
+	    bytes = toBytes(cpuType, finishDate, dispCode, lotDesc, execDesc);	
+	}
+	
+	private static byte[] toBytes(Cpu_t cpuType, long finishDate, String dispCode, String lotDesc, String execDesc)
 	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(cpuType.getU4Bytes(finishDate));
 		l.addAll(getFixedLengthStringBytes(dispCode));
 		l.addAll(getCnBytes(lotDesc));
 		l.addAll(getCnBytes(execDesc));
-		bytes = l.toArray();
+		return(l.toArray());
 	}
 
     @Override

@@ -53,19 +53,23 @@ public class RetestDataRecord extends StdfRecord
         Arrays.setAll(retestBins, p -> getU2(-1));
     }
     
-    public RetestDataRecord(Cpu_t cpuType, int[] retestBins)
+    public RetestDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, int[] retestBins)
     {
-    	super(Record_t.RDR, cpuType, null);
-    	this.retestBins = Arrays.copyOf(retestBins, retestBins.length);
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), retestBins));
     }
 
 	@Override
 	protected void toBytes()
 	{
+	    bytes = toBytes(cpuType, retestBins);	
+	}
+	
+	private static byte[] toBytes(Cpu_t cpuType, int[] retestBins)	
+	{
 	    TByteArrayList l = new TByteArrayList();	
 	    l.addAll(cpuType.getU2Bytes(retestBins.length));
 	    Arrays.stream(retestBins).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
-	    bytes = l.toArray();
+	    return(l.toArray());
 	}
     
     @Override

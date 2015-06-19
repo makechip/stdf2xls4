@@ -87,6 +87,30 @@ public class TestSynopsisRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
+	    bytes = toBytes(cpuType, headNumber, siteNumber, testType, testNumber, numExecs,
+	    		        numFailures, numAlarms, testName, sequencerName, testLabel, 
+	    		        optFlags, testTime, testMin, testMax, testSum, testSumSquares);	
+	}
+	
+	private static byte[] toBytes(
+	    Cpu_t cpuType,
+	    short headNumber,
+	    short siteNumber,
+	    char testType,
+	    long testNumber,
+	    long numExecs,
+	    long numFailures,
+	    long numAlarms,
+	    String testName,
+	    String sequencerName,
+	    String testLabel,
+	    Set<TestOptFlag_t> optFlags,
+	    float testTime,
+	    float testMin,
+	    float testMax,
+	    float testSum,
+	    float testSumSquares)
+	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteNumber));
@@ -104,49 +128,32 @@ public class TestSynopsisRecord extends StdfRecord
 		l.addAll(cpuType.getR4Bytes(testMax));
 		l.addAll(cpuType.getR4Bytes(testSum));
 		l.addAll(cpuType.getR4Bytes(testSumSquares));
-		bytes = l.toArray();
+		return(l.toArray());
 	}
 	
 	public TestSynopsisRecord(
-	   Cpu_t cpuType,
-	   short headNumber,
-	   short siteNumber,
-	   char testType,
-	   long testNumber,
-	   long numExecs,
-	   long numFailures,
-	   long numAlarms,
-	   String testName,
-	   String sequencerName,
-	   String testLabel,
-	   EnumSet<TestOptFlag_t> optFlags,
-	   float testTime,
-	   float testMin,
-	   float testMax,
-	   float testSum,
-	   float testSumSquares)
+	    TestIdDatabase tdb,
+	    DefaultValueDatabase dvd,
+	    short headNumber,
+	    short siteNumber,
+	    char testType,
+	    long testNumber,
+	    long numExecs,
+	    long numFailures,
+	    long numAlarms,
+	    String testName,
+	    String sequencerName,
+	    String testLabel,
+	    EnumSet<TestOptFlag_t> optFlags,
+	    float testTime,
+	    float testMin,
+	    float testMax,
+	    float testSum,
+	    float testSumSquares)
 	{
-		super(Record_t.TSR, cpuType, null);
-		this.headNumber = headNumber;
-		this.siteNumber = siteNumber;
-		this.testType = testType;
-		this.testNumber = testNumber;
-		this.numExecs = numExecs;
-		this.numFailures = numFailures;
-		this.numAlarms = numAlarms;
-		this.testName = testName;
-		this.sequencerName = sequencerName;
-		this.testLabel = testLabel;
-		if (optFlags != null)
-		{
-		    this.optFlags = EnumSet.noneOf(TestOptFlag_t.class);
-		    optFlags.stream().forEach(p -> this.optFlags.add(p));
-		}
-		this.testTime = testTime;
-		this.testMin = testMin;
-		this.testMax = testMax;
-		this.testSum = testSum;
-		this.testSumSquares = testSumSquares;
+		this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, testType, testNumber, numExecs,
+	    		        numFailures, numAlarms, testName, sequencerName, testLabel, 
+	    		        optFlags, testTime, testMin, testMax, testSum, testSumSquares));
 	}
 
     @Override

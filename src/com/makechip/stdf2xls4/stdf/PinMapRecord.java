@@ -107,76 +107,36 @@ public class PinMapRecord extends StdfRecord
         }
     }
     
-    public PinMapRecord(DefaultValueDatabase dvd,
-    		            Cpu_t cpuType,
-    		            int pmrIdx,
-    		            int channelType,
-    		            String channelName,
-    		            String physicalPinName,
-    		            String logicalPinName,
-    		            short headNumber,
-    		            short siteNumber)
-    		            {
-    						super(Record_t.PMR, cpuType, null);
-    						this.pmrIdx = pmrIdx;
-    						this.channelType = channelType;
-    						this.channelName = channelName;
-    						this.physicalPinName = physicalPinName;
-    						this.logicalPinName = logicalPinName;
-    						this.headNumber = headNumber;
-    						this.siteNumber = siteNumber;
-    				        TIntObjectHashMap<String> m1 = dvd.chanMap.get(siteNumber);
-    				        if (m1 == null)
-    				        {
-    				        	m1 = new TIntObjectHashMap<>();
-    				        	dvd.chanMap.put(siteNumber, m1);
-    				        	m1.put(pmrIdx, channelName);
-    				        }
-    				        else
-    				        {
-    				        	String name = m1.get(pmrIdx);
-    				        	if (name == null) m1.put(pmrIdx, channelName);
-    				        	else
-    				        	{
-    				        		if (!name.equals(channelName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + channelName);
-    				        	}
-    				        }
-    				        TIntObjectHashMap<String> m2 = dvd.physMap.get(siteNumber);
-    				        if (m2 == null)
-    				        {
-    				        	m2 = new TIntObjectHashMap<>();
-    				        	dvd.physMap.put(siteNumber, m2);
-    				        	m2.put(siteNumber, physicalPinName);
-    				        }
-    				        else
-    				        {
-    				        	String name = m2.get(pmrIdx);
-    				        	if (name == null) m2.put(pmrIdx, physicalPinName);
-    				        	else
-    				        	{
-    				        		if (!name.equals(physicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + physicalPinName);
-    				        	}
-    				        }
-    				        TIntObjectHashMap<String> m3 = dvd.logMap.get(siteNumber);
-    				        if (m3 == null)
-    				        {
-    				        	m3 = new TIntObjectHashMap<>();
-    				        	dvd.logMap.put(siteNumber, m3);
-    				        	m3.put(pmrIdx, logicalPinName);
-    				        }
-    				        else
-    				        {
-    				        	String name = m3.get(pmrIdx);
-    				        	if (name == null) m3.put(pmrIdx, logicalPinName);
-    				        	else
-    				        	{
-    				        		if (!name.equals(logicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + logicalPinName);
-    				        	}
-    				        }
-    		            }
+    public PinMapRecord(
+    	TestIdDatabase tdb,
+        DefaultValueDatabase dvd,
+        int pmrIdx,
+        int channelType,
+        String channelName,
+        String physicalPinName,
+        String logicalPinName,
+        short headNumber,
+        short siteNumber)
+    {
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), pmrIdx, channelType, channelName, 
+    			               physicalPinName, logicalPinName, headNumber, siteNumber));
+    }
     
 	@Override
 	protected void toBytes()
+	{
+	    bytes = toBytes(cpuType, pmrIdx, channelType, channelName, physicalPinName, logicalPinName, headNumber, siteNumber);	
+	}
+	
+	private static byte[] toBytes(
+        Cpu_t cpuType,
+        int pmrIdx,
+        int channelType,
+        String channelName,
+        String physicalPinName,
+        String logicalPinName,
+        short headNumber,
+        short siteNumber)
 	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(cpuType.getU2Bytes(pmrIdx));
@@ -186,7 +146,7 @@ public class PinMapRecord extends StdfRecord
 		l.addAll(getCnBytes(logicalPinName));
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteNumber));
-		bytes = l.toArray();
+		return(l.toArray());
 	}
 
     @Override

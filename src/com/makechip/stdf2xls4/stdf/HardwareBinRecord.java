@@ -58,19 +58,26 @@ public class HardwareBinRecord extends StdfRecord
         binName = getCn();
     }
     
-    public HardwareBinRecord(Cpu_t cpuType, short headNumber, short siteNumber, int hwBin, long binCnt, char pf, String binName)
+    public HardwareBinRecord(
+    	TestIdDatabase tdb,
+    	DefaultValueDatabase dvd,
+    	short headNumber, 
+    	short siteNumber, 
+    	int hwBin, 
+    	long binCnt, 
+    	char pf, 
+    	String binName)
     {
-    	super(Record_t.HBR, cpuType, null);
-    	this.headNumber = headNumber;
-    	this.siteNumber = siteNumber;
-    	this.hwBin = hwBin;
-    	this.binCnt = binCnt;
-    	this.pf = pf;
-    	this.binName = binName;
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, hwBin, binCnt, pf, binName));
     }
     
 	@Override
 	protected void toBytes()
+	{
+		bytes = toBytes(cpuType, headNumber, siteNumber, hwBin, binCnt, pf, binName);
+	}
+	
+	private static byte[] toBytes(Cpu_t cpuType, short headNumber, short siteNumber, int hwBin, long binCnt, char pf, String binName)
 	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU1Bytes(headNumber));
@@ -79,7 +86,7 @@ public class HardwareBinRecord extends StdfRecord
 		l.addAll(cpuType.getU4Bytes(binCnt));
 		l.addAll(getFixedLengthStringBytes("" + pf));
 		l.addAll(getCnBytes(binName));
-		bytes = l.toArray();
+		return(l.toArray());
 	}
 
     @Override

@@ -80,8 +80,8 @@ public class MasterInformationRecord extends StdfRecord
     public final long timeStamp; // not an STDF value; for filename timestamp tracking 
     
     public MasterInformationRecord(
+    	TestIdDatabase tdb,
     	DefaultValueDatabase dvd,
-    	Cpu_t cpuType,
         long jobDate,
         long testDate,
         short stationNumber,
@@ -122,47 +122,14 @@ public class MasterInformationRecord extends StdfRecord
         String supervisorID,
         long timeStamp)
     {
-        super(Record_t.MIR, cpuType, null);
-        this.jobDate = jobDate;
-        this.testDate = testDate;
-        this.stationNumber = stationNumber;
-        this.testModeCode = testModeCode;
-        this.lotRetestCode = lotRetestCode;
-        this.dataProtectionCode = dataProtectionCode;
-        this.burnInTime = burnInTime;
-        this.cmdModeCode = cmdModeCode;
-        this.lotID = lotID;
-        this.partType = partType;
-        this.nodeName = nodeName;
-        this.testerType = testerType;
-        if (testerType.equals("Fusion_CX") || testerType.equals("CTX")) dvd.setFusionCx();
-        this.jobName = jobName;
-        this.jobRevisionNumber = jobRevisionNumber;
-        this.sublotID = sublotID;
-        this.operatorName = operatorName;
-        this.execSoftware = execSoftware;
-        this.execSoftwareVersion = execSoftwareVersion;
-        this.stepCode = stepCode;
-        this.temperature = temperature;
-        this.userText = userText;
-        this.auxDataFile = auxDataFile;
-        this.packageType = packageType;
-        this.familyID = familyID;
-        this.dateCode = dateCode;
-        this.facilityID = facilityID;
-        this.floorID = floorID;
-        this.fabID = fabID;
-        this.frequency = frequency;
-        this.specName = specName;
-        this.specVersion = specVersion;
-        this.flowID = flowID;
-        this.setupID = setupID;
-        this.designRevision = designRevision;
-        this.engLotID = engLotID;
-        this.romCodeID = romCodeID;
-        this.testerSerialNumber = testerSerialNumber;
-        this.supervisorID = supervisorID;
-        this.timeStamp = timeStamp;
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), jobDate, testDate, stationNumber, testModeCode, 
+    			               lotRetestCode, dataProtectionCode, burnInTime, cmdModeCode, lotID, 
+    			               partType, nodeName, testerType, jobName, jobRevisionNumber,
+		                       sublotID, operatorName, execSoftware, execSoftwareVersion, 
+		                       stepCode, temperature, userText, auxDataFile, packageType, 
+		                       familyID, dateCode, facilityID, floorID, fabID, frequency, 
+		                       specName, specVersion, flowID, setupID, designRevision, 
+		                       engLotID, romCodeID, testerSerialNumber, supervisorID));
     }
     
     /**
@@ -217,6 +184,54 @@ public class MasterInformationRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
+		bytes = toBytes(cpuType, jobDate, testDate, stationNumber, testModeCode, lotRetestCode, dataProtectionCode,
+		                burnInTime, cmdModeCode, lotID, partType, nodeName, testerType, jobName, jobRevisionNumber,
+		                sublotID, operatorName, execSoftware, execSoftwareVersion, stepCode, temperature, userText,
+		                auxDataFile, packageType, familyID, dateCode, facilityID, floorID, fabID, frequency, specName,
+		                specVersion, flowID, setupID, designRevision, engLotID, romCodeID, testerSerialNumber, supervisorID);
+	}
+	
+	private static byte[] toBytes(
+    	Cpu_t cpuType,
+        long jobDate,
+        long testDate,
+        short stationNumber,
+        char testModeCode,
+        char lotRetestCode,
+        char dataProtectionCode,
+        int burnInTime,
+        char cmdModeCode,
+        String lotID,
+        String partType,
+        String nodeName,
+        String testerType,
+        String jobName,
+        String jobRevisionNumber,
+        String sublotID,
+        String operatorName,
+        String execSoftware,
+        String execSoftwareVersion,
+        String stepCode,
+        String temperature,
+        String userText,
+        String auxDataFile,
+        String packageType,
+        String familyID,
+        String dateCode,
+        String facilityID,
+        String floorID,
+        String fabID,
+        String frequency,
+        String specName,
+        String specVersion,
+        String flowID,
+        String setupID,
+        String designRevision,
+        String engLotID,
+        String romCodeID,
+        String testerSerialNumber,
+        String supervisorID)
+	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(cpuType.getU4Bytes(jobDate));
 		l.addAll(cpuType.getU4Bytes(testDate));
@@ -256,7 +271,7 @@ public class MasterInformationRecord extends StdfRecord
         l.addAll(getCnBytes(romCodeID));
         l.addAll(getCnBytes(testerSerialNumber));
         l.addAll(getCnBytes(supervisorID));
-        bytes = l.toArray();
+        return(l.toArray());
 	}
 
     @Override

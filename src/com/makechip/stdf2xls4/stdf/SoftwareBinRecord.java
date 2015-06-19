@@ -65,17 +65,31 @@ public class SoftwareBinRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
+	    bytes = toBytes(cpuType, headNumber, siteNumber, swBinNumber, count, pf.charAt(0), binName);	
+	}
+	
+	private static byte[] toBytes(
+		Cpu_t cpuType, 
+		short headNumber, 
+		short siteNumber, 
+		int swBinNumber, 
+		int count, 
+		char pf, 
+		String binName)
+	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteNumber));
 		l.addAll(cpuType.getU2Bytes(swBinNumber));
 		l.addAll(cpuType.getU2Bytes(count));
-		l.addAll(getFixedLengthStringBytes(pf));
+		l.addAll(getFixedLengthStringBytes("" + pf));
 		l.addAll(getCnBytes(binName));
-		bytes = l.toArray();
+		return(l.toArray());
 	}
 	
-	public SoftwareBinRecord(Cpu_t cpuType, 
+	public SoftwareBinRecord(
+			TestIdDatabase tdb,
+			DefaultValueDatabase dvd,
 			short headNumber, 
 			short siteNumber, 
 			int swBinNumber, 
@@ -83,13 +97,7 @@ public class SoftwareBinRecord extends StdfRecord
 			char pf, 
 			String binName)
 	{
-		super(Record_t.SBR, cpuType, null);
-		this.headNumber = headNumber;
-		this.siteNumber = siteNumber;
-		this.swBinNumber = swBinNumber;
-		this.count = count;
-		this.pf = "" + pf;
-		this.binName = binName;
+		this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, swBinNumber, count, pf, binName));
 	}
     
     @Override

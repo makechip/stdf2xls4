@@ -87,7 +87,8 @@ public class PartResultsRecord extends StdfRecord
     }
     
     public PartResultsRecord(
-        Cpu_t cpuType,
+        TestIdDatabase tdb,
+        DefaultValueDatabase dvd,
     	short headNumber,
     	short siteNumber,
     	byte partInfoFlags,
@@ -101,28 +102,39 @@ public class PartResultsRecord extends StdfRecord
     	String partDescription,
     	byte[] repair)
     {
-    	super(Record_t.PRR, cpuType, null);
-    	this.headNumber = headNumber;
-    	this.siteNumber = siteNumber;
-    	this.partInfoFlags = PartInfoFlag_t.getBits(partInfoFlags);
-    	this.numExecs = numExecs;
-    	this.hwBinNumber = hwBinNumber;
-    	this.swBinNumber = swBinNumber;
-    	this.xCoord = xCoord;
-    	this.yCoord = yCoord;
-    	this.testTime = testTime;
-    	this.partID = partID;
-    	this.partDescription = partDescription;
-    	this.repair = Arrays.copyOf(repair, repair.length);
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, partInfoFlags,
+    		                   numExecs, hwBinNumber, swBinNumber, xCoord, yCoord, testTime,
+    		                   partID, partDescription, repair));
     }
 
 	@Override
 	protected void toBytes()
 	{
+	    bytes = toBytes(cpuType, headNumber, siteNumber, 
+	    	            (byte) partInfoFlags.stream().mapToInt(p -> p.getBit()).sum(),
+	    	            numExecs, hwBinNumber, swBinNumber, xCoord, yCoord, testTime,
+	    	            partID, partDescription, repair);
+	}
+	
+	private static byte[] toBytes(
+        Cpu_t cpuType,
+    	short headNumber,
+    	short siteNumber,
+    	byte partInfoFlags,
+    	int numExecs,
+    	int hwBinNumber,
+    	int swBinNumber,
+    	short xCoord,
+    	short yCoord,
+    	long testTime,
+    	String partID,
+    	String partDescription,
+    	byte[] repair)
+	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteNumber));
-		l.add((byte) partInfoFlags.stream().mapToInt(b -> b.getBit()).sum());
+		l.add(partInfoFlags);
 		l.addAll(cpuType.getU2Bytes(numExecs));
 		l.addAll(cpuType.getU2Bytes(hwBinNumber));
 		l.addAll(cpuType.getU2Bytes(swBinNumber));
@@ -132,7 +144,7 @@ public class PartResultsRecord extends StdfRecord
 		l.addAll(getCnBytes(partID));
 		l.addAll(getCnBytes(partDescription));
 		l.addAll(getBnBytes(repair));
-		bytes = l.toArray();
+		return(l.toArray());
 	}
 
     @Override

@@ -57,23 +57,31 @@ public class PinGroupRecord extends StdfRecord
         for (int i=0; i<k; i++) pmrIdx[i] = getU2(-1);
     }
     
-    public PinGroupRecord(Cpu_t cpuType, int groupIndex, String groupName, int[] pmrIdx)
+    public PinGroupRecord(
+    	TestIdDatabase tdb, 
+    	DefaultValueDatabase dvd,
+    	Cpu_t cpuType, 
+    	int groupIndex, 
+    	String groupName, 
+    	int[] pmrIdx)
     {
-        super(Record_t.PGR, cpuType, null);
-        this.groupIndex = groupIndex;
-        this.groupName = groupName;
-        this.pmrIdx = Arrays.copyOf(pmrIdx, pmrIdx.length);
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), groupIndex, groupName, pmrIdx));
     }
 
 	@Override
 	protected void toBytes()
+	{
+	    bytes = toBytes(cpuType, groupIndex, groupName, pmrIdx);	
+	}
+	
+	private static byte[] toBytes(Cpu_t cpuType, int groupIndex, String groupName, int[] pmrIdx)
 	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(cpuType.getU2Bytes(groupIndex));
 		l.addAll(getCnBytes(groupName));
 		l.addAll(cpuType.getU2Bytes(pmrIdx.length));
 		Arrays.stream(pmrIdx).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
-		bytes = l.toArray();
+		return(l.toArray());
 	}
     
     @Override

@@ -25,7 +25,6 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -47,10 +46,9 @@ public class DatalogTextRecord extends StdfRecord
         text = getCn();
     }
     
-    public DatalogTextRecord(Cpu_t cpuType, String text)
+    public DatalogTextRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, String text)
     {
-    	super(Record_t.DTR, cpuType, null);
-    	this.text = text;
+    	this(tdb, dvd, getCnBytes(text));
     }
     
     @Override

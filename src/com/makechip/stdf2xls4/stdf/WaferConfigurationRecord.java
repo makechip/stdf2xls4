@@ -72,20 +72,10 @@ public class WaferConfigurationRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
-	    TByteArrayList l = new TByteArrayList();
-	    l.addAll(cpuType.getR4Bytes(waferSize));
-	    l.addAll(cpuType.getR4Bytes(dieHeight));
-	    l.addAll(cpuType.getR4Bytes(dieWidth));
-	    l.addAll(getU1Bytes(units));
-	    l.addAll(getFixedLengthStringBytes("" + flatOrient));
-	    l.addAll(cpuType.getI2Bytes(centerX));
-	    l.addAll(cpuType.getI2Bytes(centerY));
-	    l.addAll(getFixedLengthStringBytes("" + posX));
-	    l.addAll(getFixedLengthStringBytes("" + posY));
-	    bytes = l.toArray();
+	    bytes = toBytes(cpuType, waferSize, dieHeight, dieWidth, units, flatOrient, centerX, centerY, posX, posY);	
 	}
 	
-	public WaferConfigurationRecord(
+	private static byte[] toBytes(
 		Cpu_t cpuType,
         float waferSize,
         float dieHeight,
@@ -96,17 +86,35 @@ public class WaferConfigurationRecord extends StdfRecord
         short centerY,
         char posX,
         char posY)
+	{
+	    TByteArrayList l = new TByteArrayList();
+	    l.addAll(cpuType.getR4Bytes(waferSize));
+	    l.addAll(cpuType.getR4Bytes(dieHeight));
+	    l.addAll(cpuType.getR4Bytes(dieWidth));
+	    l.addAll(getU1Bytes(units));
+	    l.addAll(getFixedLengthStringBytes("" + flatOrient));
+	    l.addAll(cpuType.getI2Bytes(centerX));
+	    l.addAll(cpuType.getI2Bytes(centerY));
+	    l.addAll(getFixedLengthStringBytes("" + posX));
+	    l.addAll(getFixedLengthStringBytes("" + posY));
+	    return(l.toArray());
+	}
+	
+	public WaferConfigurationRecord(
+		TestIdDatabase tdb,
+		DefaultValueDatabase dvd,
+        float waferSize,
+        float dieHeight,
+        float dieWidth,
+        short units,
+        char flatOrient,
+        short centerX,
+        short centerY,
+        char posX,
+        char posY)
     {
-	    super(Record_t.WCR, cpuType, null);
-	    this.waferSize = waferSize;
-	    this.dieHeight = dieHeight;
-	    this.dieWidth = dieWidth;
-	    this.units = units;
-	    this.flatOrient = flatOrient;
-	    this.centerX = centerX;
-	    this.centerY = centerY;
-	    this.posX = posX;
-	    this.posY = posY;
+		this(tdb, dvd, toBytes(dvd.getCpuType(), waferSize, dieHeight, dieWidth, 
+				               units, flatOrient, centerX, centerY, posX, posY));
     }
 
     @Override

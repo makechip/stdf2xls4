@@ -77,25 +77,12 @@ public class WaferResultsRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
-		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteGroupNumber));
-		l.addAll(cpuType.getU4Bytes(finishDate));
-		l.addAll(cpuType.getU4Bytes(partCount));
-		l.addAll(cpuType.getU4Bytes(retestCount));
-		l.addAll(cpuType.getU4Bytes(abortCount));
-		l.addAll(cpuType.getU4Bytes(passCount));
-		l.addAll(cpuType.getU4Bytes(functionalCount));
-		l.addAll(getCnBytes(waferID));
-		l.addAll(getCnBytes(fabWaferID));
-		l.addAll(getCnBytes(waferFrameID));
-		l.addAll(getCnBytes(waferMaskID));
-		l.addAll(getCnBytes(userWaferDesc));
-		l.addAll(getCnBytes(execWaferDesc));
-		bytes = l.toArray();
+	    bytes = toBytes(cpuType, headNumber, siteGroupNumber, finishDate, partCount, retestCount,
+	    		        abortCount, passCount, functionalCount, waferID, fabWaferID,
+	    		        waferFrameID, waferMaskID, userWaferDesc, execWaferDesc);	
 	}
 	
-	public WaferResultsRecord(
+	private static byte[] toBytes(
 		Cpu_t cpuType,
         short headNumber,
         short siteGroupNumber,
@@ -111,22 +98,46 @@ public class WaferResultsRecord extends StdfRecord
         String waferMaskID,
         String userWaferDesc,
         String execWaferDesc)
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(getU1Bytes(headNumber));
+		l.addAll(getU1Bytes(siteGroupNumber));
+		l.addAll(cpuType.getU4Bytes(finishDate));
+		l.addAll(cpuType.getU4Bytes(partCount));
+		l.addAll(cpuType.getU4Bytes(retestCount));
+		l.addAll(cpuType.getU4Bytes(abortCount));
+		l.addAll(cpuType.getU4Bytes(passCount));
+		l.addAll(cpuType.getU4Bytes(functionalCount));
+		l.addAll(getCnBytes(waferID));
+		l.addAll(getCnBytes(fabWaferID));
+		l.addAll(getCnBytes(waferFrameID));
+		l.addAll(getCnBytes(waferMaskID));
+		l.addAll(getCnBytes(userWaferDesc));
+		l.addAll(getCnBytes(execWaferDesc));
+		return(l.toArray());
+	}
+	
+	public WaferResultsRecord(
+		TestIdDatabase tdb,
+		DefaultValueDatabase dvd,
+        short headNumber,
+        short siteGroupNumber,
+        long finishDate,
+        long partCount,
+        long retestCount,
+        long abortCount,
+        long passCount,
+        long functionalCount,
+        String waferID,
+        String fabWaferID,
+        String waferFrameID,
+        String waferMaskID,
+        String userWaferDesc,
+        String execWaferDesc)
     {
-		super(Record_t.WRR, cpuType, null);
-		this.headNumber = headNumber;
-		this.siteGroupNumber = siteGroupNumber;
-		this.finishDate = finishDate;
-		this.partCount = partCount;
-		this.retestCount = retestCount;
-		this.abortCount = abortCount;
-		this.passCount = passCount;
-		this.functionalCount = functionalCount;
-		this.waferID = waferID;
-		this.fabWaferID = fabWaferID;
-		this.waferFrameID = waferFrameID;
-		this.waferMaskID = waferMaskID;
-		this.userWaferDesc = userWaferDesc;
-		this.execWaferDesc = execWaferDesc;
+		this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteGroupNumber, finishDate, partCount, retestCount,
+	    		        abortCount, passCount, functionalCount, waferID, fabWaferID,
+	    		        waferFrameID, waferMaskID, userWaferDesc, execWaferDesc));
     }
 
     @Override

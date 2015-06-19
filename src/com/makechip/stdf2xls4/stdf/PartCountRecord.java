@@ -63,7 +63,7 @@ public class PartCountRecord extends StdfRecord
     }
     
     public PartCountRecord(
-    		Cpu_t cpuType,
+    		TestIdDatabase tdb, DefaultValueDatabase dvd,
     		short headNumber,
     		short siteNumber,
     		long partsTested,
@@ -72,18 +72,24 @@ public class PartCountRecord extends StdfRecord
     		long good,
     		long functional)
     {
-    	super(Record_t.PCR, cpuType, null);
-    	this.headNumber = headNumber;
-    	this.siteNumber = siteNumber;
-    	this.partsTested = partsTested;
-    	this.partsReTested = partsReTested;
-        this.aborts = aborts;
-        this.good = good;
-        this.functional = functional;
+    	this(tdb,  dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional));
     }
     
 	@Override
 	protected void toBytes()
+	{
+	    bytes = toBytes(cpuType, headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional);	
+	}
+	
+	private static byte[] toBytes(
+    	Cpu_t cpuType,
+    	short headNumber,
+    	short siteNumber,
+    	long partsTested,
+    	long partsReTested,
+    	long aborts,
+    	long good,
+    	long functional)
 	{
 	    TByteArrayList l = new TByteArrayList();
 	    l.addAll(getU1Bytes(headNumber));
@@ -93,7 +99,7 @@ public class PartCountRecord extends StdfRecord
 	    l.addAll(cpuType.getU4Bytes(aborts));
 	    l.addAll(cpuType.getU4Bytes(good));
 	    l.addAll(cpuType.getU4Bytes(functional));
-	    bytes = l.toArray();
+	    return(l.toArray());
 	}
 
     @Override
