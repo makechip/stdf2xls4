@@ -27,6 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -53,7 +54,7 @@ public class WaferConfigurationRecord extends StdfRecord
     **/
     public WaferConfigurationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.WCR, data);
+        super(Record_t.WCR, dvd.getCpuType(), data);
         waferSize = getR4(0.0f);
         dieHeight = getR4(0.0f);
         dieWidth = getR4(0.0f);
@@ -72,19 +73,20 @@ public class WaferConfigurationRecord extends StdfRecord
 	protected void toBytes()
 	{
 	    TByteArrayList l = new TByteArrayList();
-	    l.addAll(getR4Bytes(waferSize));
-	    l.addAll(getR4Bytes(dieHeight));
-	    l.addAll(getR4Bytes(dieWidth));
+	    l.addAll(cpuType.getR4Bytes(waferSize));
+	    l.addAll(cpuType.getR4Bytes(dieHeight));
+	    l.addAll(cpuType.getR4Bytes(dieWidth));
 	    l.addAll(getU1Bytes(units));
 	    l.addAll(getFixedLengthStringBytes("" + flatOrient));
-	    l.addAll(getI2Bytes(centerX));
-	    l.addAll(getI2Bytes(centerY));
+	    l.addAll(cpuType.getI2Bytes(centerX));
+	    l.addAll(cpuType.getI2Bytes(centerY));
 	    l.addAll(getFixedLengthStringBytes("" + posX));
 	    l.addAll(getFixedLengthStringBytes("" + posY));
 	    bytes = l.toArray();
 	}
 	
 	public WaferConfigurationRecord(
+		Cpu_t cpuType,
         float waferSize,
         float dieHeight,
         float dieWidth,
@@ -95,7 +97,7 @@ public class WaferConfigurationRecord extends StdfRecord
         char posX,
         char posY)
     {
-	    super(Record_t.WCR, null);
+	    super(Record_t.WCR, cpuType, null);
 	    this.waferSize = waferSize;
 	    this.dieHeight = dieHeight;
 	    this.dieWidth = dieWidth;

@@ -29,6 +29,7 @@ import gnu.trove.list.array.TByteArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
@@ -63,7 +64,7 @@ public class PartResultsRecord extends StdfRecord
     **/
     public PartResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.PRR, data);
+        super(Record_t.PRR, dvd.getCpuType(), data);
         tdb.clearIdDups();
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
@@ -86,6 +87,7 @@ public class PartResultsRecord extends StdfRecord
     }
     
     public PartResultsRecord(
+        Cpu_t cpuType,
     	short headNumber,
     	short siteNumber,
     	byte partInfoFlags,
@@ -99,7 +101,7 @@ public class PartResultsRecord extends StdfRecord
     	String partDescription,
     	byte[] repair)
     {
-    	super(Record_t.PRR, null);
+    	super(Record_t.PRR, cpuType, null);
     	this.headNumber = headNumber;
     	this.siteNumber = siteNumber;
     	this.partInfoFlags = PartInfoFlag_t.getBits(partInfoFlags);
@@ -121,12 +123,12 @@ public class PartResultsRecord extends StdfRecord
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteNumber));
 		l.add((byte) partInfoFlags.stream().mapToInt(b -> b.getBit()).sum());
-		l.addAll(getU2Bytes(numExecs));
-		l.addAll(getU2Bytes(hwBinNumber));
-		l.addAll(getU2Bytes(swBinNumber));
-		l.addAll(getI2Bytes(xCoord));
-		l.addAll(getI2Bytes(yCoord));
-		l.addAll(getU4Bytes(testTime));
+		l.addAll(cpuType.getU2Bytes(numExecs));
+		l.addAll(cpuType.getU2Bytes(hwBinNumber));
+		l.addAll(cpuType.getU2Bytes(swBinNumber));
+		l.addAll(cpuType.getI2Bytes(xCoord));
+		l.addAll(cpuType.getI2Bytes(yCoord));
+		l.addAll(cpuType.getU4Bytes(testTime));
 		l.addAll(getCnBytes(partID));
 		l.addAll(getCnBytes(partDescription));
 		l.addAll(getBnBytes(repair));

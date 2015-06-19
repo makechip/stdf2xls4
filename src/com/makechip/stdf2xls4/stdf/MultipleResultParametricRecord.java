@@ -26,15 +26,20 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
+
+import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 /**
 *** @author eric
 *** @version $Id: MultipleResultParametricRecord.java 258 2008-10-22 01:22:44Z ericw $
@@ -69,9 +74,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     /**
     *** @param p1
     **/
-    public MultipleResultParametricRecord(TestIdDatabase tdb, final DefaultValueDatabase dvd, byte[] data)
+    public MultipleResultParametricRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.MPR, data);
+        super(Record_t.MPR, dvd.getCpuType(), data);
         int j = getU2(0);
         int k = getU2(0); 
         rtnState = getNibbles(j);
@@ -137,6 +142,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     public MultipleResultParametricRecord(
             final TestIdDatabase tdb,
             final DefaultValueDatabase dvd,
+            final Cpu_t cpuType,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
@@ -148,8 +154,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
             final float[] results,
     	    final String testName,
     	    final String alarmName,
-    	    final byte optFlags, 
-    	    final byte resScal, // if RES_SCAL_INVALID set, then use default res_scal
+    	    final EnumSet<OptFlag_t> optFlags, 
+    	    final byte resScal, 
     	    final byte llmScal,
     	    final byte hlmScal, 
     	    final float loLimit, 
@@ -165,89 +171,104 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(Record_t.MPR, testNumber, headNumber, siteNumber, testFlags, paramFlags);
-        this.rtnState = Arrays.copyOf(rtnState, rtnState.length);
-        this.results = Arrays.copyOf(results, results.length);
-        id = TestID.createTestID(tdb, testNumber, testName);
-        this.alarmName = alarmName;
-        byte oflags = optFlags;
-        if (oflags != MISSING_BYTE)
-        {
-        	this.optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(oflags));
-        	if (dvd.optDefaults.get(id) == null) dvd.optDefaults.put(id, this.optFlags);
-        }
-        else
-        {
-        	this.optFlags = dvd.optDefaults.get(id);
-        }
-        this.resScal = setByte(MISSING_BYTE, resScal, id, dvd.resScalDefaults);
-        this.llmScal = setByte(MISSING_BYTE, llmScal, id, dvd.llmScalDefaults);
-        this.hlmScal = setByte(MISSING_BYTE, hlmScal, id, dvd.hlmScalDefaults);
-        this.loLimit = setFloat(MISSING_FLOAT, loLimit, id, dvd.loLimDefaults);
-        this.hiLimit = setFloat(MISSING_FLOAT, hiLimit, id, dvd.hiLimDefaults);
-        this.startIn = setFloat(MISSING_FLOAT, startIn, id, dvd.startInDefaults);     
-        this.incrIn  = setFloat(MISSING_FLOAT, incrIn, id, dvd.startInDefaults);     
-        if (j != 0)
-        {
-        	this.rtnIndex = Arrays.copyOf(rtnIndex, rtnIndex.length);
-        	if (dvd.rtnIndexDefaults.get(id) == null) dvd.rtnIndexDefaults.put(id, rtnIndex);
-        }
-        else
-        {
-        	this.rtnIndex = dvd.rtnIndexDefaults.get(id);
-        }
-        rsltMap = new LinkedHashMap<>();
-        int n = 0;
-        for (int i : rtnIndex)
-        {
-      	    String pin = (dvd.isFusionCx()) ? dvd.getPhysicalPinName(siteNumber, i) : dvd.getChannelName(siteNumber, i);
-      	    rsltMap.put(pin, results[n]);
-      	    n++;
-        }
-        this.units = setString(MISSING_STRING, units, id , dvd.unitDefaults);
-        this.unitsIn = setString(MISSING_STRING, unitsIn, id , dvd.unitsInDefaults);
-        this.resFmt = setString(MISSING_STRING, resFmt, id , dvd.resFmtDefaults);
-        this.llmFmt = setString(MISSING_STRING, llmFmt, id , dvd.llmFmtDefaults);
-        this.hlmFmt = setString(MISSING_STRING, hlmFmt, id , dvd.hlmFmtDefaults);
-        this.loSpec = setFloat(MISSING_FLOAT, loSpec, id, dvd.loSpecDefaults);
-        this.hiSpec = setFloat(MISSING_FLOAT, hiSpec, id, dvd.hiSpecDefaults);
+    	this(tdb, dvd, toBytes(cpuType, testNumber, headNumber, siteNumber, testFlags, 
+    			paramFlags, rtnState, results, testName, alarmName, optFlags, 
+    			resScal, llmScal, hlmScal, loLimit, hiLimit, startIn, incrIn, rtnIndex, 
+    			units, unitsIn, resFmt, llmFmt, hlmFmt, loSpec, hiSpec));
     }
     
     @Override
     protected void toBytes()
     {
+    	bytes = toBytes(
+    			cpuType,
+                testNumber,
+                headNumber,
+                siteNumber,
+                (byte) testFlags.stream().mapToInt(b -> b.getBit()).sum(),
+                (byte) paramFlags.stream().mapToInt(b -> b.getBit()).sum(),
+                rtnState,
+                results,
+                id.testName,
+        	    alarmName,
+        	    optFlags, 
+        	    resScal, 
+        	    llmScal,
+        	    hlmScal, 
+        	    loLimit, 
+        	    hiLimit,
+        	    startIn,
+        	    incrIn,
+        	    rtnIndex,
+        	    units,
+        	    unitsIn,
+        	    resFmt,
+        	    llmFmt,
+        	    hlmFmt,
+        	    loSpec,
+        	    hiSpec);
+    }
+    
+    private static byte[] toBytes(
+    		final Cpu_t cType,
+            final long tNumber,
+            final short hNumber,
+            final short sNumber,
+            final byte tFlags,
+            final byte pFlags,
+            final byte[] rState,
+            final float[] rslts,
+    	    final String tName,
+    	    final String aName,
+    	    final Set<OptFlag_t> oFlags, 
+    	    final byte rScal,
+    	    final byte lScal,
+    	    final byte hScal, 
+    	    final float lLimit, 
+    	    final float hLimit,
+    	    final float sIn,
+    	    final float iIn,
+    	    final int[] rIndex,
+    	    final String uts,
+    	    final String utsIn,
+    	    final String rFmt,
+    	    final String lFmt,
+    	    final String hFmt,
+    	    final float lSpec,
+    	    final float hSpec)
+    {	
         TByteArrayList list = new TByteArrayList();
-        list.addAll(getU4Bytes(testNumber));
-        list.addAll(getU1Bytes(headNumber));
-        list.addAll(getU1Bytes(siteNumber));
-        list.add((byte) testFlags.stream().mapToInt(b -> b.getBit()).sum());
-        list.add((byte) paramFlags.stream().mapToInt(b -> b.getBit()).sum());
-        list.addAll(getU2Bytes(rtnState.length));
-        list.addAll(getU2Bytes(results.length));
-        list.addAll(getNibbleBytes(rtnState));
-        for (int i=0; i<results.length; i++) list.addAll(getR4Bytes(results[i]));
-        list.addAll(getCnBytes(id.testName));
-        list.addAll(getCnBytes(alarmName));
-        if (optFlags != null)
+        list.addAll(cType.getU4Bytes(tNumber));
+        list.addAll(getU1Bytes(hNumber));
+        list.addAll(getU1Bytes(sNumber));
+        list.add(tFlags);
+        list.add(pFlags);
+        list.addAll(cType.getU2Bytes(rState.length));
+        list.addAll(cType.getU2Bytes(rslts.length));
+        list.addAll(getNibbleBytes(rState));
+        for (int i=0; i<rslts.length; i++) list.addAll(cType.getR4Bytes(rslts[i]));
+        list.addAll(getCnBytes(tName));
+        list.addAll(getCnBytes(aName));
+        if (oFlags != null)
         {
-        	list.add((byte) optFlags.stream().mapToInt(b -> b.getBit()).sum());
-            list.addAll(getI1Bytes(resScal));
-            list.addAll(getI1Bytes(llmScal));
-            list.addAll(getI1Bytes(hlmScal));
-            list.addAll(getR4Bytes(loLimit));
-            list.addAll(getR4Bytes(hiLimit));
-            list.addAll(getR4Bytes(startIn));
-            list.addAll(getR4Bytes(incrIn));
-            Arrays.stream(rtnIndex).forEach(p -> list.addAll(getU2Bytes(p)));
-            list.addAll(getCnBytes(units));
-            list.addAll(getCnBytes(unitsIn));
-            list.addAll(getCnBytes(resFmt));
-            list.addAll(getCnBytes(llmFmt));
-            list.addAll(getCnBytes(hlmFmt));
-            list.addAll(getR4Bytes(loSpec));
-            list.addAll(getR4Bytes(hiSpec));
+        	list.add((byte) oFlags.stream().mapToInt(b -> b.getBit()).sum());
+            list.addAll(getI1Bytes(rScal));
+            list.addAll(getI1Bytes(lScal));
+            list.addAll(getI1Bytes(hScal));
+            list.addAll(cType.getR4Bytes(lLimit));
+            list.addAll(cType.getR4Bytes(hLimit));
+            list.addAll(cType.getR4Bytes(sIn));
+            list.addAll(cType.getR4Bytes(iIn));
+            Arrays.stream(rIndex).forEach(p -> list.addAll(cType.getU2Bytes(p)));
+            list.addAll(getCnBytes(uts));
+            list.addAll(getCnBytes(utsIn));
+            list.addAll(getCnBytes(rFmt));
+            list.addAll(getCnBytes(lFmt));
+            list.addAll(getCnBytes(hFmt));
+            list.addAll(cType.getR4Bytes(lSpec));
+            list.addAll(cType.getR4Bytes(hSpec));
         }
-        bytes = list.toArray();
+        return(list.toArray());
     }
     
     @Override
@@ -341,24 +362,28 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	@Override
 	public byte getLlmScal()
 	{
+		if (optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(MISSING_BYTE);
 		return llmScal;
 	}
 
 	@Override
 	public byte getHlmScal()
 	{
+		if (optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(MISSING_BYTE);
 		return hlmScal;
 	}
 
 	@Override
 	public float getLoLimit()
 	{
+		if (optFlags.contains(NO_LO_LIMIT) || optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(MISSING_FLOAT);
 		return loLimit;
 	}
 
 	@Override
 	public float getHiLimit()
 	{
+		if (optFlags.contains(NO_HI_LIMIT) || optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(MISSING_FLOAT);
 		return hiLimit;
 	}
 

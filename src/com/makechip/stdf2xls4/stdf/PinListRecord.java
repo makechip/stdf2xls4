@@ -29,6 +29,7 @@ import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Arrays;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -52,7 +53,7 @@ public class PinListRecord extends StdfRecord
     **/
     public PinListRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.PLR, data);
+        super(Record_t.PLR, dvd.getCpuType(), data);
         int k = getU2(0);
         pinIndex = new int[k];
         Arrays.setAll(pinIndex, p -> getU2(-1));
@@ -75,9 +76,9 @@ public class PinListRecord extends StdfRecord
 	protected void toBytes()
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU2Bytes(pinIndex.length));
-		Arrays.stream(pinIndex).forEach(p -> l.addAll(getU2Bytes(p)));
-		Arrays.stream(mode).forEach(p -> l.addAll(getU2Bytes(p)));
+		l.addAll(cpuType.getU2Bytes(pinIndex.length));
+		Arrays.stream(pinIndex).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
+		Arrays.stream(mode).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
 		Arrays.stream(radix).forEach(p -> l.addAll(getU1Bytes((short) p)));
 		Arrays.stream(pgmChar).forEach(p -> l.addAll(getCnBytes(p)));
 		Arrays.stream(rtnChar).forEach(p -> l.addAll(getCnBytes(p)));
@@ -87,6 +88,7 @@ public class PinListRecord extends StdfRecord
 	}
 	
 	public PinListRecord(
+		Cpu_t cpuType,
 	    int[] pinIndex,
 	    int[] mode,
 	    int[] radix,
@@ -95,7 +97,7 @@ public class PinListRecord extends StdfRecord
 	    String[] pgmChal,
 	    String[] rtnChal)
 	{
-		super(Record_t.PLR, null);
+		super(Record_t.PLR, cpuType, null);
 		this.pinIndex = Arrays.copyOf(pinIndex, pinIndex.length);
 		this.mode = Arrays.copyOf(mode, mode.length);
 		this.radix = Arrays.copyOf(radix, radix.length);

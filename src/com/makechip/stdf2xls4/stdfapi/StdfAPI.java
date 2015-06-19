@@ -33,10 +33,9 @@ import static com.makechip.stdf2xls4.stdf.StdfRecord.*;
  * process the STDF records into structures that are usable for
  * converting the data into spreadsheet format.  It does the following:
  * 1. Assign TestIDs to all test records.
- * 2. Locates default values for missing record data.
- * 3. normalizes the result values and units
- * 4. Packages tests by device
- * 5. builds list of device data.
+ * 2. normalizes the result values and units
+ * 3. Packages tests by device
+ * 4. builds map of device data.
  * @author eric
  *
  */
@@ -48,6 +47,7 @@ public final class StdfAPI
     public static final String TEXT_DATA = StdfRecord.TEXT_DATA;
     public static final String SERIAL_MARKER = StdfRecord.SERIAL_MARKER;
     private final Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap;
+    private final Map<PageHeader, Boolean> wafersortMap;
 	private final List<String> stdfFiles;
 	private boolean timeStampedFiles;
 	private boolean wafersort;
@@ -67,70 +67,31 @@ public final class StdfAPI
 		this.stdfFiles = stdfFiles;
 		new ArrayList<StdfRecord>();
 		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
+		wafersortMap = new HashMap<>();
 	}
 	
-	private void checkLoLimits(PageHeader hdr, TObjectFloatHashMap<TestID> lmap, List<List<StdfRecord>> list)
+	private void checkLimits(PageHeader hdr, TObjectFloatHashMap<TestID> lmap, List<List<StdfRecord>> list, OptFlag_t missingLimitFlag)
 	{
 		list.stream().flatMap(p -> p.stream()).
 			filter(r -> r instanceof ParametricRecord).
-			map(s -> ParametricRecord.class.cast(s)).forEach(q -> checkLoLimit(q, lmap, hdr));
+			map(s -> ParametricRecord.class.cast(s)).forEach(q -> checkLimit(q, lmap, hdr, missingLimitFlag));
 	}
 	
-	private void checkLoLimit(ParametricRecord r, TObjectFloatHashMap<TestID> m, PageHeader hdr)
+	private void checkLimit(ParametricRecord r, TObjectFloatHashMap<TestID> m, PageHeader hdr, OptFlag_t missingLimitFlag)
 	{
 		Map<TestID, Boolean> m1 = dynamicLimitMap.get(hdr);
 		if (m1 != null)
 		{
 			if (m1.get(r.getTestId()) == true) return;
 		}
-        if (!r.getOptFlags().contains(OptFlag_t.NO_LO_LIMIT))
+        if (!r.getOptFlags().contains(missingLimitFlag))
         {
+        	float recLimit = (missingLimitFlag == OptFlag_t.NO_LO_LIMIT) ? r.getLoLimit() : r.getHiLimit();
             float ll1 = m.get(r.getTestId());
-        	if (ll1 == MISSING_FLOAT)
-        	{
-        	    ll1 = r.getLoLimit();
-        	    m.put(r.getTestId(), ll1);
-        	}
+        	if (ll1 == MISSING_FLOAT) m.put(r.getTestId(), recLimit);
         	else
         	{
-        		if (r.getLoLimit() < ll1 - 0.0001 * ll1 || r.getLoLimit() > ll1 + 0.0001 * ll1)
-        		{
-        			if (m1 == null)
-        			{
-        				m1 = new IdentityHashMap<>();
-        				dynamicLimitMap.put(hdr, m1);
-        			}
-        			m1.put(r.getTestId(), true);
-        		}
-        	}
-        }
-	}
-	
-	private void checkHiLimits(PageHeader hdr, TObjectFloatHashMap<TestID> hmap, List<List<StdfRecord>> list)
-	{
-		list.stream().flatMap(p -> p.stream()).
-			filter(r -> r instanceof ParametricRecord).
-			map(s -> ParametricRecord.class.cast(s)).forEach(q -> checkHiLimit(q, hmap, hdr));
-	}
-	
-	private void checkHiLimit(ParametricRecord r, TObjectFloatHashMap<TestID> m, PageHeader hdr)
-	{
-		Map<TestID, Boolean> m1 = dynamicLimitMap.get(hdr);
-		if (m1 != null)
-		{
-			if (m1.get(r.getTestId()) == true) return;
-		}
-        if (!r.getOptFlags().contains(OptFlag_t.NO_HI_LIMIT))
-        {
-            float hl1 = m.get(r.getTestId());
-        	if (hl1 == MISSING_FLOAT)
-        	{
-        	    hl1 = r.getHiLimit();
-        	    m.put(r.getTestId(), hl1);
-        	}
-        	else
-        	{
-        		if (r.getHiLimit() < hl1 - 0.0001 * hl1 || r.getHiLimit() > hl1 + 0.0001 * hl1)
+        		if (recLimit < ll1 - 0.0001 * ll1 || recLimit > ll1 + 0.0001 * ll1)
         		{
         			if (m1 == null)
         			{
@@ -153,13 +114,10 @@ public final class StdfAPI
 			.collect(splitBySeparator(r -> r instanceof PartResultsRecord))
 			.stream()
 			.forEach(p -> createHeaders(new HeaderUtil(), devList, p));
-		// now check for dynamicLimits
-		if (dynamicLimits)
+		if (dynamicLimits) // check for dynamicLimits
 		{
-			devList.keySet().stream().
-			    forEach(p -> checkLoLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p)));
-		    devList.keySet().stream().
-		        forEach(p -> checkHiLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p)));	
+			devList.keySet().stream().forEach(p -> checkLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p), OptFlag_t.NO_LO_LIMIT));
+		    devList.keySet().stream().forEach(p -> checkLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p), OptFlag_t.NO_HI_LIMIT));	
 		}	
 		tdb = new TestRecordDatabase(tiddb, dynamicLimitMap);
 	    // now build TestRecord database:
@@ -168,7 +126,7 @@ public final class StdfAPI
 	
 	private void mapTests(boolean sortDevices, PageHeader hdr, List<List<StdfRecord>> devList)
 	{
-		wafersort = hdr.contains(HeaderUtil.WAFER_ID);
+		wafersortMap.put(hdr, hdr.contains(HeaderUtil.WAFER_ID));
 		devList.stream().forEach(p -> buildList(sortDevices, hdr, p));
 	}
 	

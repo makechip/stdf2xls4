@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
@@ -71,7 +72,7 @@ public class FunctionalTestRecord extends TestRecord
     
     public FunctionalTestRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.FTR, data);
+        super(Record_t.FTR, dvd.getCpuType(), data);
         EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());
         testFlags = Collections.unmodifiableSet(s);
         byte oflags = getByte();
@@ -128,10 +129,7 @@ public class FunctionalTestRecord extends TestRecord
             {
         	    if (dvd.tnameDefaults.get(testNumber) == null) dvd.tnameDefaults.put(testNumber, testName);
             }
-            else
-            {
-        	    testName = dvd.tnameDefaults.get(testNumber);
-            }
+            else testName = dvd.tnameDefaults.get(testNumber);
             if (testName == null) testName = "";
             id = TestID.createTestID(tdb, testNumber, testName);
             alarmName = getCn();
@@ -142,20 +140,14 @@ public class FunctionalTestRecord extends TestRecord
             {
             	if (dvd.pgDefaults.get(testNumber) == MISSING_SHORT) dvd.pgDefaults.put(testNumber, p);
             }
-            else
-            {
-            	p = dvd.pgDefaults.get(testNumber);
-            }
+            else p = dvd.pgDefaults.get(testNumber);
             patGenNum = p;
             byte[] ec = getDn();
             if (ec.length != 0)
             {
             	if (dvd.ecDefaults.get(testNumber) == null) dvd.ecDefaults.put(testNumber, ec);
             }
-            else
-            {
-            	ec = dvd.ecDefaults.get(testNumber);
-            }
+            else ec = dvd.ecDefaults.get(testNumber);
             enComps = ec;
         }
     }
@@ -163,6 +155,7 @@ public class FunctionalTestRecord extends TestRecord
     public FunctionalTestRecord(
         TestIdDatabase tdb,
         DefaultValueDatabase dvd,
+        Cpu_t cpuType,
         final long testNumber,
         final short headNumber,
         final short siteNumber,
@@ -190,67 +183,76 @@ public class FunctionalTestRecord extends TestRecord
         final short patGenNum,
         final byte[] enComps)
     {
-        super(Record_t.FTR, testNumber, headNumber, siteNumber);	
-        EnumSet<TestFlag_t> s1 = TestFlag_t.getBits(testFlags);
-        this.testFlags = Collections.unmodifiableSet(s1);
-        EnumSet<FTROptFlag_t> s2 = FTROptFlag_t.getBits(optFlags);
-        this.optFlags = Collections.unmodifiableSet(s2);
-        this.cycleCount = cycleCount;
-        this.relVaddr = relVaddr;
-        this.rptCnt = rptCnt;
-        this.numFail = numFail;
-        this.xFailAddr = xFailAddr;
-        this.yFailAddr = yFailAddr;
-        this.vecOffset = vecOffset;
-        this.rtnIndex = rtnIndex;
-        this.rtnState = rtnState;
-        this.pgmIndex = pgmIndex;
-        this.pgmState = pgmState;
-        this.failPin = failPin;
-        this.vecName = vecName;
-        this.timeSetName = timeSetName;
-        this.vecOpCode = vecOpCode;
-        String testName = label;
-        if (!testName.equals(MISSING_STRING))
-        {
-        	if (dvd.tnameDefaults.get(testNumber) == null) dvd.tnameDefaults.put(testNumber, testName);
-        }
-        else
-        {
-        	testName = dvd.tnameDefaults.get(testNumber);
-        }
-        if (testName == null) testName = "";
-        id = TestID.createTestID(tdb, testNumber, testName);
-        this.alarmName = alarmName;
-        this.progTxt = progTxt;
-        this.rsltTxt = rsltTxt;
-        short p = patGenNum;
-        if (p != MISSING_SHORT)
-        {
-        	if (dvd.pgDefaults.get(testNumber) == MISSING_SHORT) dvd.pgDefaults.put(testNumber, p);
-        }
-        else
-        {
-        	p = dvd.pgDefaults.get(testNumber);
-        }
-        this.patGenNum = p;
-        byte[] ec = enComps;
-        if (ec.length != 0)
-        {
-        	if (dvd.ecDefaults.get(testNumber) == null) dvd.ecDefaults.put(testNumber, ec);
-        }
-        else
-        {
-        	ec = dvd.ecDefaults.get(testNumber);
-        }
-        this.enComps = ec;
+    	this(tdb, dvd, toBytes(cpuType, testNumber, headNumber, siteNumber, TestFlag_t.getBits(testFlags), 
+    		 FTROptFlag_t.getBits(optFlags), cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
+    		 vecOffset, rtnIndex, rtnState, pgmIndex, pgmState, failPin, vecName, timeSetName, vecOpCode, 
+    		 label, alarmName, progTxt, rsltTxt, patGenNum, enComps));
     }
     
     @Override
     protected void toBytes()
     {
+    	bytes = toBytes(
+        cpuType,
+        testNumber,
+        headNumber,
+        siteNumber,
+        testFlags,
+        optFlags,
+        cycleCount,
+        relVaddr,
+        rptCnt,
+        numFail,
+        xFailAddr,
+        yFailAddr,
+        vecOffset,
+        rtnIndex,
+        rtnState,
+        pgmIndex,
+        pgmState,
+        failPin,
+        vecName,
+        timeSetName,
+        vecOpCode,
+        id.testName,
+        alarmName,
+        progTxt,
+        rsltTxt,
+        patGenNum,
+        enComps);
+    }
+    
+    private static byte[] toBytes(
+        Cpu_t cpuType,
+        final long testNumber,
+        final short headNumber,
+        final short siteNumber,
+        final Set<TestFlag_t> testFlags,
+        final Set<FTROptFlag_t> optFlags,
+        final long cycleCount,
+        final long relVaddr,
+        final long rptCnt,
+        final long numFail,
+        final int xFailAddr,
+        final int yFailAddr,
+        final short vecOffset,
+        final int[] rtnIndex,
+        final byte[] rtnState,
+        final int[] pgmIndex,
+        final byte[] pgmState,
+        final byte[] failPin,
+        final String vecName,
+        final String timeSetName,
+        final String vecOpCode,
+        String label,
+        final String alarmName,
+        final String progTxt,
+        final String rsltTxt,
+        final short patGenNum,
+        final byte[] enComps)
+    {
         TByteArrayList list = new TByteArrayList();
-        list.addAll(getU4Bytes(testNumber));
+        list.addAll(cpuType.getU4Bytes(testNumber));
         list.addAll(getU1Bytes(headNumber));
         list.addAll(getU1Bytes(siteNumber));
         byte b = 0;
@@ -261,31 +263,31 @@ public class FunctionalTestRecord extends TestRecord
             b = 0;
             for (FTROptFlag_t t : optFlags) b |= t.getBit();
             list.add(b);
-            list.addAll(getU4Bytes(cycleCount));
-            list.addAll(getU4Bytes(relVaddr));
-            list.addAll(getU4Bytes(rptCnt));
-            list.addAll(getU4Bytes(numFail));
-            list.addAll(getI4Bytes(xFailAddr));
-            list.addAll(getI4Bytes(yFailAddr));
-            list.addAll(getI2Bytes(vecOffset));
-            list.addAll(getU2Bytes(rtnIndex.length));
-            list.addAll(getU2Bytes(pgmIndex.length));
-            for (int i=0; i<rtnIndex.length; i++) list.addAll(getU2Bytes(rtnIndex[i]));
+            list.addAll(cpuType.getU4Bytes(cycleCount));
+            list.addAll(cpuType.getU4Bytes(relVaddr));
+            list.addAll(cpuType.getU4Bytes(rptCnt));
+            list.addAll(cpuType.getU4Bytes(numFail));
+            list.addAll(cpuType.getI4Bytes(xFailAddr));
+            list.addAll(cpuType.getI4Bytes(yFailAddr));
+            list.addAll(cpuType.getI2Bytes(vecOffset));
+            list.addAll(cpuType.getU2Bytes(rtnIndex.length));
+            list.addAll(cpuType.getU2Bytes(pgmIndex.length));
+            for (int i=0; i<rtnIndex.length; i++) list.addAll(cpuType.getU2Bytes(rtnIndex[i]));
             list.addAll(getNibbleBytes(rtnState));
-            for (int i=0; i<pgmIndex.length; i++) list.addAll(getU2Bytes(pgmIndex[i]));
+            for (int i=0; i<pgmIndex.length; i++) list.addAll(cpuType.getU2Bytes(pgmIndex[i]));
             list.addAll(getNibbleBytes(pgmState));
-            list.addAll(getDnBytes(failPin));
+            list.addAll(cpuType.getDnBytes(failPin));
             list.addAll(getCnBytes(vecName));
             list.addAll(getCnBytes(timeSetName));
             list.addAll(getCnBytes(vecOpCode));
-            list.addAll(getCnBytes(id.testName));
+            list.addAll(getCnBytes(label));
             list.addAll(getCnBytes(alarmName));
             list.addAll(getCnBytes(progTxt));
             list.addAll(getCnBytes(rsltTxt));
             list.addAll(getU1Bytes(patGenNum));
-            list.addAll(getDnBytes(enComps));
+            list.addAll(cpuType.getDnBytes(enComps));
         }
-        bytes = list.toArray();
+        return(list.toArray());
     }
   
     public boolean alarm() { return(testFlags.contains(TestFlag_t.ALARM)); }

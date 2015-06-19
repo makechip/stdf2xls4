@@ -27,6 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -56,7 +57,7 @@ public class WaferResultsRecord extends StdfRecord
     **/
     public WaferResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.WRR, data);
+        super(Record_t.WRR, dvd.getCpuType(), data);
         headNumber = getU1((short) -1);
         siteGroupNumber = getU1((short) 255);
         finishDate = getU4(-1L);
@@ -79,12 +80,12 @@ public class WaferResultsRecord extends StdfRecord
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteGroupNumber));
-		l.addAll(getU4Bytes(finishDate));
-		l.addAll(getU4Bytes(partCount));
-		l.addAll(getU4Bytes(retestCount));
-		l.addAll(getU4Bytes(abortCount));
-		l.addAll(getU4Bytes(passCount));
-		l.addAll(getU4Bytes(functionalCount));
+		l.addAll(cpuType.getU4Bytes(finishDate));
+		l.addAll(cpuType.getU4Bytes(partCount));
+		l.addAll(cpuType.getU4Bytes(retestCount));
+		l.addAll(cpuType.getU4Bytes(abortCount));
+		l.addAll(cpuType.getU4Bytes(passCount));
+		l.addAll(cpuType.getU4Bytes(functionalCount));
 		l.addAll(getCnBytes(waferID));
 		l.addAll(getCnBytes(fabWaferID));
 		l.addAll(getCnBytes(waferFrameID));
@@ -95,6 +96,7 @@ public class WaferResultsRecord extends StdfRecord
 	}
 	
 	public WaferResultsRecord(
+		Cpu_t cpuType,
         short headNumber,
         short siteGroupNumber,
         long finishDate,
@@ -110,7 +112,7 @@ public class WaferResultsRecord extends StdfRecord
         String userWaferDesc,
         String execWaferDesc)
     {
-		super(Record_t.WRR, null);
+		super(Record_t.WRR, cpuType, null);
 		this.headNumber = headNumber;
 		this.siteGroupNumber = siteGroupNumber;
 		this.finishDate = finishDate;

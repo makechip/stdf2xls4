@@ -29,6 +29,7 @@ import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Date;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -80,6 +81,7 @@ public class MasterInformationRecord extends StdfRecord
     
     public MasterInformationRecord(
     	DefaultValueDatabase dvd,
+    	Cpu_t cpuType,
         long jobDate,
         long testDate,
         short stationNumber,
@@ -120,7 +122,7 @@ public class MasterInformationRecord extends StdfRecord
         String supervisorID,
         long timeStamp)
     {
-        super(Record_t.MIR, null);
+        super(Record_t.MIR, cpuType, null);
         this.jobDate = jobDate;
         this.testDate = testDate;
         this.stationNumber = stationNumber;
@@ -169,7 +171,7 @@ public class MasterInformationRecord extends StdfRecord
     **/
     public MasterInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.MIR, data);
+        super(Record_t.MIR, dvd.getCpuType(), data);
         timeStamp = dvd.timeStamp;
         jobDate = getU4(0);
         testDate = getU4(0);
@@ -216,13 +218,13 @@ public class MasterInformationRecord extends StdfRecord
 	protected void toBytes()
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU4Bytes(jobDate));
-		l.addAll(getU4Bytes(testDate));
+		l.addAll(cpuType.getU4Bytes(jobDate));
+		l.addAll(cpuType.getU4Bytes(testDate));
 		l.addAll(getU1Bytes(stationNumber));
 		l.addAll(getFixedLengthStringBytes("" + testModeCode));
 		l.addAll(getFixedLengthStringBytes("" + lotRetestCode));
 		l.addAll(getFixedLengthStringBytes("" + dataProtectionCode));
-		l.addAll(getU2Bytes(burnInTime));
+		l.addAll(cpuType.getU2Bytes(burnInTime));
 		l.addAll(getFixedLengthStringBytes("" + cmdModeCode));
 		l.addAll(getCnBytes(lotID));
         l.addAll(getCnBytes(partType));

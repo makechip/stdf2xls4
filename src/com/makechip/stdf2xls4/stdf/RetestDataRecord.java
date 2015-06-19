@@ -29,6 +29,7 @@ import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Arrays;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -46,15 +47,15 @@ public class RetestDataRecord extends StdfRecord
     **/
     public RetestDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.RDR, data);
+        super(Record_t.RDR, dvd.getCpuType(), data);
         int k = getU2(0);
         retestBins = new int[k];
         Arrays.setAll(retestBins, p -> getU2(-1));
     }
     
-    public RetestDataRecord(int[] retestBins)
+    public RetestDataRecord(Cpu_t cpuType, int[] retestBins)
     {
-    	super(Record_t.RDR, null);
+    	super(Record_t.RDR, cpuType, null);
     	this.retestBins = Arrays.copyOf(retestBins, retestBins.length);
     }
 
@@ -62,8 +63,8 @@ public class RetestDataRecord extends StdfRecord
 	protected void toBytes()
 	{
 	    TByteArrayList l = new TByteArrayList();	
-	    l.addAll(getU2Bytes(retestBins.length));
-	    Arrays.stream(retestBins).forEach(p -> l.addAll(getU2Bytes(p)));
+	    l.addAll(cpuType.getU2Bytes(retestBins.length));
+	    Arrays.stream(retestBins).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
 	    bytes = l.toArray();
 	}
     

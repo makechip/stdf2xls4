@@ -27,6 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -51,7 +52,7 @@ public class SoftwareBinRecord extends StdfRecord
     **/
     public SoftwareBinRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.SBR, data);
+        super(Record_t.SBR, dvd.getCpuType(), data);
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
         swBinNumber = getU2(-1);
@@ -67,16 +68,22 @@ public class SoftwareBinRecord extends StdfRecord
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteNumber));
-		l.addAll(getU2Bytes(swBinNumber));
-		l.addAll(getU2Bytes(count));
+		l.addAll(cpuType.getU2Bytes(swBinNumber));
+		l.addAll(cpuType.getU2Bytes(count));
 		l.addAll(getFixedLengthStringBytes(pf));
 		l.addAll(getCnBytes(binName));
 		bytes = l.toArray();
 	}
 	
-	public SoftwareBinRecord(short headNumber, short siteNumber, int swBinNumber, int count, char pf, String binName)
+	public SoftwareBinRecord(Cpu_t cpuType, 
+			short headNumber, 
+			short siteNumber, 
+			int swBinNumber, 
+			int count, 
+			char pf, 
+			String binName)
 	{
-		super(Record_t.SBR, null);
+		super(Record_t.SBR, cpuType, null);
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
 		this.swBinNumber = swBinNumber;

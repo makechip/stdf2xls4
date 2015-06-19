@@ -37,7 +37,7 @@ import com.makechip.util.Log;
 **/
 public class FileAttributesRecord extends StdfRecord
 {
-    public final int stdfVersion;
+    public final byte stdfVersion;
     public final Cpu_t cpuType;
     
     /**
@@ -46,17 +46,16 @@ public class FileAttributesRecord extends StdfRecord
     **/
     public FileAttributesRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.FAR, data);
+        super(Record_t.FAR, Cpu_t.getCpuType(data[0]), data);
         cpuType = Cpu_t.getCpuType(data[0]);
-        stdfVersion = (data[1] & 0xFF);
+        dvd.setCpuType(cpuType);
+        stdfVersion = (byte) (data[1] & 0xFF);
         assert stdfVersion == 4;
     }
     
-    public FileAttributesRecord(int stdfVersion, Cpu_t cpuType)
+    public FileAttributesRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, int stdfVersion, Cpu_t cpuType)
     {
-    	super(Record_t.FAR, null);
-    	this.stdfVersion = stdfVersion;
-    	this.cpuType = cpuType;
+    	this(tdb, dvd, toBytes(cpuType, (byte) stdfVersion));
     }
     
     @Override
@@ -72,10 +71,15 @@ public class FileAttributesRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
+		bytes = toBytes(cpuType, stdfVersion);
+	}
+	
+	private static byte[] toBytes(Cpu_t cpuType, byte stdfVersion)
+	{
 		TByteArrayList l = new TByteArrayList();
-		l.add(cpuType.getType());
-		l.add((byte) stdfVersion);
-		bytes = l.toArray();
+        l.add(cpuType.getType());
+        l.add(stdfVersion);
+        return(l.toArray());
 	}
 
 }

@@ -28,6 +28,7 @@ import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Arrays;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -48,7 +49,7 @@ public class PinGroupRecord extends StdfRecord
     **/
     public PinGroupRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.PGR, data);
+        super(Record_t.PGR, dvd.getCpuType(), data);
         groupIndex = getU2(-1);
         groupName = getCn();
         int k = getU2(0);
@@ -56,9 +57,9 @@ public class PinGroupRecord extends StdfRecord
         for (int i=0; i<k; i++) pmrIdx[i] = getU2(-1);
     }
     
-    public PinGroupRecord(int groupIndex, String groupName, int[] pmrIdx)
+    public PinGroupRecord(Cpu_t cpuType, int groupIndex, String groupName, int[] pmrIdx)
     {
-        super(Record_t.PGR, null);
+        super(Record_t.PGR, cpuType, null);
         this.groupIndex = groupIndex;
         this.groupName = groupName;
         this.pmrIdx = Arrays.copyOf(pmrIdx, pmrIdx.length);
@@ -68,10 +69,10 @@ public class PinGroupRecord extends StdfRecord
 	protected void toBytes()
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU2Bytes(groupIndex));
+		l.addAll(cpuType.getU2Bytes(groupIndex));
 		l.addAll(getCnBytes(groupName));
-		l.addAll(getU2Bytes(pmrIdx.length));
-		Arrays.stream(pmrIdx).forEach(p -> l.addAll(getU2Bytes(p)));
+		l.addAll(cpuType.getU2Bytes(pmrIdx.length));
+		Arrays.stream(pmrIdx).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
 		bytes = l.toArray();
 	}
     

@@ -29,6 +29,7 @@ import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Arrays;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -66,7 +67,7 @@ public class SiteDescriptionRecord extends StdfRecord
     **/
     public SiteDescriptionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.SDR, data);
+        super(Record_t.SDR, dvd.getCpuType(), data);
         headNumber = getU1((short) -1);
         siteGroupNumber = getU1((short) -1);
         numSites = getU1((short) 0);
@@ -118,6 +119,7 @@ public class SiteDescriptionRecord extends StdfRecord
 	}
 	
 	public SiteDescriptionRecord(
+	    Cpu_t cpuType,
 		short headNumber,
 		short siteGroupNumber,
 		short numSites,
@@ -140,7 +142,7 @@ public class SiteDescriptionRecord extends StdfRecord
 		String equipID
 		)
 	{
-		super(Record_t.SDR, null);
+		super(Record_t.SDR, cpuType, null);
 		this.headNumber = headNumber;
 		this.siteGroupNumber = siteGroupNumber;
 		this.numSites = numSites;

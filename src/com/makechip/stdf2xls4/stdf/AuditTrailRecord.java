@@ -28,6 +28,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -43,18 +44,16 @@ public class AuditTrailRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvb, byte[] data)
+    public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.ATR, data);
+        super(Record_t.ATR, dvd.getCpuType(), data);
         date = getU4(0);
         cmdLine = getCn();
     }
     
-    public AuditTrailRecord(final long date, final String cmdLine)
+    public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, Cpu_t cpuType, final long date, final String cmdLine)
     {
-    	super(Record_t.ATR, null);
-    	this.date = date;
-    	this.cmdLine = cmdLine;
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), date, cmdLine));
     }
     
     @Override
@@ -70,10 +69,15 @@ public class AuditTrailRecord extends StdfRecord
 	@Override
 	protected void toBytes()
 	{
+		bytes = toBytes(cpuType, date, cmdLine);
+	}
+	
+	private static byte[] toBytes(Cpu_t cpuType, long date, String cmdLine)
+	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU4Bytes(date));
+		l.addAll(cpuType.getU4Bytes(date));
 		l.addAll(getCnBytes(cmdLine));
-		bytes = l.toArray();
+		return(l.toArray());
 	}
 
 }

@@ -45,7 +45,6 @@ import com.makechip.util.Log;
 public class StdfReader
 {
     private final String filename;
-    public static Cpu_t cpuType;
     private final long timeStamp;
     private List<StdfRecord> records;
     private final DefaultValueDatabase dvd;
@@ -100,7 +99,6 @@ public class StdfReader
     {
        	if (len != 6) throw new StdfException("Malformed FAR record");
        	if (bytes[2] != (byte)  0 || bytes[3] != (byte) 10) throw new StdfException("First STDF record is not a FAR");
-        cpuType = Cpu_t.getCpuType(bytes[4]);
         int stdfVersion = (bytes[5] & 0xFF);
         if (stdfVersion != 4) throw new StdfException("Unsupported STDF version: " + stdfVersion);
         byte[] far = new byte[2];
@@ -159,7 +157,7 @@ public class StdfReader
 
     private int getUnsignedInt(byte b0, byte b1)
     {
-        if (cpuType == Cpu_t.SUN) return((b1 & 0xFF) + ((b0 & 0xFF) << 8)); 
+        if (dvd.getCpuType() == Cpu_t.SUN) return((b1 & 0xFF) + ((b0 & 0xFF) << 8)); 
         return((b0 & 0xFF)  + ((b1 & 0xFF) << 8)); 
     }
 }

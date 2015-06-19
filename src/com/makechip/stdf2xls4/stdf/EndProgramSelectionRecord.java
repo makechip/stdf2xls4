@@ -24,6 +24,7 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -39,12 +40,12 @@ public class EndProgramSelectionRecord extends StdfRecord
     **/
     public EndProgramSelectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.EPS, data);
+        super(Record_t.EPS, dvd.getCpuType(), data);
     }
     
-    public EndProgramSelectionRecord()
+    public EndProgramSelectionRecord(Cpu_t cpuType)
     {
-    	super(Record_t.EPS, null);
+    	super(Record_t.EPS, cpuType, null);
     }
     
     @Override

@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.ParamFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -17,24 +18,12 @@ public abstract class ParametricRecord extends TestRecord
 	public final Set<TestFlag_t> testFlags;
 	public final Set<ParamFlag_t> paramFlags;
 	
-	protected ParametricRecord(Record_t type, byte[] data)
+	protected ParametricRecord(Record_t type, Cpu_t cpuType, byte[] data)
 	{
-		super(type, data);
+		super(type, cpuType, data);
     	testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(getByte()));
     	paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(getByte()));
 		
-	}
-	
-	protected ParametricRecord(Record_t type, 
-			                   long testNumber, 
-			                   short headNumber, 
-			                   short siteNumber,
-			                   byte testFlags,
-			                   byte paramFlags)
-	{
-		super(type, testNumber, headNumber, siteNumber);
-		this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
-		this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
 	}
 	
 	protected byte setByte(byte missingValue, byte streamValue, TestID id, TObjectByteHashMap<TestID> map)
@@ -45,10 +34,7 @@ public abstract class ParametricRecord extends TestRecord
 			rval = streamValue;
 			if (map.get(id) == missingValue) map.put(id, rval);
 		}
-		else
-		{
-			rval = map.get(id);
-		}
+		else rval = map.get(id);
 		return(rval);
 	}
 	
@@ -60,10 +46,7 @@ public abstract class ParametricRecord extends TestRecord
 			rval = streamValue;
 			if (map.get(id) == missingValue) map.put(id, rval);
 		}
-		else
-		{
-			rval = map.get(id);
-		}
+		else rval = map.get(id);
 		return(rval);
 	}
 	
@@ -75,10 +58,7 @@ public abstract class ParametricRecord extends TestRecord
 			rval = streamValue;
 			if (map.get(id) == null) map.put(id, rval);
 		}
-		else
-		{
-			rval = map.get(id);
-		}
+		else rval = map.get(id);
 		return(rval);
 	}
 
@@ -105,13 +85,13 @@ public abstract class ParametricRecord extends TestRecord
 	public boolean hasLoLimit()
 	{
 		if (getOptFlags() == null) return(true);
-		return(!getOptFlags().contains(OptFlag_t.NO_LO_LIMIT));
+		return(!getOptFlags().contains(OptFlag_t.NO_LO_LIMIT) && !getOptFlags().contains(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID));
 	}
 	
 	public boolean hasHiLimit()
 	{
 		if (getOptFlags() == null) return(true);
-		return(!getOptFlags().contains(OptFlag_t.NO_HI_LIMIT));
+		return(!getOptFlags().contains(OptFlag_t.NO_HI_LIMIT) && !getOptFlags().contains(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID));
 	}
 
 }

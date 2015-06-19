@@ -27,6 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -51,7 +52,7 @@ public class PartCountRecord extends StdfRecord
     **/
     public PartCountRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.PCR, data);
+        super(Record_t.PCR, dvd.getCpuType(), data);
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
         partsTested = getU4(-1);
@@ -62,6 +63,7 @@ public class PartCountRecord extends StdfRecord
     }
     
     public PartCountRecord(
+    		Cpu_t cpuType,
     		short headNumber,
     		short siteNumber,
     		long partsTested,
@@ -70,7 +72,7 @@ public class PartCountRecord extends StdfRecord
     		long good,
     		long functional)
     {
-    	super(Record_t.PCR, null);
+    	super(Record_t.PCR, cpuType, null);
     	this.headNumber = headNumber;
     	this.siteNumber = siteNumber;
     	this.partsTested = partsTested;
@@ -86,11 +88,11 @@ public class PartCountRecord extends StdfRecord
 	    TByteArrayList l = new TByteArrayList();
 	    l.addAll(getU1Bytes(headNumber));
 	    l.addAll(getU1Bytes(siteNumber));
-	    l.addAll(getU4Bytes(partsTested));
-	    l.addAll(getU4Bytes(partsReTested));
-	    l.addAll(getU4Bytes(aborts));
-	    l.addAll(getU4Bytes(good));
-	    l.addAll(getU4Bytes(functional));
+	    l.addAll(cpuType.getU4Bytes(partsTested));
+	    l.addAll(cpuType.getU4Bytes(partsReTested));
+	    l.addAll(cpuType.getU4Bytes(aborts));
+	    l.addAll(cpuType.getU4Bytes(good));
+	    l.addAll(cpuType.getU4Bytes(functional));
 	    bytes = l.toArray();
 	}
 

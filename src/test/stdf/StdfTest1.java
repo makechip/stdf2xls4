@@ -14,6 +14,7 @@ import org.junit.Test;
 import com.makechip.stdf2xls4.stdf.*;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
+import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
 import com.makechip.util.Log;
 
@@ -23,7 +24,7 @@ import com.makechip.util.Log;
  */
 public class StdfTest1
 {
-	static DefaultValueDatabase idb = new DefaultValueDatabase(0L);
+	static DefaultValueDatabase dvd = new DefaultValueDatabase(0L);
 	static TestIdDatabase tdb = new TestIdDatabase();
     static StdfWriter stdf;
     static Stack<StdfRecord> stack;
@@ -34,30 +35,30 @@ public class StdfTest1
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
-		FileAttributesRecord far = new FileAttributesRecord(4, Cpu_t.PC);
+		FileAttributesRecord far = new FileAttributesRecord(tdb, dvd, 4, Cpu_t.PC);
 		List<AuditTrailRecord> atrs = new ArrayList<AuditTrailRecord>();
-		atrs.add(new AuditTrailRecord(100000000L, "cmdline"));
-		MasterInformationRecord mir = new MasterInformationRecord(idb, 1000L, 2000L, (short) 1,
+		atrs.add(new AuditTrailRecord(tdb, dvd, Cpu_t.PC, 100000000L, "cmdline"));
+		MasterInformationRecord mir = new MasterInformationRecord(dvd, Cpu_t.PC, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID",
 			"partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  "sublotID", "operatorName",
 			"execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", "auxDataFile",
 			"packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
 			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber",
 			"supervisorID", 1234L);
-		RetestDataRecord srdr = new RetestDataRecord(new int[] { 1, 2, 3, 4 });
+		RetestDataRecord srdr = new RetestDataRecord(Cpu_t.PC, new int[] { 1, 2, 3, 4 });
 		List<SiteDescriptionRecord> sdrs = new ArrayList<SiteDescriptionRecord>();
-		sdrs.add(new SiteDescriptionRecord((short) 1, (short) 2, (short) 1, new int[] { 0 },
+		sdrs.add(new SiteDescriptionRecord(Cpu_t.PC, (short) 1, (short) 2, (short) 1, new int[] { 0 },
 			"handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID",
 			"dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID",
 			"laserType", "laserID", "equipType", "equipID"));
 		stdf = new StdfWriter(far, atrs, mir, srdr, sdrs);
-		stdf.add(new PinMapRecord(idb, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(idb, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(idb, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(idb, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
-		stdf.add(new BeginProgramSelectionRecord("beginProgramSelectionRecord"));
-		stdf.add(new DatalogTextRecord("datalogTextRecord"));
-		stdf.add(new FunctionalTestRecord(tdb, idb, 3, (short) 2, (short) 1, (byte) 0,
+		stdf.add(new PinMapRecord(dvd, Cpu_t.PC, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(dvd, Cpu_t.PC, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(dvd, Cpu_t.PC, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
+		stdf.add(new PinMapRecord(dvd, Cpu_t.PC, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
+		stdf.add(new BeginProgramSelectionRecord(Cpu_t.PC, "beginProgramSelectionRecord"));
+		stdf.add(new DatalogTextRecord(Cpu_t.PC, "datalogTextRecord"));
+		stdf.add(new FunctionalTestRecord(tdb, dvd, Cpu_t.PC, 3, (short) 2, (short) 1, (byte) 0,
 			(byte) 0, 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
 			new byte[] { (byte) 4, (byte) 3, (byte) 2, (byte) 1 }, new int[] { 3, 4, 5, 6 },
 			new byte[] { (byte) 0, (byte) 1, (byte) 2, (byte) 3 }, new byte[] { (byte) 3, (byte) 2, (byte) 1, (byte) 0 },
@@ -68,28 +69,28 @@ public class StdfTest1
 		List<GenericDataRecord.Data> lgd = new ArrayList<GenericDataRecord.Data>(); 
 		lgd.add(d1);
 		lgd.add(d2);
-		stdf.add(new GenericDataRecord(lgd));
-		stdf.add(new HardwareBinRecord((short) 1, (short) 0, 1, 10L, 'P', "binName"));
-		stdf.add(new MasterResultsRecord(1000L, 'C', "lotDesc", "execDesc"));
-		stdf.add(new MultipleResultParametricRecord(tdb, idb, 22L, (short) 1, (short) 0, (byte) 0,
+		stdf.add(new GenericDataRecord(Cpu_t.PC, lgd));
+		stdf.add(new HardwareBinRecord(Cpu_t.PC, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
+		stdf.add(new MasterResultsRecord(Cpu_t.PC, 1000L, 'C', "lotDesc", "execDesc"));
+		stdf.add(new MultipleResultParametricRecord(tdb, dvd, Cpu_t.PC, 22L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 2, 4, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
-			"text", "alarmName", (byte) 0, (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 5, 6 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
-		stdf.add(new ParametricTestRecord(tdb, idb, 44L, (short) 1, (short) 0, (byte) 0,
-			(byte) 0, 5.5f, "text", "alarmName", (byte) 0,
+		stdf.add(new ParametricTestRecord(tdb, dvd, Cpu_t.PC, 44L, (short) 1, (short) 0, (byte) 0,
+			(byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class),
 			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
-		stdf.add(new PartCountRecord((short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
-		stdf.add(new PartInformationRecord((short) 1, (short) 0));
-		stdf.add(new PartResultsRecord((short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
+		stdf.add(new PartCountRecord(Cpu_t.PC, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
+		stdf.add(new PartInformationRecord(Cpu_t.PC, (short) 1, (short) 0));
+		stdf.add(new PartResultsRecord(Cpu_t.PC, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
 			10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 }));
-		stdf.add(new PinListRecord(new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
+		stdf.add(new PinListRecord(Cpu_t.PC, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
 			new String[] { "a", "b" }, new String[] { "c", "d" }, new String[] { "e", "f" }, new String[] { "g", "h" }));
-		stdf.add(new SoftwareBinRecord((short) 1, (short) 0, 5, 45, 'F', "binName"));
-	    stdf.add(new TestSynopsisRecord((short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+		stdf.add(new SoftwareBinRecord(Cpu_t.PC, (short) 1, (short) 0, 5, 45, 'F', "binName"));
+	    stdf.add(new TestSynopsisRecord(Cpu_t.PC, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
 	    	"sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f));	
-	    stdf.add(new WaferConfigurationRecord(6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5'));
-	    stdf.add(new WaferInformationRecord((short) 1, (short) 0, 1000L, "waferID"));
-		stdf.add(new WaferResultsRecord((short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
+	    stdf.add(new WaferConfigurationRecord(Cpu_t.PC, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5'));
+	    stdf.add(new WaferInformationRecord(Cpu_t.PC, (short) 1, (short) 0, 1000L, "waferID"));
+		stdf.add(new WaferResultsRecord(Cpu_t.PC, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
 			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc"));
 		stdf.write("x.stdf");
 	}

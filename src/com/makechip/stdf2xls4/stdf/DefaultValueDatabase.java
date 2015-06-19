@@ -10,6 +10,7 @@ import gnu.trove.map.hash.TShortObjectHashMap;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.TestID;
@@ -18,6 +19,7 @@ public final class DefaultValueDatabase
 {
 	private boolean fusionCx;
 	public final long timeStamp;
+	private Cpu_t cpuType;
 
     // for FTR
     public final TLongShortHashMap pgDefaults;
@@ -125,5 +127,15 @@ public final class DefaultValueDatabase
     void setFusionCx() { fusionCx = true; }
     
     boolean isFusionCx() { return(fusionCx); }
+
+	public Cpu_t getCpuType()
+	{
+		return cpuType;
+	}
+
+	void setCpuType(Cpu_t cpuType)
+	{
+		this.cpuType = cpuType;
+	}
 
 }

@@ -28,11 +28,15 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
+
+import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 /**
 *** @author eric
 *** @version $Id: ParametricTestRecord.java 258 2008-10-22 01:22:44Z ericw $
@@ -60,7 +64,7 @@ public class ParametricTestRecord extends ParametricRecord
     **/
     public ParametricTestRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-    	super(Record_t.PTR, data);
+    	super(Record_t.PTR, dvd.getCpuType(), data);
         result = getR4(MISSING_FLOAT);
         String testName = getCn(); 
         id = TestID.createTestID(tdb, testNumber, testName); 
@@ -101,6 +105,7 @@ public class ParametricTestRecord extends ParametricRecord
     public ParametricTestRecord(
             final TestIdDatabase tdb,
             final DefaultValueDatabase dvd,
+            final Cpu_t cpuType,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
@@ -109,7 +114,7 @@ public class ParametricTestRecord extends ParametricRecord
     	    final float result, 
     	    final String testName,
     	    final String alarmName,
-    	    final byte optFlags, 
+    	    final EnumSet<OptFlag_t> optFlags, 
     	    final byte resScal, // if RES_SCAL_INVALID set, then use default res_scal
     	    final byte llmScal,
     	    final byte hlmScal, 
@@ -122,63 +127,89 @@ public class ParametricTestRecord extends ParametricRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-        super(Record_t.PTR, testNumber, headNumber, siteNumber, testFlags, paramFlags);
-        this.result = result;
-        id = TestID.createTestID(tdb, testNumber, testName);
-        this.alarmName = alarmName;
-        byte oflags = optFlags;
-        if (oflags != MISSING_BYTE)
-        {
-        	this.optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(oflags));
-        	if (dvd.optDefaults.get(id) == null) dvd.optDefaults.put(id, Collections.unmodifiableSet(OptFlag_t.getBits(optFlags)));
-        }
-        else
-        {
-        	this.optFlags = dvd.optDefaults.get(id);
-        }
-        this.resScal = setByte(MISSING_BYTE, resScal, id, dvd.resScalDefaults);
-        this.llmScal = setByte(MISSING_BYTE, llmScal, id, dvd.llmScalDefaults);
-        this.hlmScal = setByte(MISSING_BYTE, hlmScal, id, dvd.hlmScalDefaults);
-        this.loLimit = setFloat(MISSING_FLOAT, loLimit, id, dvd.loLimDefaults);
-        this.hiLimit = setFloat(MISSING_FLOAT, hiLimit, id, dvd.hiLimDefaults);
-        this.units = setString(MISSING_STRING, units, id , dvd.unitDefaults);
-        this.resFmt = setString(MISSING_STRING, resFmt, id , dvd.resFmtDefaults);
-        this.llmFmt = setString(MISSING_STRING, llmFmt, id , dvd.llmFmtDefaults);
-        this.hlmFmt = setString(MISSING_STRING, hlmFmt, id , dvd.hlmFmtDefaults);
-        this.loSpec = setFloat(MISSING_FLOAT, loSpec, id, dvd.loSpecDefaults);
-        this.hiSpec = setFloat(MISSING_FLOAT, hiSpec, id, dvd.hiSpecDefaults);
+    	this(tdb, dvd, toBytes(cpuType, testNumber, headNumber, siteNumber, testFlags, paramFlags, result, testName,
+    		 alarmName, optFlags, resScal, llmScal, hlmScal, loLimit, hiLimit, units, resFmt, llmFmt,
+    		 hlmFmt, loSpec, hiSpec));
     }
     
     @Override
     protected void toBytes()
     {
-        TByteArrayList list = new TByteArrayList();
-        list.addAll(getU4Bytes(testNumber));
-        list.addAll(getU1Bytes(headNumber));
-        list.addAll(getU1Bytes(siteNumber));
-        list.add((byte) testFlags.stream().mapToInt(b -> b.getBit()).sum());
-        list.add((byte) paramFlags.stream().mapToInt(b -> b.getBit()).sum());
-        list.addAll(getR4Bytes((float) result));
-        list.addAll(getCnBytes(id.testName));
-        list.addAll(getCnBytes(alarmName));
-        if (optFlags != null)
-        {
-        	list.add((byte) optFlags.stream().mapToInt(b -> b.getBit()).sum());
-            list.addAll(getI1Bytes(resScal));
-            list.addAll(getI1Bytes(llmScal));
-            list.addAll(getI1Bytes(hlmScal));
-            list.addAll(getR4Bytes(loLimit));
-            list.addAll(getR4Bytes(hiLimit));
-            list.addAll(getCnBytes(units));
-            list.addAll(getCnBytes(resFmt));
-            list.addAll(getCnBytes(llmFmt));
-            list.addAll(getCnBytes(hlmFmt));
-            list.addAll(getR4Bytes(loSpec));
-            list.addAll(getR4Bytes(hiSpec));
-        }
-        bytes = list.toArray();
+    	bytes = toBytes(
+            cpuType,
+            testNumber,
+            headNumber,
+            siteNumber,
+            (byte) testFlags.stream().mapToInt(b -> b.getBit()).sum(),
+            (byte) paramFlags.stream().mapToInt(b -> b.getBit()).sum(),
+    	    result, 
+    	    id.testName,
+    	    alarmName,
+    	    optFlags, 
+    	    resScal, // if RES_SCAL_INVALID set, then use default res_scal
+    	    llmScal,
+    	    hlmScal, 
+    	    loLimit, 
+    	    hiLimit,
+    	    units,
+    	    resFmt,
+    	    llmFmt,
+    	    hlmFmt,
+    	    loSpec,
+    	    hiSpec);
     }
     
+    private static byte[] toBytes(
+            final Cpu_t cType,
+            final long tNumber,
+            final short hNumber,
+            final short sNumber,
+            final byte tFlags,
+            final byte pFlags,
+    	    final float rslt, 
+    	    final String tName,
+    	    final String aName,
+    	    final Set<OptFlag_t> oFlags, 
+    	    final byte rScal, // if RES_SCAL_INVALID set, then use default res_scal
+    	    final byte lScal,
+    	    final byte hScal, 
+    	    final float lLimit, 
+    	    final float hLimit,
+    	    final String uts,
+    	    final String rFmt,
+    	    final String lFmt,
+    	    final String hFmt,
+    	    final float lSpec,
+    	    final float hSpec)
+    {
+        TByteArrayList list = new TByteArrayList();
+        list.addAll(cType.getU4Bytes(tNumber));
+        list.addAll(getU1Bytes(hNumber));
+        list.addAll(getU1Bytes(sNumber));
+        list.add(tFlags);
+        list.add(pFlags);
+        list.addAll(cType.getR4Bytes((float) rslt));
+        list.addAll(getCnBytes(tName));
+        list.addAll(getCnBytes(aName));
+        if (oFlags != null)
+        {
+        	list.add((byte) oFlags.stream().mapToInt(b -> b.getBit()).sum());
+            list.addAll(getI1Bytes(rScal));
+            list.addAll(getI1Bytes(lScal));
+            list.addAll(getI1Bytes(hScal));
+            list.addAll(cType.getR4Bytes(lLimit));
+            list.addAll(cType.getR4Bytes(hLimit));
+            list.addAll(getCnBytes(uts));
+            list.addAll(getCnBytes(rFmt));
+            list.addAll(getCnBytes(lFmt));
+            list.addAll(getCnBytes(hFmt));
+            list.addAll(cType.getR4Bytes(lSpec));
+            list.addAll(cType.getR4Bytes(hSpec));
+        }
+        return(list.toArray());
+    }
+    	    
+    	    
     @Override
     public String toString()
     {
@@ -246,24 +277,28 @@ public class ParametricTestRecord extends ParametricRecord
 	@Override
 	public byte getLlmScal()
 	{
+		if (optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(MISSING_BYTE);
 		return llmScal;
 	}
 
 	@Override
 	public byte getHlmScal()
 	{
+		if (optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(MISSING_BYTE);
 		return hlmScal;
 	}
 
 	@Override
 	public float getLoLimit()
 	{
+		if (optFlags.contains(NO_LO_LIMIT) || optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(MISSING_FLOAT);
 		return loLimit;
 	}
 
 	@Override
 	public float getHiLimit()
 	{
+		if (optFlags.contains(NO_HI_LIMIT) || optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(MISSING_FLOAT);
 		return hiLimit;
 	}
 

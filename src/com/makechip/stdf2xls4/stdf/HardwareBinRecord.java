@@ -27,6 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -48,7 +49,7 @@ public class HardwareBinRecord extends StdfRecord
     **/
     public HardwareBinRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.HBR, data);
+        super(Record_t.HBR, dvd.getCpuType(), data);
         headNumber = getU1((short) 0);
         siteNumber = getU1((short) 0);
         hwBin = getU2(-1);
@@ -57,9 +58,9 @@ public class HardwareBinRecord extends StdfRecord
         binName = getCn();
     }
     
-    public HardwareBinRecord(short headNumber, short siteNumber, int hwBin, long binCnt, char pf, String binName)
+    public HardwareBinRecord(Cpu_t cpuType, short headNumber, short siteNumber, int hwBin, long binCnt, char pf, String binName)
     {
-    	super(Record_t.HBR, null);
+    	super(Record_t.HBR, cpuType, null);
     	this.headNumber = headNumber;
     	this.siteNumber = siteNumber;
     	this.hwBin = hwBin;
@@ -74,8 +75,8 @@ public class HardwareBinRecord extends StdfRecord
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteNumber));
-		l.addAll(getU2Bytes(hwBin));
-		l.addAll(getU4Bytes(binCnt));
+		l.addAll(cpuType.getU2Bytes(hwBin));
+		l.addAll(cpuType.getU4Bytes(binCnt));
 		l.addAll(getFixedLengthStringBytes("" + pf));
 		l.addAll(getCnBytes(binName));
 		bytes = l.toArray();

@@ -38,12 +38,8 @@ public class ParametricTestHeader extends TestHeader
 		{
 			ParametricTestHeader p = ParametricTestHeader.class.cast(o);
 			if (!units.equals(p.units)) return(false);
-			float lo = p.loLimit - (0.000001f * p.loLimit);
-			float hi = p.loLimit + (0.000001f * p.loLimit);
-			if (loLimit < lo || loLimit > hi) return(false);
-			lo = p.hiLimit - (0.000001f * p.hiLimit);
-			hi = p.hiLimit + (0.000001f * p.hiLimit);
-			if (hiLimit < lo || hiLimit > hi) return(false);
+			if (loLimit != p.loLimit) return(false);
+			if (hiLimit != p.hiLimit) return(false);
 			if (noLoLimit != p.noLoLimit) return(false);
 			return(noHiLimit == p.noHiLimit);
 		}

@@ -27,6 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -47,7 +48,7 @@ public class WaferInformationRecord extends StdfRecord
     **/
     public WaferInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.WIR, data);
+        super(Record_t.WIR, dvd.getCpuType(), data);
         headNumber = getU1((short) -1);
         siteGroupNumber = getU1((short) 255);
         startDate = getU4(-1);
@@ -60,18 +61,19 @@ public class WaferInformationRecord extends StdfRecord
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteGroupNumber));
-		l.addAll(getU4Bytes(startDate));
+		l.addAll(cpuType.getU4Bytes(startDate));
 		l.addAll(getCnBytes(waferID));
 		bytes = l.toArray();
 	}
 	
 	public WaferInformationRecord(
+		Cpu_t cpuType,
 		short headNumber,
 		short siteGroupNumber,
 		long startDate,
 		String waferID)
 	{
-		super(Record_t.WIR, null);
+		super(Record_t.WIR, cpuType, null);
 		this.headNumber = headNumber;
 		this.siteGroupNumber = siteGroupNumber;
 		this.startDate = startDate;

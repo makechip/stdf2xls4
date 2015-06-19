@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
 import com.makechip.util.Log;
@@ -63,7 +64,7 @@ public class TestSynopsisRecord extends StdfRecord
     **/
     public TestSynopsisRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.TSR, data);
+        super(Record_t.TSR, dvd.getCpuType(), data);
         headNumber = getU1((short) -1);
         siteNumber = getU1((short) -1);
         String c = getFixedLengthString(1);
@@ -90,23 +91,24 @@ public class TestSynopsisRecord extends StdfRecord
 		l.addAll(getU1Bytes(headNumber));
 		l.addAll(getU1Bytes(siteNumber));
 		l.addAll(getFixedLengthStringBytes("" + testType));
-		l.addAll(getU4Bytes(testNumber));
-		l.addAll(getU4Bytes(numExecs));
-		l.addAll(getU4Bytes(numFailures));
-		l.addAll(getU4Bytes(numAlarms));
+		l.addAll(cpuType.getU4Bytes(testNumber));
+		l.addAll(cpuType.getU4Bytes(numExecs));
+		l.addAll(cpuType.getU4Bytes(numFailures));
+		l.addAll(cpuType.getU4Bytes(numAlarms));
 		l.addAll(getCnBytes(testName));
 		l.addAll(getCnBytes(sequencerName));
 		l.addAll(getCnBytes(testLabel));
 		l.add((byte) optFlags.stream().mapToInt(b -> b.getBit()).sum());
-		l.addAll(getR4Bytes(testTime));
-		l.addAll(getR4Bytes(testMin));
-		l.addAll(getR4Bytes(testMax));
-		l.addAll(getR4Bytes(testSum));
-		l.addAll(getR4Bytes(testSumSquares));
+		l.addAll(cpuType.getR4Bytes(testTime));
+		l.addAll(cpuType.getR4Bytes(testMin));
+		l.addAll(cpuType.getR4Bytes(testMax));
+		l.addAll(cpuType.getR4Bytes(testSum));
+		l.addAll(cpuType.getR4Bytes(testSumSquares));
 		bytes = l.toArray();
 	}
 	
 	public TestSynopsisRecord(
+	   Cpu_t cpuType,
 	   short headNumber,
 	   short siteNumber,
 	   char testType,
@@ -124,7 +126,7 @@ public class TestSynopsisRecord extends StdfRecord
 	   float testSum,
 	   float testSumSquares)
 	{
-		super(Record_t.TSR, null);
+		super(Record_t.TSR, cpuType, null);
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
 		this.testType = testType;

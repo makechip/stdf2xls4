@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
@@ -127,16 +128,16 @@ public class GenericDataRecord extends StdfRecord
 		switch (field.getType())
 		{
         case U_1: l.add(getU1Bytes((short) field.getValue())); break;
-        case U_2: l.addAll(getU2Bytes((int) field.getValue())); break;
-        case U_4: l.addAll(getU4Bytes((long) field.getValue())); break;
+        case U_2: l.addAll(cpuType.getU2Bytes((int) field.getValue())); break;
+        case U_4: l.addAll(cpuType.getU4Bytes((long) field.getValue())); break;
         case I_1: l.add(getI1Bytes((byte) field.getValue())); break;
-        case I_2: l.addAll(getI2Bytes((short) field.getValue())); break;
-        case I_4: l.addAll(getI4Bytes((int) field.getValue())); break;
-        case R_4: l.addAll(getR4Bytes((float) field.getValue())); break;
-        case R_8: l.addAll(getR8Bytes((double) field.getValue())); break;
+        case I_2: l.addAll(cpuType.getI2Bytes((short) field.getValue())); break;
+        case I_4: l.addAll(cpuType.getI4Bytes((int) field.getValue())); break;
+        case R_4: l.addAll(cpuType.getR4Bytes((float) field.getValue())); break;
+        case R_8: l.addAll(cpuType.getR8Bytes((double) field.getValue())); break;
         case C_N: l.addAll(getCnBytes((String) field.getValue())); break;
         case B_N: l.addAll(getBnBytes((byte[]) field.getValue())); break;
-        case D_N: l.addAll(getDnBytes((byte[]) field.getValue())); break;
+        case D_N: l.addAll(cpuType.getDnBytes((byte[]) field.getValue())); break;
         case N_N: l.addAll(getNibbleBytes((byte[]) field.getValue())); break;
        	default: throw new RuntimeException("Unknown data type in GenericDataRecord");
 		}
@@ -148,16 +149,16 @@ public class GenericDataRecord extends StdfRecord
     **/
     public GenericDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.GDR, data);
+        super(Record_t.GDR, dvd.getCpuType(), data);
         List<Data> l = new ArrayList<Data>();
         int fields = getU2(0);
         Stream.generate(() -> getType()).limit(fields).forEach(v -> getField(l, v));
         list = Collections.unmodifiableList(l);
     }
     
-    public GenericDataRecord(List<Data> list)
+    public GenericDataRecord(Cpu_t cpuType, List<Data> list)
     {
-    	super(Record_t.GDR, null);
+    	super(Record_t.GDR, cpuType, null);
     	this.list = new ArrayList<Data>(list);
     }
 
@@ -174,7 +175,7 @@ public class GenericDataRecord extends StdfRecord
 	protected void toBytes()
 	{
 	    TByteArrayList l = new TByteArrayList();
-	    l.addAll(getU2Bytes(list.size())); 
+	    l.addAll(cpuType.getU2Bytes(list.size())); 
 	    list.stream().forEach(d -> setField(l, d));
 	    bytes = l.toArray();
 	}

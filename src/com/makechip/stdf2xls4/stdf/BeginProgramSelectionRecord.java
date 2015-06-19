@@ -25,6 +25,7 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -40,15 +41,15 @@ public class BeginProgramSelectionRecord extends StdfRecord
     *** @param p1
     *** @param p2
     **/
-    public BeginProgramSelectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvb, byte[] data)
+    public BeginProgramSelectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.BPS, data);
+        super(Record_t.BPS, dvd.getCpuType(), data);
         seqName = getCn();
     }
     
-    public BeginProgramSelectionRecord(String seqName)
+    public BeginProgramSelectionRecord(Cpu_t cpuType, String seqName)
     {
-    	super(Record_t.BPS, null);
+    	super(Record_t.BPS, cpuType, null);
     	this.seqName = seqName;
     }
     

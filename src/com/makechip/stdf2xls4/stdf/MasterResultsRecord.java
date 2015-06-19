@@ -28,6 +28,7 @@ import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Date;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -48,7 +49,7 @@ public class MasterResultsRecord extends StdfRecord
     **/
     public MasterResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.MRR, data);
+        super(Record_t.MRR, dvd.getCpuType(), data);
         finishDate = getU4(0);
         String s = getFixedLengthString(1);
         if (s.equals(MISSING_STRING)) dispCode = " "; else dispCode = s;
@@ -56,9 +57,9 @@ public class MasterResultsRecord extends StdfRecord
         execDesc = getCn();
     }
     
-    public MasterResultsRecord(long finishDate, char dispCode, String lotDesc, String execDesc)
+    public MasterResultsRecord(Cpu_t cpuType, long finishDate, char dispCode, String lotDesc, String execDesc)
     {
-    	super(Record_t.MRR, null);
+    	super(Record_t.MRR, cpuType, null);
     	this.finishDate = finishDate;
     	this.dispCode = "" + dispCode;
     	this.lotDesc = lotDesc;
@@ -69,7 +70,7 @@ public class MasterResultsRecord extends StdfRecord
 	protected void toBytes()
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU4Bytes(finishDate));
+		l.addAll(cpuType.getU4Bytes(finishDate));
 		l.addAll(getFixedLengthStringBytes(dispCode));
 		l.addAll(getCnBytes(lotDesc));
 		l.addAll(getCnBytes(execDesc));
