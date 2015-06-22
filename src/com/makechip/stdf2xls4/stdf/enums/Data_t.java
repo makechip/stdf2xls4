@@ -29,28 +29,68 @@ import java.util.EnumSet;
 
 
 /**
-*** @author ericw
-*** @version $Id: StubGen.java 24 2007-12-29 21:27:59Z eric $
-**/
+ * This enum represents the STDF data types.
+ *  @author ericw
+ *  @version $Id: StubGen.java 24 2007-12-29 21:27:59Z eric $
+ */
+/**
+ * @author eric
+ *
+ */
 public enum Data_t
 {
-    U_1(1, 1),     // unsigned integer
-    U_2(2, 2),      // unsigned integer
-    U_4(3, 4),      // unsigned integer
-    I_1(4, 1),      // signed integer
-    I_2(5, 2),      // signed integer
-    I_4(6, 4),      // signed integer
-    R_4(7, 4),      // float
-    R_8(8, 8),      // double
-    X_0(9, 0),      // dummy
-    C_N(10, 1),      // one-byte char
-    B_N(11, 1),      // bit-encoded field
-    D_N(12, 1),      // long bit-encoded field
-    N_1(14, 1),      // single nibble nibbles
-    N_N(13, 1),      // array of nibbles
-    B_1(15, 1),      // one byte bit field?
-    C_1(16, 1),      // single character
-    V(17, -1);       // field specified data type
+	/**
+	 * Unsigned byte.
+	 */
+    U_1(1, 1),
+    /**
+     * Unsigned short.
+     */
+    U_2(2, 2),
+    /**
+     * Unsigned integer.
+     */
+    U_4(3, 4),
+    /**
+     * Signed byte.
+     */
+    I_1(4, 1),
+    /**
+     * Signed short.
+     */
+    I_2(5, 2),
+    /**
+     * Signed integer.
+     */
+    I_4(6, 4),
+    /**
+     * float.
+     */
+    R_4(7, 4),
+    /**
+     * double.
+     */
+    R_8(8, 8),
+    /**
+     * String.
+     */
+    C_N(10, 1),
+    /**
+     * Variable length bit field - up to 8 * 255 bits
+     */
+    B_N(11, 1),
+    /**
+     * Variable length bit field - up to 8 * 65535 bits
+     */
+    D_N(12, 1),
+    /**
+     * Fixed length Field of nibbles
+     */
+    N_N(13, 1);
+ //   N_1(14, 1),
+ //   B_1(15, 1),
+ //   C_1(16, 1),
+ //   V(17, -1);
 
     private final int type;
     private final int numBytes;
@@ -61,9 +101,23 @@ public enum Data_t
         this.numBytes = numBytes;
     }
 
+    /**
+     * Get the number of bytes stored by this data type.
+     * @return The number of bytes used by the data type, or 1 if a variable length field.
+     */
     public int getNumBytes() { return(numBytes); }
+    /**
+     * Get the numeric type used for this type.  
+     * (This is used in the GenericDataRecord)
+     * @return The numeric representation of the data type.
+     */
     public int getFieldType() { return(type); }
     
+    /**
+     * Convert the numeric representation of the data type back into the enum value.
+     * @param fieldType The value returned by @see getFieldType().
+     * @return The enum representation of the data type corresponding to the given numeric value.
+     */
     public static Data_t getDataType(int fieldType)
     {
     	EnumSet<Data_t> set = EnumSet.allOf(Data_t.class);
