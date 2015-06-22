@@ -28,10 +28,12 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.makechip.util.Log;
 
 /**
@@ -86,6 +88,11 @@ public class StdfWriter
     	TByteArrayList l = new TByteArrayList();
    		records.stream().map(p -> p.getBytes()).forEach(p -> l.addAll(p));
         return(l.toArray());	
+    }
+    
+    public void write(File f)
+    {
+    	write(f.getAbsolutePath());
     }
     
     public void write(String filename)

@@ -45,7 +45,7 @@ public class GenericDataRecord extends StdfRecord
 {
     public final List<Data> list;
 	
-	public static final class Data
+	public static class Data
 	{
 		final Data_t type;
 		final Object value;
@@ -68,6 +68,17 @@ public class GenericDataRecord extends StdfRecord
 		public String toString()
 		{
 			return(value.toString());
+		}
+	}
+	
+	public static final class BitData extends Data
+	{
+		public final int numBits;
+		
+		public BitData(PadData p, MutableInt numBits, Object value)
+		{
+			super(p, value);
+			this.numBits = numBits.n;
 		}
 	}
 	
@@ -115,7 +126,9 @@ public class GenericDataRecord extends StdfRecord
         case R_8: l.add(new Data(v, getR8(0.0))); break;
         case C_N: l.add(new Data(v, getCn())); break;
         case B_N: l.add(new Data(v, getBn())); break;
-        case D_N: l.add(new Data(v, getDn())); break;
+        case D_N: MutableInt numBits = new MutableInt(); 
+                  l.add(new BitData(v, numBits, getDn(numBits))); 
+                  break;
         case N_N: l.add(new Data(v, getNibbles(1))); break;
        	default: throw new RuntimeException("Unknown data type in GenericDataRecord");
         }
@@ -137,7 +150,9 @@ public class GenericDataRecord extends StdfRecord
         case R_8: l.addAll(cpuType.getR8Bytes((double) field.getValue())); break;
         case C_N: l.addAll(getCnBytes((String) field.getValue())); break;
         case B_N: l.addAll(getBnBytes((byte[]) field.getValue())); break;
-        case D_N: l.addAll(cpuType.getDnBytes((byte[]) field.getValue())); break;
+        case D_N: BitData bd = (BitData) field; 
+        	      l.addAll(cpuType.getDnBytes(bd.numBits, (byte[]) field.getValue())); 
+        	      break;
         case N_N: l.addAll(getNibbleBytes((byte[]) field.getValue())); break;
        	default: throw new RuntimeException("Unknown data type in GenericDataRecord");
 		}

@@ -30,7 +30,6 @@ import java.util.Arrays;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 
 /**
@@ -60,7 +59,6 @@ public class PinGroupRecord extends StdfRecord
     public PinGroupRecord(
     	TestIdDatabase tdb, 
     	DefaultValueDatabase dvd,
-    	Cpu_t cpuType, 
     	int groupIndex, 
     	String groupName, 
     	int[] pmrIdx)
@@ -84,19 +82,6 @@ public class PinGroupRecord extends StdfRecord
 		return(l.toArray());
 	}
     
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    group index: " + groupIndex).append(Log.eol);
-        sb.append("    group name: ").append(groupName).append(Log.eol);
-        sb.append("    pmr indicies:");
-        Arrays.stream(pmrIdx).forEach(p -> sb.append(" " + p));
-        sb.append(Log.eol);
-        return(sb.toString());
-    }
-    
     /**
      * @return the pmrIdx
      */
@@ -104,6 +89,25 @@ public class PinGroupRecord extends StdfRecord
     {
         return Arrays.copyOf(pmrIdx, pmrIdx.length);
     }
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("PinGroupRecord [groupIndex=");
+		builder.append(groupIndex);
+		builder.append(", ");
+		builder.append("groupName=");
+		builder.append(groupName);
+		builder.append(", ");
+		builder.append("pmrIdx=");
+		builder.append(Arrays.toString(pmrIdx));
+		builder.append("]");
+		return builder.toString();
+	}
 
     
 

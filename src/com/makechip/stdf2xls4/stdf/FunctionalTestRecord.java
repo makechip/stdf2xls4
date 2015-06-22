@@ -58,6 +58,8 @@ public class FunctionalTestRecord extends TestRecord
     public final String progTxt;
     public final String rsltTxt;
     public final short patGenNum;
+    private final int numFailPinBits;
+    private final int numEnCompBits;
     
     private final int[] rtnIndex;
     private final byte[] rtnState;
@@ -75,9 +77,9 @@ public class FunctionalTestRecord extends TestRecord
         super(Record_t.FTR, dvd.getCpuType(), data);
         EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());
         testFlags = Collections.unmodifiableSet(s);
-        byte oflags = getByte();
-        optFlags = (oflags == MISSING_BYTE) ? null : Collections.unmodifiableSet(FTROptFlag_t.getBits(oflags));
-        if (optFlags == null)
+        boolean missingData = ptr >= getSize();
+        optFlags = missingData ? dvd.foptDefaults.get(testNumber) : Collections.unmodifiableSet(FTROptFlag_t.getBits(getByte()));
+        if (missingData)
         {
         	cycleCount = MISSING_INT;
         	relVaddr = MISSING_INT;
@@ -90,6 +92,7 @@ public class FunctionalTestRecord extends TestRecord
         	rtnState = new byte[0];
         	pgmIndex = new int[0];
         	pgmState = new byte[0];
+        	numFailPinBits = 0;
         	failPin = new byte[0];
         	vecName = "";
         	timeSetName = "";
@@ -101,6 +104,7 @@ public class FunctionalTestRecord extends TestRecord
         	progTxt = "";
         	rsltTxt = "";
         	patGenNum = MISSING_SHORT;
+        	numEnCompBits = 0;
         	enComps = new byte[0];
         }
         else
@@ -120,10 +124,12 @@ public class FunctionalTestRecord extends TestRecord
             pgmIndex = new int[k];
             for (int i=0; i<k; i++) pgmIndex[i] = getU2(MISSING_INT);
             pgmState = getNibbles(k);
-            failPin = getDn();
+            MutableInt numBits = new MutableInt();
+            failPin = getDn(numBits);
+            numFailPinBits = numBits.n;
             vecName = getCn();
             timeSetName = getCn();
-            vecOpCode = getCn();
+            vecOpCode = getCn(); 
             String testName = getCn();
             if (!testName.equals(MISSING_STRING))
             {
@@ -142,7 +148,9 @@ public class FunctionalTestRecord extends TestRecord
             }
             else p = dvd.pgDefaults.get(testNumber);
             patGenNum = p;
-            byte[] ec = getDn();
+            numBits.n = 0;
+            byte[] ec = getDn(numBits); 
+            numEnCompBits = numBits.n;
             if (ec.length != 0)
             {
             	if (dvd.ecDefaults.get(testNumber) == null) dvd.ecDefaults.put(testNumber, ec);
@@ -172,6 +180,7 @@ public class FunctionalTestRecord extends TestRecord
         final byte[] rtnState,
         final int[] pgmIndex,
         final byte[] pgmState,
+        final int numFailPinBits,
         final byte[] failPin,
         final String vecName,
         final String timeSetName,
@@ -181,12 +190,13 @@ public class FunctionalTestRecord extends TestRecord
         final String progTxt,
         final String rsltTxt,
         final short patGenNum,
+        final int numEnCompBits,
         final byte[] enComps)
     {
     	this(tdb, dvd, toBytes(cpuType, testNumber, headNumber, siteNumber, TestFlag_t.getBits(testFlags), 
     		 FTROptFlag_t.getBits(optFlags), cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
-    		 vecOffset, rtnIndex, rtnState, pgmIndex, pgmState, failPin, vecName, timeSetName, vecOpCode, 
-    		 label, alarmName, progTxt, rsltTxt, patGenNum, enComps));
+    		 vecOffset, rtnIndex, rtnState, pgmIndex, pgmState, numFailPinBits, failPin, vecName, timeSetName, vecOpCode, 
+    		 label, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, enComps));
     }
     
     @Override
@@ -210,6 +220,7 @@ public class FunctionalTestRecord extends TestRecord
         rtnState,
         pgmIndex,
         pgmState,
+        numFailPinBits,
         failPin,
         vecName,
         timeSetName,
@@ -219,6 +230,7 @@ public class FunctionalTestRecord extends TestRecord
         progTxt,
         rsltTxt,
         patGenNum,
+        numEnCompBits,
         enComps);
     }
     
@@ -240,6 +252,7 @@ public class FunctionalTestRecord extends TestRecord
         final byte[] rtnState,
         final int[] pgmIndex,
         final byte[] pgmState,
+        final int numFailPinBits,
         final byte[] failPin,
         final String vecName,
         final String timeSetName,
@@ -249,6 +262,7 @@ public class FunctionalTestRecord extends TestRecord
         final String progTxt,
         final String rsltTxt,
         final short patGenNum,
+        final int numEnCompBits,
         final byte[] enComps)
     {
         TByteArrayList list = new TByteArrayList();
@@ -276,7 +290,7 @@ public class FunctionalTestRecord extends TestRecord
             list.addAll(getNibbleBytes(rtnState));
             for (int i=0; i<pgmIndex.length; i++) list.addAll(cpuType.getU2Bytes(pgmIndex[i]));
             list.addAll(getNibbleBytes(pgmState));
-            list.addAll(cpuType.getDnBytes(failPin));
+            list.addAll(cpuType.getDnBytes(numFailPinBits, failPin));
             list.addAll(getCnBytes(vecName));
             list.addAll(getCnBytes(timeSetName));
             list.addAll(getCnBytes(vecOpCode));
@@ -285,7 +299,7 @@ public class FunctionalTestRecord extends TestRecord
             list.addAll(getCnBytes(progTxt));
             list.addAll(getCnBytes(rsltTxt));
             list.addAll(getU1Bytes(patGenNum));
-            list.addAll(cpuType.getDnBytes(enComps));
+            list.addAll(cpuType.getDnBytes(numEnCompBits, enComps));
         }
         return(list.toArray());
     }

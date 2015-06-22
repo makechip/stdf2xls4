@@ -42,26 +42,26 @@ public class TestResult
     	flags.stream().forEach(s -> this.flags.add(s));
     }
     
-    boolean fail()
+    public boolean fail()
     {
     	return(flags.contains(ALARM) || flags.contains(UNRELIABLE) || flags.contains(TIMEOUT) ||
     		   flags.contains(ABORT) || flags.contains(NO_PASS_FAIL) || flags.contains(FAIL));
     }
     
-    boolean pass()
+    public boolean pass()
     {
     	return(!fail());
     }
     
-    boolean alarm() { return(flags.contains(ALARM)); }
+    public boolean alarm() { return(flags.contains(ALARM)); }
     
-    boolean unreliable() { return(flags.contains(UNRELIABLE)); }
+    public boolean unreliable() { return(flags.contains(UNRELIABLE)); }
     
-    boolean timeout() { return(flags.contains(TIMEOUT)); }
+    public boolean timeout() { return(flags.contains(TIMEOUT)); }
     
-    boolean abort() { return(flags.contains(ABORT)); }
+    public boolean abort() { return(flags.contains(ABORT)); }
     
-    boolean noPassFail() { return(flags.contains(NO_PASS_FAIL)); }
+    public boolean noPassFail() { return(flags.contains(NO_PASS_FAIL)); }
     
     @Override
     public String toString()

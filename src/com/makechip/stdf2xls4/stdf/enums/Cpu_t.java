@@ -26,9 +26,10 @@
 package com.makechip.stdf2xls4.stdf.enums;
 
 /**
-*** @author eric
-*** @version $Id: Cpu_t.java 248 2008-10-19 16:48:59Z ericw $
-**/
+ *  This enum represents the CPU_TYPE values used in the File Attributes Record.
+ *  It determines the byte order used in converting bytes to various number types.
+ *  @author eric
+ */
 public enum Cpu_t
 {
     VAX(0),
@@ -42,8 +43,18 @@ public enum Cpu_t
     	this.type_ = (byte) type;
     }
     
+    /**
+     * Gets the byte value used in the STDF stream to identify the CPU type.
+     * @return 0 for VAX computers, 1 for Sun 1, 2, 3, and 4 computers, or 2 for IBM-PC compatible computers.
+     */
     public byte getType() { return(type_); }
     
+    /**
+     * Given a byte value from the File Attributes Record CPU_TYPE field
+     * this method returns the corresponding Cpu_t enum value.
+     * @param val The byte value from the CPU_TYPE field.
+     * @return The corresponding Cpu_t enum value.
+     */
     public static Cpu_t getCpuType(byte val)
     {
         Cpu_t type = null;
@@ -57,15 +68,35 @@ public enum Cpu_t
         return(type);
     }
     
+    /**
+     * This method converts two bytes to an unsigned short value
+     * according to this CPU type.  Note that since java does not
+     * support unsigned types, the type returned is actually a positive int.
+     * @param _0 The byte occurring first in the stream.
+     * @param _1 The byte occurring second in the stream.
+     * @return The 16-bit unsigned value represented by
+     * the two byte arguments and this Cpu_t.
+     */
     public int getU2(byte _0, byte _1) // same as "getUnsignedInt()"
     {
     	if (this == SUN)
     	{
-    		return((_1 &0xFF) + ((_0 & 0xFF) << 8));
+    		return((_1 & 0xFF) + ((_0 & 0xFF) << 8));
     	}
     	return((_0 & 0xFF) + ((_1 & 0xFF) << 8));
     }
    
+    /**
+     * This method converts four bytes to an unsigned integer value
+     * according to this CPU type.  Note that since java does not
+     * support unsigned types, the type returned is actually a positive long.
+     * @param _0 The byte occurring first in the stream.
+     * @param _1 The byte occurring second in the stream.
+     * @param _2 The byte occurring third in the stream.
+     * @param _3 The byte occurring fourth in the stream.
+     * @return The 32-bit unsigned value represented by the
+     * four byte arguments and this Cpu_t.
+     */
     public long getU4(byte _0, byte _1, byte _2, byte _3)
     {
         if (this == SUN)
@@ -75,12 +106,30 @@ public enum Cpu_t
         return((_0 & 0xFFL) + ((_1 & 0xFFL) << 8) + ((_2 & 0xFFL) << 16) + ((_3 & 0xFFL) << 24));
     }
     
+    /**
+     * This method converts two bytes to a signed short value
+     * according to this CPU type. 
+     * @param _0 The byte occurring first in the stream.
+     * @param _1 The byte occurring second in the stream.
+     * @return the 16-bit signed value represented by the two 
+     * byte arguments and this Cpu_t.
+     */
     public short getI2(byte _0, byte _1)
     {
         if (this == SUN) return((short) ((_1 & 0xFF) + ((_0 & 0xFF) << 8)));
         return((short) ((_0 & 0xFF) + ((_1 & 0xFF) << 8)));
     }
     
+    /**
+     * This method converts four bytes to a signed integer value
+     * according to this CPU type. 
+     * @param _0 The byte occurring first in the stream.
+     * @param _1 The byte occurring second in the stream.
+     * @param _2 The byte occurring third in the stream.
+     * @param _3 The byte occurring fourth in the stream.
+     * @return The 32-bit signed value represented by the four
+     * byte arguments and this Cpu_t.
+     */
     public int getI4(byte _0, byte _1, byte _2, byte _3)
     {
         if (this == SUN)
@@ -90,6 +139,20 @@ public enum Cpu_t
         return((_0 & 0xFF) + ((_1 & 0xFF) << 8) + ((_2 & 0xFF) << 16) + ((_3 & 0xFF) << 24));
     }
     
+    /**
+     * This method converts eight bytes to a signed long value
+     * according to this CPU type.
+     * @param _0 The byte occurring first in the stream.
+     * @param _1 The byte occurring second in the stream.
+     * @param _2 The byte occurring third in the stream.
+     * @param _3 The byte occurring fourth in the stream.
+     * @param _4 The byte occurring fifth in the stream.
+     * @param _5 The byte occurring sixth in the stream.
+     * @param _6 The byte occurring seventh in the stream.
+     * @param _7 The byte occurring eighth in the stream.
+     * @return The 64-bit signed value represented by the
+     * eight byte arguments and this Cpu_t.
+     */
     public long getLong(byte _0, byte _1, byte _2, byte _3, byte _4, byte _5, byte _6, byte _7)
     {
         if (this == SUN) 
@@ -101,8 +164,16 @@ public enum Cpu_t
                ((_4 & 0xFFL) << 32) + ((_5 & 0xFFL) << 40) + ((_6 & 0xFFL) << 48) + ((_7 & 0xFFL) << 56));
     }
     
+    /**
+     * This method converts an unsigned short value (represented 
+     * with a java int type) to a two byte array.
+     * @param value A 16-bit unsigned value. If the magnitude of the value
+     * exceeds 16-bits or is less than 0 a RuntimeException will be thrown.
+     * @return Two bytes in correct stream order.
+     */
     public byte[] getU2Bytes(int value)
     {
+    	if (value < 0 || value > 65535) throw new RuntimeException("Invalid value for 16-bit unsigned integer");
     	byte[] b = new byte[2];
     	if (this == SUN)
     	{
@@ -117,8 +188,16 @@ public enum Cpu_t
     	return(b);
     }
     
+    /**
+     * This method converts an unsigned integer value (represented
+     * with a java long type) to a four-byte array.
+     * @param v A 32-bit unsigned value. If the value exceeds Integer.MAX_VALUE
+     * or is less than 0 a RuntimeException will be thrown.
+     * @return Four bytes in correct stream order.
+     */
     public byte[] getU4Bytes(long v)
     {
+    	if (v < 0L || v > ((long) Integer.MAX_VALUE)) throw new RuntimeException("Invalid value for 32-bit unsigned integer");
     	byte[] b = new byte[4];
     	if (this == SUN)
     	{
@@ -137,6 +216,11 @@ public enum Cpu_t
     	return(b);
     }
    
+    /**
+     * This method converts a signed short value to a two-byte array.
+     * @param value A 16-bit signed integer value.
+     * @return Two bytes in correct stream order.
+     */
     public byte[] getI2Bytes(short value)
     {
     	byte[] b = new byte[2];
@@ -153,6 +237,11 @@ public enum Cpu_t
     	return(b);
     }
    
+    /**
+     * This method converts a sighed integer value to a four-byte array.
+     * @param value A 32-bit signed integer value.
+     * @return Four bytes in correct stream order.
+     */
     public byte[] getI4Bytes(int value)
     {
     	byte[] b = new byte[4];
@@ -173,27 +262,24 @@ public enum Cpu_t
     	return(b);
     }
     
+    /**
+     * This method converts a float value to a four-byte array.
+     * @param val A float value.
+     * @return Four bytes in correct stream order.  
+     * Note that this probably does not work correctly for the VAX CPU type.
+     */
     public byte[] getR4Bytes(float val)
     {
-    	int value = Float.floatToIntBits(val);
-    	byte[] b = new byte[4];
-    	if (this == SUN)
-    	{
-    		b[0] = (byte) ((((long) value) & 0xFF000000L) >> 24);
-    		b[1] = (byte) ((((long) value) & 0x00FF0000L) >> 16);
-    		b[2] = (byte) ((((long) value) & 0x0000FF00L) >> 8);
-    		b[3] = (byte) ((((long) value) & 0x000000FFL));
-    	}
-    	else
-    	{
-    		b[0] = (byte) ((((long) value) & 0x000000FFL));
-    		b[1] = (byte) ((((long) value) & 0x0000FF00L) >> 8);
-    		b[2] = (byte) ((((long) value) & 0x00FF0000L) >> 16);
-    		b[3] = (byte) ((((long) value) & 0xFF000000L) >> 24);
-    	}
+    	long value = (long) Float.floatToIntBits(val);
+    	byte[] b = getU4Bytes(value);
     	return(b);
     }
     
+   /**
+    * This method converts a double value to an eight-byte array.
+     * @param val A double value.
+     * @return Eight bytes in correct stream order.
+     */
     public byte[] getR8Bytes(double val)
     {
     	long value = Double.doubleToLongBits(val);
@@ -223,32 +309,22 @@ public enum Cpu_t
     	return(b);
     }
     
-    public byte[] getDnBytes(byte[] dn)
+    /**
+     * This method is used to convert a bit field represented
+     * as an array of bytes in stream order for the STDF Dn data type.
+     * @param numBits  The number of bits in this bit field.
+     * @param dn The array of bytes containing the bits of this bit field.
+     * @return Basically the dn byte array pre-pended with two
+     * bytes containing the bit count.
+     */
+    public byte[] getDnBytes(int numBits, byte[] dn)
     {
-    	int l = dn.length * 8;
+    	byte[] n = getU2Bytes(numBits);
     	byte[] b = new byte[dn.length + 2];
-    	if (this == SUN)
-    	{
-    	    b[0] = (byte) ((l & 0xFF00)	>> 8);
-    	    b[1] = (byte) (l &0x00FF);
-    	}
-    	else
-    	{
-    	    b[0] = (byte) (l &0x00FF);
-    	    b[1] = (byte) ((l & 0xFF00)	>> 8);
-    	}
+    	b[0] = n[0];
+    	b[1] = n[1];
     	for (int i=2; i<dn.length+2; i++) b[i] = dn[i-2];
     	return(b);
     }
     
-
-    
-    
-    
-    
-    
-    
-    
-    
-
 }

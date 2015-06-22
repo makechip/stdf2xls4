@@ -11,16 +11,40 @@ public class ParametricTestHeader extends TestHeader
 	public final boolean noLoLimit;
 	public final boolean noHiLimit;
 
-	public ParametricTestHeader(TestID id, String units, float loLimit)
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
 	{
-		this(id, units, loLimit, StdfRecord.MISSING_FLOAT);
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Float.floatToIntBits(hiLimit);
+		result = prime * result + Float.floatToIntBits(loLimit);
+		result = prime * result + ((units == null) ? 0 : units.hashCode());
+		return result;
 	}
-	
-	public ParametricTestHeader(TestID id, float hiLimit, String units)
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
 	{
-		this(id, units, StdfRecord.MISSING_FLOAT, hiLimit);
+		if (this == obj) return true;
+		if (!super.equals(obj)) return false;
+		if (!(obj instanceof ParametricTestHeader)) return false;
+		ParametricTestHeader other = (ParametricTestHeader) obj;
+		if (Float.floatToIntBits(hiLimit) != Float .floatToIntBits(other.hiLimit)) return false;
+		if (Float.floatToIntBits(loLimit) != Float .floatToIntBits(other.loLimit)) return false;
+		if (units == null)
+		{
+			if (other.units != null) return false;
+		} 
+		else if (!units.equals(other.units)) return false;
+		return true;
 	}
-	
+
 	public ParametricTestHeader(TestID id, String units, float loLimit, float hiLimit)
 	{
 		super(id);
@@ -30,30 +54,28 @@ public class ParametricTestHeader extends TestHeader
 		this.noLoLimit = loLimit == StdfRecord.MISSING_FLOAT;
 		this.noHiLimit = hiLimit == StdfRecord.MISSING_FLOAT;
 	}
-	
-	@Override
-	public boolean equals(Object o)
-	{
-		if (o instanceof ParametricTestHeader)
-		{
-			ParametricTestHeader p = ParametricTestHeader.class.cast(o);
-			if (!units.equals(p.units)) return(false);
-			if (loLimit != p.loLimit) return(false);
-			if (hiLimit != p.hiLimit) return(false);
-			if (noLoLimit != p.noLoLimit) return(false);
-			return(noHiLimit == p.noHiLimit);
-		}
-		return(false);
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		int h = super.id.hashCode() ^ units.hashCode() ^ Float.floatToIntBits(loLimit);
-		h ^= Float.floatToIntBits(hiLimit);
-		h ^= noLoLimit ? 123456789 : 987654321;
-		h ^= noHiLimit ? 123456789 : 987654321;
-		return(h);
-	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("ParametricTestHeader [");
+		builder.append("id=").append(id.toString()).append(", ");
+		if (units != null)
+		{
+			builder.append("units=");
+			builder.append(units);
+			builder.append(", ");
+		}
+		builder.append("loLimit=");
+		builder.append(loLimit);
+		builder.append(", hiLimit=");
+		builder.append(hiLimit);
+		builder.append("]");
+		return builder.toString();
+	}
+	
 }

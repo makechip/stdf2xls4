@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -208,7 +209,42 @@ public final class StdfAPI
     	if (timeStamp < 19000000000000L || timeStamp > 22000000000000L) return(false); // the timestamp must belong to recent centuries
     	return(true);
     }
-	
+    
+    public Set<PageHeader> getPageHeaders()
+    {
+    	return(tdb.getPageHeaders());
+    }
+    
+    public Set<TestHeader> getTestHeaders(PageHeader hdr)
+    {
+    	return(tdb.getTestHeaders(hdr));
+    }
+    
+    public Set<TestHeader> getTestHeaders(PageHeader hdr, DeviceHeader dh)
+    {
+    	return(tdb.getTestHeaders(hdr, dh));
+    }
+    
+    public Set<DeviceHeader> getDeviceHeaders(PageHeader hdr, TestHeader id)
+    {
+    	return(tdb.getDeviceHeaders(hdr, id));
+    }
+    
+    public Set<DeviceHeader> getDeviceHeaders(PageHeader hdr) 
+    {
+    	return(tdb.getDeviceHeaders(hdr));
+    }
+    
+    public TestResult getRecord(PageHeader hdr, TestHeader id, DeviceHeader dh)
+    {
+    	return(tdb.getRecord(hdr, id, dh));
+    }
+    
+    public TestResult getRecord(PageHeader hdr, DeviceHeader dh, TestHeader id)
+    {
+    	return(tdb.getRecord(hdr, dh, id));
+    }
+    
 	public static void main(String[] args)
 	{
 		if (args.length != 1)
@@ -220,7 +256,7 @@ public final class StdfAPI
 	    Arrays.stream(args).forEach(p -> files.add(p));	
 		StdfAPI api = new StdfAPI(files, false);
 		api.initialize(false);
-		Log.msg(api.toString());
+		Log.msg(api.tdb.toString());
 	}
 	
 }

@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
@@ -45,7 +44,6 @@ import com.makechip.util.Log;
 public class StdfReader
 {
     private final String filename;
-    private final long timeStamp;
     private List<StdfRecord> records;
     private final DefaultValueDatabase dvd;
     private final TestIdDatabase tdb;
@@ -57,9 +55,9 @@ public class StdfReader
     
     public StdfReader(TestIdDatabase tdb, String filename, boolean timeStampedFilePerDevice)
     {
+    	long timeStamp = timeStampedFilePerDevice ? getTimeStamp(filename) : 0L;
     	this.tdb = tdb;
     	this.filename = filename;
-    	this.timeStamp = timeStampedFilePerDevice ? getTimeStamp(filename) : 0L;
     	dvd = new DefaultValueDatabase(timeStamp);
     	dvd.clearDefaults();
     	records = new ArrayList<>(100);
@@ -70,7 +68,7 @@ public class StdfReader
      */
     public StdfReader(TestIdDatabase tdb)
     {
-    	this(tdb, 0L);
+    	this(tdb, "", false);
     }
     
     /**
@@ -78,12 +76,7 @@ public class StdfReader
      */
     public StdfReader(TestIdDatabase tdb, long timeStamp)
     {
-    	this.tdb = tdb;
-    	this.filename = null;
-        this.timeStamp = timeStamp;
-    	this.dvd = new DefaultValueDatabase(timeStamp);
-    	this.dvd.clearDefaults();
-    	records = new ArrayList<>(100);
+    	this(tdb, "dummy_" + timeStamp + ".stdf", true);
     }
     
     public static void main(String[] args)
@@ -107,7 +100,7 @@ public class StdfReader
         return(Record_t.FAR.getInstance(tdb, dvd, far));
     }
     
-    private long getTimeStamp(String name) // throws NumberFormatException
+    private static long getTimeStamp(String name) // throws NumberFormatException
     {
     	int dotIndex = (name.toLowerCase().endsWith(".std")) ? name.length() - 4 : name.length() - 5;
     	String stamp = name.substring(dotIndex - 14, dotIndex);
@@ -123,7 +116,7 @@ public class StdfReader
             records.add(FARcheck(len, far));
         	while (rdr.available() >= 2)
         	{
-                int recLen = getUnsignedInt(rdr.readByte(), rdr.readByte());	
+                int recLen = dvd.getCpuType().getU2(rdr.readByte(), rdr.readByte());	
                 Record_t type = Record_t.getRecordType(rdr.readByte(), rdr.readByte());
                 byte[] record = new byte[recLen];
                 len = rdr.read(record);
@@ -144,7 +137,7 @@ public class StdfReader
     	    records.add(FARcheck(6, far));
     	    while (ptr <= (bytes.length - 2))
     	    {
-    	    	int recLen = getUnsignedInt(bytes[ptr++], bytes[ptr++]);
+    	    	int recLen = dvd.getCpuType().getU2(bytes[ptr++], bytes[ptr++]);
     	    	Record_t type = Record_t.getRecordType(bytes[ptr++],  bytes[ptr++]);
                 records.add(type.getInstance(tdb, dvd, Arrays.copyOfRange(bytes, ptr, ptr+recLen)));
     	    	ptr += recLen;
@@ -155,9 +148,4 @@ public class StdfReader
     
     public Stream<StdfRecord> stream() { return(records.stream()); }
 
-    private int getUnsignedInt(byte b0, byte b1)
-    {
-        if (dvd.getCpuType() == Cpu_t.SUN) return((b1 & 0xFF) + ((b0 & 0xFF) << 8)); 
-        return((b0 & 0xFF)  + ((b1 & 0xFF) << 8)); 
-    }
 }

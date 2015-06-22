@@ -74,15 +74,6 @@ public class TestID implements Identity, Immutable
     }
     
     @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append("" + testNumber).append("_").append(testName);
-        if (dupNum != 0) sb.append("_" + dupNum);
-        return(sb.toString());
-    }
-    
-    @Override
     public int getInstanceCount()
     {
         return(-1);
@@ -90,7 +81,28 @@ public class TestID implements Identity, Immutable
     
     public static class PinTestID extends TestID implements Identity, Immutable
     {
-        public final String pin;
+        @Override
+		public String toString()
+		{
+			StringBuilder builder = new StringBuilder();
+			builder.append("PinTestID [");
+			if (pin != null)
+			{
+				builder.append("pin=");
+				builder.append(pin);
+				builder.append(", ");
+			}
+			if (id != null)
+			{
+				builder.append("id=");
+				builder.append(id);
+			}
+			builder.append("]");
+			return builder.toString();
+		}
+
+
+		public final String pin;
         public final TestID id;
        
         private PinTestID(TestID id, String pin)
@@ -105,15 +117,6 @@ public class TestID implements Identity, Immutable
             return(tdb.pinMap.getValue(id, pin));
         }
         
-        @Override
-        public String toString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append("" + testNumber).append("_").append(testName);
-            if (dupNum != 0) sb.append("_" + dupNum);
-            sb.append(" [").append(pin).append("]");
-            return(sb.toString());
-        }
         
         @Override
         public int getInstanceCount()
@@ -122,5 +125,24 @@ public class TestID implements Identity, Immutable
         }
    	
     }
+
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("TestID [testNumber=");
+		builder.append(testNumber);
+		builder.append(", ");
+		if (testName != null)
+		{
+			builder.append("testName=");
+			builder.append(testName);
+			builder.append(", ");
+		}
+		builder.append("dupNum=");
+		builder.append(dupNum);
+		builder.append("]");
+		return builder.toString();
+	}
     
 }

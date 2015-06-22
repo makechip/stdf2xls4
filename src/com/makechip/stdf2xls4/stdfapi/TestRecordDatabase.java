@@ -59,29 +59,29 @@ public class TestRecordDatabase
 	    return(b.booleanValue());
 	}
 	
-	private void build1(PageHeader p, StringBuilder sb)
+	private void build1(PageHeader pageHdr, StringBuilder sb)
 	{
-		Map<DeviceHeader, Map<TestHeader, TestResult>> m1 = devMap.get(p);
-		sb.append(p.toString()).append(Log.eol);
-		m1.keySet().stream().forEach(q -> build2(q, m1.get(q), sb));
+		Map<DeviceHeader, Map<TestHeader, TestResult>> m1 = devMap.get(pageHdr);
+		sb.append(pageHdr.toString()).append(Log.eol);
+		m1.keySet().stream().forEach(deviceHdr -> build2(deviceHdr, m1.get(deviceHdr), sb));
 	}
 	
-	private void build2(DeviceHeader dh, Map<TestHeader, TestResult> m, StringBuilder sb)
+	private void build2(DeviceHeader deviceHdr, Map<TestHeader, TestResult> m, StringBuilder sb)
 	{
-		sb.append(dh.toString()).append(Log.eol);
-		m.keySet().stream().forEach(p -> build3(p, m.get(p), sb));
+		sb.append(deviceHdr.toString()).append(Log.eol);
+		m.keySet().stream().forEach(testHdr -> build3(testHdr, m.get(testHdr), sb));
 	}
 	
-	private void build3(TestHeader th, TestResult tr, StringBuilder sb)
+	private void build3(TestHeader testHdr, TestResult testRslt, StringBuilder sb)
 	{
-		sb.append("    ").append(th.toString()).append(" ").append(tr.toString()).append(Log.eol);
+		sb.append("    ").append(testHdr.toString()).append(" ").append(testRslt.toString()).append(Log.eol);
 	}
 	
 	@Override
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-		devMap.keySet().stream().forEach(p -> build1(p, sb));
+		devMap.keySet().stream().forEach(pageHdr -> build1(pageHdr, sb));
 		return(sb.toString());
 	}
 	
@@ -109,8 +109,12 @@ public class TestRecordDatabase
 			TestHeader h = th.get(0);
 			TestResult tr = getTestResult(r);
 			m2a.put(h, tr);
-            Map<DeviceHeader, TestResult> m2b = 
-            	(m1b.get(r.getTestId()) == null) ? (sortDevices ? new TreeMap<>() : new LinkedHashMap<>()) : m1b.get(r.getTestId());
+            Map<DeviceHeader, TestResult> m2b = m1b.get(h);
+            if (m2b == null)
+            {
+            	m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
+            	m1b.put(h, m2b);
+            }
             m2b.put(dh, tr);
 		}
 		else // either PTR with dynamic limits, MPR, or MPR with dynamic limits
@@ -123,8 +127,12 @@ public class TestRecordDatabase
 				ParametricRecord pr = ParametricRecord.class.cast(r);
 				TestResult tr = new LoLimitResult(pr.getLoLimit());
 				m2a.put(h, tr);
-				TestID lid = TestID.createTestID(tdb, r.getTestId().testNumber, r.getTestId().testName + "_lo");
-                Map<DeviceHeader, TestResult> m2b = (m1b.get(lid) == null) ? (sortDevices ? new TreeMap<>() : new LinkedHashMap<>()) : m1b.get(r.getTestId());
+                Map<DeviceHeader, TestResult> m2b = m1b.get(h);
+                if (m2b == null)
+                {
+                	m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
+                	m1b.put(h,  m2b);
+                }
 			    m2b.put(dh, tr);	
 				i++;
 			}
@@ -133,7 +141,12 @@ public class TestRecordDatabase
 				TestHeader h = th.get(i);
 				TestResult tr = getTestResult(r);
 				m2a.put(h,  tr);
-                Map<DeviceHeader, TestResult> m2b = (m1b.get(r.getTestId()) == null) ? (sortDevices ? new TreeMap<>() : new LinkedHashMap<>()) : m1b.get(r.getTestId());
+                Map<DeviceHeader, TestResult> m2b = m1b.get(h);
+                if (m2b == null)
+                {
+                	m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
+                	m1b.put(h, m2b);
+                }
 			    m2b.put(dh, tr);	
 			    i++;
 			}
@@ -143,13 +156,19 @@ public class TestRecordDatabase
 				MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);
 			    mpr.getPinNames().forEach(pin -> {
 			    	    int b = a;
-			            TestID pid = PinTestID.getTestID(tdb, mpr.getTestId(), pin);
 			            TestResult tr = new ParametricTestResult(mpr.testFlags, mpr.getResult(pin));
 			            m2a.put(th.get(b), tr);
-                        Map<DeviceHeader, TestResult> m2b = (m1b.get(pid) == null) ? (sortDevices ? new TreeMap<>() : new LinkedHashMap<>()) : m1b.get(pid);
+                        Map<DeviceHeader, TestResult> m2b = m1b.get(th.get(b));
+                        if (m2b == null) 
+                        {
+                        	m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
+                        	m1b.put(th.get(b), m2b);
+                        }
 			            m2b.put(dh, tr);	
 			            b++;	
 			        });
+			    int cnt = (int) mpr.getPinNames().count();
+			    i += cnt;
 			    if (i < th.size())
 			    {
 			        TestHeader h = th.get(i);
@@ -162,8 +181,12 @@ public class TestRecordDatabase
 				ParametricRecord pr = ParametricRecord.class.cast(r);
 				TestResult tr = new HiLimitResult(pr.getHiLimit());
 				m2a.put(th.get(i), tr);
-				TestID hid = TestID.createTestID(tdb, r.getTestId().testNumber, r.getTestId().testName + "_hi");
-                Map<DeviceHeader, TestResult> m2b = (m1b.get(hid) == null) ? (sortDevices ? new TreeMap<>() : new LinkedHashMap<>()) : m1b.get(hid);
+                Map<DeviceHeader, TestResult> m2b = m1b.get(hlh); 
+                if (m2b == null)
+                {
+                	m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
+                	m1b.put(hlh,  m2b);
+                }
 			    m2b.put(dh, tr);	
 			}
 		}
@@ -189,7 +212,7 @@ public class TestRecordDatabase
 	
 	public Set<PageHeader> getPageHeaders() { return(devMap.keySet()); }
 	
-	public Set<DeviceHeader> getDeviceIds(PageHeader hdr) 
+	public Set<DeviceHeader> getDeviceHeaders(PageHeader hdr) 
 	{
 		Map<DeviceHeader, Map<TestHeader, TestResult>> m = devMap.get(hdr);
 		if (m == null) return(new LinkedHashSet<DeviceHeader>());
@@ -212,7 +235,7 @@ public class TestRecordDatabase
 		return(m2.keySet());
 	}
 
-	public Set<DeviceHeader> getDeviceIds(PageHeader hdr, TestHeader id)
+	public Set<DeviceHeader> getDeviceHeaders(PageHeader hdr, TestHeader id)
 	{
 		Map<TestHeader, Map<DeviceHeader, TestResult>> m1 = testMap.get(hdr);
 		if (m1 == null) return(new LinkedHashSet<DeviceHeader>());
@@ -229,46 +252,14 @@ public class TestRecordDatabase
 		case FTR: list.add(new TestHeader(r.getTestId())); break;
 		case PTR: ParametricTestRecord ptr = ParametricTestRecord.class.cast(r);
 		          if (hasDynamicLimits(hdr, ptr.getTestId())) list.add(new LoLimitHeader(ptr.getTestId()));  
-		          if (ptr.hasLoLimit() && ptr.hasHiLimit())
-		          {
-		               list.add(new ParametricTestHeader(ptr.getTestId(), ptr.units, ptr.loLimit, ptr.hiLimit));
-		          }
-		          else if (ptr.hasLoLimit())
-		          {
-		           	  list.add(new ParametricTestHeader(ptr.getTestId(), ptr.units, ptr.loLimit));
-		          }
-		          else if (ptr.hasHiLimit())
-		          {
-		          	  list.add(new ParametricTestHeader(ptr.getTestId(), ptr.hiLimit, ptr.units));
-		          }
+		          list.add(new ParametricTestHeader(ptr.getTestId(), ptr.units, ptr.loLimit, ptr.hiLimit));
 		          if (hasDynamicLimits(hdr, ptr.getTestId())) list.add(new HiLimitHeader(ptr.getTestId()));
 		          break;
 		case MPR: MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);
 				  if (hasDynamicLimits(hdr, mpr.getTestId())) list.add(new LoLimitHeader(mpr.getTestId()));
-				  if (mpr.hasLoLimit() && mpr.hasHiLimit())
-				  {
-					  mpr.getPinNames().
-					      forEach(pin -> { 
+				  mpr.getPinNames(). forEach(pin -> { 
 					    	  				  PinTestID pid = TestID.PinTestID.getTestID(tdb, mpr.getTestId(), pin); 
-					    	  				  list.add(new MultiParametricTestHeader(pid, mpr.units, mpr.loLimit, mpr.hiLimit)); 
-					    	  			 });
-				  }
-				  else if (mpr.hasLoLimit())
-				  {
-					  mpr.getPinNames().
-					      forEach(pin -> {
-			        	                     PinTestID pid = PinTestID.getTestID(tdb, mpr.getTestId(), pin);
-			         	                     list.add(new MultiParametricTestHeader(pid, mpr.units, mpr.loLimit));
-			                             });
-				  }
-				  else if (mpr.hasHiLimit())
-				  {
-					  mpr.getPinNames().
-					      forEach(pin -> {
-			           	                     PinTestID pid = PinTestID.getTestID(tdb, mpr.getTestId(), pin);
-			           	                     list.add(new MultiParametricTestHeader(pid, mpr.hiLimit, mpr.units));
-					                     });
-				  }
+					    	  				  list.add(new MultiParametricTestHeader(pid, mpr.units, mpr.loLimit, mpr.hiLimit)); });
 				  if (hasDynamicLimits(hdr, mpr.getTestId())) list.add(new HiLimitHeader(mpr.getTestId()));
 				  break;
 		case DTR: list.add(new TestHeader(r.getTestId())); break; 

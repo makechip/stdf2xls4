@@ -2,10 +2,12 @@ package test.stdf;
 
 import static org.junit.Assert.*;
 
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import org.junit.BeforeClass;
@@ -16,7 +18,6 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
-import com.makechip.util.Log;
 
 /**
  * @author eric
@@ -27,7 +28,7 @@ public class StdfTest1
 	static DefaultValueDatabase dvd = new DefaultValueDatabase(0L);
 	static TestIdDatabase tdb = new TestIdDatabase();
     static StdfWriter stdf;
-    static Stack<StdfRecord> stack;
+    static List<StdfRecord> list;
     static StdfReader rdr;
 	/**
 	 * @throws java.lang.Exception
@@ -61,8 +62,8 @@ public class StdfTest1
 		stdf.add(new FunctionalTestRecord(tdb, dvd, Cpu_t.PC, 3, (short) 2, (short) 1, (byte) 0,
 			(byte) 0, 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
 			new byte[] { (byte) 4, (byte) 3, (byte) 2, (byte) 1 }, new int[] { 3, 4, 5, 6 },
-			new byte[] { (byte) 0, (byte) 1, (byte) 2, (byte) 3 }, new byte[] { (byte) 3, (byte) 2, (byte) 1, (byte) 0 },
-			"vecName", "timeSetName", "vecOpCode", "label", "alarmName", "progTxt", "rsltTxt", (short) 5, 
+			new byte[] { (byte) 0, (byte) 1, (byte) 2, (byte) 3 }, 32, new byte[] { (byte) 3, (byte) 2, (byte) 1, (byte) 0 },
+			"vecName", "timeSetName", "vecOpCode", "label", "alarmName", "progTxt", "rsltTxt", (short) 5,  24,
 			new byte[] { (byte) 6, (byte) 7, (byte) 8 }));
 		GenericDataRecord.Data d1 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_4, 0), new Integer(33));
 		GenericDataRecord.Data d2 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R_8, 0), new Double(44.0));
@@ -83,6 +84,7 @@ public class StdfTest1
 		stdf.add(new PartInformationRecord(tdb, dvd, (short) 1, (short) 0));
 		stdf.add(new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
 			10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 }));
+		stdf.add(new PinGroupRecord(tdb, dvd, 1, "group1", new int[] { 1, 2, }));
 		stdf.add(new PinListRecord(tdb, dvd, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
 			new String[] { "a", "b" }, new String[] { "c", "d" }, new String[] { "e", "f" }, new String[] { "g", "h" }));
 		stdf.add(new SoftwareBinRecord(tdb, dvd, (short) 1, (short) 0, 5, 45, 'F', "binName"));
@@ -92,28 +94,25 @@ public class StdfTest1
 	    stdf.add(new WaferInformationRecord(tdb, dvd, (short) 1, (short) 0, 1000L, "waferID"));
 		stdf.add(new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
 			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc"));
-		stdf.write("x.stdf");
+		Path p = FileSystems.getDefault().getPath("x.stdf");
+		stdf.write(p.toFile());
+        Files.delete(p);
+		rdr = new StdfReader(tdb, p.toFile().getAbsolutePath());
+		rdr.read(stdf.getBytes());
+		list = rdr.stream().collect(Collectors.toList());
 	}
 	
 	@Test
 	public void testA()
 	{
-		Log.msg("testA");
-		rdr = new StdfReader(tdb);
-		rdr.read(stdf.getBytes());
-		List<StdfRecord> list = rdr.stream().collect(Collectors.toList());
-		assertEquals(26, list.size());
-		stack = new Stack<StdfRecord>();
-		Stack<StdfRecord> tmp = new Stack<StdfRecord>();
-		list.stream().forEach(p -> tmp.push(p));
-		while (!tmp.empty()) stack.push(tmp.pop());
+		assertEquals(27, list.size());
 	}
 
     @Test
     public void testB()
     {
     	//Log.msg("stack = " + stack);
-    	StdfRecord r = stack.pop();
+    	StdfRecord r = list.get(0);
     	assertTrue(r instanceof FileAttributesRecord);
 	    FileAttributesRecord far = (FileAttributesRecord) r;
 	    assertEquals(Cpu_t.PC, far.cpuType);
@@ -124,7 +123,7 @@ public class StdfTest1
 	@Test
 	public void testC()
 	{
-        StdfRecord r = stack.pop();
+        StdfRecord r = list.get(1);
         assertTrue(r instanceof AuditTrailRecord);
         AuditTrailRecord atr = (AuditTrailRecord) r;
         assertEquals(100000000L, atr.date);
@@ -141,7 +140,7 @@ public class StdfTest1
 	@Test
 	public void testD()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(2);
 		assertTrue(r instanceof MasterInformationRecord);
 		MasterInformationRecord mir = (MasterInformationRecord) r;
 		assertEquals(1000L, mir.jobDate);
@@ -189,7 +188,7 @@ public class StdfTest1
 	@Test
 	public void testE()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(3);
 		assertTrue(r instanceof RetestDataRecord);
 		RetestDataRecord rdr = (RetestDataRecord) r;
 		int[] bins = rdr.getRetestBins();
@@ -207,7 +206,7 @@ public class StdfTest1
 	@Test
 	public void testF()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(4);
 		assertTrue(r instanceof SiteDescriptionRecord);
 		SiteDescriptionRecord sdr = (SiteDescriptionRecord) r;
 		assertEquals(1, sdr.headNumber);
@@ -239,7 +238,7 @@ public class StdfTest1
 	@Test
 	public void testG()
 	{
-		StdfRecord r1 = stack.pop();
+		StdfRecord r1 = list.get(5);
 		assertTrue(r1 instanceof PinMapRecord);
 		PinMapRecord pmr = (PinMapRecord) r1;
 	    assertEquals(0, pmr.pmrIdx);
@@ -249,7 +248,7 @@ public class StdfTest1
 	    assertEquals("logicalPinName0", pmr.logicalPinName);
 	    assertEquals(1, pmr.headNumber);
 	    assertEquals(0, pmr.siteNumber);
-	    r1 = stack.pop();
+	    r1 = list.get(6);
 	    assertTrue(r1 instanceof PinMapRecord);
 	    pmr = (PinMapRecord) r1;
 	    assertEquals(1, pmr.pmrIdx);
@@ -259,7 +258,7 @@ public class StdfTest1
 	    assertEquals("logicalPinName1", pmr.logicalPinName);
 	    assertEquals(1, pmr.headNumber);
 	    assertEquals(0, pmr.siteNumber);
-	    r1 = stack.pop();
+	    r1 = list.get(7);
 	    assertTrue(r1 instanceof PinMapRecord);
 	    pmr = (PinMapRecord) r1;
 	    assertEquals(2, pmr.pmrIdx);
@@ -269,7 +268,7 @@ public class StdfTest1
 	    assertEquals("logicalPinName2", pmr.logicalPinName);
 	    assertEquals(1, pmr.headNumber);
 	    assertEquals(0, pmr.siteNumber);
-	    r1 = stack.pop();
+	    r1 = list.get(8);
 	    assertTrue(r1 instanceof PinMapRecord);
 	    pmr = (PinMapRecord) r1;
 	    assertEquals(3, pmr.pmrIdx);
@@ -285,7 +284,7 @@ public class StdfTest1
 	@Test
 	public void testH()
 	{
-	    StdfRecord r = stack.pop();
+	    StdfRecord r = list.get(9);
 	    assertTrue(r instanceof BeginProgramSelectionRecord);
 	    BeginProgramSelectionRecord bpr = (BeginProgramSelectionRecord) r;
 	    assertEquals("beginProgramSelectionRecord", bpr.seqName);
@@ -295,7 +294,7 @@ public class StdfTest1
 	@Test
 	public void testI()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(10);
 		assertTrue(r instanceof DatalogTextRecord);
 		DatalogTextRecord dtr = (DatalogTextRecord) r;
 		assertEquals("datalogTextRecord", dtr.text);
@@ -310,9 +309,10 @@ public class StdfTest1
 	@Test
 	public void testJ()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(11);
 		assertTrue(r instanceof FunctionalTestRecord);
 		FunctionalTestRecord ftr = (FunctionalTestRecord) r;
+		assertTrue(ftr.isTestRecord());
 		assertEquals(3, ftr.testNumber);
 		assertEquals(2, ftr.headNumber);
 		assertEquals(1, ftr.siteNumber);
@@ -367,7 +367,7 @@ public class StdfTest1
 	@Test
 	public void testK()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(12);
 		assertTrue(r instanceof GenericDataRecord);
 		GenericDataRecord gdr = (GenericDataRecord) r;
 		List<GenericDataRecord.Data> l = gdr.list; 
@@ -383,7 +383,7 @@ public class StdfTest1
 	@Test
 	public void testL()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(13);
 		assertTrue(r instanceof HardwareBinRecord);
 		HardwareBinRecord hbr = (HardwareBinRecord) r;
 		assertEquals(1, hbr.headNumber);
@@ -398,7 +398,7 @@ public class StdfTest1
 	@Test
 	public void testM()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(14);
 		assertTrue(r instanceof MasterResultsRecord);
 		MasterResultsRecord mrr = (MasterResultsRecord) r;
 		assertEquals(1000L, mrr.finishDate);
@@ -414,7 +414,7 @@ public class StdfTest1
 	@Test
 	public void testN()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(15);
 		assertTrue(r instanceof MultipleResultParametricRecord);
 		MultipleResultParametricRecord mpr = (MultipleResultParametricRecord) r;
 	    assertEquals(22, mpr.testNumber);
@@ -455,7 +455,7 @@ public class StdfTest1
 	@Test
 	public void testO()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(16);
 		assertTrue(r instanceof ParametricTestRecord);
 		ParametricTestRecord ptr = (ParametricTestRecord) r;
 	    assertEquals(44, ptr.testNumber);
@@ -484,7 +484,7 @@ public class StdfTest1
 	@Test
 	public void testP()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(17);
 		assertTrue(r instanceof PartCountRecord);
 		PartCountRecord ptr = (PartCountRecord) r;
         assertEquals(1, ptr.headNumber); 
@@ -500,7 +500,7 @@ public class StdfTest1
 	@Test
 	public void testQ()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(18);
 		assertTrue(r instanceof PartInformationRecord);
 		PartInformationRecord ptr = (PartInformationRecord) r;
 		assertEquals(1, ptr.headNumber);
@@ -512,7 +512,7 @@ public class StdfTest1
 	@Test
 	public void testR()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(19);
 		assertTrue(r instanceof PartResultsRecord);
 		PartResultsRecord ptr = (PartResultsRecord) r;
 		assertEquals(1, ptr.headNumber);
@@ -531,12 +531,27 @@ public class StdfTest1
 		assertEquals(2, ptr.getRepair()[2]);
 	}
 	
+	@Test
+	public void testR1()
+	{
+		StdfRecord r = list.get(20);
+		assertTrue(r instanceof PinGroupRecord);
+		PinGroupRecord pgr = (PinGroupRecord) r;
+		assertEquals(pgr.toString(), "PinGroupRecord [groupIndex=1, groupName=group1, pmrIdx=[1, 2]]");
+		assertEquals(pgr.groupIndex, 1);
+		assertEquals(pgr.groupName, "group1");
+		int[] idx = pgr.getPmrIdx();
+		assertEquals(idx.length, 2);
+		assertEquals(idx[0], 1);
+		assertEquals(idx[1], 2);
+	}
+	
 	//stdf.add(new PinListRecord(snum++, dnum, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
 	//	new String[] { "a", "b" }, new String[] { "c", "d" }, new String[] { "e", "f" }, new String[] { "g", "h" }));
 	@Test
 	public void testS()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(21);
 		assertTrue(r instanceof PinListRecord);
 		PinListRecord ptr = (PinListRecord) r;
 	    //assertEquals(1, ptr.getPinIndex()[0]);
@@ -559,7 +574,7 @@ public class StdfTest1
 	@Test
 	public void testT()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(22);
 		assertTrue(r instanceof SoftwareBinRecord);
 		SoftwareBinRecord ptr = (SoftwareBinRecord) r;
         assertEquals(1, ptr.headNumber);	
@@ -575,7 +590,7 @@ public class StdfTest1
 	@Test
 	public void testU()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(23);
 		assertTrue(r instanceof TestSynopsisRecord);
 		TestSynopsisRecord ptr = (TestSynopsisRecord) r;
         assertEquals(1, ptr.headNumber);	
@@ -600,7 +615,7 @@ public class StdfTest1
 	@Test
 	public void testV()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(24);
 		assertTrue(r instanceof WaferConfigurationRecord);
 		WaferConfigurationRecord ptr = (WaferConfigurationRecord) r;
         assertEquals(6.0f, ptr.waferSize, 5);	
@@ -618,7 +633,7 @@ public class StdfTest1
 	@Test
 	public void testW()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(25);
 		assertTrue(r instanceof WaferInformationRecord);
 		WaferInformationRecord ptr = (WaferInformationRecord) r;
         assertEquals(1, ptr.headNumber);	
@@ -632,7 +647,7 @@ public class StdfTest1
 	@Test
 	public void testX()
 	{
-		StdfRecord r = stack.pop();
+		StdfRecord r = list.get(26);
 		assertTrue(r instanceof WaferResultsRecord);
 		WaferResultsRecord ptr = (WaferResultsRecord) r;
         assertEquals(1, ptr.headNumber);	

@@ -10,19 +10,24 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 public abstract class StdfRecord
 {
-    public static final String TEXT_DATA = "TEXT_DATA";
-    public static final String SERIAL_MARKER = "S/N";
-    public static final float MISSING_FLOAT = Float.MAX_VALUE;
-    public static final byte MISSING_BYTE = (byte) -1;
-    public static final int MISSING_INT = Integer.MIN_VALUE;
-    public static final long MISSING_LONG = Long.MIN_VALUE;
-    public static final short MISSING_SHORT = Short.MIN_VALUE;
-    public static final String MISSING_STRING = "";
+    public static final String TEXT_DATA          = "TEXT_DATA";
+    public static final String SERIAL_MARKER      = "S/N";
+    public static final float  MISSING_FLOAT      = Float.MAX_VALUE;
+    public static final byte   MISSING_BYTE       = (byte) -1;
+    public static final int    MISSING_INT        = Integer.MIN_VALUE;
+    public static final long   MISSING_LONG       = Long.MIN_VALUE;
+    public static final short  MISSING_SHORT      = Short.MIN_VALUE;
+    public static final String MISSING_STRING     = "";
     public static final byte[] MISSING_BYTE_ARRAY = new byte[0];
     protected final Cpu_t cpuType;
 	public final Record_t type;
 	protected int ptr;
 	protected byte[] bytes;
+	
+	static class MutableInt
+	{
+		int n;
+	}
 
 	protected StdfRecord(Record_t type, Cpu_t cpuType, byte[] bytes)
 	{
@@ -71,9 +76,7 @@ public abstract class StdfRecord
     {
         if (bytes.length <= ptr) return(MISSING_STRING);
         int s = 0xFF & bytes[ptr++];
-        //Log.msg("s.len = " + s + " bytes.length = " + bytes.length + " ptr = " + ptr);
         String out = new String(bytes, ptr, s); 
-        //Log.msg("out = " + out);
         ptr += s;
         return(out);
     }
@@ -128,7 +131,7 @@ public abstract class StdfRecord
         case  9: u = "n" + units; break;
         case 12: u = "p" + units; break;
         default:
-        }
+        } 
         return(u);
     }
 
@@ -223,7 +226,7 @@ public abstract class StdfRecord
         return(Double.longBitsToDouble(l));
     }
     
-    protected byte getByte() 
+   protected byte getByte() 
     { 
     	if (ptr >= getSize()) return(MISSING_BYTE);
     	return(bytes[ptr++]); 
@@ -275,25 +278,21 @@ public abstract class StdfRecord
     	return(s.getBytes());
     }
     
-    protected byte[] getDn()
+    protected byte[] getDn(MutableInt numBits)
     {
         if (bytes.length < ptr+2) return(MISSING_BYTE_ARRAY);
         byte b0 = bytes[ptr++];
         byte b1 = bytes[ptr++];
         int l = cpuType.getU2(b0,  b1);
-        // l is number of bits
-        byte[] b = new byte[l];
+        numBits.n = l;
         int length = (l % 8 == 0) ? l/8 : l/8 + 1; 
+        byte[] b = new byte[length];
         if (bytes.length < ptr+length) return(MISSING_BYTE_ARRAY);
-        for (int i=0; i<length; i++) 
-        {
-        	byte x = bytes[ptr++];
-            b[i] = x;
-        }
+        for (int i=0; i<length; i++) b[i] = bytes[ptr++];
         return(b);
     }
     
-    /**
+    /** 
      * Unpack nibbles packed in bytes.
      * @param cnt Number of nibbles
      */

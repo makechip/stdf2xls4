@@ -30,7 +30,7 @@ import com.makechip.util.factory.IdentityFactoryO;
 public class SN extends SnOrXy implements Immutable, Comparable<SN>
 {
     private static IdentityFactoryO<String, SN> map = new IdentityFactoryO<String, SN>(String.class, SN.class);
-    private String serialNumber;
+    public final String serialNumber;
     
     protected SN(String serialNumber)
     {
@@ -40,7 +40,7 @@ public class SN extends SnOrXy implements Immutable, Comparable<SN>
     
     public static SN getSN(String serialNumber)
     {
-        return(map.getValue(serialNumber));
+        return(map.getValue(serialNumber.trim()));
     }
     
     @Override
