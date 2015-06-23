@@ -24,37 +24,29 @@
  */
 package com.makechip.stdf2xls4.xls.layout3;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.util.CellRangeAddress;
-
-import com.makechip.stdf2xls4.HeaderItem;
-import com.makechip.stdf2xls4.xls.Cell_t;
 import com.makechip.stdf2xls4.xls.SpreadSheetWriter3;
 
 public class HeaderBlock
 {
     public static final int ROW = TitleBlock.HEIGHT;
     public static final int COL = TitleBlock.COL;
-    private final List<HeaderItem> items;
-    private final SpreadSheetWriter3 sw;
-    private final int height;
+    //private final SpreadSheetWriter3 sw;
+    //private final int height;
     
-    public HeaderBlock(SpreadSheetWriter3 sw, List<HeaderItem> items)
+    public HeaderBlock(SpreadSheetWriter3 sw)
     {
-    	this.sw = sw;
-    	this.items = new ArrayList<HeaderItem>();
-    	for (HeaderItem h : items) this.items.add(h);
-    	height = items.size();
+    	//this.sw = sw;
+    	//this.items = new ArrayList<HeaderItem>();
+    	//for (HeaderItem h : items) this.items.add(h);
+    	//height = items.size();
     }
     
     public void addBlock(Sheet ws)
     {
-        int row = ROW;
+        //int row = ROW;
+
+        /*
         for (HeaderItem h : items)
         {
         	Row r = ws.getRow(row);
@@ -77,10 +69,11 @@ public class HeaderBlock
         	ws.addMergedRegion(new CellRangeAddress(row, row, COL+2, COL+4));
             row++;
         }
+        */
     }
     
     public int getHeight() 
     { 
-        return(height); 
+        return(0); 
     }
 }

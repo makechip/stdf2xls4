@@ -28,19 +28,11 @@ package com.makechip.stdf2xls4.xls;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.poi.hssf.usermodel.HSSFPalette;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
@@ -48,34 +40,17 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import com.makechip.stdf2xls.CliOptions;
-import com.makechip.stdf2xls.ColIdentifier;
-import com.makechip.stdf2xls.DeviceResult;
-import com.makechip.stdf2xls.FunctionalTestResult;
-import com.makechip.stdf2xls.MultipleParametricTestResult;
-import com.makechip.stdf2xls.ParametricTestResult;
-import com.makechip.stdf2xls.SnOrXy;
-import com.makechip.stdf2xls.StepInfo;
-import com.makechip.stdf2xls.TestResult;
-import com.makechip.stdf2xls.TextResult;
-import com.makechip.stdf2xls.stdf.Error_t;
-import com.makechip.stdf2xls.stdf.Record;
-import com.makechip.stdf2xls.stdf.TestID;
-import com.makechip.stdf2xls4.xls.layout3.CornerBlock;
-import com.makechip.stdf2xls4.xls.layout3.DataHeader;
-import com.makechip.stdf2xls4.xls.layout3.HeaderBlock;
-import com.makechip.stdf2xls4.xls.layout3.LegendBlock;
+import com.makechip.stdf2xls4.CliOptions;
+import com.makechip.stdf2xls4.stdfapi.DeviceResult;
+import com.makechip.stdf2xls4.stdfapi.SnOrXy;
+import com.makechip.stdf2xls4.stdfapi.PageHeader;
+import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.xls.layout3.TitleBlock;
-import com.makechip.util.Log;
-
 import static com.makechip.stdf2xls4.xls.FontName_t.ARIAL;
 import static com.makechip.stdf2xls4.xls.FontName_t.COURIER;
 import static com.makechip.stdf2xls4.xls.FontStyle_t.BOLD;
 import static com.makechip.stdf2xls4.xls.FontStyle_t.NORMAL;
 import static com.makechip.stdf2xls4.xls.HAlignment_t.CENTER;
-import static com.makechip.stdf2xls4.xls.HAlignment_t.JUSTIFY;
 import static com.makechip.stdf2xls4.xls.HAlignment_t.LEFT;
 import static com.makechip.stdf2xls4.xls.HAlignment_t.RIGHT;
 import static org.apache.poi.ss.usermodel.IndexedColors.BLACK;
@@ -89,20 +64,13 @@ import static org.apache.poi.ss.usermodel.IndexedColors.TURQUOISE;
 import static org.apache.poi.ss.usermodel.IndexedColors.WHITE;
 import static org.apache.poi.ss.usermodel.IndexedColors.YELLOW;
 
+@SuppressWarnings("all")
 public class SpreadSheetWriter3
 {
     private final int firstDataCol;
     private final int firstDataRow;
     public final int MAX_COLS;
     
-    private HashMap<String, List<ResultList2>> sData;
-              // waferID/Step    SerialNumber/XY               
-    private HashMap<String, TreeMap<SnOrXy, LinkedHashMap<TestID, Result>>> data;
-              // waferID/Step
-    private HashMap<String, LinkedHashSet<ColIdentifier>> dataHeader;
-              // waferID/Step
-    private HashMap<String, StepInfo> headerInfo;
-              // waferID/Step    SerialNumber/XY
     private HashMap<String, TreeMap<SnOrXy, DeviceHeader>> devHdr;
     private Workbook wb = null;
     private Sheet  ws;
@@ -121,8 +89,8 @@ public class SpreadSheetWriter3
     private final int TEMP_ROW;
     private boolean sortByFilename;
     private boolean showDuplicates;
-    public final CellStyle TEST_NUMBER_FMT;
-    public final CellStyle TEST_NAME_FMT;
+    public CellStyle TEST_NUMBER_FMT;
+    public CellStyle TEST_NAME_FMT;
     public final CellStyle TITLE_FMT;
     public final CellStyle LO_LIMIT_FMT;
     public final CellStyle HI_LIMIT_FMT;
@@ -171,6 +139,8 @@ public class SpreadSheetWriter3
     	TEMP_ROW = RSLT_ROW + 1;
     	X_ROW = RSLT_ROW + 2;
     	Y_ROW = RSLT_ROW + 3;
+    	MAX_COLS = 1;
+    	/*
     	sData = new HashMap<String, List<ResultList2>>();
     	data = new HashMap<String, TreeMap<SnOrXy, LinkedHashMap<TestID, Result>>>();
         dataHeader = new HashMap<String, LinkedHashSet<ColIdentifier>>();
@@ -212,6 +182,7 @@ public class SpreadSheetWriter3
         {
         	TEST_NAME_FMT           = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
         }
+        */
         TITLE_FMT               = CellStyleType.getCellStyle(wb, LEFT,   VAlignment_t.CENTER, SKY_BLUE,     WHITE, ARIAL,   BOLD,   "",       BorderType.DEFAULT_BORDER, (short) 20);
         LO_LIMIT_FMT            = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
         HI_LIMIT_FMT            = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
@@ -252,6 +223,7 @@ public class SpreadSheetWriter3
     // 5. Enter data
     public void generate()
     {
+    	/*
     	boolean first = true;
     	for (String waferOrStep : sData.keySet())
     	{
@@ -264,6 +236,7 @@ public class SpreadSheetWriter3
     		writeData(waferOrStep);
     	}
         close();
+        */
     }
         
     private void addCell(Sheet ws, int col, int row, String text, CellStyle fmt)
@@ -322,6 +295,7 @@ public class SpreadSheetWriter3
     private void writeData(String waferOrStep)
     {
     	
+    	/*
     	if (sortByFilename && showDuplicates) noOverWrite = true;
         List<ResultList2> m1 = sData.get(waferOrStep);
         StepInfo si = headerInfo.get(waferOrStep);
@@ -380,6 +354,7 @@ public class SpreadSheetWriter3
                	k++;
            	}
        	}
+       	*/
     } 
     
     private void openSheet(String waferOrStep)
@@ -393,6 +368,7 @@ public class SpreadSheetWriter3
     
     private void newSheet(String name, String waferOrStep)
     {
+    	/*
         try
         {
             ws = wb.createSheet(name);
@@ -417,10 +393,12 @@ public class SpreadSheetWriter3
             System.out.println("Exception: " + e.getMessage());
             System.exit(-1);
         }
+        */
     }
     
-    private void setStatus(Sheet wsi, int col, int row, Error_t err)
+    private void setStatus(Sheet wsi, int col, int row)
     {
+    	/*
         switch (err)
         {
         case PASS:       addCell(wsi, col, row, "PASS", STATUS_PASS_FMT);
@@ -431,9 +409,11 @@ public class SpreadSheetWriter3
         case TIMEOUT:    addCell(wsi, col, row, "FAIL", STATUS_TIMEOUT_FMT);
         default:         addCell(wsi, col, row, "FAIL", STATUS_ABORT_FMT);
         }
+        */
     }
     
-    private void setText(Sheet wsi, int col, int row, String text)
+    @SuppressWarnings("unused")
+	private void setText(Sheet wsi, int col, int row, String text)
     {
     	String s = text.trim();
     	int size = wsi.getColumnWidth(col);
@@ -445,8 +425,9 @@ public class SpreadSheetWriter3
     	
     }
     
-    private void setValue(Sheet wsi, int col, int row, Error_t err, float value)
+    private void setValue(Sheet wsi, int col, int row, float value)
     {
+    	/*
     	if (hiPrecision)
     	{
     		switch (err)
@@ -473,6 +454,7 @@ public class SpreadSheetWriter3
     		default:         addCell(wsi, col, row, value, ABORT_VALUE_FMT); break;
     		}
     	}
+    	*/
     }
     
     private void locateCol(String waferOrStep, SnOrXy snOrXy)
@@ -591,8 +573,9 @@ public class SpreadSheetWriter3
         }
     }                                 
     
-    private void addResult(String waferOrStep, SnOrXy snOrXy, TestID id, Result r, boolean first)
+    private void addResult(String waferOrStep, SnOrXy snOrXy, TestID id, DeviceResult r, boolean first)
     {
+    	/*
     	if (noOverWrite)
     	{
     		List<ResultList2> l = sData.get(waferOrStep);
@@ -629,6 +612,7 @@ public class SpreadSheetWriter3
     		//Log.msg("xy = " + snOrXy + " id = " + id + " result = " + r);
     		m2.put(id, r);
     	}
+    	*/
     }
     
     private void addDeviceHeader(String waferOrStep, SnOrXy snOrxy, DeviceHeader dh)
@@ -642,8 +626,9 @@ public class SpreadSheetWriter3
         m1.put(snOrxy, dh);
     }
     
-    private void addColumnId(String waferOrStep, ColIdentifier col)
+    private void addColumnId(String waferOrStep)
     {
+    	/*
         LinkedHashSet<ColIdentifier> m1 = dataHeader.get(waferOrStep);
         if (m1 == null)
         {
@@ -651,6 +636,7 @@ public class SpreadSheetWriter3
             dataHeader.put(waferOrStep, m1);
         }
         m1.add(col);
+        */
     }
    
     /**
@@ -658,13 +644,14 @@ public class SpreadSheetWriter3
      * 1. data: map waferOrStep -> snOrxy -> testId -> result
      * 2. dataHeader: map waferOrStep -> TestID -> ColIdentifier  // for the header above the test data
      * 3. headerInfo: map waferOrStep -> StepInfo  // for the header information
-     * Also, this method creates unique TestID's for each pin in a MultipleResultParametricRecord,
+     * Also, this method creates unique TestID's for each pin in a MultipleResultParametricStdfRecord,
      * and computes the the pass/fail status for each pin.
      * @param testInfo
      * @param results
      */
-    public void addResults(HashMap<String, StepInfo> testInfo, List<DeviceResult> results)
+    public void addResults(HashMap<String, PageHeader> testInfo, List<DeviceResult> results)
     {
+    	/*
         this.headerInfo = testInfo;
         for (DeviceResult dr : results)
         {
@@ -713,7 +700,7 @@ public class SpreadSheetWriter3
                             Float hiLim = null;
                             if (mpr.useDefaultHiFlag())
                             {
-                                if (mpr.getHiLimit() == Record.MISSING_FLOAT) hiLim = null; 
+                                if (mpr.getHiLimit() == StdfRecord.MISSING_FLOAT) hiLim = null; 
                                 else hiLim = new Float(mpr.getHiLimit());
                             }
                             else
@@ -813,13 +800,13 @@ public class SpreadSheetWriter3
                     Result r4 = new Result(type, txt.getResult());
                     addResult(waferOrStep, snOrXy, id, r4, first);
                     first = false;
-                    addColumnId(waferOrStep, ColIdentifier.getColIdentifier(id, Record.MISSING_FLOAT, Record.MISSING_FLOAT, ""));
+                    addColumnId(waferOrStep, ColIdentifier.getColIdentifier(id, StdfRecord.MISSING_FLOAT, StdfRecord.MISSING_FLOAT, ""));
                     break;
                 case FUNCTIONAL:
-                    Result r2 = new Result(type, Record.MISSING_FLOAT, tr.getError());
+                    Result r2 = new Result(type, StdfRecord.MISSING_FLOAT, tr.getError());
                     addResult(waferOrStep, snOrXy, id, r2, first);
                     first = false;
-                    addColumnId(waferOrStep, ColIdentifier.getColIdentifier(id, Record.MISSING_FLOAT, Record.MISSING_FLOAT, ""));
+                    addColumnId(waferOrStep, ColIdentifier.getColIdentifier(id, StdfRecord.MISSING_FLOAT, StdfRecord.MISSING_FLOAT, ""));
                 default:
                 }
             }
@@ -838,6 +825,7 @@ public class SpreadSheetWriter3
         		sData.put(stp, list);
         	}
         }
+        */
     }
 
 }

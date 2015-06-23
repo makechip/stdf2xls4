@@ -26,42 +26,38 @@ package com.makechip.stdf2xls4.xls.layout3;
 
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
+//import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.util.CellRangeAddress;
 import com.makechip.stdf2xls4.stdfapi.DeviceHeader;
-import com.makechip.stdf2xls4.stdf.StdfRecord;
-import com.makechip.stdf2xls4.xls.Cell_t;
 import com.makechip.stdf2xls4.xls.SpreadSheetWriter3;
 
 public class DataHeader 
 {
-	private static final int COL = 5;
-	private int row;
-	private final SpreadSheetWriter3 sw;
-	private List<DeviceHeader> hdrs;
+	//private static final int COL = 5;
+	//private int row;
+	//private final SpreadSheetWriter3 sw;
+	//private List<DeviceHeader> hdrs;
 	
 	public DataHeader(SpreadSheetWriter3 sw, List<DeviceHeader> hdrs, CornerBlock cb, HeaderBlock hb)
 	{
-		row = CornerBlock.ROW + cb.getHeight();
-		this.sw = sw;
-		this.hdrs = hdrs;
+		//row = CornerBlock.ROW + cb.getHeight();
+		//this.sw = sw;
+		//this.hdrs = hdrs;
 	}
 	
 	public void addBlock(Sheet ws, boolean xssf)
 	{
-		int maxWidth = 0;
-		for (DeviceHeader cid : hdrs)
-		{
-			if (cid.getTestName().length() > maxWidth) maxWidth = cid.getTestName().length();
-		}
-		ws.setColumnWidth(COL, maxWidth * 256);
-		CellStyle cs1 = sw.HEADER1_FMT;
-		CellStyle cs5 = sw.HEADER5_FMT;
-		for (DeviceHeader cid : hdrs)
-		{
+		//int maxWidth = 0;
+		//for (DeviceHeader cid : hdrs)
+		//{
+			//if (cid.getTestName().length() > maxWidth) maxWidth = cid.getTestName().length();
+		//}
+		//ws.setColumnWidth(COL, maxWidth * 256);
+		//CellStyle cs1 = sw.HEADER1_FMT;
+		//CellStyle cs5 = sw.HEADER5_FMT;
+		//for (DeviceHeader cid : hdrs)
+		//{
+			/*
 			int col = COL;
 		    Row r = ws.getRow(row);	
 			if (r == null) r = ws.createRow(row);
@@ -122,6 +118,7 @@ public class DataHeader
 			}
 			ws.addMergedRegion(new CellRangeAddress(row, row, col, col+1));
 			row++;
+		*/
 		}
-	}
+	//}
 }

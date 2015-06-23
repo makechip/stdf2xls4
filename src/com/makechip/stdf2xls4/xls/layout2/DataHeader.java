@@ -35,7 +35,6 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
-import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.xls.Cell_t;
 import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
 
@@ -71,8 +70,8 @@ public class DataHeader
 				else width = 11;
 			}
 			ws.setColumnWidth(c, width * 256);
-			CellStyle cs1 = sw.HEADER1_FMT;
-			CellStyle cs5 = sw.HEADER5_FMT;
+//			CellStyle cs1 = sw.HEADER1_FMT;
+//			CellStyle cs5 = sw.HEADER5_FMT;
 		    Row r0 = ws.getRow(row);	
 			if (r0 == null) r0 = ws.createRow(row);
 			Cell c0 = r0.getCell(c);
@@ -105,33 +104,33 @@ public class DataHeader
 			if (c2 == null)
 			{
 				c2 = r2.createCell(c, Cell_t.STRING.getType());
-				if (cid.getLoLimit() == Record.MISSING_FLOAT)
-				{
-					c2.setCellValue("");
-					c2.setCellStyle(cs1);
-				}
-				else
-				{
-					c2.setCellValue(cid.getLoLimit());
-					c2.setCellStyle(cs5);
-				}
+//				if (cid.getLoLimit() == Record.MISSING_FLOAT)
+//				{
+//					c2.setCellValue("");
+//					c2.setCellStyle(cs1);
+//				}
+//				else
+//				{
+//					c2.setCellValue(cid.getLoLimit());
+//					c2.setCellStyle(cs5);
+//				}
 			}
 			Row r3 = ws.getRow(row+3);
 			if (r3 == null) r3 = ws.createRow(row+3);
 			Cell c3 = r3.getCell(c);
 			if (c3 == null)
 			{
-				c3 = r3.createCell(c, Cell_t.STRING.getType());
-				if (cid.getHiLimit() == Record.MISSING_FLOAT)
-				{
-					c3.setCellValue("");
-					c3.setCellStyle(cs1);
-				}
-				else
-				{
-					c3.setCellValue(cid.getHiLimit());
-					c3.setCellStyle(cs5);
-				}
+//				c3 = r3.createCell(c, Cell_t.STRING.getType());
+//				if (cid.getHiLimit() == Record.MISSING_FLOAT)
+//				{
+//					c3.setCellValue("");
+//					c3.setCellStyle(cs1);
+//				}
+//				else
+//				{
+//					c3.setCellValue(cid.getHiLimit());
+//					c3.setCellStyle(cs5);
+//				}
 			}
 			Row r4 = ws.getRow(row+4);
 			if (r4 == null) r4 = ws.createRow(row+4);
@@ -142,7 +141,7 @@ public class DataHeader
 				CellStyle cs3 = sw.HEADER1_FMT;
 				cs3.setAlignment(CellStyle.ALIGN_CENTER);
 				c4.setCellStyle(cs3);
-				c4.setCellValue(cid.getUnits() == null ? "" : cid.getUnits());
+//				c4.setCellValue(cid.getUnits() == null ? "" : cid.getUnits());
 			}
 			ws.addMergedRegion(new CellRangeAddress(row+4, row+5, c, c));
 			c++;
