@@ -62,6 +62,59 @@ public abstract class ParametricRecord extends TestRecord
 		return(rval);
 	}
 
+    protected float scaleValue(float value, int scale)
+    {
+        if (value == MISSING_FLOAT) return(value);
+        switch (scale)
+        {
+        case -9: value /= 1E9f; break;
+        case -6: value /= 1E6f; break;
+        case -3: value /= 1E3f; break;
+        case  3: value *= 1E3f; break;
+        case  6: value *= 1E6f; break;
+        case  9: value *= 1E9f; break;
+        case 12: value *= 1E12f; break;
+        default:
+        }
+        return(value);
+    }
+   
+    protected String scaleUnits(String units, int scale)
+    {
+        String u = units;
+        switch (scale)
+        {
+        case -9: u = "G" + units; break;
+        case -6: u = "M" + units; break;
+        case -3: u = "k" + units; break;
+        case  3: u = "m" + units; break;
+        case  6: u = "u" + units; break;
+        case  9: u = "n" + units; break;
+        case 12: u = "p" + units; break;
+        default:
+        } 
+        return(u);
+    }
+
+    protected int findScale(DefaultValueDatabase dvd)
+    {
+        float llim = (float) Math.abs(dvd.loLimDefaults.get(getTestId()));
+        float hlim = (float) Math.abs(dvd.hiLimDefaults.get(getTestId()));
+        float val = 0.0f;
+        if (getOptFlags().contains(OptFlag_t.NO_LO_LIMIT)) val = hlim;
+        else if (getOptFlags().contains(OptFlag_t.NO_HI_LIMIT)) val = llim;
+        else val = (hlim > llim) ? hlim : llim;
+        int scale = 0;
+        if (val <= 1.0E-6f) scale = 9;
+        else if (val <= 0.001f) scale = 6;
+        else if (val <= 1.0f) scale = 3;
+        else if (val <= 1000.0f) scale = 0;
+        else if (val <= 1000000.0f) scale = -3;
+        else if (val <= 1E9f) scale = -6;
+        else scale = -9;
+        return(scale);
+    }
+
 	public abstract TestID getTestId();
 	
 	protected abstract void setTestName(String testName);

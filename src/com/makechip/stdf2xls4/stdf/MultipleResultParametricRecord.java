@@ -47,6 +47,7 @@ import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 public final class MultipleResultParametricRecord extends ParametricRecord
 {
 	private final LinkedHashMap<String, Float> rsltMap;
+	private final LinkedHashMap<String, Float> scaledRsltMap;
 	private TestID id;
 	public final String alarmName;
 	public final Set<OptFlag_t> optFlags;
@@ -67,6 +68,10 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     public final String hlmFmt;
     public final float loSpec;
     public final float hiSpec;
+    public final float scaledLoLimit;
+    public final float scaledHiLimit;
+    public final String scaledUnits;
+    private final float[] scaledResults;
     
     @Override
     public boolean isTestRecord() { return(true); }
@@ -82,6 +87,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         rtnState = getNibbles(j);
         results =  new float[k];
         rsltMap = new LinkedHashMap<>();
+        scaledRsltMap = new LinkedHashMap<>();
         for (int i=0; i<results.length; i++) results[i] = getR4(-Float.MAX_VALUE);
         String testName = getCn();
         id = TestID.createTestID(tdb, testNumber, testName);
@@ -131,6 +137,37 @@ public final class MultipleResultParametricRecord extends ParametricRecord
       	    n++;
         }
         units = setString(MISSING_STRING, getCn(), id , dvd.unitDefaults);
+        // scale limits and units here:
+        if (dvd.scaledLoLimits.get(id) == MISSING_FLOAT)
+        {
+            scaledLoLimit = scaleValue(loLimit, findScale(dvd));	
+            dvd.scaledLoLimits.put(id, scaledLoLimit);
+        }
+        else scaledLoLimit = dvd.scaledLoLimits.get(id);
+        if (dvd.scaledHiLimits.get(id) == MISSING_FLOAT)
+        {
+        	scaledHiLimit = scaleValue(hiLimit, findScale(dvd));
+        	dvd.scaledLoLimits.put(id, scaledHiLimit);
+        }
+        else scaledHiLimit = dvd.scaledHiLimits.get(id);
+        if (dvd.scaledUnits.get(id) == null)
+        {
+        	scaledUnits = scaleUnits(units, findScale(dvd));
+        	dvd.scaledUnits.put(id, scaledUnits);
+        }
+        else scaledUnits = dvd.scaledUnits.get(id);
+        scaledResults = new float[results.length];
+        for (int i=0; i<results.length; i++)
+        {
+            scaledResults[i] = scaleValue(results[i], findScale(dvd));
+        }
+        n = 0;
+        for (int i : rtnIndex)
+        {
+      	    String pin = (dvd.isFusionCx()) ? dvd.getPhysicalPinName(siteNumber, i) : dvd.getChannelName(siteNumber, i);
+      	    scaledRsltMap.put(pin, scaledResults[n]);
+      	    n++;
+        }
         unitsIn = setString(MISSING_STRING, getCn(), id , dvd.unitsInDefaults);
         resFmt = setString(MISSING_STRING, getCn(), id , dvd.resFmtDefaults);
         llmFmt = setString(MISSING_STRING, getCn(), id , dvd.llmFmtDefaults);
@@ -328,6 +365,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     public Stream<String> getPinNames() { return(rsltMap.keySet().stream()); }
     
     public float getResult(String pinName) { return(rsltMap.get(pinName)); }
+    
+    public float getScaledResult(String pinName) { return(scaledRsltMap.get(pinName)); }
 
 	@Override
 	public TestID getTestId()

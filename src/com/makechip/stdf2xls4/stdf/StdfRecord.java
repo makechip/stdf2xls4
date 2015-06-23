@@ -92,49 +92,6 @@ public abstract class StdfRecord
     	return(b);
     }
    
-    protected int getScale(float result, float hiLimit, byte resScal, byte llmScal, byte hlmScal)
-    {
-        int scale = 0;
-        if (result != 0.0f) scale = resScal;
-        else if (hiLimit != 0.0f) scale = hlmScal;
-        else scale = llmScal;
-        return(scale);
-    }
-  
-    protected double scaleValue(double value, int scale)
-    {
-        if (value == MISSING_FLOAT) return(value);
-        switch (scale)
-        {
-        case -9: value /= 1E9; break;
-        case -6: value /= 1E6; break;
-        case -3: value /= 1E3; break;
-        case  3: value *= 1E3; break;
-        case  6: value *= 1E6; break;
-        case  9: value *= 1E9; break;
-        case 12: value *= 1E12; break;
-        default:
-        }
-        return(value);
-    }
-   
-    protected String scaleUnits(String units, int scale)
-    {
-        String u = units;
-        switch (scale)
-        {
-        case -9: u = "G" + units; break;
-        case -6: u = "M" + units; break;
-        case -3: u = "k" + units; break;
-        case  3: u = "m" + units; break;
-        case  6: u = "u" + units; break;
-        case  9: u = "n" + units; break;
-        case 12: u = "p" + units; break;
-        default:
-        } 
-        return(u);
-    }
-
     protected short getU1(short defaultValue)
     {
         if (bytes.length < ptr+1) return(defaultValue);

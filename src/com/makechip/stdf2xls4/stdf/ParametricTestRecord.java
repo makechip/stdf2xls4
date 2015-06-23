@@ -58,6 +58,10 @@ public class ParametricTestRecord extends ParametricRecord
     public final String hlmFmt;
     public final float loSpec;
     public final float hiSpec;
+    public final float scaledLoLimit;
+    public final float scaledHiLimit;
+    public final String scaledUnits;
+    public final float scaledResult;
     
     /**
     *** @param p1
@@ -95,6 +99,28 @@ public class ParametricTestRecord extends ParametricRecord
         }
         else hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.hiLimDefaults);
         units = setString(MISSING_STRING, getCn(), id , dvd.unitDefaults);
+        
+        // scale limits and units here:
+        if (dvd.scaledLoLimits.get(id) == MISSING_FLOAT)
+        {
+            scaledLoLimit = scaleValue(loLimit, findScale(dvd));	
+            dvd.scaledLoLimits.put(id, scaledLoLimit);
+        }
+        else scaledLoLimit = dvd.scaledLoLimits.get(id);
+        if (dvd.scaledHiLimits.get(id) == MISSING_FLOAT)
+        {
+        	scaledHiLimit = scaleValue(hiLimit, findScale(dvd));
+        	dvd.scaledLoLimits.put(id, scaledHiLimit);
+        }
+        else scaledHiLimit = dvd.scaledHiLimits.get(id);
+        if (dvd.scaledUnits.get(id) == null)
+        {
+        	scaledUnits = scaleUnits(units, findScale(dvd));
+        	dvd.scaledUnits.put(id, scaledUnits);
+        }
+        else scaledUnits = dvd.scaledUnits.get(id);
+        scaledResult = scaleValue(result, findScale(dvd));
+        
         resFmt = setString(MISSING_STRING, getCn(), id , dvd.resFmtDefaults);
         llmFmt = setString(MISSING_STRING, getCn(), id , dvd.llmFmtDefaults);
         hlmFmt = setString(MISSING_STRING, getCn(), id , dvd.hlmFmtDefaults);

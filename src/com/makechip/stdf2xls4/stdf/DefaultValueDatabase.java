@@ -5,6 +5,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.map.hash.TLongShortHashMap;
 import gnu.trove.map.hash.TObjectByteHashMap;
 import gnu.trove.map.hash.TObjectFloatHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.map.hash.TShortObjectHashMap;
 
 import java.util.IdentityHashMap;
@@ -45,6 +46,13 @@ public final class DefaultValueDatabase
     public final IdentityHashMap<TestID, int[]> rtnIndexDefaults;
     public final IdentityHashMap<TestID, String> unitsInDefaults;
     
+    // scale maps for limits and results of ParametricRecords
+    public final TObjectFloatHashMap<TestID> scaledLoLimits;
+    public final TObjectFloatHashMap<TestID> scaledHiLimits;
+    public final IdentityHashMap<TestID, String> scaledUnits;
+    public final TObjectIntHashMap<TestID> scales;
+    
+    
     // pin index maps:
     final TShortObjectHashMap<TIntObjectHashMap<String>> chanMap;
     final TShortObjectHashMap<TIntObjectHashMap<String>> physMap;
@@ -72,6 +80,10 @@ public final class DefaultValueDatabase
     	incrInDefaults.clear();
     	rtnIndexDefaults.clear();
     	unitsInDefaults.clear();
+    	scaledLoLimits.clear();
+    	scaledHiLimits.clear();
+    	scaledUnits.clear();
+    	scales.clear();
     }
     
     public DefaultValueDatabase(long timeStamp)
@@ -101,6 +113,10 @@ public final class DefaultValueDatabase
     	chanMap = new TShortObjectHashMap<>();
     	physMap = new TShortObjectHashMap<>();
     	logMap = new TShortObjectHashMap<>();
+    	scaledLoLimits = new TObjectFloatHashMap<>(100, 0.7F, StdfRecord.MISSING_FLOAT);
+    	scaledHiLimits = new TObjectFloatHashMap<>(100, 0.7F, StdfRecord.MISSING_FLOAT);
+    	scaledUnits = new IdentityHashMap<>();
+    	scales = new TObjectIntHashMap<>(100, 0.7F, StdfRecord.MISSING_INT);
     }
    
     String getChannelName(short site, int index)
