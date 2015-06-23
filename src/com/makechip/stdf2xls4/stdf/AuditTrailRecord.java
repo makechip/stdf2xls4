@@ -30,7 +30,6 @@ import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 /**
 *** @author eric
@@ -56,15 +55,10 @@ public class AuditTrailRecord extends StdfRecord
     	this(tdb, dvd, toBytes(dvd.getCpuType(), date, cmdLine));
     }
     
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName()).append(":").append(Log.eol);
-        sb.append("    MOD_TIM: ").append(date).append(Log.eol);
-        sb.append("    CMD_LINE: ").append(cmdLine).append(Log.eol);
-        return(sb.toString());
-    }
+	@Override
+	public String toString() {
+		return "AuditTrailRecord [date=" + date + ", cmdLine=" + cmdLine + "]";
+	}
 
 	@Override
 	protected void toBytes()

@@ -27,15 +27,45 @@ package com.makechip.stdf2xls4.stdf.enums;
 
 import java.util.EnumSet;
 
+/**
+ * This enum represents the PARM_FLAG values used by the ParametricTestRecord
+ * and the MultipleResultParametricRecord.
+ * @author eric
+ *
+ */
 public enum ParamFlag_t
 {
+	/**
+	 * Indicates there there was a scale error.
+	 */
     SCALE_ERROR(1),
+    /**
+     * Indicates that there was a drift error.
+     */
     DRIFT_ERROR(2),
+    /**
+     * Indicates that oscillation was detected.
+     */
     OSCILLATION(4),
+    /**
+     * Indicates that the measured value was higher than the high test limit.
+     */
     VALUE_HIGH(8),
+    /**
+     * Indicates that the measured value was lower than the low test limit.
+     */
     VALUE_LOW(16),
+    /**
+     * Indicates that the test passed alternate test limits.
+     */
     ALTERNATE_PASS(32),
+    /**
+     * Indicates that if result == low limit, then it is considered a pass.
+     */
     LO_LIMIT_EQ_PASS(64),
+    /**
+     * Indicates that if result == high limit, then it is considered a pass.
+     */
     HI_LIMIT_EQ_PASS(128);
     
     private final byte bit;
@@ -45,8 +75,18 @@ public enum ParamFlag_t
     	this.bit = (byte) bit;
     }
     
+	/**
+	 * Returns the bit position in the STDF byte that holds these flags.
+	 * @return The bit position within the PARM_FLAG byte.
+	 */
     public byte getBit() { return(bit); }
     
+	/**
+	 * Given the STDF PARM_FLAG byte this method will return the
+	 * enums that are set in the byte.
+	 * @param b The PARM_FLAG byte.
+	 * @return A Set of the enum values that are set in the PARM_FLAG byte.
+	 */
     public static EnumSet<ParamFlag_t> getBits(byte b)
     {
         EnumSet<ParamFlag_t> set = EnumSet.noneOf(ParamFlag_t.class);

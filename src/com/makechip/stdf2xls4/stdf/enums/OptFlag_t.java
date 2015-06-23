@@ -27,15 +27,46 @@ package com.makechip.stdf2xls4.stdf.enums;
 
 import java.util.EnumSet;
 
+/**
+ * This enum represents the OPT_FLAG values used by the ParametricTestRecord
+ * and the MultipleResultParametricRecord.
+ * @author eric
+ *
+ */
 public enum OptFlag_t
 {
+	/**
+	 * Indicates that the RES_SCAL value is invalid.
+	 */
     RES_SCAL_INVALID(1),
+    /**
+     * Indicates that the START_IN and INCR_IN values are invalid.
+     * This only applies to the MulipleResultParametricRecord.
+     */
     START_INCR_IN_INVALID(2),
+    /**
+     * Indicates that there is no low specification limit.
+     */
     NO_LO_SPEC_LIMIT(4),
+    /**
+     * Indicates that there is no high specification limit.
+     */
     NO_HI_SPEC_LIMIT(8),
+    /**
+     * Indicates that the LO_LIMIT and LLM_SCAL values are invalid.
+     */
     LO_LIMIT_LLM_SCAL_INVALID(16),
+    /**
+     * Indicates that the HI_LIMIT and HLM_SCAL values are invalid.
+     */
     HI_LIMIT_HLM_SCAL_INVALID(32),
+    /**
+     * Indicates that there is no low limit.
+     */
     NO_LO_LIMIT(64),
+    /**
+     * Indicates that there is no high limit.
+     */
     NO_HI_LIMIT(128);
    
     private final byte bit;
@@ -45,8 +76,18 @@ public enum OptFlag_t
     	this.bit = (byte) bit;
     }
     
+    /**
+     * Get the bit position within the STDF OPT_FLAG for this flag.
+     * @return
+     */
     public byte getBit() { return(bit); }
     
+    /**
+     * Given the OPT_FLAG byte this method will return a Set containing
+     * all of the flags that are set within the byte.
+     * @param b
+     * @return
+     */
     public static EnumSet<OptFlag_t> getBits(byte b)
     {
         EnumSet<OptFlag_t> optFlags = EnumSet.noneOf(OptFlag_t.class); 

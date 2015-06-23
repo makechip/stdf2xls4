@@ -128,6 +128,7 @@ public class StdfTest1
         AuditTrailRecord atr = (AuditTrailRecord) r;
         assertEquals(100000000L, atr.date);
         assertEquals("cmdline", atr.cmdLine);
+        assertEquals(atr.toString(), "AuditTrailRecord [date=100000000, cmdLine=cmdline]");
 	}
 
 	//MasterInformationRecord mir = new MasterInformationRecord(snum++, dnum, 1000L, 2000L, (short) 1,
