@@ -39,7 +39,6 @@ public abstract class StdfRecord
 	
 	public void writeStdf(DataOutputStream ds) throws IOException
 	{
-		if (bytes == null) toBytes();
 		byte[] b = cpuType.getU2Bytes(bytes.length);
 		ds.write(b, 0, b.length);
 		b[0] = (byte) type.getRecordType();
@@ -56,8 +55,6 @@ public abstract class StdfRecord
 	
 	public byte[] getBytes() 
 	{ 
-		if (bytes == null) toBytes();
-		//Log.msg("record = " + getClass().getSimpleName());
 		byte[] b = new byte[bytes.length + 4];
 		byte[] l = cpuType.getU2Bytes(bytes.length);
 		b[0] = l[0];
@@ -69,7 +66,7 @@ public abstract class StdfRecord
 		return(Arrays.copyOf(b, b.length));
 	}
 	
-	protected int getPtr() { return(ptr); }
+	//protected int getPtr() { return(ptr); }
 	protected int getSize() { return(bytes.length); }
    
     protected String getCn()
@@ -189,12 +186,12 @@ public abstract class StdfRecord
     	return(bytes[ptr++]); 
     }
     
-    protected byte[] getByte(byte value)
-    {
-    	byte[] b = new byte[1];
-    	b[0] = value;
-    	return(b);
-    }
+//    protected byte[] getByte(byte value)
+//    {
+//    	byte[] b = new byte[1];
+//    	b[0] = value;
+//    	return(b);
+//    }
 
     protected byte[] getBn()
     {
@@ -214,13 +211,13 @@ public abstract class StdfRecord
     	return(b);
     }
     
-    protected byte[] getFixedLengthBitEncodedData(int len)
-    {
-        if (bytes.length < ptr+len) return(MISSING_BYTE_ARRAY);
-        byte[] b = new byte[len];
-        for (int i=0; i<len; i++) b[i] = bytes[ptr++];
-        return(b);
-    }
+//    protected byte[] getFixedLengthBitEncodedData(int len)
+//    {
+//        if (bytes.length < ptr+len) return(MISSING_BYTE_ARRAY);
+//        byte[] b = new byte[len];
+//        for (int i=0; i<len; i++) b[i] = bytes[ptr++];
+//        return(b);
+//    }
     
     String getFixedLengthString(int len)
     {
@@ -281,5 +278,37 @@ public abstract class StdfRecord
     	}
     	return(b);
     }
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(bytes);
+		result = prime * result + cpuType.hashCode();
+		result = prime * result + ptr;
+		result = prime * result + type.hashCode();
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (!(obj instanceof StdfRecord)) return false;
+		StdfRecord other = (StdfRecord) obj;
+		if (!Arrays.equals(bytes, other.bytes)) return false;
+		if (cpuType != other.cpuType) return false;
+		if (ptr != other.ptr) return false;
+		if (type != other.type) return false;
+		return true;
+	}
 
 }

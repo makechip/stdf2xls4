@@ -235,6 +235,8 @@ public class ParametricTestRecord extends ParametricRecord
         return(list.toArray());
     }
     	    
+    @Override
+    public boolean isTestRecord() { return(true); }
     	    
     @Override
     public String toString()

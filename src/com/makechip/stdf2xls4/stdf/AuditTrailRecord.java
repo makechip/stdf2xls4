@@ -32,17 +32,29 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
-*** @author eric
-*** @version $Id: AuditTrailRecord.java 258 2008-10-22 01:22:44Z ericw $
+ *  This class stores data found in an STDF AuditTrailRecord.
+ *  @author eric
 **/
 public class AuditTrailRecord extends StdfRecord
 {
+	/**
+	 * The date field holds the MOD_TIM value from the AuditTrailRecord.
+	 */
     public final long date;
-    public final String cmdLine;
     /**
-    *** @param p1
-    *** @param p2
-    **/
+     * The cmdLine field holds the CMD_LINE value from the AuditTrailRecord.
+     */
+    public final String cmdLine;
+
+    /**
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase.  This value is not used by the AuditTrailRecord.
+     *         It is provided so that all StdfRecord classes have the same argument signatures,
+     *         so that function references can be used to refer to the constructors of StdfRecords.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.ATR, dvd.getCpuType(), data);
@@ -50,16 +62,32 @@ public class AuditTrailRecord extends StdfRecord
         cmdLine = getCn();
     }
     
-    public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, Cpu_t cpuType, final long date, final String cmdLine)
+    /**
+     * This constructor is used to generate binary Stream data.  It can be used to convert
+     * the field values back into binary stream data.
+     * @param tdb The TestIdDatabase. This value is not used, but is needed so that
+     * this constructor can call the previous constructor to avoid code duplication.
+     * @param dvd The DefaultValueDatabase is used to access the CPU type.
+     * @param date The MOD_TIM value expressed as milliseconds from January 1, 1970, 00:00:00 GMT.
+     * @param cmdLine The CMD_LINE value that holds the command line of the program that adds this record.
+     *        Note: cmdLine may NOT be null.
+     */
+    public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, final long date, final String cmdLine)
     {
     	this(tdb, dvd, toBytes(dvd.getCpuType(), date, cmdLine));
     }
     
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "AuditTrailRecord [date=" + date + ", cmdLine=" + cmdLine + "]";
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -72,6 +100,34 @@ public class AuditTrailRecord extends StdfRecord
 		l.addAll(cpuType.getU4Bytes(date));
 		l.addAll(getCnBytes(cmdLine));
 		return(l.toArray());
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + cmdLine.hashCode();
+		result = prime * result + (int) (date ^ (date >>> 32));
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof AuditTrailRecord)) return false;
+		AuditTrailRecord other = (AuditTrailRecord) obj;
+		if (!cmdLine.equals(other.cmdLine)) return false;
+		if (date != other.date) return false;
+		if (!super.equals(obj)) return false;
+		return true;
 	}
 
 }

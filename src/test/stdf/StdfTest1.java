@@ -38,7 +38,7 @@ public class StdfTest1
 	{
 		FileAttributesRecord far = new FileAttributesRecord(tdb, dvd, 4, Cpu_t.PC);
 		List<AuditTrailRecord> atrs = new ArrayList<AuditTrailRecord>();
-		atrs.add(new AuditTrailRecord(tdb, dvd, Cpu_t.PC, 100000000L, "cmdline"));
+		atrs.add(new AuditTrailRecord(tdb, dvd, 100000000L, "cmdline"));
 		MasterInformationRecord mir = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID",
 			"partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  "sublotID", "operatorName",
@@ -117,6 +117,7 @@ public class StdfTest1
 	    FileAttributesRecord far = (FileAttributesRecord) r;
 	    assertEquals(Cpu_t.PC, far.cpuType);
 	    assertEquals(4, far.stdfVersion);
+	    assertFalse(r.isTestRecord());
     }
     
 	// atrs.add(new AuditTrailRecord(snum++, dnum, 100000000L, "cmdline"));
@@ -124,11 +125,22 @@ public class StdfTest1
 	public void testC()
 	{
         StdfRecord r = list.get(1);
+	    assertFalse(r.isTestRecord());
         assertTrue(r instanceof AuditTrailRecord);
         AuditTrailRecord atr = (AuditTrailRecord) r;
         assertEquals(100000000L, atr.date);
         assertEquals("cmdline", atr.cmdLine);
         assertEquals(atr.toString(), "AuditTrailRecord [date=100000000, cmdLine=cmdline]");
+		AuditTrailRecord atr1 = new AuditTrailRecord(tdb, dvd, 100000000L, "cmdline");
+		AuditTrailRecord atr2 = new AuditTrailRecord(tdb, dvd, 100000000L, "xmdline");
+		AuditTrailRecord atr3 = new AuditTrailRecord(tdb, dvd, 100000001L, "cmdline");
+		assertEquals(atr.hashCode(), atr1.hashCode());
+		assertTrue(atr.equals(atr1));
+		assertFalse(atr.equals(atr2));
+		assertFalse(atr.equals(null));
+		assertFalse(atr.equals(atr3));
+		assertFalse(atr.equals("x"));
+		assertTrue(atr.equals(atr));
 	}
 
 	//MasterInformationRecord mir = new MasterInformationRecord(snum++, dnum, 1000L, 2000L, (short) 1,
@@ -142,6 +154,7 @@ public class StdfTest1
 	public void testD()
 	{
 		StdfRecord r = list.get(2);
+	    assertFalse(r.isTestRecord());
 		assertTrue(r instanceof MasterInformationRecord);
 		MasterInformationRecord mir = (MasterInformationRecord) r;
 		assertEquals(1000L, mir.jobDate);
@@ -190,6 +203,7 @@ public class StdfTest1
 	public void testE()
 	{
 		StdfRecord r = list.get(3);
+	    assertFalse(r.isTestRecord());
 		assertTrue(r instanceof RetestDataRecord);
 		RetestDataRecord rdr = (RetestDataRecord) r;
 		int[] bins = rdr.getRetestBins();
@@ -208,6 +222,7 @@ public class StdfTest1
 	public void testF()
 	{
 		StdfRecord r = list.get(4);
+	    assertFalse(r.isTestRecord());
 		assertTrue(r instanceof SiteDescriptionRecord);
 		SiteDescriptionRecord sdr = (SiteDescriptionRecord) r;
 		assertEquals(1, sdr.headNumber);
@@ -240,6 +255,7 @@ public class StdfTest1
 	public void testG()
 	{
 		StdfRecord r1 = list.get(5);
+	    assertFalse(r1.isTestRecord());
 		assertTrue(r1 instanceof PinMapRecord);
 		PinMapRecord pmr = (PinMapRecord) r1;
 	    assertEquals(0, pmr.pmrIdx);
@@ -286,6 +302,7 @@ public class StdfTest1
 	public void testH()
 	{
 	    StdfRecord r = list.get(9);
+	    assertFalse(r.isTestRecord());
 	    assertTrue(r instanceof BeginProgramSelectionRecord);
 	    BeginProgramSelectionRecord bpr = (BeginProgramSelectionRecord) r;
 	    assertEquals("beginProgramSelectionRecord", bpr.seqName);
@@ -296,6 +313,7 @@ public class StdfTest1
 	public void testI()
 	{
 		StdfRecord r = list.get(10);
+	    assertFalse(r.isTestRecord());
 		assertTrue(r instanceof DatalogTextRecord);
 		DatalogTextRecord dtr = (DatalogTextRecord) r;
 		assertEquals("datalogTextRecord", dtr.text);
@@ -312,6 +330,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(11);
 		assertTrue(r instanceof FunctionalTestRecord);
+	    assertTrue(r.isTestRecord());
 		FunctionalTestRecord ftr = (FunctionalTestRecord) r;
 		assertTrue(ftr.isTestRecord());
 		assertEquals(3, ftr.testNumber);
@@ -370,6 +389,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(12);
 		assertTrue(r instanceof GenericDataRecord);
+		assertFalse(r.isTestRecord());
 		GenericDataRecord gdr = (GenericDataRecord) r;
 		List<GenericDataRecord.Data> l = gdr.list; 
 		GenericDataRecord.Data d = l.get(0);
@@ -386,6 +406,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(13);
 		assertTrue(r instanceof HardwareBinRecord);
+		assertFalse(r.isTestRecord());
 		HardwareBinRecord hbr = (HardwareBinRecord) r;
 		assertEquals(1, hbr.headNumber);
 		assertEquals(0, hbr.siteNumber);
@@ -401,6 +422,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(14);
 		assertTrue(r instanceof MasterResultsRecord);
+		assertFalse(r.isTestRecord());
 		MasterResultsRecord mrr = (MasterResultsRecord) r;
 		assertEquals(1000L, mrr.finishDate);
 		assertEquals("C", mrr.dispCode);
@@ -417,6 +439,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(15);
 		assertTrue(r instanceof MultipleResultParametricRecord);
+	    assertTrue(r.isTestRecord());
 		MultipleResultParametricRecord mpr = (MultipleResultParametricRecord) r;
 	    assertEquals(22, mpr.testNumber);
 	    assertEquals(1, mpr.headNumber);
@@ -458,6 +481,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(16);
 		assertTrue(r instanceof ParametricTestRecord);
+	    assertTrue(r.isTestRecord());
 		ParametricTestRecord ptr = (ParametricTestRecord) r;
 	    assertEquals(44, ptr.testNumber);
 	    assertEquals(1, ptr.headNumber);
@@ -487,6 +511,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(17);
 		assertTrue(r instanceof PartCountRecord);
+		assertFalse(r.isTestRecord());
 		PartCountRecord ptr = (PartCountRecord) r;
         assertEquals(1, ptr.headNumber); 
         assertEquals(0, ptr.siteNumber); 
@@ -503,6 +528,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(18);
 		assertTrue(r instanceof PartInformationRecord);
+		assertFalse(r.isTestRecord());
 		PartInformationRecord ptr = (PartInformationRecord) r;
 		assertEquals(1, ptr.headNumber);
 		assertEquals(0, ptr.siteNumber);
@@ -515,6 +541,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(19);
 		assertTrue(r instanceof PartResultsRecord);
+		assertFalse(r.isTestRecord());
 		PartResultsRecord ptr = (PartResultsRecord) r;
 		assertEquals(1, ptr.headNumber);
 		assertEquals(0, ptr.siteNumber);
@@ -537,6 +564,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(20);
 		assertTrue(r instanceof PinGroupRecord);
+		assertFalse(r.isTestRecord());
 		PinGroupRecord pgr = (PinGroupRecord) r;
 		assertEquals(pgr.toString(), "PinGroupRecord [groupIndex=1, groupName=group1, pmrIdx=[1, 2]]");
 		assertEquals(pgr.groupIndex, 1);
@@ -554,6 +582,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(21);
 		assertTrue(r instanceof PinListRecord);
+		assertFalse(r.isTestRecord());
 		PinListRecord ptr = (PinListRecord) r;
 	    //assertEquals(1, ptr.getPinIndex()[0]);
 	    //assertEquals(2, ptr.getPinIndex()[1]);
@@ -577,6 +606,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(22);
 		assertTrue(r instanceof SoftwareBinRecord);
+		assertFalse(r.isTestRecord());
 		SoftwareBinRecord ptr = (SoftwareBinRecord) r;
         assertEquals(1, ptr.headNumber);	
         assertEquals(0, ptr.siteNumber);	
@@ -593,6 +623,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(23);
 		assertTrue(r instanceof TestSynopsisRecord);
+		assertFalse(r.isTestRecord());
 		TestSynopsisRecord ptr = (TestSynopsisRecord) r;
         assertEquals(1, ptr.headNumber);	
         assertEquals(0, ptr.siteNumber);	
@@ -618,6 +649,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(24);
 		assertTrue(r instanceof WaferConfigurationRecord);
+		assertFalse(r.isTestRecord());
 		WaferConfigurationRecord ptr = (WaferConfigurationRecord) r;
         assertEquals(6.0f, ptr.waferSize, 5);	
         assertEquals(3.3f, ptr.dieHeight, 5);	
@@ -636,6 +668,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(25);
 		assertTrue(r instanceof WaferInformationRecord);
+		assertFalse(r.isTestRecord());
 		WaferInformationRecord ptr = (WaferInformationRecord) r;
         assertEquals(1, ptr.headNumber);	
         assertEquals(0, ptr.siteGroupNumber);	
@@ -650,6 +683,7 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(26);
 		assertTrue(r instanceof WaferResultsRecord);
+		assertFalse(r.isTestRecord());
 		WaferResultsRecord ptr = (WaferResultsRecord) r;
         assertEquals(1, ptr.headNumber);	
         assertEquals(0, ptr.siteGroupNumber);	

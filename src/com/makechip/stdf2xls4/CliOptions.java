@@ -32,7 +32,6 @@ public class CliOptions
 	
 	private String xlsName;
 	private boolean dump = false;
-	private boolean dumpId = false;
 	private boolean forceWaferMode = false;
 	private boolean wrapTestNames = true;
 	private boolean noOverwrite = false;
@@ -40,7 +39,7 @@ public class CliOptions
 	private boolean onePage = false;
 	private boolean hiP = false;
 	private boolean forceHdr = false;
-	private boolean skipSearchFails = false;
+	private boolean dontSkipSearchFails = true;
 	private boolean rotate = false;
 	private boolean msMode = false;
 	
@@ -53,9 +52,8 @@ public class CliOptions
 	private boolean hiPSet = false;
 	private boolean showDuplicatesSet = false;
 	private boolean onePageSet = false;
-	private boolean dumpIdSet = false;
 	private boolean noOverwriteSet = false;
-	private boolean skipSearchFailsSet = false;
+	private boolean dontSkipSearchFailsSet = true;
 	private boolean rotateSet = false;
 	private boolean msModeSet = false;
 	
@@ -133,13 +131,6 @@ public class CliOptions
 		onePageSet = true;
 	}
 	
-	@Option(shortName='i', longName="dumpIds", usageRank=18, description="Dump Test IDs only")
-	public void setDumpId()
-	{
-		if (!dumpIdSet) dumpId = true;
-		dumpIdSet = true;
-	}
-	
 	@Option(shortName='t', longName="showDuplicates", usageRank=20, description="Don't suppress duplicates when using timestamped files")
 	public void setShowDuplicates() 
 	{ 
@@ -147,11 +138,11 @@ public class CliOptions
 		showDuplicatesSet = true;
 	}
 	
-	@Option(shortName='v', longName="skipSearchFails", usageRank=22, description="Skip search fail results for Verigy parametric test results")
+	@Option(shortName='v', longName="dontSkipSearchFails", usageRank=22, description="Don't skip search fail results for Verigy parametric test results")
 	public void setSkipSearchFails() 
 	{ 
-		if (!skipSearchFailsSet) skipSearchFails = false; 
-		skipSearchFailsSet = true;
+		if (!dontSkipSearchFailsSet) dontSkipSearchFails = false; 
+		dontSkipSearchFailsSet = true;
 	}
 	
 	@Option(shortName='r', longName="rotate", usageRank=22, description="Transpose spreadsheet so test names go vertically instead of horizontally")
@@ -184,11 +175,6 @@ public class CliOptions
 	public boolean getDump()
 	{
 		return dump;
-	}
-
-	public boolean getDumpId()
-	{
-		return dumpId;
 	}
 
 	public boolean getForceWaferMode()
@@ -228,7 +214,7 @@ public class CliOptions
 
 	public boolean getSkipSearchFails()
 	{
-		return skipSearchFails;
+		return dontSkipSearchFails;
 	}
 
 	public String getXlsName()
