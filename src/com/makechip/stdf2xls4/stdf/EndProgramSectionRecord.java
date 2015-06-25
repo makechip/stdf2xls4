@@ -22,7 +22,6 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-
 package com.makechip.stdf2xls4.stdf;
 
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -30,40 +29,34 @@ import com.makechip.util.Log;
 
 /**
 *** @author eric
-*** @version $Id: BeginProgramSelectionRecord.java 258 2008-10-22 01:22:44Z ericw $
+*** @version $Id: EndProgramSelectionRecord.java 258 2008-10-22 01:22:44Z ericw $
 **/
-public class BeginProgramSelectionRecord extends StdfRecord
+public class EndProgramSectionRecord extends StdfRecord
 {
-    public final String seqName;
-    
     /**
     *** @param p1
     *** @param p2
     **/
-    public BeginProgramSelectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public EndProgramSectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
-        super(Record_t.BPS, dvd.getCpuType(), data);
-        seqName = getCn();
+        super(Record_t.EPS, dvd.getCpuType(), data);
     }
     
-    public BeginProgramSelectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, String seqName)
+    public EndProgramSectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd)
     {
-    	this(tdb, dvd, getCnBytes(seqName));
+    	this(tdb, dvd, new byte[0]);
     }
     
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("BeginProgramSelectionRecord:").append(Log.eol);
-        sb.append("    SEQ_NAME: ").append(seqName).append(Log.eol);
-        return(sb.toString());
+        return("EndProgramSelectionRecord" + Log.eol);
     }
 
 	@Override
 	protected void toBytes()
 	{
-	    bytes = getCnBytes(seqName);	
+	    bytes = new byte[0];	
 	}
-
+    
 }

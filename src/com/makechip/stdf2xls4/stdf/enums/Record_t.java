@@ -36,9 +36,9 @@ import com.makechip.util.Log;
 public enum Record_t
 {
     ATR("Audit Trail Record", (short) 0, (short) 20, AuditTrailRecord::new),
-    BPS("Begin Program Selection Record", (short) 20, (short) 10, BeginProgramSelectionRecord::new),
+    BPS("Begin Program Selection Record", (short) 20, (short) 10, BeginProgramSectionRecord::new),
     DTR("Datalog Text Record", (short) 50, (short) 30, DatalogTextRecord::new),
-    EPS("End Program Selection Record", (short) 20, (short) 20, EndProgramSelectionRecord::new),
+    EPS("End Program Selection Record", (short) 20, (short) 20, EndProgramSectionRecord::new),
     FAR("File Attributes Record", (short) 0, (short) 10, FileAttributesRecord::new),
     FTR("Functional Test Record", (short) 15, (short) 20, FunctionalTestRecord::new),
     GDR("Generic Data Record", (short) 50, (short) 10, GenericDataRecord::new),

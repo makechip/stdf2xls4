@@ -57,7 +57,7 @@ public class StdfTest1
 		stdf.add(new PinMapRecord(tdb, dvd, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
 		stdf.add(new PinMapRecord(tdb, dvd, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
 		stdf.add(new PinMapRecord(tdb, dvd, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
-		stdf.add(new BeginProgramSelectionRecord(tdb, dvd, "beginProgramSelectionRecord"));
+		stdf.add(new BeginProgramSectionRecord(tdb, dvd, "beginProgramSectionRecord"));
 		stdf.add(new DatalogTextRecord(tdb, dvd, "datalogTextRecord"));
 		stdf.add(new FunctionalTestRecord(tdb, dvd, Cpu_t.PC, 3, (short) 2, (short) 1, (byte) 0,
 			(byte) 0, 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
@@ -297,15 +297,25 @@ public class StdfTest1
 	    assertEquals(0, pmr.siteNumber);
 	}
 	
-	//stdf.add(new BeginProgramSelectionRecord(snum++, dnum, "beginProgramSelectionRecord"));
+	//stdf.add(new BeginProgramSelectionRecord(snum++, dnum, "beginProgramSectionRecord"));
 	@Test
 	public void testH()
 	{
 	    StdfRecord r = list.get(9);
 	    assertFalse(r.isTestRecord());
-	    assertTrue(r instanceof BeginProgramSelectionRecord);
-	    BeginProgramSelectionRecord bpr = (BeginProgramSelectionRecord) r;
-	    assertEquals("beginProgramSelectionRecord", bpr.seqName);
+	    assertTrue(r instanceof BeginProgramSectionRecord);
+	    BeginProgramSectionRecord bpr = (BeginProgramSectionRecord) r;
+	    assertEquals("beginProgramSectionRecord", bpr.seqName);
+	    assertEquals("BeginProgramSectionRecord [seqName=beginProgramSectionRecord]", bpr.toString());
+		BeginProgramSectionRecord bpr1 = new BeginProgramSectionRecord(tdb, dvd, "beginProgramSectionRecord");
+		BeginProgramSectionRecord bpr2 = new BeginProgramSectionRecord(tdb, dvd, "beginProgramSection");
+        assertEquals(bpr, bpr1);
+        assertEquals(bpr.hashCode(), bpr1.hashCode());
+        assertTrue(bpr.equals(bpr1));
+        assertTrue(bpr.equals(bpr));
+        assertFalse(bpr.equals(bpr2));
+        assertFalse(bpr.equals(""));
+        assertFalse(bpr.equals(null));
 	}
 	
 	//stdf.add(new DatalogTextRecord(snum++, dnum, "datalogTextRecord"));
@@ -317,6 +327,19 @@ public class StdfTest1
 		assertTrue(r instanceof DatalogTextRecord);
 		DatalogTextRecord dtr = (DatalogTextRecord) r;
 		assertEquals("datalogTextRecord", dtr.text);
+		DatalogTextRecord dtr1 = new DatalogTextRecord(tdb, dvd, "datalogTextRecord");
+		DatalogTextRecord dtr2 = new DatalogTextRecord(tdb, dvd, "TEXT_DATA : 55.0");
+		assertTrue(dtr2.isTestRecord());
+		assertEquals("DatalogTextRecord [text=datalogTextRecord]", dtr.toString());
+		assertTrue(dtr.equals(dtr));
+		assertTrue(dtr.equals(dtr1));
+		assertFalse(dtr1.equals(dtr2));
+		assertFalse(dtr.equals(null));
+		assertEquals(dtr.hashCode(), dtr1.hashCode());
+		DatalogTextRecord dtr3 = new DatalogTextRecord(tdb, dvd, "TEXT_DATA : S/N : 55.0");
+		assertFalse(dtr3.isTestRecord());
+		DatalogTextRecord dtr4 = new DatalogTextRecord(tdb, dvd, "TEXT_DATA   S/N   55.0");
+		assertFalse(dtr4.isTestRecord());
 	}
 	
 	//stdf.add(new FunctionalTestRecord(snum++, dnum, 3, (short) 2, (short) 1, EnumSet.noneOf(TestFlag_t.class),
