@@ -125,14 +125,14 @@ public class SpreadSheetWriter3
 
     public SpreadSheetWriter3(boolean waferMode, boolean sortByFilename, CliOptions opts)
     {
-    	this.fileName = opts.getXlsName();
-    	this.waferMode = waferMode;
-    	this.wrapTestNames = opts.getWrapTestNames();
-    	this.hiPrecision = opts.getHiP();
-    	this.noOverWrite = opts.getNoOverwrite();
-    	this.onePage = opts.getOnePage();
+    	//this.fileName = opts.getXlsName();
+    	//this.waferMode = waferMode;
+    	//this.wrapTestNames = opts.getWrapTestNames();
+    	//this.hiPrecision = opts.getHiP();
+    	//this.noOverWrite = opts.getNoOverwrite();
+    	//this.onePage = opts.getOnePage();
     	this.sortByFilename = sortByFilename;
-    	this.showDuplicates = opts.getShowDuplicates();
+    	//this.showDuplicates = opts.getShowDuplicates();
         firstDataCol = 11;
         firstDataRow = onePage ? (waferMode ? 17 : 16) : (waferMode ? 16 : 15);
     	RSLT_ROW = onePage ? TitleBlock.HEIGHT + 3 : TitleBlock.HEIGHT + 2;

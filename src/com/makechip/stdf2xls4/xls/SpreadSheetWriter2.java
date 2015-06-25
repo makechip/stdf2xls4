@@ -127,14 +127,14 @@ public class SpreadSheetWriter2
 
     public SpreadSheetWriter2(boolean waferMode, boolean sortByFilename, CliOptions opts)
     {
-    	this.fileName = opts.getXlsName();
+    	//this.fileName = opts.getXlsName();
     	this.waferMode = waferMode;
-    	this.wrapTestNames = opts.getWrapTestNames();
-    	this.hiPrecision = opts.getHiP();
-    	this.noOverWrite = opts.getNoOverwrite();
-    	this.onePage = opts.getOnePage();
+    	//this.wrapTestNames = opts.getWrapTestNames();
+    	//this.hiPrecision = opts.getHiP();
+    	//this.noOverWrite = opts.getNoOverwrite();
+    	//this.onePage = opts.getOnePage();
     	this.sortByFilename = sortByFilename;
-    	this.showDuplicates = opts.getShowDuplicates();
+    	//this.showDuplicates = opts.getShowDuplicates();
     	RSLT_COL = waferMode ? 4 : 5;
     	TEMP_COL = RSLT_COL + 1;
     	X_COL = RSLT_COL + 2;

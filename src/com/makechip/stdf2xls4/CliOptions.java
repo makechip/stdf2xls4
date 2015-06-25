@@ -24,7 +24,7 @@
  */
 package com.makechip.stdf2xls4;
 
-import be.ugent.twijug.jclops.annotations.Option;
+import joptsimple.OptionParser;
 
 public class CliOptions 
 {
@@ -57,179 +57,24 @@ public class CliOptions
 	private boolean rotateSet = false;
 	private boolean msModeSet = false;
 	
-	@Option(shortName='f', longName="forceHdr", usageRank=2, description="Force STS header even if not in datalog")
-	public void setForceHdr()
-	{
-		if (!forceHdrSet) forceHdr = true;
-		forceHdrSet = true;
-	}
-	
-	@Option(shortName='x', longName="xlsName", usageRank=3, description="Specify the spreadsheet filename")
-	public void setXlsName(String xlsName)
-	{
-		if (!xlsNameSet) 
-		{
-			if (xlsName.endsWith(".xls"))
-			{
-				xlsxFormat = false;
-			}
-			else if (!(xlsName.endsWith(".xlsx")))
-			{
-				xlsName = xlsName + ".xlsx";
-			}
-			this.xlsName = xlsName;
-		}
-		xlsNameSet = true;
-	}
-	
-	@Option(shortName='c', longName="msmode", usageRank=3, description="Use 16000 columns per page instead of 1000 (xlsx mode only)")
-	public void setMsMode()
-	{
-		if (!msModeSet) this.msMode = true;
-		msModeSet = true;
-	}
-	
-	@Option(shortName='d', longName="dump", usageRank=4, description="Perform ascii dump of STDF file(s)")
-	public void setDump() 
-	{ 
-		if (!dumpSet) this.dump = true;
-		dumpSet = true;
-	}
-	
-	@Option(shortName='w', longName="forceWaferMode", usageRank=6, description="Force wafer mode")
-	public void setForceWaferMode()
-	{
-		if (!forceWaferModeSet) this.forceWaferMode = true;
-		forceWaferModeSet = true;
-	}
-	
-	@Option(shortName='n', longName="noWrapTestNames", usageRank=8, description="Don't wrap test names - give really wide columns")
-	public void setWrapTestNames() 
-	{ 
-		if (!wrapTestNamesSet) this.wrapTestNames = false;
-		wrapTestNamesSet = true;
-	}
-	
-	@Option(shortName='p', longName="hiPrecision", usageRank=10, description="Use four digits of precision instead of 3")
-	public void setHiP()
-	{
-		if (!hiPSet) hiP = true;
-		hiPSet = true;
-	}
-	
-	@Option(shortName='s', longName="noOverwrite", usageRank=12, description="Don't overwrite duplicate serial numbers or XY-coords")
-	public void setNoOverwrite()
-	{
-		if (!noOverwriteSet) noOverwrite = true;
-		noOverwriteSet = true;
-	}
-	
-	@Option(shortName='b', longName="onePage", usageRank=16, description="Put all steps/wafers on one page; add column for step/wafer")
-	public void setMultiModule()
-	{
-		if (!onePageSet) onePage = true;
-		onePageSet = true;
-	}
-	
-	@Option(shortName='t', longName="showDuplicates", usageRank=20, description="Don't suppress duplicates when using timestamped files")
-	public void setShowDuplicates() 
-	{ 
-		if (!showDuplicatesSet) showDuplicates = true; 
-		showDuplicatesSet = true;
-	}
-	
-	@Option(shortName='v', longName="dontSkipSearchFails", usageRank=22, description="Don't skip search fail results for Verigy parametric test results")
-	public void setSkipSearchFails() 
-	{ 
-		if (!dontSkipSearchFailsSet) dontSkipSearchFails = false; 
-		dontSkipSearchFailsSet = true;
-	}
-	
-	@Option(shortName='r', longName="rotate", usageRank=22, description="Transpose spreadsheet so test names go vertically instead of horizontally")
-	public void setRotate()
-	{
-		if (!rotateSet) rotate = true;
-		rotateSet = true;
-	}
-	
-	@Option(shortName='h', longName="help", usageRank=100, description="Display command-line options.")
-	public void setHelp()
-	{
-		help = true;
-	}
-
-	public boolean getHelp() 
-	{ 
-		return help; 
-	}
-	
 	public CliOptions()
 	{
-	}
-	
-	public boolean getMsMode()
-	{
-		return msMode;
-	}
-
-	public boolean getDump()
-	{
-		return dump;
-	}
-
-	public boolean getForceWaferMode()
-	{
-		return forceWaferMode;
-	}
-
-	public boolean getWrapTestNames()
-	{
-		return wrapTestNames;
-	}
-
-	public boolean getNoOverwrite()
-	{
-		return noOverwrite;
-	}
-
-	public boolean getShowDuplicates()
-	{
-		return showDuplicates;
-	}
-
-	public boolean getOnePage()
-	{
-		return onePage;
-	}
-
-	public boolean getHiP()
-	{
-		return hiP;
-	}
-
-	public boolean getForceHdr()
-	{
-		return forceHdr;
-	}
-
-	public boolean getSkipSearchFails()
-	{
-		return dontSkipSearchFails;
-	}
-
-	public String getXlsName()
-	{
-		return xlsName;
-	}
-	
-	public boolean getXlsxFormat()
-	{
-		return xlsxFormat;
-	}
-	
-	public boolean getRotate()
-	{
-		return rotate;
+	    OptionParser op = new OptionParser();	
+	    op.accepts("f"); op.accepts("force-header");
+	    op.accepts("d"); op.accepts("dump");
+	    op.accepts("x").withRequiredArg().ofType(String.class);
+	    op.accepts("xls-name").withRequiredArg().ofType(String.class);
+	    op.accepts("c"); op.accepts("msmode");
+	    op.accepts("d"); op.accepts("dump");
+	    op.accepts("n"); op.accepts("no-wrap-testnames");
+	    op.accepts("p").withRequiredArg().ofType(int.class);
+	    op.accepts("precision").withRequiredArg().ofType(int.class);
+	    op.accepts("s"); op.accepts("no-overwrite");
+	    op.accepts("b"); op.accepts("one-page");
+	    op.accepts("t"); op.accepts("show-duplicates");
+	    op.accepts("V"); op.accepts("dont-skip-search-fails");
+	    op.accepts("r"); op.accepts("rotate");
+	    op.accepts("h"); op.accepts("help");
 	}
 	
 }
