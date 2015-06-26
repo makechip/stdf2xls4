@@ -43,58 +43,222 @@ import com.makechip.util.Log;
 **/
 public class GenericDataRecord extends StdfRecord
 {
+	/**
+	 * This is the GEN_DATA field of a Generic Data Record. The
+	 * FLD_CNT field is equivalent to the size of this list.
+	 */
     public final List<Data> list;
 	
+    /**
+     * This is a wrapper class for generic data objects.
+     * @author eric
+     */
 	public static class Data
 	{
-		final Data_t type;
-		final Object value;
-		final int padCnt;
+		/**
+		 * This is the type of the data contained in this wrapper class.
+		 */
+		public final Data_t type;
+		/**
+		 * This is the data values.  Since most data types are primitive
+		 * types, auto-boxing is used a lot with generic data records.
+		 */
+		public final Object value;
+		/**
+		 * The number of pad bytes used by this data field.
+		 */
+		public final int padCnt;
 		
 		public Data(PadData p, Object value)
 		{
-			this.type = p.getType();
-			padCnt = p.getPadCnt();
+			this.type = p.type;
+			padCnt = p.padCnt;
 			this.value = value;
 		}
-		
-		public Data_t getType() { return(type); }
-		
-		public Object getValue() { return(value); }
-		
-		public int getPadCnt() { return(padCnt); }
-		
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
 		@Override
 		public String toString()
 		{
-			return(value.toString());
+			StringBuilder builder = new StringBuilder();
+			builder.append("Data [type=").append(type);
+			builder.append(", value=").append(value);
+			builder.append(", padCnt=").append(padCnt);
+			builder.append("]");
+			return builder.toString();
 		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + padCnt;
+			result = prime * result + ((type == null) ? 0 : type.hashCode());
+			result = prime * result + ((value == null) ? 0 : value.hashCode());
+			return result;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj) return true;
+			if (obj == null) return false;
+			if (!(obj instanceof Data)) return false;
+			Data other = (Data) obj;
+			if (padCnt != other.padCnt) return false;
+			if (type != other.type) return false;
+			if (value == null)
+			{
+				if (other.value != null) return false;
+			} 
+			else if (!value.equals(other.value)) return false;
+			return true;
+		}
+		
 	}
 	
+	/**
+	 * This class is a specialization of the Data class and is used
+	 * for data types that are bit fields.
+	 * @author eric
+	 */
 	public static final class BitData extends Data
 	{
+		/**
+		 * The number of bits contained in this data value.
+		 */
 		public final int numBits;
 		
+		/**
+		 * CTOR for bit data.
+		 * @param p The padding information
+		 * @param numBits The number of bits in this bit field.
+		 * @param value The data payload, normally an array of some type.
+		 */
 		public BitData(PadData p, MutableInt numBits, Object value)
 		{
 			super(p, value);
 			this.numBits = numBits.n;
 		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString()
+		{
+			StringBuilder builder = new StringBuilder();
+			builder.append("BitData [numBits=").append(numBits);
+			builder.append(", type=").append(type);
+			builder.append(", value=").append(value);
+			builder.append(", padCnt=").append(padCnt);
+			builder.append("]");
+			return builder.toString();
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + numBits;
+			return result;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj) return true;
+			if (!super.equals(obj)) return false;
+			if (!(obj instanceof BitData)) return false;
+			BitData other = (BitData) obj;
+			if (numBits != other.numBits) return false;
+			return true;
+		}
+		
 	}
 	
+	/**
+	 * Wrapper class for holding data type and pad count of a field.
+	 * @author eric
+	 */
 	public static final class PadData
 	{
-		final Data_t type;
-		final byte padCnt;
+		/**
+		 * The data type of a generic field.
+		 */
+		public final Data_t type;
+		/**
+		 * The pad count used by a generic field.
+		 */
+		public final byte padCnt;
 		
+		/**
+		 * CTOR for pad data.
+		 * @param type  The data type of the field.
+		 * @param padCnt The pad count for the field.
+		 */
 		public PadData(Data_t type, int padCnt)
 		{
 			this.type = type;
 			this.padCnt = (byte) padCnt;
 		}
-		
-		Data_t getType() { return(type); }
-		int getPadCnt() { return(padCnt); }
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString()
+		{
+			StringBuilder builder = new StringBuilder();
+			builder.append("PadData [type=").append(type);
+			builder.append(", padCnt=").append(padCnt);
+			builder.append("]");
+			return builder.toString();
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + padCnt;
+			result = prime * result + ((type == null) ? 0 : type.hashCode());
+			return result;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj) return true;
+			if (obj == null) return false;
+			if (!(obj instanceof PadData)) return false;
+			PadData other = (PadData) obj;
+			if (padCnt != other.padCnt) return false;
+			if (type != other.type) return false;
+			return true;
+		}
 	}
 	
 	private PadData getType()
@@ -113,8 +277,8 @@ public class GenericDataRecord extends StdfRecord
 	private void getField(List<Data> l, PadData v)
 	{
 		if (v == null) Log.msg("V IS NULL");
-		if (v.getType() == null) Log.msg("v.type IS NULL");
-        switch (v.getType())
+		if (v.type == null) Log.msg("v.type IS NULL");
+        switch (v.type)
         {
         case U_1: l.add(new Data(v, getU1((short) 0))); break;
         case U_2: l.add(new Data(v, getU2(0))); break;
@@ -136,32 +300,35 @@ public class GenericDataRecord extends StdfRecord
 	
 	private static void setField(Cpu_t cpuType, TByteArrayList l, Data field)
 	{
-		IntStream.generate(() -> 0).limit(field.getPadCnt()).forEach(v -> l.add((byte) 0));
-		l.add((byte) field.getType().getFieldType());
-		switch (field.getType())
+		IntStream.generate(() -> 0).limit(field.padCnt).forEach(v -> l.add((byte) 0));
+		l.add((byte) field.type.getFieldType());
+		switch (field.type)
 		{
-        case U_1: l.add(getU1Bytes((short) field.getValue())); break;
-        case U_2: l.addAll(cpuType.getU2Bytes((int) field.getValue())); break;
-        case U_4: l.addAll(cpuType.getU4Bytes((long) field.getValue())); break;
-        case I_1: l.add(getI1Bytes((byte) field.getValue())); break;
-        case I_2: l.addAll(cpuType.getI2Bytes((short) field.getValue())); break;
-        case I_4: l.addAll(cpuType.getI4Bytes((int) field.getValue())); break;
-        case R_4: l.addAll(cpuType.getR4Bytes((float) field.getValue())); break;
-        case R_8: l.addAll(cpuType.getR8Bytes((double) field.getValue())); break;
-        case C_N: l.addAll(getCnBytes((String) field.getValue())); break;
-        case B_N: l.addAll(getBnBytes((byte[]) field.getValue())); break;
+        case U_1: l.add(getU1Bytes((short) field.value)); break;
+        case U_2: l.addAll(cpuType.getU2Bytes((int) field.value)); break;
+        case U_4: l.addAll(cpuType.getU4Bytes((long) field.value)); break;
+        case I_1: l.add(getI1Bytes((byte) field.value)); break;
+        case I_2: l.addAll(cpuType.getI2Bytes((short) field.value)); break;
+        case I_4: l.addAll(cpuType.getI4Bytes((int) field.value)); break;
+        case R_4: l.addAll(cpuType.getR4Bytes((float) field.value)); break;
+        case R_8: l.addAll(cpuType.getR8Bytes((double) field.value)); break;
+        case C_N: l.addAll(getCnBytes((String) field.value)); break;
+        case B_N: l.addAll(getBnBytes((byte[]) field.value)); break;
         case D_N: BitData bd = (BitData) field; 
-        	      l.addAll(cpuType.getDnBytes(bd.numBits, (byte[]) field.getValue())); 
+        	      l.addAll(cpuType.getDnBytes(bd.numBits, (byte[]) field.value)); 
         	      break;
-        case N_N: l.addAll(getNibbleBytes((byte[]) field.getValue())); break;
+        case N_N: l.addAll(getNibbleBytes((byte[]) field.value)); break;
        	default: throw new RuntimeException("Unknown data type in GenericDataRecord");
 		}
 	}
 	
-    /**
-    *** @param p1
-    *** @param p2
-    **/
+	/**
+     * Constructor for initializing this record with binary stream data.
+     * @param tdb The TestIdDatabase  is not used by this record, but is
+     * required so STDF records have consistent constructor signatures.
+     * @param dvd This CTOR sets the CPU type in the DefaultValueDatabase.
+	 * @param data
+	 */
     public GenericDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.GDR, dvd.getCpuType(), data);
@@ -171,20 +338,20 @@ public class GenericDataRecord extends StdfRecord
         list = Collections.unmodifiableList(l);
     }
     
+    /**
+     * Constructor for initializing this record with field values.
+     * @param tdb The TestIdDatabase is needed because this CTOR calls the above CTOR.
+     * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
+     * @param list A list of Data fields.
+     */
     public GenericDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, List<Data> list)
     {
     	this(tdb, dvd, toBytes(dvd.getCpuType(), list));
     }
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        list.stream().forEach(p -> sb.append("    ").append(p.toString()).append(Log.eol));
-        return(sb.toString());
-    }
-
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -197,6 +364,49 @@ public class GenericDataRecord extends StdfRecord
 	    l.addAll(cpuType.getU2Bytes(list.size())); 
 	    list.stream().forEach(d -> setField(cpuType, l, d));
 	    return(l.toArray());
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("GenericDataRecord [list=");
+		builder.append(list);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((list == null) ? 0 : list.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!super.equals(obj)) return false;
+		if (!(obj instanceof GenericDataRecord)) return false;
+		GenericDataRecord other = (GenericDataRecord) obj;
+		if (list == null)
+		{
+			if (other.list != null) return false;
+		} 
+		else if (!list.equals(other.list)) return false;
+		return true;
 	}
     
     

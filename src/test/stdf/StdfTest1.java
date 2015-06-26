@@ -429,11 +429,11 @@ public class StdfTest1
 		GenericDataRecord gdr = (GenericDataRecord) r;
 		List<GenericDataRecord.Data> l = gdr.list; 
 		GenericDataRecord.Data d = l.get(0);
-		assertEquals(Data_t.I_4, d.getType());
-		assertEquals(33, d.getValue());
+		assertEquals(Data_t.I_4, d.type);
+		assertEquals(33, d.value);
 		d = l.get(1);
-		assertEquals(Data_t.R_8, d.getType());
-		assertEquals(44.0, d.getValue());
+		assertEquals(Data_t.R_8, d.type);
+		assertEquals(44.0, d.value);
 	}
 	
 	//stdf.add(new HardwareBinRecord(snum++, dnum, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
