@@ -432,11 +432,4 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		return units;
 	}
 
-	@Override
-	protected void setText(String text)
-	{
-		throw new RuntimeException("Error: setText() should not be called on a MultipleResultParametricRecord");
-	}
-   
-
 }

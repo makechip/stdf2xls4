@@ -336,10 +336,4 @@ public class ParametricTestRecord extends ParametricRecord
 		return units;
 	}
 
-	@Override
-	protected void setText(String text)
-	{
-		throw new RuntimeException("Error: setText() should not be called on a ParametricTestRecord");
-	}
-
 }

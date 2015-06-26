@@ -14,7 +14,7 @@ public abstract class StdfRecord
     public static final String SERIAL_MARKER      = "S/N";
     public static final float  MISSING_FLOAT      = Float.MAX_VALUE;
     public static final byte   MISSING_BYTE       = (byte) -1;
-    public static final int    MISSING_INT        = Integer.MIN_VALUE;
+    public static final int    MISSING_INT        = Integer.MAX_VALUE;
     public static final long   MISSING_LONG       = Long.MIN_VALUE;
     public static final short  MISSING_SHORT      = Short.MIN_VALUE;
     public static final String MISSING_STRING     = "";
@@ -289,7 +289,6 @@ public abstract class StdfRecord
 		int result = 1;
 		result = prime * result + Arrays.hashCode(bytes);
 		result = prime * result + cpuType.hashCode();
-		result = prime * result + ptr;
 		result = prime * result + type.hashCode();
 		return result;
 	}
@@ -306,7 +305,6 @@ public abstract class StdfRecord
 		StdfRecord other = (StdfRecord) obj;
 		if (!Arrays.equals(bytes, other.bytes)) return false;
 		if (cpuType != other.cpuType) return false;
-		if (ptr != other.ptr) return false;
 		if (type != other.type) return false;
 		return true;
 	}

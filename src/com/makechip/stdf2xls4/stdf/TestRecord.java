@@ -19,8 +19,4 @@ public abstract class TestRecord extends StdfRecord
 	
 	public abstract TestID getTestId();
 	
-	protected abstract void setTestName(String testName);
-	
-	protected abstract void setText(String text);
-	
 }

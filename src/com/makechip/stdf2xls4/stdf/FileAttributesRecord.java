@@ -29,57 +29,111 @@ import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 /**
-*** @author eric
-*** @version $Id: FileAttributesRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields for an STDF FileAttributes record.
+ *  @author eric
+ */
 public class FileAttributesRecord extends StdfRecord
 {
+	/**
+	 * This field holds the STDF_VER value from a FileAttributesRecord.
+	 */
     public final byte stdfVersion;
+    /**
+     * This field holds the CPU_TYPE value from a FileAttributesRecord.
+     */
     public final Cpu_t cpuType;
     
     /**
-    *** @param p1
-    *** @param p2
-    **/
+     * Constructor for initializing this record with binary stream data.
+     * @param tdb The TestIdDatabase  is not used by this record, but is
+     * required so STDF records have consistent constructor signatures.
+     * @param dvd This CTOR sets the CPU type in the DefaultValueDatabase.
+     * @param data The binary stream data for this record.  The array should
+     * not contain the first four bytes of the record. 
+     */
     public FileAttributesRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.FAR, Cpu_t.getCpuType(data[0]), data);
         cpuType = Cpu_t.getCpuType(data[0]);
         dvd.setCpuType(cpuType);
         stdfVersion = (byte) (data[1] & 0xFF);
-        assert stdfVersion == 4;
     }
     
+    /**
+     * Constructor for initializing this record with field values.
+     * @param tdb The TestIdDatabase is needed because this CTOR calls the above CTOR.
+     * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
+     * @param stdfVersion This value should always be 4.
+     * @param cpuType The CPU type.
+     */
     public FileAttributesRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, int stdfVersion, Cpu_t cpuType)
     {
     	this(tdb, dvd, toBytes(cpuType, (byte) stdfVersion));
     }
     
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    CPU_TYPE: ").append(cpuType.toString()).append(Log.eol);
-        sb.append("    STDF_VER: " + stdfVersion).append(Log.eol);
-        return(sb.toString());
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("FileAttributesRecord [stdfVersion=");
+		builder.append(stdfVersion);
+		builder.append(", cpuType=");
+		builder.append(cpuType);
+		builder.append("]");
+		return builder.toString();
+	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
 		bytes = toBytes(cpuType, stdfVersion);
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	private static byte[] toBytes(Cpu_t cpuType, byte stdfVersion)
 	{
 		TByteArrayList l = new TByteArrayList();
         l.add(cpuType.getType());
         l.add(stdfVersion);
         return(l.toArray());
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + cpuType.hashCode();
+		result = prime * result + stdfVersion;
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof FileAttributesRecord)) return false;
+		FileAttributesRecord other = (FileAttributesRecord) obj;
+		if (cpuType != other.cpuType) return false;
+		if (stdfVersion != other.stdfVersion) return false;
+		if (!super.equals(obj)) return false;
+		return true;
 	}
 
 }

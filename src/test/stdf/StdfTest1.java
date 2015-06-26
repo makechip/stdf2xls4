@@ -18,6 +18,7 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
+import com.makechip.util.Log;
 
 /**
  * @author eric
@@ -59,7 +60,7 @@ public class StdfTest1
 		stdf.add(new PinMapRecord(tdb, dvd, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
 		stdf.add(new BeginProgramSectionRecord(tdb, dvd, "beginProgramSectionRecord"));
 		stdf.add(new DatalogTextRecord(tdb, dvd, "datalogTextRecord"));
-		stdf.add(new FunctionalTestRecord(tdb, dvd, Cpu_t.PC, 3, (short) 2, (short) 1, (byte) 0,
+		stdf.add(new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 0,
 			(byte) 0, 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
 			new byte[] { (byte) 4, (byte) 3, (byte) 2, (byte) 1 }, new int[] { 3, 4, 5, 6 },
 			new byte[] { (byte) 0, (byte) 1, (byte) 2, (byte) 3 }, 32, new byte[] { (byte) 3, (byte) 2, (byte) 1, (byte) 0 },
@@ -94,6 +95,8 @@ public class StdfTest1
 	    stdf.add(new WaferInformationRecord(tdb, dvd, (short) 1, (short) 0, 1000L, "waferID"));
 		stdf.add(new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
 			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc"));
+		stdf.add(new EndProgramSectionRecord(tdb, dvd));
+		stdf.add(new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 0));
 		Path p = FileSystems.getDefault().getPath("x.stdf");
 		stdf.write(p.toFile());
         Files.delete(p);
@@ -105,7 +108,7 @@ public class StdfTest1
 	@Test
 	public void testA()
 	{
-		assertEquals(27, list.size());
+		assertEquals(29, list.size());
 	}
 
     @Test
@@ -118,6 +121,16 @@ public class StdfTest1
 	    assertEquals(Cpu_t.PC, far.cpuType);
 	    assertEquals(4, far.stdfVersion);
 	    assertFalse(r.isTestRecord());
+	    assertEquals("FileAttributesRecord [stdfVersion=4, cpuType=PC]", far.toString());
+	    FileAttributesRecord far1 = new FileAttributesRecord(tdb, dvd, 4, Cpu_t.VAX);
+	    assertFalse(far.equals(far1));
+	    FileAttributesRecord far2 = new FileAttributesRecord(tdb, dvd, 4, Cpu_t.PC);
+	    assertTrue(far.equals(far2));
+	    assertTrue(far.equals(far));
+	    assertFalse(far.equals("A"));
+	    assertEquals(far.hashCode(), far2.hashCode());
+	    FileAttributesRecord far3 = new FileAttributesRecord(tdb, dvd, 5, Cpu_t.PC);
+	    assertFalse(far.equals(far3));
     }
     
 	// atrs.add(new AuditTrailRecord(snum++, dnum, 100000000L, "cmdline"));
@@ -724,9 +737,114 @@ public class StdfTest1
         assertEquals("execWaferDesc", ptr.execWaferDesc);	
 	}
 	
-
+    @Test
+    public void testY()
+    {
+    	StdfRecord r = list.get(27);
+    	assertTrue(r instanceof EndProgramSectionRecord);
+    	assertFalse(r.isTestRecord());
+    	assertEquals("EndProgramSectionRecord []", r.toString());
+    	EndProgramSectionRecord esr1 = new EndProgramSectionRecord(tdb, dvd);
+    	EndProgramSectionRecord esr2 = new EndProgramSectionRecord(null, dvd);
+    	assertTrue(r.equals(r));
+    	assertTrue(r.equals(esr1));
+    	assertEquals(r.hashCode(), esr1.hashCode());
+    	assertEquals(esr1.hashCode(), esr2.hashCode());
+    	assertFalse(r.equals("A"));
+    }
 		
-		
+	@Test
+	public void testZ()
+	{
+		StdfRecord r = list.get(28);
+		assertTrue(r instanceof FunctionalTestRecord);
+	    assertTrue(r.isTestRecord());
+		FunctionalTestRecord ftr = (FunctionalTestRecord) r;
+		assertTrue(ftr.isTestRecord());
+		assertEquals(3, ftr.testNumber);
+		assertEquals(2, ftr.headNumber);
+		assertEquals(1, ftr.siteNumber);
+		assertEquals(StdfRecord.MISSING_INT, ftr.cycleCount);
+		assertEquals(StdfRecord.MISSING_INT, ftr.relVaddr);
+		assertEquals(StdfRecord.MISSING_INT, ftr.rptCnt);
+		assertEquals(StdfRecord.MISSING_INT, ftr.numFail);
+		assertEquals(StdfRecord.MISSING_INT, ftr.xFailAddr);
+		assertEquals(StdfRecord.MISSING_INT, ftr.yFailAddr);
+		assertEquals(StdfRecord.MISSING_SHORT, ftr.vecOffset);
+		assertEquals(0, ftr.getRtnIndex().length);
+		assertEquals(0, ftr.getRtnState().length);
+		assertEquals(0, ftr.getPgmIndex().length);
+		assertEquals(0, ftr.getPgmState().length);
+		assertEquals(0, ftr.getFailPin().length);
+		assertEquals("", ftr.vecName);
+		assertEquals("", ftr.timeSetName);
+		assertEquals("", ftr.vecOpCode);
+		assertEquals("label", ftr.getTestId().testName);
+		assertEquals("", ftr.alarmName);
+		assertEquals("", ftr.progTxt);
+		assertEquals("", ftr.rsltTxt);
+		assertEquals(5, ftr.patGenNum);
+		assertEquals(3, ftr.getEnComps().length);
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr0 = new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 0);
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr1 = new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 0);
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr2 = new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 1);
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr3 = new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 4);
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr4 = new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 8);
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr5 = new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 16);
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr6 = new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 32);
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr7 = new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 64);
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr8 = new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 128);
+		assertTrue(ftr0.equals(ftr1));
+		assertEquals(ftr0.hashCode(), ftr1.hashCode());
+		assertTrue(ftr2.alarm());
+		assertTrue(ftr3.unreliable());
+		assertTrue(ftr4.timeout());
+		assertTrue(ftr5.notExecuted());
+		assertTrue(ftr6.abort());
+		assertTrue(ftr7.noPassFailIndication());
+		assertTrue(ftr8.fail());
+		String s = ftr.toString();
+		Log.msg(s);
+		assertTrue(s.contains("FunctionalTestRecord ["));
+		assertTrue(s.contains("testFlags="));
+		assertTrue(s.contains("optFlags="));
+		assertTrue(s.contains("cycleCount="));
+		assertTrue(s.contains("relVaddr="));
+		assertTrue(s.contains("rptCnt="));
+		assertTrue(s.contains("numFail="));
+		assertTrue(s.contains("xFailAddr="));
+		assertTrue(s.contains("yFailAddr="));
+		assertTrue(s.contains("vecOffset="));
+		assertTrue(s.contains("vecName="));
+		assertTrue(s.contains("timeSetName="));
+		assertTrue(s.contains("vecOpCode="));
+		assertTrue(s.contains("alarmName="));
+		assertTrue(s.contains("progTxt="));
+		assertTrue(s.contains("rsltTxt="));
+		assertTrue(s.contains("patGenNum="));
+		assertTrue(s.contains("numFailPinBits="));
+		assertTrue(s.contains("numEnCompBits="));
+		assertTrue(s.contains("rtnIndex="));
+		assertTrue(s.contains("rtnState="));
+		assertTrue(s.contains("pgmIndex="));
+		assertTrue(s.contains("pgmState="));
+		assertTrue(s.contains("failPin="));
+		assertTrue(s.contains("enComps="));
+		assertTrue(s.contains("id="));
+		assertTrue(s.contains("testNumber="));
+		assertTrue(s.contains("headNumber="));
+		assertTrue(s.contains("siteNumber="));
+	}
+	
 		
 		
 		
