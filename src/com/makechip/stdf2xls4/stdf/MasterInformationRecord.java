@@ -27,11 +27,8 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.util.Date;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 /**
 *** @author eric
@@ -39,46 +36,210 @@ import com.makechip.util.Log;
 **/
 public class MasterInformationRecord extends StdfRecord
 {
+	/**
+	 *  This is the SETUP_T field of the MasterInformationRecord.
+	 */
     public final long jobDate;
+	/**
+	 *  This is the START_T field of the MasterInformationRecord.
+	 */
     public final long testDate;
+	/**
+	 *  This is the STAT_NUM field of the MasterInformationRecord.
+	 */
     public final short stationNumber;
+	/**
+	 *  This is the MODE_COD field of the MasterInformationRecord.
+	 */
     public final char testModeCode;
+	/**
+	 *  This is the RTST_COD field of the MasterInformationRecord.
+	 */
     public final char lotRetestCode;
+	/**
+	 *  This is the PROT_COD field of the MasterInformationRecord.
+	 */
     public final char dataProtectionCode;
+	/**
+	 *  This is the BURN_TIM field of the MasterInformationRecord.
+	 */
     public final int burnInTime;
+	/**
+	 *  This is the CMOD_COD field of the MasterInformationRecord.
+	 */
     public final char cmdModeCode;
+	/**
+	 *  This is the LOT_ID field of the MasterInformationRecord.
+	 */
     public final String lotID;
+	/**
+	 *  This is the PART_TYP field of the MasterInformationRecord.
+	 */
     public final String partType;
+	/**
+	 *  This is the NODE_NAM field of the MasterInformationRecord.
+	 */
     public final String nodeName;
+	/**
+	 *  This is the TSTR_TYP field of the MasterInformationRecord.
+	 */
     public final String testerType;
+	/**
+	 *  This is the JOB_NAM field of the MasterInformationRecord.
+	 */
     public final String jobName;
+	/**
+	 *  This is the JOB_REV field of the MasterInformationRecord.
+	 */
     public final String jobRevisionNumber;
+	/**
+	 *  This is the SBLOT_ID field of the MasterInformationRecord.
+	 */
     public final String sublotID;
+	/**
+	 *  This is the OPER_NAM field of the MasterInformationRecord.
+	 */
     public final String operatorName;
+	/**
+	 *  This is the EXEC_TYP field of the MasterInformationRecord.
+	 */
     public final String execSoftware;
+	/**
+	 *  This is the EXEC_VER field of the MasterInformationRecord.
+	 */
     public final String execSoftwareVersion;
+	/**
+	 *  This is the TEST_COD field of the MasterInformationRecord.
+	 */
     public final String stepCode;
+	/**
+	 *  This is the TST_TEMP field of the MasterInformationRecord.
+	 */
     public final String temperature;
+	/**
+	 *  This is the USER_TXT field of the MasterInformationRecord.
+	 */
     public final String userText;
+	/**
+	 *  This is the AUX_FILE field of the MasterInformationRecord.
+	 */
     public final String auxDataFile;
+	/**
+	 *  This is the PKG_TYP field of the MasterInformationRecord.
+	 */
     public final String packageType;
+	/**
+	 *  This is the FAMILY_ID field of the MasterInformationRecord.
+	 */
     public final String familyID;
+	/**
+	 *  This is the DATE_COD field of the MasterInformationRecord.
+	 */
     public final String dateCode;
+	/**
+	 *  This is the FACIL_ID field of the MasterInformationRecord.
+	 */
     public final String facilityID;
+	/**
+	 *  This is the FLOOR_ID field of the MasterInformationRecord.
+	 */
     public final String floorID;
+	/**
+	 *  This is the PROC_ID field of the MasterInformationRecord.
+	 */
     public final String fabID;
+	/**
+	 *  This is the OPER_FRQ field of the MasterInformationRecord.
+	 */
     public final String frequency;
+	/**
+	 *  This is the SPEC_NAME field of the MasterInformationRecord.
+	 */
     public final String specName;
+	/**
+	 *  This is the SPEC_VER field of the MasterInformationRecord.
+	 */
     public final String specVersion;
+	/**
+	 *  This is the FLOW_ID field of the MasterInformationRecord.
+	 */
     public final String flowID;
+	/**
+	 *  This is the SETUP_ID field of the MasterInformationRecord.
+	 */
     public final String setupID;
+	/**
+	 *  This is the DSGN_REV field of the MasterInformationRecord.
+	 */
     public final String designRevision;
+	/**
+	 *  This is the ENG_ID field of the MasterInformationRecord.
+	 */
     public final String engLotID;
+	/**
+	 *  This is the ROM_COD field of the MasterInformationRecord.
+	 */
     public final String romCodeID;
+	/**
+	 *  This is the SERL_NUM field of the MasterInformationRecord.
+	 */
     public final String testerSerialNumber;
+	/**
+	 *  This is the SUPR_NAM field of the MasterInformationRecord.
+	 */
     public final String supervisorID;
+	/**
+	 *  This is not an STDF field.  It is used for tracking file timestamps
+	 *  when one STDF file per device is used with timestamped filenames.
+	 */
     public final long timeStamp; // not an STDF value; for filename timestamp tracking 
     
+    /**
+     * This constructor is used to generate binary Stream data.  It can be used to convert
+     * the field values back into binary stream data.
+     * @param tdb The TestIdDatabase. This value is not used, but is needed so that
+     * this constructor can call the previous constructor to avoid code duplication.
+     * @param dvd The DefaultValueDatabase is used to access the CPU type.
+     * @param jobDate The SETUP_T field.
+     * @param testDate The START_T field.
+     * @param stationNumber The STAT_NUM field.
+     * @param testModeCode The MODE_COD field.
+     * @param lotRetestCode The RTST_COD field.
+     * @param dataProtectionCode The PROT_COD field.
+     * @param burnInTime The BURN_TIM field.
+     * @param cmdModeCode The CMOD_COD field.
+     * @param lotID The LOT_ID field.
+     * @param partType The PART_TYP field.
+     * @param nodeName The NODE_NAM field.
+     * @param testerType The TSTR_TYP field.
+     * @param jobName The JOB_NAM field.
+     * @param jobRevisionNumber The JOB_REV field.
+     * @param sublotID The SBLOT_ID field.
+     * @param operatorName The OPER_NAM field.
+     * @param execSoftware The EXEC_TYP field.
+     * @param execSoftwareVersion The EXEC_VER field.
+     * @param stepCode The TEST_COD field.
+     * @param temperature The TST_TEMP field.
+     * @param userText The USER_TXT field.
+     * @param auxDataFile The AUX_FILE field.
+     * @param packageType The PKG_TYP field.
+     * @param familyID The FAMILY_ID field.
+     * @param dateCode The DATE_COD field.
+     * @param facilityID The FACIL_ID field.
+     * @param floorID The FLOOR_ID field.
+     * @param fabID The PROC_ID field.
+     * @param frequency The OPER_FRQ field.
+     * @param specName The SPEC_NAM field.
+     * @param specVersion The SPEC_VER field.
+     * @param flowID The FLOW_ID field.
+     * @param setupID The SETUP_ID field.
+     * @param designRevision The DSGN_REV field.
+     * @param engLotID The ENG_ID field.
+     * @param romCodeID The ROM_COD field
+     * @param testerSerialNumber The SERL_NUM field.
+     * @param supervisorID The SUPR_NAM field.
+     * @param timeStamp The time stamp field.  Not used unless times-stamped files are being tracked.
+     */
     public MasterInformationRecord(
     	TestIdDatabase tdb,
     	DefaultValueDatabase dvd,
@@ -133,9 +294,14 @@ public class MasterInformationRecord extends StdfRecord
     }
     
     /**
-    *** @param p1
-    *** @param p2
-    **/
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase.  This value is not used by the MasterInformationRecord.
+     *         It is provided so that all StdfRecord classes have the same argument signatures,
+     *         so that function references can be used to refer to the constructors of StdfRecords.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public MasterInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.MIR, dvd.getCpuType(), data);
@@ -274,53 +440,157 @@ public class MasterInformationRecord extends StdfRecord
         return(l.toArray());
 	}
 
-    @Override
-    public String toString()
-    {
-    	String jdate = new Date(1000L * jobDate).toString();
-    	String tdate = new Date(1000L * testDate).toString();
-        StringBuilder sb = new StringBuilder(getClass().getName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    job date: ").append(jdate).append(Log.eol);
-        sb.append("    test date: ").append(tdate).append(Log.eol);
-        sb.append("    station number: " + stationNumber).append(Log.eol);
-        sb.append("    test mode code: ").append(testModeCode).append(Log.eol);
-        sb.append("    lot retest code: ").append(lotRetestCode).append(Log.eol);
-        sb.append("    data protection code: ").append(dataProtectionCode).append(Log.eol);
-        sb.append("    burn-in time: " + burnInTime).append(Log.eol);
-        sb.append("    command mode code: ").append(cmdModeCode).append(Log.eol);
-        sb.append("    lot ID: ").append(lotID).append(Log.eol);
-        sb.append("    part type: ").append(partType).append(Log.eol);
-        sb.append("    node name: ").append(nodeName).append(Log.eol);
-        sb.append("    tester type: ").append(testerType).append(Log.eol);
-        sb.append("    job name: ").append(jobName).append(Log.eol);
-        sb.append("    job revision number: ").append(jobRevisionNumber).append(Log.eol);
-        sb.append("    sublot ID: ").append(sublotID).append(Log.eol);
-        sb.append("    operatorName: ").append(operatorName).append(Log.eol);
-        sb.append("    exec software: ").append(execSoftware).append(Log.eol);
-        sb.append("    exec software revision: ").append(execSoftwareVersion).append(Log.eol);
-        sb.append("    step code: ").append(stepCode).append(Log.eol);
-        sb.append("    temperature: ").append(temperature).append(Log.eol);
-        sb.append("    user text: ").append(userText).append(Log.eol);
-        sb.append("    auxilliary data file: ").append(auxDataFile).append(Log.eol);
-        sb.append("    package type: ").append(packageType).append(Log.eol);
-        sb.append("    family ID: ").append(familyID).append(Log.eol);
-        sb.append("    date code: ").append(dateCode).append(Log.eol);
-        sb.append("    facility ID: ").append(facilityID).append(Log.eol);
-        sb.append("    floor ID: ").append(floorID).append(Log.eol);
-        sb.append("    fab ID: ").append(fabID).append(Log.eol);
-        sb.append("    frequency: ").append(frequency).append(Log.eol);
-        sb.append("    spec name: ").append(specName).append(Log.eol);
-        sb.append("    spec version: ").append(specVersion).append(Log.eol);
-        sb.append("    flow ID: ").append(flowID).append(Log.eol);
-        sb.append("    setup ID: ").append(setupID).append(Log.eol);
-        sb.append("    design revision: ").append(designRevision).append(Log.eol);
-        sb.append("    engineering lot ID: ").append(engLotID).append(Log.eol);
-        sb.append("    ROM code ID: ").append(romCodeID).append(Log.eol);
-        sb.append("    tester serial number: ").append(testerSerialNumber).append(Log.eol);
-        sb.append("    supervisor ID: ").append(supervisorID).append(Log.eol);
-        return(sb.toString());
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("MasterInformationRecord [jobDate=").append(jobDate);
+		builder.append(", testDate=").append(testDate);
+		builder.append(", stationNumber=").append(stationNumber);
+		builder.append(", testModeCode=").append(testModeCode);
+		builder.append(", lotRetestCode=").append(lotRetestCode);
+		builder.append(", dataProtectionCode=").append(dataProtectionCode);
+		builder.append(", burnInTime=").append(burnInTime);
+		builder.append(", cmdModeCode=").append(cmdModeCode);
+		builder.append(", lotID=").append(lotID);
+		builder.append(", partType=").append(partType);
+		builder.append(", nodeName=").append(nodeName);
+		builder.append(", testerType=").append(testerType);
+		builder.append(", jobName=").append(jobName);
+		builder.append(", jobRevisionNumber=").append(jobRevisionNumber);
+		builder.append(", sublotID=").append(sublotID);
+		builder.append(", operatorName=").append(operatorName);
+		builder.append(", execSoftware=").append(execSoftware);
+		builder.append(", execSoftwareVersion=").append(execSoftwareVersion);
+		builder.append(", stepCode=").append(stepCode);
+		builder.append(", temperature=").append(temperature);
+		builder.append(", userText=").append(userText);
+		builder.append(", auxDataFile=").append(auxDataFile);
+		builder.append(", packageType=").append(packageType);
+		builder.append(", familyID=").append(familyID);
+		builder.append(", dateCode=").append(dateCode);
+		builder.append(", facilityID=").append(facilityID);
+		builder.append(", floorID=").append(floorID);
+		builder.append(", fabID=").append(fabID);
+		builder.append(", frequency=").append(frequency);
+		builder.append(", specName=").append(specName);
+		builder.append(", specVersion=").append(specVersion);
+		builder.append(", flowID=").append(flowID);
+		builder.append(", setupID=").append(setupID);
+		builder.append(", designRevision=").append(designRevision);
+		builder.append(", engLotID=").append(engLotID);
+		builder.append(", romCodeID=").append(romCodeID);
+		builder.append(", testerSerialNumber=").append(testerSerialNumber);
+		builder.append(", supervisorID=").append(supervisorID);
+		builder.append(", timeStamp=").append(timeStamp);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + auxDataFile.hashCode();
+		result = prime * result + burnInTime;
+		result = prime * result + cmdModeCode;
+		result = prime * result + dataProtectionCode;
+		result = prime * result + dateCode.hashCode();
+		result = prime * result + designRevision.hashCode();
+		result = prime * result + engLotID.hashCode();
+		result = prime * result + execSoftware.hashCode();
+		result = prime * result + execSoftwareVersion.hashCode();
+		result = prime * result + fabID.hashCode();
+		result = prime * result + facilityID.hashCode();
+		result = prime * result + familyID.hashCode();
+		result = prime * result + floorID.hashCode();
+		result = prime * result + flowID.hashCode();
+		result = prime * result + frequency.hashCode();
+		result = prime * result + (int) (jobDate ^ (jobDate >>> 32));
+		result = prime * result + jobName.hashCode();
+		result = prime * result + jobRevisionNumber.hashCode();
+		result = prime * result + lotID.hashCode();
+		result = prime * result + lotRetestCode;
+		result = prime * result + nodeName.hashCode();
+		result = prime * result + operatorName.hashCode();
+		result = prime * result + packageType.hashCode();
+		result = prime * result + partType.hashCode();
+		result = prime * result + romCodeID.hashCode();
+		result = prime * result + setupID.hashCode();
+		result = prime * result + specName.hashCode();
+		result = prime * result + specVersion.hashCode();
+		result = prime * result + stationNumber;
+		result = prime * result + stepCode.hashCode();
+		result = prime * result + sublotID.hashCode();
+		result = prime * result + supervisorID.hashCode();
+		result = prime * result + temperature.hashCode();
+		result = prime * result + (int) (testDate ^ (testDate >>> 32));
+		result = prime * result + testModeCode;
+		result = prime * result + testerSerialNumber.hashCode();
+		result = prime * result + testerType.hashCode();
+		result = prime * result + (int) (timeStamp ^ (timeStamp >>> 32));
+		result = prime * result + userText.hashCode();
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof MasterInformationRecord)) return false;
+		MasterInformationRecord other = (MasterInformationRecord) obj;
+		if (!auxDataFile.equals(other.auxDataFile)) return false;
+		if (burnInTime != other.burnInTime) return false;
+		if (cmdModeCode != other.cmdModeCode) return false;
+		if (dataProtectionCode != other.dataProtectionCode) return false;
+		if (!dateCode.equals(other.dateCode)) return false;
+		if (!designRevision.equals(other.designRevision)) return false;
+		if (!engLotID.equals(other.engLotID)) return false;
+		if (!execSoftware.equals(other.execSoftware)) return false;
+		if (!execSoftwareVersion.equals(other.execSoftwareVersion)) return false;
+		if (!fabID.equals(other.fabID)) return false;
+		if (!facilityID.equals(other.facilityID)) return false;
+		if (!familyID.equals(other.familyID)) return false;
+		if (!floorID.equals(other.floorID)) return false;
+		if (!flowID.equals(other.flowID)) return false;
+		if (!frequency.equals(other.frequency)) return false;
+		if (jobDate != other.jobDate) return false;
+		if (!jobName.equals(other.jobName)) return false;
+		if (!jobRevisionNumber.equals(other.jobRevisionNumber)) return false;
+		if (!lotID.equals(other.lotID)) return false;
+		if (lotRetestCode != other.lotRetestCode) return false;
+		if (!nodeName.equals(other.nodeName)) return false;
+		if (!operatorName.equals(other.operatorName)) return false;
+		if (!packageType.equals(other.packageType)) return false;
+		if (!partType.equals(other.partType)) return false;
+		if (!romCodeID.equals(other.romCodeID)) return false;
+		if (!setupID.equals(other.setupID)) return false;
+		if (!specName.equals(other.specName)) return false;
+		if (!specVersion.equals(other.specVersion)) return false;
+		if (stationNumber != other.stationNumber) return false;
+		if (!stepCode.equals(other.stepCode)) return false;
+		if (!sublotID.equals(other.sublotID)) return false;
+		if (!supervisorID.equals(other.supervisorID)) return false;
+		if (!temperature.equals(other.temperature)) return false;
+		if (testDate != other.testDate) return false;
+		if (testModeCode != other.testModeCode) return false;
+		if (!testerSerialNumber.equals(other.testerSerialNumber)) return false;
+		if (!testerType.equals(other.testerType)) return false;
+		if (timeStamp != other.timeStamp) return false;
+		if (!userText.equals(other.userText)) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
+
 
 }

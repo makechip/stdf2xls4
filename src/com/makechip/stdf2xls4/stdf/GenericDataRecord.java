@@ -398,7 +398,6 @@ public class GenericDataRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
-		if (!super.equals(obj)) return false;
 		if (!(obj instanceof GenericDataRecord)) return false;
 		GenericDataRecord other = (GenericDataRecord) obj;
 		if (list == null)
@@ -406,6 +405,7 @@ public class GenericDataRecord extends StdfRecord
 			if (other.list != null) return false;
 		} 
 		else if (!list.equals(other.list)) return false;
+		if (!super.equals(obj)) return false;
 		return true;
 	}
     

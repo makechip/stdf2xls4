@@ -97,6 +97,22 @@ public class StdfTest1
 			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc"));
 		stdf.add(new EndProgramSectionRecord(tdb, dvd));
 		stdf.add(new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 0));
+		GenericDataRecord.Data d3 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U_1, 0), new Short((short)33));
+		GenericDataRecord.Data d4 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U_2, 0), new Integer(33));
+		GenericDataRecord.Data d5 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U_4, 0), new Long(33L));
+		GenericDataRecord.Data d6 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_1, 0), new Byte((byte) 33));
+		GenericDataRecord.Data d7 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_2, 0), new Short((short) 33));
+		GenericDataRecord.Data d8 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R_4, 0), new Float(33.0f));
+		GenericDataRecord.Data d9 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.C_N, 0), "string");
+		List<GenericDataRecord.Data> lgd2 = new ArrayList<GenericDataRecord.Data>(); 
+		lgd2.add(d3);
+		lgd2.add(d4);
+		lgd2.add(d5);
+		lgd2.add(d6);
+		lgd2.add(d7);
+		lgd2.add(d8);
+		lgd2.add(d9);
+		stdf.add(new GenericDataRecord(tdb, dvd, lgd2));
 		Path p = FileSystems.getDefault().getPath("x.stdf");
 		stdf.write(p.toFile());
         Files.delete(p);
@@ -108,7 +124,7 @@ public class StdfTest1
 	@Test
 	public void testA()
 	{
-		assertEquals(29, list.size());
+		assertEquals(30, list.size());
 	}
 
     @Test
@@ -209,6 +225,60 @@ public class StdfTest1
 		assertEquals("testerSerialNumber", mir.testerSerialNumber);
 		assertEquals("supervisorID", mir.supervisorID);
 		assertEquals(0, mir.timeStamp);
+		
+		MasterInformationRecord mir1 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID",
+			"partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  "sublotID", "operatorName",
+			"execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", "auxDataFile",
+			"packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber",
+			"supervisorID", 1234L);
+		assertEquals(mir1.hashCode(), mir.hashCode());
+		assertTrue(mir.equals(mir1));
+		assertTrue(mir.equals(mir));
+		assertFalse(mir.equals(null));
+		assertFalse(mir.equals("A"));
+		String s = mir1.toString();
+		assertTrue(s.contains("MasterInformationRecord ["));
+		assertTrue(s.contains("jobDate="));
+		assertTrue(s.contains("testDate="));
+		assertTrue(s.contains("stationNumber="));
+		assertTrue(s.contains("testModeCode="));
+		assertTrue(s.contains("lotRetestCode="));
+		assertTrue(s.contains("dataProtectionCode="));
+		assertTrue(s.contains("burnInTime="));
+		assertTrue(s.contains("cmdModeCode="));
+		assertTrue(s.contains("lotID="));
+		assertTrue(s.contains("partType="));
+		assertTrue(s.contains("nodeName="));
+		assertTrue(s.contains("testerType="));
+		assertTrue(s.contains("jobName="));
+		assertTrue(s.contains("jobRevisionNumber="));
+		assertTrue(s.contains("sublotID="));
+		assertTrue(s.contains("operatorName="));
+		assertTrue(s.contains("execSoftware="));
+		assertTrue(s.contains("execSoftwareVersion="));
+		assertTrue(s.contains("stepCode="));
+		assertTrue(s.contains("temperature="));
+		assertTrue(s.contains("userText="));
+		assertTrue(s.contains("auxDataFile="));
+		assertTrue(s.contains("packageType="));
+		assertTrue(s.contains("familyID="));
+		assertTrue(s.contains("dateCode="));
+		assertTrue(s.contains("facilityID="));
+		assertTrue(s.contains("floorID="));
+		assertTrue(s.contains("fabID="));
+		assertTrue(s.contains("frequency="));
+		assertTrue(s.contains("specName="));
+		assertTrue(s.contains("specVersion="));
+		assertTrue(s.contains("flowID="));
+		assertTrue(s.contains("setupID="));
+		assertTrue(s.contains("designRevision="));
+		assertTrue(s.contains("engLotID="));
+		assertTrue(s.contains("romCodeID="));
+		assertTrue(s.contains("testerSerialNumber="));
+		assertTrue(s.contains("supervisorID="));
+		assertTrue(s.contains("timeStamp="));
 	}
 	
 	// RetestDataRecord rdr = new RetestDataRecord(new int[] { 1, 2, 3, 4 });
@@ -427,13 +497,110 @@ public class StdfTest1
 		assertTrue(r instanceof GenericDataRecord);
 		assertFalse(r.isTestRecord());
 		GenericDataRecord gdr = (GenericDataRecord) r;
+		assertEquals("GenericDataRecord [list=[Data [type=I_4, value=33, padCnt=0], Data [type=R_8, value=44.0, padCnt=0]]]", gdr.toString());
+		assertTrue(gdr.equals(gdr));
+		assertFalse(gdr.equals(null));
+		assertFalse(gdr.equals("A"));
+		assertEquals(gdr.hashCode(), gdr.hashCode());
 		List<GenericDataRecord.Data> l = gdr.list; 
 		GenericDataRecord.Data d = l.get(0);
+		assertEquals("Data [type=I_4, value=33, padCnt=0]", d.toString());
+		GenericDataRecord.PadData p1 = new GenericDataRecord.PadData(Data_t.I_4, 0);
+		GenericDataRecord.PadData p2 = new GenericDataRecord.PadData(Data_t.I_4, 0);
+		GenericDataRecord.PadData p3 = new GenericDataRecord.PadData(Data_t.I_4, 1);
+		GenericDataRecord.PadData p4 = new GenericDataRecord.PadData(null, 1);
+		GenericDataRecord.PadData p5 = new GenericDataRecord.PadData(Data_t.I_2, 0);
+		assertEquals("PadData [type=I_4, padCnt=0]", p1.toString());
+		assertTrue(p4.equals(p4));
+		assertFalse(p1.equals(p5));
+		assertEquals(p4.hashCode(), p4.hashCode());
+		assertTrue(p1.equals(p2));
+		assertEquals(p1.hashCode(), p2.hashCode());
+		assertFalse(p1.equals(p3));
+		assertFalse(p1.equals(null));
+		assertFalse(p1.equals("A"));
+		GenericDataRecord.Data d1 = new GenericDataRecord.Data(p1, 33);
+		GenericDataRecord.Data d2 = new GenericDataRecord.Data(p1, 33);
+		GenericDataRecord.Data d3 = new GenericDataRecord.Data(p3, 33);
+		GenericDataRecord.Data d4 = new GenericDataRecord.Data(p3, 34);
+		GenericDataRecord.Data d5 = new GenericDataRecord.Data(p4, 34);
+		GenericDataRecord.Data d6 = new GenericDataRecord.Data(p4, 34);
+		GenericDataRecord.Data d7 = new GenericDataRecord.Data(p3, null);
+		GenericDataRecord.Data d8 = new GenericDataRecord.Data(p3, null);
+		GenericDataRecord.Data d9 = new GenericDataRecord.Data(p5, 33);
+		assertFalse(d9.equals(d8));
+		assertFalse(d9.equals(d2));
+		assertTrue(d1.equals(d1));
+		assertFalse(d8.equals(d4));
+		assertEquals(d1.hashCode(), d2.hashCode());
+		assertTrue(d5.equals(d6));
+		assertEquals(d5.hashCode(), d6.hashCode());
+		assertTrue(d7.equals(d8));
+		assertEquals(d7.hashCode(), d8.hashCode());
+		assertTrue(d1.equals(d2));
+		assertFalse(d1.equals(d3));
+		assertFalse(d1.equals(null));
+		assertFalse(d1.equals("A"));
+		assertFalse(d3.equals(d4));
 		assertEquals(Data_t.I_4, d.type);
 		assertEquals(33, d.value);
 		d = l.get(1);
 		assertEquals(Data_t.R_8, d.type);
 		assertEquals(44.0, d.value);
+		StdfRecord.MutableInt m1 = new StdfRecord.MutableInt();
+		m1.n = 5;
+		StdfRecord.MutableInt m2 = new StdfRecord.MutableInt();
+		m2.n = 6;
+		GenericDataRecord.BitData b1 = new GenericDataRecord.BitData(p1, m1, (short) 22);
+		GenericDataRecord.BitData b2 = new GenericDataRecord.BitData(p1, m1, (short) 22);
+		GenericDataRecord.BitData b3 = new GenericDataRecord.BitData(p1, m2, (short) 22);
+		assertTrue(b1.equals(b1));
+		assertTrue(b1.equals(b2));
+		assertFalse(b1.equals(b3));
+		assertFalse(b1.equals(null));
+		assertEquals(b1.hashCode(), b2.hashCode());
+		assertEquals("BitData [numBits=5, type=I_4, value=22, padCnt=0]", b1.toString());
+
+		r = list.get(29);
+		assertTrue(r instanceof GenericDataRecord);
+		assertFalse(r.isTestRecord());
+		GenericDataRecord gdr1 = (GenericDataRecord) r;
+		l = gdr1.list; 
+		GenericDataRecord.Data d0 = l.get(0);
+		assertEquals(Data_t.U_1, d0.type);
+		assertEquals((short) 33, d0.value);
+		assertEquals(0, d0.padCnt);
+		
+		GenericDataRecord.Data x1 = l.get(1);
+		assertEquals(Data_t.U_2, x1.type);
+		assertEquals((int) 33, x1.value);
+		assertEquals(0, x1.padCnt);
+		
+		GenericDataRecord.Data x2 = l.get(2);
+		assertEquals(Data_t.U_4, x2.type);
+		assertEquals(33L, x2.value);
+		assertEquals(0, x2.padCnt);
+		
+		GenericDataRecord.Data x3 = l.get(3);
+		assertEquals(Data_t.I_1, x3.type);
+		assertEquals((byte) 33, x3.value);
+		assertEquals(0, x3.padCnt);
+		
+		GenericDataRecord.Data x4 = l.get(4);
+		assertEquals(Data_t.I_2, x4.type);
+		assertEquals((short) 33, x4.value);
+		assertEquals(0, x4.padCnt);
+		
+		GenericDataRecord.Data x5 = l.get(5);
+		assertEquals(Data_t.R_4, x5.type);
+		assertEquals(33.0f, x5.value);
+		assertEquals(0, x5.padCnt);
+		
+		GenericDataRecord.Data x6 = l.get(6);
+		assertEquals(Data_t.C_N, x6.type);
+		assertEquals("string", x6.value);
+		assertEquals(0, x6.padCnt);
+		assertFalse(gdr.equals(gdr1));
 	}
 	
 	//stdf.add(new HardwareBinRecord(snum++, dnum, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
@@ -450,6 +617,25 @@ public class StdfTest1
 		assertEquals(10L, hbr.binCnt);
 		assertEquals('P', hbr.pf);
 		assertEquals("binName", hbr.binName);
+		assertEquals("HardwareBinRecord [headNumber=1, siteNumber=0, hwBin=1, binCnt=10, pf=P, binName=binName]", r.toString());
+		HardwareBinRecord hbr1 = new HardwareBinRecord(tdb, dvd, (short) 1, (short) 0, 1, 10L, 'P', "binName");
+		HardwareBinRecord hbr2 = new HardwareBinRecord(tdb, dvd, (short) 0, (short) 0, 1, 10L, 'P', "binName");
+		HardwareBinRecord hbr3 = new HardwareBinRecord(tdb, dvd, (short) 1, (short) 1, 1, 10L, 'P', "binName");
+		HardwareBinRecord hbr4 = new HardwareBinRecord(tdb, dvd, (short) 1, (short) 0, 2, 10L, 'P', "binName");
+		HardwareBinRecord hbr5 = new HardwareBinRecord(tdb, dvd, (short) 1, (short) 0, 1, 11L, 'P', "binName");
+		HardwareBinRecord hbr6 = new HardwareBinRecord(tdb, dvd, (short) 1, (short) 0, 1, 10L, 'F', "binName");
+		HardwareBinRecord hbr7 = new HardwareBinRecord(tdb, dvd, (short) 1, (short) 0, 1, 10L, 'P', "pinName");
+		assertTrue(hbr.equals(hbr1));
+		assertFalse(hbr.equals(null));
+		assertFalse(hbr.equals("A"));
+		assertTrue(hbr.equals(hbr));
+		assertEquals(hbr.hashCode(), hbr1.hashCode());
+		assertFalse(hbr.equals(hbr2));
+		assertFalse(hbr.equals(hbr3));
+		assertFalse(hbr.equals(hbr4));
+		assertFalse(hbr.equals(hbr5));
+		assertFalse(hbr.equals(hbr6));
+		assertFalse(hbr.equals(hbr7));
 	}
 	
 	//stdf.add(new MasterResultsRecord(snum++, dnum, 1000L, 'C', "lotDesc", "execDesc"));
@@ -845,11 +1031,10 @@ public class StdfTest1
 		assertTrue(s.contains("siteNumber="));
 	}
 	
-		
-		
-		
-		
-		
+	@Test
+	public void testA1()
+	{
+	}	
 		
 
 }

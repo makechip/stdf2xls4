@@ -24,9 +24,9 @@ public abstract class StdfRecord
 	protected int ptr;
 	protected byte[] bytes;
 	
-	static class MutableInt
+	public static class MutableInt
 	{
-		int n;
+		public int n;
 	}
 
 	protected StdfRecord(Record_t type, Cpu_t cpuType, byte[] bytes)
@@ -80,6 +80,7 @@ public abstract class StdfRecord
     
     protected static byte[] getCnBytes(String s)
     {
+    	if (s == null) s = "";
     	byte[] b = new byte[s.length() + 1];
     	b[0] = (byte) s.length();
     	for (int i=0; i<s.length(); i++)

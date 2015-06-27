@@ -29,7 +29,6 @@ import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 /**
 *** @author eric
@@ -37,16 +36,40 @@ import com.makechip.util.Log;
 **/
 public class HardwareBinRecord extends StdfRecord
 {
+	/**
+	 *  This is the HEAD_NUM field of the HardwareBinRecord.
+	 */
     public final short headNumber;
-    public final short siteNumber;
-    public final int hwBin;
-    public final long binCnt;
-    public final char pf;
-    public final String binName;
     /**
-    *** @param p1
-    *** @param p2
-    **/
+     *  This is the SITE_NUM field of the HardwareBinRecord.
+     */
+    public final short siteNumber;
+    /**
+     *  This is the HBIN_NUM field of the HardwareBinRecord.
+     */
+    public final int hwBin;
+    /**
+     *  This is the HBIN_CNT field of the HardwareBinRecord.
+     */
+    public final long binCnt;
+    /**
+     * This is the HBIN_PF field of the HardwareBinRecord.
+     */
+    public final char pf;
+    /**
+     * This is the HBIN_NAM field of the HardwareBinRecord.
+     */
+    public final String binName;
+    
+    /**
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase.  This value is not used by the HardwareBinRecord.
+     *         It is provided so that all StdfRecord classes have the same argument signatures,
+     *         so that function references can be used to refer to the constructors of StdfRecords.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public HardwareBinRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.HBR, dvd.getCpuType(), data);
@@ -58,6 +81,19 @@ public class HardwareBinRecord extends StdfRecord
         binName = getCn();
     }
     
+    /**
+     * This constructor is used to generate binary Stream data.  It can be used to convert
+     * the field values back into binary stream data.
+     * @param tdb The TestIdDatabase. This value is not used, but is needed so that
+     * this constructor can call the previous constructor to avoid code duplication.
+     * @param dvd The DefaultValueDatabase is used to access the CPU type.
+     * @param headNumber  The HEAD_NUM field.
+     * @param siteNumber  The SITE_NUM field.
+     * @param hwBin       The HBIN_NUM field.
+     * @param binCnt      The HBIN_CNT field.
+     * @param pf          The HBIN_PF field.
+     * @param binName     The HBIN_NAM field.
+     */
     public HardwareBinRecord(
     	TestIdDatabase tdb,
     	DefaultValueDatabase dvd,
@@ -71,6 +107,9 @@ public class HardwareBinRecord extends StdfRecord
     	this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, hwBin, binCnt, pf, binName));
     }
     
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -89,18 +128,58 @@ public class HardwareBinRecord extends StdfRecord
 		return(l.toArray());
 	}
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    head number: " + headNumber).append(Log.eol);
-        sb.append("    site number: " + siteNumber).append(Log.eol);
-        sb.append("    HW bin number:" + hwBin).append(Log.eol);
-        sb.append("    bin count: " + binCnt).append(Log.eol);
-        sb.append("    P/F: "); sb.append(pf).append(Log.eol);
-        sb.append("    bin name: ").append(binName).append(Log.eol);
-        return(sb.toString());
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("HardwareBinRecord [headNumber=").append(headNumber);
+		builder.append(", siteNumber=").append(siteNumber);
+		builder.append(", hwBin=").append(hwBin);
+		builder.append(", binCnt=").append(binCnt);
+		builder.append(", pf=").append(pf);
+		builder.append(", binName=").append(binName);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (int) (binCnt ^ (binCnt >>> 32));
+		result = prime * result + binName.hashCode();
+		result = prime * result + headNumber;
+		result = prime * result + hwBin;
+		result = prime * result + pf;
+		result = prime * result + siteNumber;
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof HardwareBinRecord)) return false;
+		HardwareBinRecord other = (HardwareBinRecord) obj;
+		if (binCnt != other.binCnt) return false;
+		if (!binName.equals(other.binName)) return false;
+		if (headNumber != other.headNumber) return false;
+		if (hwBin != other.hwBin) return false;
+		if (pf != other.pf) return false;
+		if (siteNumber != other.siteNumber) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
+
     
 }
