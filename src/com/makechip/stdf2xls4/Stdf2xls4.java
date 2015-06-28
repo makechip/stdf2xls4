@@ -1,9 +1,11 @@
 package com.makechip.stdf2xls4;
 
+import jxl.write.WriteException;
+import jxl.write.biff.RowsExceededException;
+
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter;
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter1;
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
+import com.makechip.stdf2xls4.xlsx.SpreadSheetWriter1;
+import com.makechip.stdf2xls4.xlsx.SpreadSheetWriter2;
 import com.makechip.util.Log;
 
 public class Stdf2xls4
@@ -15,7 +17,7 @@ public class Stdf2xls4
 		this.options = options;
 	}
 	
-	public void run()
+	public void run() throws RowsExceededException, WriteException
 	{
 		StdfAPI api = new StdfAPI(options);
 		api.initialize();
@@ -47,7 +49,8 @@ public class Stdf2xls4
         	System.exit(0);
         }
         Stdf2xls4 pgm = new Stdf2xls4(options);
-        pgm.run();
+        try { pgm.run(); }
+        catch (Exception e) { Log.fatal(e); }
         System.exit(0);
 	}
 

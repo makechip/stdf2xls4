@@ -1,86 +1,76 @@
-/*
- * ==========================================================================
- * Copyright (C) 2013,2014 makechip.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * A copy of the GNU General Public License can be found in the file
- * LICENSE.txt provided with the source distribution of this program
- * This license can also be found on the GNU website at
- * http://www.gnu.org/licenses/gpl.html.
- * 
- * If you did not receive a copy of the GNU General Public License along
- * with this program, contact the lead developer, or write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- */
+// Copyright 2011,2012 makechip.com
+// This file is part of stdf2xls.
+// 
+// stdf2xls is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// stdf2xls is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with stdf2xls.  If not, see <http://www.gnu.org/licenses/>.
 
 package com.makechip.stdf2xls4.xls;
 
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 
-import java.io.FileOutputStream;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Color;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFColor;
+import jxl.Cell;
+import jxl.CellType;
+import jxl.CellView;
+import jxl.LabelCell;
+import jxl.NumberCell;
+import jxl.Workbook;
+import jxl.format.Colour;
+import jxl.write.Label;
+import jxl.write.Number;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
+import jxl.write.biff.RowsExceededException;
 
-import com.makechip.stdf2xls4.CliOptions;
-import com.makechip.stdf2xls4.stdfapi.DeviceResult;
-import com.makechip.stdf2xls4.stdfapi.PageHeader;
+import com.makechip.stdf2xls4.SpreadSheetWriter;
 import com.makechip.stdf2xls4.stdfapi.SnOrXy;
-import com.makechip.stdf2xls4.stdfapi.StdfAPI;
 import com.makechip.stdf2xls4.stdf.TestID;
+import com.makechip.stdf2xls4.xls.layout1.CornerBlock;
+import com.makechip.stdf2xls4.xls.layout1.DataHeader;
+import com.makechip.stdf2xls4.xls.layout1.HeaderBlock;
+import com.makechip.stdf2xls4.xls.layout1.TitleBlock;
+import com.makechip.stdf2xls4.xls.layout1.LegendBlock;
+import com.makechip.util.Log;
 
-import static com.makechip.stdf2xls4.xls.FontName_t.ARIAL;
-import static com.makechip.stdf2xls4.xls.FontName_t.COURIER;
-import static com.makechip.stdf2xls4.xls.FontStyle_t.BOLD;
-import static com.makechip.stdf2xls4.xls.FontStyle_t.NORMAL;
-import static com.makechip.stdf2xls4.xls.HAlignment_t.CENTER;
-import static com.makechip.stdf2xls4.xls.HAlignment_t.LEFT;
-import static com.makechip.stdf2xls4.xls.HAlignment_t.RIGHT;
-import static org.apache.poi.ss.usermodel.IndexedColors.BLACK;
-import static org.apache.poi.ss.usermodel.IndexedColors.BLUE;
-import static org.apache.poi.ss.usermodel.IndexedColors.BRIGHT_GREEN;
-import static org.apache.poi.ss.usermodel.IndexedColors.LIGHT_BLUE;
-import static org.apache.poi.ss.usermodel.IndexedColors.PINK;
-import static org.apache.poi.ss.usermodel.IndexedColors.RED;
-import static org.apache.poi.ss.usermodel.IndexedColors.SKY_BLUE;
-import static org.apache.poi.ss.usermodel.IndexedColors.TURQUOISE;
-import static org.apache.poi.ss.usermodel.IndexedColors.WHITE;
-import static org.apache.poi.ss.usermodel.IndexedColors.YELLOW;
+import static com.makechip.stdf2xls4.xls.Format_t.*;
 
-@SuppressWarnings("all")
+@SuppressWarnings("unused")
 public class SpreadSheetWriter1 implements SpreadSheetWriter
 {
     private final int firstDataCol;
     public static final int MAX_ROWS = 1000000;
     
     private int colsPerPage;
-    private HashMap<String, TreeMap<SnOrXy, DeviceHeader>> devHdr;
-    private Workbook wb = null;
-    private Sheet[] ws;
-    public static final Color myBlue = new XSSFColor(new byte[] { 0, 85, (byte) 165 });
-    private String fileName;
-	private boolean xssf;
-    private int pages;
+    private WritableWorkbook wb = null;
+    private WritableSheet[] ws;
+    private int sheetNum = 0;
     private int currentRow;
+    private CellView tnumView     = new CellView();
+    private CellView loLimitView  = new CellView();
+    private CellView hiLimitView  = new CellView();
+    private CellView statusView   = new CellView();
+    private CellView unitsView    = new CellView();
+    private CellView hdrView      = new CellView();
     private boolean waferMode;
     private boolean wrapTestNames;
     private boolean hiPrecision;
@@ -94,129 +84,70 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private int testColumns;
     private boolean sortByFilename;
     private boolean showDuplicates;
-    public CellStyle TEST_NUMBER_FMT;
-    public CellStyle TEST_NAME_FMT;
-    public final CellStyle TITLE_FMT;
-    public final CellStyle LO_LIMIT_FMT;
-    public final CellStyle HI_LIMIT_FMT;
-    public final CellStyle UNIT_FMT;
-    public final CellStyle DATA_FMT;
-    public final CellStyle HEADER1_FMT;
-    public final CellStyle HEADER2_FMT;
-    public final CellStyle HEADER3_FMT;
-    public final CellStyle HEADER4_FMT;
-    public final CellStyle HEADER5_FMT;
-    public final CellStyle PASS_VALUE_HP_FMT;
-    public final CellStyle FAIL_VALUE_HP_FMT;
-    public final CellStyle INVALID_VALUE_HP_FMT;
-    public final CellStyle UNRELIABLE_VALUE_HP_FMT;
-    public final CellStyle ALARM_VALUE_HP_FMT;
-    public final CellStyle TIMEOUT_VALUE_HP_FMT;
-    public final CellStyle ABORT_VALUE_HP_FMT;
-    public final CellStyle PASS_VALUE_FMT;
-    public final CellStyle FAIL_VALUE_FMT;
-    public final CellStyle INVALID_VALUE_FMT;
-    public final CellStyle UNRELIABLE_VALUE_FMT;
-    public final CellStyle ALARM_VALUE_FMT;
-    public final CellStyle TIMEOUT_VALUE_FMT;
-    public final CellStyle ABORT_VALUE_FMT;
-    public final CellStyle STATUS_PASS_FMT;
-    public final CellStyle STATUS_FAIL_FMT;
-    public final CellStyle STATUS_INVALID_FMT;
-    public final CellStyle STATUS_UNRELIABLE_FMT;
-    public final CellStyle STATUS_ALARM_FMT;
-    public final CellStyle STATUS_TIMEOUT_FMT;
-    public final CellStyle STATUS_ABORT_FMT;
 
-    public SpreadSheetWriter1(CliOptions options, StdfAPI api)
+    public SpreadSheetWriter1(String fileName, boolean waferMode, boolean wrapTestNames, boolean hiPrecision, boolean noOverWrite, boolean onePage, int colsPerPage, boolean sortByFilename, boolean showDuplicates)
     {
-    	//this.fileName = opts.getXlsName();
     	this.waferMode = waferMode;
-    	//this.wrapTestNames = opts.getWrapTestNames();
-    	//this.hiPrecision = opts.getHiP();
-    	//this.noOverWrite = opts.getNoOverwrite();
-    	//this.onePage = opts.getOnePage();
+    	this.wrapTestNames = wrapTestNames;
+    	this.hiPrecision = hiPrecision;
+    	this.noOverWrite = noOverWrite;
+    	this.onePage = onePage;
+    	this.colsPerPage = colsPerPage;
     	this.sortByFilename = sortByFilename;
-    	//this.showDuplicates = opts.getShowDuplicates();
+    	this.showDuplicates = showDuplicates;
     	RSLT_COL = waferMode ? 4 : 5;
     	TEMP_COL = RSLT_COL + 1;
     	X_COL = RSLT_COL + 2;
     	Y_COL = RSLT_COL + 3;
     	firstDataCol = 8;
-    	/*
-    	sData = new HashMap<String, List<ResultList2>>();
-    	data = new HashMap<String, TreeMap<SnOrXy, LinkedHashMap<TestID, Result>>>();
-        dataHeader = new HashMap<String, LinkedHashSet<ColIdentifier>>();
-        headerInfo = new HashMap<String, StepInfo>();
-        devHdr = new HashMap<String, TreeMap<SnOrXy, DeviceHeader>>();
         System.out.println("Initializing workbook: " + fileName);
+        try
+        {
+            FormatFactory.reInitialize();
+        }
+        catch (Exception e) { e.printStackTrace(); }
         wb = null; 
-      	File ss = new File(fileName);
-      	if (!ss.exists())
-      	{
+      	Workbook w = null;
+       	try { w = Workbook.getWorkbook(new File(fileName)); }
+       	catch (Exception e) 
+       	{ 
        	    Log.warning("Unable to open existing spreadsheet: " + fileName);
-       	    if (fileName.endsWith(".xls")) wb = new HSSFWorkbook();
-       	    else wb = new XSSFWorkbook();
+       	    w = null; 
        	}
-      	else
+       	if (w != null)
        	{
-      		try
-      		{
-      			if (fileName.endsWith(".xls")) wb = new HSSFWorkbook(new FileInputStream(ss));
-      			else wb = new XSSFWorkbook(new FileInputStream(ss));
-      		}
-      		catch (Exception e) { Log.fatal(e); }
+       		try { wb = Workbook.createWorkbook(new File(fileName), w); }
+       		catch (Exception e)
+        	{
+       			System.out.println("Exception: " + e.getMessage());
+       			System.exit(-1);
+        	}
        	}
-        if (fileName.endsWith(".xls"))
-        {
-            HSSFPalette p = ((HSSFWorkbook)wb).getCustomPalette();	
-            p.setColorAtIndex((short) 0x39, (byte) 0, (byte) 85, (byte) 165);
-            xssf = false;
+       	else
+       	{
+       		try
+        	{
+        		wb = Workbook.createWorkbook(new File(fileName));
+        	}
+       		catch (Exception e)
+        	{
+            	System.out.println("Exception: " + e.getMessage());
+            	System.exit(-1);
+        	}
         }
-        else xssf = true;
-        colsPerPage = xssf ? (opts.getMsMode() ? 16300 : 1010) : 230;
-        TEST_NUMBER_FMT         = CellStyleType.getCellStyle(wb, LEFT,   VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        if (wrapTestNames)
+       	wb.setColourRGB(Colour.SKY_BLUE, 0, 85, 165);
+        sheetNum = 0;
+        try
         {
-        	Log.msg("wrapping test names!!!");
-        	TEST_NAME_FMT           = CellStyleType.getCellStyle(wb, JUSTIFY,VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
+            HEADER1_FMT.getFormat().setWrap(true);
+            tnumView.setSize(18*256);
+            loLimitView.setSize(16*256);
+            hiLimitView.setSize(16*256);
+            statusView.setSize(16*256);
+            unitsView.setSize(8*256);
+            hdrView.setSize(14*256);
         }
-        else
-        {
-        	TEST_NAME_FMT           = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        }
-        */
-        TITLE_FMT               = CellStyleType.getCellStyle(wb, LEFT,   VAlignment_t.CENTER, SKY_BLUE,     WHITE, ARIAL,   BOLD,   "",       BorderType.DEFAULT_BORDER, (short) 20);
-        LO_LIMIT_FMT            = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        HI_LIMIT_FMT            = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        UNIT_FMT                = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        DATA_FMT                = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        HEADER1_FMT             = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   BOLD,   "",       BorderType.DEFAULT_BORDER, (short) 8);
-        HEADER2_FMT             = CellStyleType.getCellStyle(wb, RIGHT,  VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   BOLD,   "",       BorderType.DEFAULT_BORDER, (short) 10);
-        HEADER3_FMT             = CellStyleType.getCellStyle(wb, LEFT,   VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        HEADER4_FMT             = CellStyleType.getCellStyle(wb, RIGHT,  VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   BOLD,   "",       BorderType.DEFAULT_BORDER, (short) 8);
-        HEADER5_FMT             = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   BOLD,   "0.000",  BorderType.DEFAULT_BORDER, (short) 8);
-        PASS_VALUE_HP_FMT       = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        FAIL_VALUE_HP_FMT       = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, RED,          BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        INVALID_VALUE_HP_FMT    = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, BRIGHT_GREEN, BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        UNRELIABLE_VALUE_HP_FMT = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, LIGHT_BLUE,   BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        ALARM_VALUE_HP_FMT      = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, YELLOW,       BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        TIMEOUT_VALUE_HP_FMT    = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, PINK,         BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        ABORT_VALUE_HP_FMT      = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, TURQUOISE,    BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        PASS_VALUE_FMT          = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        FAIL_VALUE_FMT          = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, RED,          BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        INVALID_VALUE_FMT       = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, BRIGHT_GREEN, BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        UNRELIABLE_VALUE_FMT    = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, LIGHT_BLUE,   BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        ALARM_VALUE_FMT         = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, YELLOW,       BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        TIMEOUT_VALUE_FMT       = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, PINK,         BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        ABORT_VALUE_FMT         = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, TURQUOISE,    BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        STATUS_PASS_FMT         = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, COURIER, NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        STATUS_FAIL_FMT         = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, RED,          BLACK, COURIER, NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        STATUS_INVALID_FMT      = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, BRIGHT_GREEN, BLACK, COURIER, NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        STATUS_UNRELIABLE_FMT   = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, BLUE,         BLACK, COURIER, NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        STATUS_ALARM_FMT        = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, YELLOW,       BLACK, COURIER, NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        STATUS_TIMEOUT_FMT      = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, PINK,         BLACK, COURIER, NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
-        STATUS_ABORT_FMT        = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, TURQUOISE,    BLACK, COURIER, NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
+        catch (Exception e) { e.printStackTrace(); }
     }
 
     // 1. Make logo
@@ -224,7 +155,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     // 3. Make horizontal header
     // 4. Make vertical header
     // 5. Enter data
-    public void generate()
+    public void generate() throws RowsExceededException, WriteException
     {
     	/*
     	boolean first = true;
@@ -242,63 +173,9 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         */
     }
         
-    private void addCell(Sheet ws, int col, int row, String text, CellStyle fmt)
+    private void writeData(String waferOrStep) throws RowsExceededException, WriteException
     {
-    	Row r = ws.getRow(row);
-    	if (r == null) r = ws.createRow(row);
-    	Cell c = r.getCell(col);
-    	if (c == null)
-    	{
-    		c = r.createCell(col, Cell_t.STRING.getType());
-    		c.setCellValue(text);
-    		c.setCellStyle(fmt);
-    	}
-    }
-    
-    private void addCell(Sheet ws, int col, int row, int value, CellStyle fmt)
-    {
-    	Row r = ws.getRow(row);
-    	if (r == null) r = ws.createRow(row);
-    	Cell c = r.getCell(col);
-    	if (c == null)
-    	{
-    		c = r.createCell(col, Cell_t.STRING.getType());
-    		c.setCellValue(value);
-    		c.setCellStyle(fmt);
-    	}
-    }
-    
-    private void addCell(Sheet ws, int col, int row, float value, CellStyle fmt)
-    {
-    	Row r = ws.getRow(row);
-    	if (r == null) r = ws.createRow(row);
-    	Cell c = r.getCell(col);
-    	if (c == null)
-    	{
-    		c = r.createCell(col, Cell_t.STRING.getType());
-    		c.setCellValue(value);
-    		c.setCellStyle(fmt);
-    	}
-    }
-    
-    @SuppressWarnings("unused")
-	private void addCell(Sheet ws, int col, int row, double value, CellStyle fmt)
-    {
-    	Row r = ws.getRow(row);
-    	if (r == null) r = ws.createRow(row);
-    	Cell c = r.getCell(col);
-    	if (c == null)
-    	{
-    		c = r.createCell(col, Cell_t.STRING.getType());
-    		c.setCellValue(value);
-    		c.setCellStyle(fmt);
-    	}
-    }
-    
-    private void writeData(String waferOrStep)
-    {
-    	
-    	/*
+        /*	
     	if (sortByFilename && showDuplicates) noOverWrite = true;
         List<ResultList2> m1 = sData.get(waferOrStep);
         StepInfo si = headerInfo.get(waferOrStep);
@@ -312,7 +189,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         {
         	SnOrXy sn = rl.getSnOrXy();
            	Map<TestID, Result> list = rl.getMap();
-           	pages = 0;
+           	int pages = 0;
            	testColumns = colsPerPage;
            	if (hdrList.size() % colsPerPage == 0) pages = hdrList.size() / colsPerPage;
            	else pages = 1 + (hdrList.size() / colsPerPage);
@@ -321,20 +198,20 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
            	for (int page=0; page<pages; page++)
            	{
                	locateRow(waferOrStep, sn, page); // sets currentRow
-               	if (onePage) addCell(ws[page], RSLT_COL-3, currentRow, waferOrStep, DATA_FMT);
-                addCell(ws[page], RSLT_COL-2, currentRow, dh.getHwBin(), DATA_FMT);	
-                addCell(ws[page], RSLT_COL-1, currentRow, dh.getSwBin(), DATA_FMT);
+               	if (onePage) ws[page].addCell(new Label(RSLT_COL-3, currentRow, waferOrStep, DATA_FMT.getFormat()));
+               	ws[page].addCell(new Number(RSLT_COL-2, currentRow, dh.getHwBin(), DATA_FMT.getFormat()));
+               	ws[page].addCell(new Number(RSLT_COL-1, currentRow, dh.getSwBin(), DATA_FMT.getFormat()));
                	if (dh.isPass()) setStatus(ws[page], RSLT_COL, currentRow, Error_t.PASS);
                	else setStatus(ws[page], RSLT_COL, currentRow, Error_t.FAIL);
-               	addCell(ws[page], TEMP_COL, currentRow, t, DATA_FMT);
+               	ws[page].addCell(new Label(TEMP_COL, currentRow, t, DATA_FMT.getFormat()));
                	if (waferMode)
                	{
-               		addCell(ws[page], X_COL, currentRow, sn.getX(), DATA_FMT);
-               		addCell(ws[page], Y_COL, currentRow, sn.getY(), DATA_FMT);
+               	    ws[page].addCell(new Number(X_COL, currentRow, sn.getX(), DATA_FMT.getFormat()));
+               	    ws[page].addCell(new Number(Y_COL, currentRow, sn.getY(), DATA_FMT.getFormat()));
                	}
                	else
                	{
-               		addCell(ws[page], X_COL, currentRow, "" + sn.getSerialNumber(), DATA_FMT);
+               	    ws[page].addCell(new Label(X_COL, currentRow, sn.getSerialNumber(), DATA_FMT.getFormat()));
                	}
                	for (int i=0; i<testColumns; i++)
                	{
@@ -371,7 +248,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         LinkedHashSet<ColIdentifier> list = dataHeader.get(waferOrStep);
         if (list.size() % colsPerPage == 0) pages = list.size() / colsPerPage;
         else pages = 1 + (list.size() / colsPerPage);
-        ws = new Sheet[pages];
+        ws = new WritableSheet[pages];
         try
         {
             for (int i=0; i<pages; i++)
@@ -391,10 +268,8 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
                 	int testCols = 0;
                 	while (true)
                 	{
-                		Row r = ws[i].getRow(tnumRow);
-                		if (r == null) break;
-                		Cell c = r.getCell(j);
-                		if (c == null) break;
+                		Cell c = ws[i].getCell(j, tnumRow);
+                		if (c.getType() == CellType.EMPTY) break;
                 		testCols++;
                 		j++;
                 	}
@@ -416,8 +291,8 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     {
     	/*
         StepInfo si = headerInfo.get(waferOrStep);
-        HeaderBlock hb = new HeaderBlock(this, si.getHeaderItems());
-        CornerBlock cb = new CornerBlock(this, waferMode, hb.getHeight(), onePage);
+        HeaderBlock hb = new HeaderBlock(si.getHeaderItems());
+        CornerBlock cb = new CornerBlock(waferMode, hb.getHeight(), onePage);
         return(TitleBlock.HEIGHT + hb.getHeight() + cb.getHeight());
         */
     	return(0);
@@ -428,11 +303,11 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     	/*
         try
         {
-            ws[page] = wb.createSheet(name);
+            ws[page] = wb.createSheet(name, sheetNum);
             StepInfo si = headerInfo.get(waferOrStep);
-            HeaderBlock hb = new HeaderBlock(this, si.getHeaderItems());
+            HeaderBlock hb = new HeaderBlock(si.getHeaderItems());
             hb.addBlock(ws[page]);
-            CornerBlock cb = new CornerBlock(this, waferMode, hb.getHeight(), onePage);
+            CornerBlock cb = new CornerBlock(waferMode, hb.getHeight(), onePage);
             cb.addBlock(ws[page]);
             LinkedHashSet<ColIdentifier> m = dataHeader.get(waferOrStep);
             List<ColIdentifier> l1 = new ArrayList<ColIdentifier>();
@@ -444,10 +319,9 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
                 ColIdentifier cid = l1.get(i+colsPerPage*page);
                 list.add(cid);
             }
-            TitleBlock.addBlock(wb, xssf, this, ws[page], name, LegendBlock.getWidth() + ((list.size() >= colsPerPage) ? colsPerPage : list.size()));
-            DataHeader dh = new DataHeader(this, list, cb, hb, wrapTestNames, hiPrecision);
-            dh.addBlock(ws[page], xssf);
-            LegendBlock.addBlock(this, ws[page], cb.getWidth(), wrapTestNames);
+            TitleBlock.addBlock(ws[page], name, LegendBlock.getWidth() + ((list.size() >= colsPerPage) ? colsPerPage : list.size()));
+            DataHeader dh = new DataHeader(list, cb, hb, wrapTestNames, hiPrecision);
+            dh.addBlock(ws[page]);
         }
         catch (Exception e)
         {
@@ -458,61 +332,61 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         */
     }
     
-    private void setStatus(Sheet wsi, int col, int row)
+    private void setStatus(WritableSheet wsi, int col, int row) throws RowsExceededException, WriteException
     {
     	/*
         switch (err)
         {
-        case PASS:       addCell(wsi, col, row, "PASS", STATUS_PASS_FMT);
-        case FAIL:       addCell(wsi, col, row, "FAIL", STATUS_FAIL_FMT);
-        case INVALID:    addCell(wsi, col, row, "FAIL", STATUS_INVALID_FMT);
-        case UNRELIABLE: addCell(wsi, col, row, "FAIL", STATUS_UNRELIABLE_FMT);
-        case ALARM:      addCell(wsi, col, row, "FAIL", STATUS_ALARM_FMT);
-        case TIMEOUT:    addCell(wsi, col, row, "FAIL", STATUS_TIMEOUT_FMT);
-        default:         addCell(wsi, col, row, "FAIL", STATUS_ABORT_FMT);
+        case PASS:       wsi.addCell(new Label(col, row, "PASS", STATUS_PASS_FMT.getFormat())); break;
+        case FAIL:       wsi.addCell(new Label(col, row, "FAIL", STATUS_FAIL_FMT.getFormat())); break;
+        case INVALID:    wsi.addCell(new Label(col, row, "FAIL", STATUS_INVALID_FMT.getFormat())); break;
+        case UNRELIABLE: wsi.addCell(new Label(col, row, "FAIL", STATUS_UNRELIABLE_FMT.getFormat())); break;
+        case ALARM:      wsi.addCell(new Label(col, row, "FAIL", STATUS_ALARM_FMT.getFormat())); break;
+        case TIMEOUT:    wsi.addCell(new Label(col, row, "FAIL", STATUS_TIMEOUT_FMT.getFormat())); break;
+        default:         wsi.addCell(new Label(col, row, "FAIL", STATUS_ABORT_FMT.getFormat())); break;
         }
         */
     }
     
-    private void setText(Sheet wsi, int col, int row, String text)
+    private void setText(WritableSheet wsi, int col, int row, String text) throws RowsExceededException, WriteException
     {
     	String s = text.trim();
-    	int size = wsi.getColumnWidth(col);
+    	int size = wsi.getColumnView(col).getSize();
     	if (size < (s.length() * 256))
     	{
-    		wsi.setColumnWidth(col, 256*(14 * s.length())/10);
+    		wsi.setColumnView(col, (14 * s.length())/10);
     	}
-    	addCell(wsi, col, row, text.trim(), STATUS_PASS_FMT);
+    	wsi.addCell(new Label(col, row, text.trim(), STATUS_PASS_FMT.getFormat()));
     	
     }
     
-    private void setValue(Sheet wsi, int col, int row, float value)
+    private void setValue(WritableSheet wsi, int col, int row, float value) throws RowsExceededException, WriteException
     {
     	/*
     	if (hiPrecision)
     	{
     		switch (err)
     		{
-    		case PASS:       addCell(wsi, col, row, value, PASS_VALUE_HP_FMT);
-    		case FAIL:       addCell(wsi, col, row, value, FAIL_VALUE_HP_FMT); break;
-    		case INVALID:    addCell(wsi, col, row, value, INVALID_VALUE_HP_FMT); break;
-    		case UNRELIABLE: addCell(wsi, col, row, value, UNRELIABLE_VALUE_HP_FMT); break;
-    		case ALARM:      addCell(wsi, col, row, value, ALARM_VALUE_HP_FMT); break;
-    		case TIMEOUT:    addCell(wsi, col, row, value, TIMEOUT_VALUE_HP_FMT); break;
-    		default:         addCell(wsi, col, row, value, ABORT_VALUE_HP_FMT); break;
+    		case PASS:       wsi.addCell(new Number(col, row, value, PASS_VALUE_HP_FMT.getFormat())); break;
+    		case FAIL:       wsi.addCell(new Number(col, row, value, FAIL_VALUE_HP_FMT.getFormat())); break;
+    		case INVALID:    wsi.addCell(new Number(col, row, value, INVALID_VALUE_HP_FMT.getFormat())); break;
+    		case UNRELIABLE: wsi.addCell(new Number(col, row, value, UNRELIABLE_VALUE_HP_FMT.getFormat())); break;
+    		case ALARM:      wsi.addCell(new Number(col, row, value, ALARM_VALUE_HP_FMT.getFormat())); break;
+    		case TIMEOUT:    wsi.addCell(new Number(col, row, value, TIMEOUT_VALUE_HP_FMT.getFormat())); break;
+    		default:         wsi.addCell(new Number(col, row, value, ABORT_VALUE_HP_FMT.getFormat())); break;
     		}
     	}
     	else
     	{
     		switch (err)
     		{
-    		case PASS:       addCell(wsi, col, row, value, PASS_VALUE_FMT); break;
-    		case FAIL:       addCell(wsi, col, row, value, FAIL_VALUE_FMT); break;
-    		case INVALID:    addCell(wsi, col, row, value, INVALID_VALUE_FMT); break;
-    		case UNRELIABLE: addCell(wsi, col, row, value, UNRELIABLE_VALUE_FMT); break;
-    		case ALARM:      addCell(wsi, col, row, value, ALARM_VALUE_FMT); break;
-    		case TIMEOUT:    addCell(wsi, col, row, value, TIMEOUT_VALUE_FMT); break;
-    		default:         addCell(wsi, col, row, value, ABORT_VALUE_FMT); break;
+    		case PASS:       wsi.addCell(new Number(col, row, value, PASS_VALUE_FMT.getFormat())); break;
+    		case FAIL:       wsi.addCell(new Number(col, row, value, FAIL_VALUE_FMT.getFormat())); break;
+    		case INVALID:    wsi.addCell(new Number(col, row, value, INVALID_VALUE_FMT.getFormat())); break;
+    		case UNRELIABLE: wsi.addCell(new Number(col, row, value, UNRELIABLE_VALUE_FMT.getFormat())); break;
+    		case ALARM:      wsi.addCell(new Number(col, row, value, ALARM_VALUE_FMT.getFormat())); break;
+    		case TIMEOUT:    wsi.addCell(new Number(col, row, value, TIMEOUT_VALUE_FMT.getFormat())); break;
+    		default:         wsi.addCell(new Number(col, row, value, ABORT_VALUE_FMT.getFormat())); break;
     		}
     	}
     	*/
@@ -527,28 +401,22 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         	{
         		for (int row=firstDataRow; row<=MAX_ROWS; row++)
         		{
-        			Row r = ws[page].getRow(X_COL);
-        			if (r == null)
+        			Cell c = ws[page].getCell(X_COL, row);
+        			if (c.getType() == CellType.EMPTY)
         			{
         				currentRow = row;
         				return;
         			}
-        			Cell c = r.getCell(X_COL);
-        			if (c == null)
-        			{
-        				currentRow = row;
-        				return;
-        			}
-        			short xval = (short) c.getNumericCellValue();
+        			NumberCell cd = (NumberCell) c;
+        			short xval = (short) cd.getValue();
         			if (xval == snOrXy.getX()) xlist.add(row);
         		}
         		TIntIterator it = xlist.iterator();
         		while (it.hasNext())
         		{
         			int row = it.next();
-        			Row r = ws[page].getRow(row);
-        			Cell c = r.getCell(Y_COL);
-        			short yval = (short) c.getNumericCellValue();
+        			NumberCell c = (NumberCell) ws[page].getCell(Y_COL, row);
+        			short yval = (short) c.getValue();
         			if (yval == snOrXy.getY())
         			{	
         				currentRow = row;
@@ -560,14 +428,9 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
             {
                 for (int i=firstDataRow; i<=MAX_ROWS; i++)
                 {
-                	Row r = ws[page].getRow(i);
-                	if (r == null)
-                	{
-                		currentRow = i;
-                		break;
-                	}
-                    Cell c = r.getCell(X_COL);
-                    if (c == null)
+                    Cell c = ws[page].getWritableCell(X_COL, i);
+                    CellType t = c.getType();
+                    if (t == CellType.EMPTY)
                     {
                         currentRow = i;
                         break;
@@ -585,21 +448,16 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         {
             for (int row=firstDataRow; row<=MAX_ROWS; row++)
             {
-            	Row r = ws[page].getRow(row);
-            	if (r == null)
-            	{
-            		currentRow = row;
-            		return;
-            	}
-                Cell c = r.getCell(X_COL);
-                if (c == null)
+                Cell c = ws[page].getWritableCell(X_COL, row);
+                if (c.getType() == CellType.EMPTY)
                 {
                     currentRow = row;
                     return;
                 }
                 if (!noOverWrite)
                 {
-                	String sn = c.getStringCellValue();
+                	LabelCell cd = (LabelCell) c;
+                	String sn = cd.getString();
                 	if (sn.equals(snOrXy.getSerialNumber()))
                 	{
                     	currentRow = row;
@@ -610,21 +468,30 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         }
     }
     
+    public void setCell(WritableSheet wsi, int row, int col, String contents, int formatHandle)
+    {
+        try { wsi.addCell(new Label(row, col, contents, FormatFactory.getFormat(formatHandle))); }
+        catch (Exception e) { e.printStackTrace(); }
+    }
+
+    public void setCell(WritableSheet wsi, int row, int col, double value, int formatHandle)
+    {
+        try { wsi.addCell(new Number(row, col, value, FormatFactory.getFormat(formatHandle))); }
+        catch (Exception e) { e.printStackTrace(); }
+    }
+    
+    public void setCell(WritableSheet wsi, int row, int col, int value, int formatHandle)
+    {
+        try { wsi.addCell(new Number(row, col, value, FormatFactory.getFormat(formatHandle))); }
+        catch (Exception e) { e.printStackTrace(); }
+    }
+    
     public void close()
     {
-    	for (int i=0; i<pages; i++)
-    	{
-    		Row r1 = ws[i].getRow(20);
-    		Cell c = r1.getCell(8);
-    		if (c != null) c.setAsActiveCell();
-    	}
         if (ws == null) return;
         try
         {
-        	FileOutputStream fos = new FileOutputStream(fileName);
-            wb.write(fos);
-            wb.close();
-            fos.close();
+            wb.write();
         }
         catch (Exception e)
         {
@@ -633,9 +500,9 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
             System.out.println("Exception: " + e.getMessage());
             System.exit(-1);
         }
-        /*
         try
         {
+            wb.close();
         }
         catch (Exception e)
         {
@@ -643,263 +510,6 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
             System.out.println("Exception: " + e.getMessage());
             System.exit(-1);
         }
-        */
     }                                 
     
-    private void addResult(String waferOrStep, SnOrXy snOrXy, TestID id, boolean first)
-    {
-    	/*
-    	if (noOverWrite)
-    	{
-    		List<ResultList2> l = sData.get(waferOrStep);
-    		if (l == null)
-    		{
-    			l = new ArrayList<ResultList2>();
-    			sData.put(waferOrStep, l);
-    			ResultList2 lr = new ResultList2(snOrXy);
-    			l.add(lr);
-    		}
-    		else if (first)
-    		{
-    			ResultList2 lr = new ResultList2(snOrXy);
-    			l.add(lr);
-    		}
-    		ResultList2 lr = l.get(l.size()-1);
-    		lr.addResult(id, r);
-    	}
-    	else
-    	{
-    		TreeMap<SnOrXy, LinkedHashMap<TestID, Result>> m1 = data.get(waferOrStep);
-    		if (m1 == null)
-    		{
-    			m1 = new TreeMap<SnOrXy, LinkedHashMap<TestID, Result>>();
-    			data.put(waferOrStep, m1);
-    		}
-    		LinkedHashMap<TestID, Result> m2 = m1.get(snOrXy);
-    		if (m2 == null)
-    		{
-    			m2 = new LinkedHashMap<TestID, Result>();
-    			m1.put(snOrXy, m2);
-    		}
-    		if (first) m2.clear();
-    		//Log.msg("xy = " + snOrXy + " id = " + id + " result = " + r);
-    		m2.put(id, r);
-    	}
-    	*/
-    }
-    
-    private void addDeviceHeader(String waferOrStep, SnOrXy snOrxy, DeviceHeader dh)
-    {
-        TreeMap<SnOrXy, DeviceHeader> m1 = devHdr.get(waferOrStep);
-        if (m1 == null)
-        {
-            m1 = new TreeMap<SnOrXy, DeviceHeader>();
-            devHdr.put(waferOrStep, m1);
-        }
-        m1.put(snOrxy, dh);
-    }
-    
-    private void addColumnId(String waferOrStep)
-    {
-    	/*
-        LinkedHashSet<ColIdentifier> m1 = dataHeader.get(waferOrStep);
-        if (m1 == null)
-        {
-            m1 = new LinkedHashSet<ColIdentifier>();
-            dataHeader.put(waferOrStep, m1);
-        }
-        m1.add(col);
-        */
-    }
-   
-    /**
-     * This method builds up three data structures:
-     * 1. data: map waferOrStep -> snOrxy -> testId -> result
-     * 2. dataHeader: map waferOrStep -> TestID -> ColIdentifier  // for the header above the test data
-     * 3. headerInfo: map waferOrStep -> StepInfo  // for the header information
-     * Also, this method creates unique TestID's for each pin in a MultipleResultParametricStdfRecord,
-     * and computes the the pass/fail status for each pin.
-     * @param testInfo
-     * @param results
-     * @param colsPerPage
-     */
-    public void addResults(HashMap<String, PageHeader> testInfo, List<DeviceResult> results)
-    {
-    	/*
-        this.headerInfo = testInfo;
-        for (DeviceResult dr : results)
-        {
-            StepInfo stepInfo = dr.getStepInfo();
-            String waferOrStep = stepInfo.getStep();
-            if (waferOrStep == null) waferOrStep = "NONE";
-            headerInfo.put(waferOrStep, stepInfo);
-            SnOrXy snOrXy = dr.getSnOrXy();
-            DeviceHeader dh = DeviceHeader.getDeviceHeader(dr.isPass(), snOrXy, stepInfo.getTemperature(), dr.getHwBin(), dr.getSwBin());
-            addDeviceHeader(waferOrStep, snOrXy, dh); 
-            boolean first = true;
-            for (TestID id : dr.getTestIDs())
-            {
-                TestResult tr = dr.getTestResult(id);
-                Test_t type = null;
-                if (tr instanceof FunctionalTestResult) type = Test_t.FUNCTIONAL;
-                else if (tr instanceof ParametricTestResult) type = Test_t.PARAMETRIC;
-                else if (tr instanceof TextResult) type = Test_t.TEXT;
-                else type = Test_t.MULTI_PARAMETRIC;
-                switch (type)
-                {
-                case PARAMETRIC:
-                    ParametricTestResult ptr = ParametricTestResult.class.cast(tr);
-                    Result r1 = new Result(type, ptr.getResult(), ptr.getError());
-                    addColumnId(waferOrStep, ColIdentifier.getColIdentifier(id, ptr.getLoLimit(), ptr.getHiLimit(), ptr.getUnits()));
-                    addResult(waferOrStep, snOrXy, id, r1, first);
-                    first = false;
-                    break;
-                case MULTI_PARAMETRIC:
-                    MultipleParametricTestResult mpr = MultipleParametricTestResult.class.cast(tr);
-                    for (String pin : mpr.getPins())
-                    {
-                        TestID tid = TestID.getTestID(id, pin);
-                        // ADD LIMIT CHECKING HERE
-                        // before checking consider the following:
-                        // 1. Is low limit valid?
-                        // 2. is High limit valid?
-                        // 3. if result == low limit is it a pass?
-                        // 4. if result == high limit is it a pass?
-                        // 5. if LO_LIMIT_LLM_SCAL_INVALID then use noLoLimit() in test ID
-                        // 6. if HI_LIMIT_HLM_SCAL_INVALID then use noHiLimit() in test ID.
-                        Result r3 = null;
-                        if (mpr.getError() == Error_t.FAIL)
-                        {
-                            Float loLim = null;
-                            Float hiLim = null;
-                            if (mpr.useDefaultHiFlag())
-                            {
-                                if (mpr.getHiLimit() == StdfRecord.MISSING_FLOAT) hiLim = null; 
-                                else hiLim = new Float(mpr.getHiLimit());
-                            }
-                            else
-                            {
-                                if (mpr.hasNoHiLimit()) hiLim = null;
-                                else hiLim = new Float(mpr.getHiLimit());
-                            }
-                            if (mpr.useDefaultLoFlag())
-                            {
-                                if (mpr.hasNoLoLimit()) loLim = null; 
-                                else loLim = new Float(mpr.getLoLimit());
-                            }
-                            else
-                            {
-                                if (mpr.hasNoHiLimit()) loLim = null;
-                                else loLim = new Float(mpr.getLoLimit());
-                            }
-                            Error_t e = null;
-                            if (loLim == null && hiLim == null)
-                            {
-                                e = Error_t.PASS;
-                            }
-                            else if (loLim == null)
-                            {
-                                if (mpr.doesHiLimitEqPass())
-                                {
-                                    if (mpr.getResult(pin) <= hiLim.floatValue()) e = Error_t.PASS;
-                                    else e = Error_t.FAIL;
-                                }
-                                else
-                                {
-                                    if (mpr.getResult(pin) < hiLim.floatValue()) e = Error_t.PASS;
-                                    else e = Error_t.FAIL;
-                                }
-                            }
-                            else if (hiLim == null)
-                            {
-                                if (mpr.doesLoLimitEqPass())
-                                {
-                                    if (mpr.getResult(pin) >= loLim.floatValue()) e = Error_t.PASS;
-                                    else e = Error_t.FAIL;
-                                }
-                                else
-                                {
-                                    if (mpr.getResult(pin) > loLim.floatValue()) e = Error_t.PASS;
-                                    else e = Error_t.FAIL;
-                                }
-                            }
-                            else
-                            {
-                                if (mpr.doesHiLimitEqPass() && mpr.doesLoLimitEqPass())
-                                {
-                                    if (mpr.getResult(pin) <= hiLim.floatValue() && mpr.getResult(pin) >= loLim.floatValue())
-                                    {
-                                        e = Error_t.PASS;
-                                    }
-                                    else e = Error_t.FAIL;
-                                }
-                                else if (mpr.doesHiLimitEqPass())
-                                {
-                                    if (mpr.getResult(pin) <= hiLim.floatValue() && mpr.getResult(pin) > loLim.floatValue()) 
-                                    {
-                                        e = Error_t.PASS;
-                                    }
-                                    else e = Error_t.FAIL;
-                                }
-                                else if (mpr.doesLoLimitEqPass())
-                                {
-                                    if (mpr.getResult(pin) < hiLim.floatValue() && mpr.getResult(pin) >= loLim.floatValue())
-                                    {
-                                        e = Error_t.PASS;
-                                    }
-                                    else e = Error_t.FAIL;
-                                }
-                                else
-                                {
-                                    if (mpr.getResult(pin) < hiLim.floatValue() && mpr.getResult(pin) > loLim.floatValue())
-                                    {
-                                        e = Error_t.PASS;
-                                    }
-                                    else e = Error_t.FAIL;
-                                }
-                            }
-                            r3 = new Result(type, mpr.getResult(pin), e);
-                        }
-                        else 
-                        {
-                        	r3 = new Result(type, mpr.getResult(pin), mpr.getError());
-                        }
-                        addResult(waferOrStep, snOrXy, tid, r3, first);
-                        first = false;
-                        addColumnId(waferOrStep, ColIdentifier.getColIdentifier(tid, mpr.getLoLimit(), mpr.getHiLimit(), mpr.getUnits()));
-                    }
-                    break;
-                case TEXT:
-                    TextResult txt = TextResult.class.cast(tr);
-                    Result r4 = new Result(type, txt.getResult());
-                    addResult(waferOrStep, snOrXy, id, r4, first);
-                    first = false;
-                    addColumnId(waferOrStep, ColIdentifier.getColIdentifier(id, StdfRecord.MISSING_FLOAT, StdfRecord.MISSING_FLOAT, ""));
-                    break;
-                case FUNCTIONAL:
-                    Result r2 = new Result(type, StdfRecord.MISSING_FLOAT, tr.getError());
-                    addResult(waferOrStep, snOrXy, id, r2, first);
-                    first = false;
-                    addColumnId(waferOrStep, ColIdentifier.getColIdentifier(id, StdfRecord.MISSING_FLOAT, StdfRecord.MISSING_FLOAT, ""));
-                default:
-                }
-            }
-        }
-        if (!noOverWrite)
-        {
-        	for (String stp : data.keySet())
-        	{
-        		Map<SnOrXy, LinkedHashMap<TestID, Result>> m = data.get(stp);
-        		List<ResultList2> list = new ArrayList<ResultList2>();
-        		for (SnOrXy sxy : m.keySet())
-        		{
-        			ResultList2 rls = new ResultList2(sxy, m.get(sxy));
-        			list.add(rls);
-        		}
-        		sData.put(stp, list);
-        	}
-        }
-        */
-    }
-
 }

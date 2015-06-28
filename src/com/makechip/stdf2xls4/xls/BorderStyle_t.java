@@ -1,65 +1,71 @@
-/*
- * ==========================================================================
- * Copyright (C) 2013,2014 makechip.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * A copy of the GNU General Public License can be found in the file
- * LICENSE.txt provided with the source distribution of this program
- * This license can also be found on the GNU website at
- * http://www.gnu.org/licenses/gpl.html.
- * 
- * If you did not receive a copy of the GNU General Public License along
- * with this program, contact the lead developer, or write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- */
+// Copyright 2011,2012 makechip.com
+// This file is part of stdf2xls.
+// 
+// stdf2xls is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// stdf2xls is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with stdf2xls.  If not, see <http://www.gnu.org/licenses/>.
 
 package com.makechip.stdf2xls4.xls;
 
-import org.apache.poi.ss.usermodel.CellStyle;
+import jxl.format.BorderLineStyle;
 
 public enum BorderStyle_t
 {
-    NONE(CellStyle.BORDER_NONE),
-    DASH_DOT(CellStyle.BORDER_DASH_DOT),
-    DASH_DOT_DOT(CellStyle.BORDER_DASH_DOT_DOT),
-    DASHED(CellStyle.BORDER_DASHED),
-    DOTTED(CellStyle.BORDER_DOTTED),
-    DOUBLE(CellStyle.BORDER_DOUBLE),
-    HAIR(CellStyle.BORDER_HAIR),
-    MEDIUM(CellStyle.BORDER_MEDIUM),
-    MEDIUM_DASH_DOT(CellStyle.BORDER_MEDIUM_DASH_DOT),
-    MEDIUM_DASH_DOT_DOT(CellStyle.BORDER_MEDIUM_DASH_DOT_DOT),
-    MEDIUM_DASHED(CellStyle.BORDER_MEDIUM_DASHED),
-    SLANTED_DASH_DOT(CellStyle.BORDER_SLANTED_DASH_DOT),
-    THICK(CellStyle.BORDER_THICK),
-    THIN(CellStyle.BORDER_THIN),
-    DEFAULT(CellStyle.BORDER_THIN);
+    NONE(BorderLineStyle.NONE),
+    DASH_DOT(BorderLineStyle.DASH_DOT),
+    DASH_DOT_DOT(BorderLineStyle.DASH_DOT_DOT),
+    DASHED(BorderLineStyle.DASHED),
+    DOTTED(BorderLineStyle.DOTTED),
+    DOUBLE(BorderLineStyle.DOUBLE),
+    HAIR(BorderLineStyle.HAIR),
+    MEDIUM(BorderLineStyle.MEDIUM),
+    MEDIUM_DASH_DOT(BorderLineStyle.MEDIUM_DASH_DOT),
+    MEDIUM_DASH_DOT_DOT(BorderLineStyle.MEDIUM_DASH_DOT_DOT),
+    MEDIUM_DASHED(BorderLineStyle.MEDIUM_DASHED),
+    SLANTED_DASH_DOT(BorderLineStyle.SLANTED_DASH_DOT),
+    THICK(BorderLineStyle.THICK),
+    THIN(BorderLineStyle.THIN),
+    DEFAULT(BorderLineStyle.THIN);
 
-    private final short style;
+    private BorderLineStyle style;
 
-    private BorderStyle_t(final short style)
+    private BorderStyle_t(BorderLineStyle style)
     {
         this.style = style;
     }
 
-    public final short getStyle() { return(style); }
+    public BorderLineStyle getStyle() { return(style); }
 
-    public static BorderStyle_t getStyle(short style)
+    public static BorderStyle_t getStyle(int ordinal)
     {
-    	for (BorderStyle_t b : BorderStyle_t.class.getEnumConstants())
-    	{
-    		if (style == b.getStyle()) return(b);
-    	}
+        switch (ordinal)
+        {
+            case  0: return(NONE);
+            case  1: return(DASH_DOT);
+            case  2: return(DASH_DOT_DOT);
+            case  3: return(DASHED);
+            case  4: return(DOTTED);
+            case  5: return(DOUBLE);
+            case  6: return(HAIR);
+            case  7: return(MEDIUM);
+            case  8: return(MEDIUM_DASH_DOT);
+            case  9: return(MEDIUM_DASH_DOT_DOT);
+            case 10: return(MEDIUM_DASHED);
+            case 11: return(SLANTED_DASH_DOT);
+            case 12: return(THICK);
+            case 13: return(THIN);
+            case 14: return(DEFAULT);
+            default:
+        }
         return(DEFAULT);
     }
 

@@ -1,33 +1,23 @@
-/*
- * ==========================================================================
- * Copyright (C) 2013,2014 makechip.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * A copy of the GNU General Public License can be found in the file
- * LICENSE.txt provided with the source distribution of this program
- * This license can also be found on the GNU website at
- * http://www.gnu.org/licenses/gpl.html.
- * 
- * If you did not receive a copy of the GNU General Public License along
- * with this program, contact the lead developer, or write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- */
+// Copyright 2011,2012 makechip.com
+// This file is part of stdf2xls.
+// 
+// stdf2xls is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// stdf2xls is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with stdf2xls.  If not, see <http://www.gnu.org/licenses/>.
 
 package com.makechip.stdf2xls4.xls;
 
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Workbook;
+import jxl.write.*;
+import jxl.format.UnderlineStyle;
 
 public enum FontStyle_t
 {
@@ -57,61 +47,28 @@ public enum FontStyle_t
         return(null);
     }
 
-    public Font createFont(Workbook wb, short size)
+    public WritableFont createFont(Font_t f, int size)
     {
-        Font font = wb.createFont();
-       	font.setColor(IndexedColors.BLACK.getIndex());
-   		font.setFontHeight((short) (20 * size));
-        switch (this)
+        WritableFont font = null;
+        switch (ordinal())
         {
-            case BOLD:  
-          		font.setItalic(false);
-          		font.setUnderline(Font.U_NONE);
-          		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-          		break;
-            case ITALIC:  
-          		font.setItalic(true);
-          		font.setUnderline(Font.U_NONE);
-          		font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-          		break;
-            case UNDERLINE:  
-          		font.setItalic(false);
-          		font.setUnderline(Font.U_SINGLE);
-          		font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-          		break;
-            case BOLD_ITALIC:  
-          		font.setItalic(true);
-          		font.setUnderline(Font.U_NONE);
-          		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-          		break;
-            case BOLD_UNDERLINE:  
-          		font.setItalic(false);
-          		font.setUnderline(Font.U_SINGLE);
-          		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-          		break;
-            case ITALIC_UNDERLINE:  
-          		font.setItalic(true);
-          		font.setUnderline(Font.U_SINGLE);
-          		font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-          		break;
-            case BOLD_ITALIC_UNDERLINE:  
-          		font.setItalic(true);
-          		font.setUnderline(Font.U_SINGLE);
-          		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-          		break;
-            default: 
-          		font.setItalic(false);
-          		font.setUnderline(Font.U_NONE);
-          		font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+            case 0:  font = new WritableFont(f.getFont(), size, WritableFont.NO_BOLD); break;
+            case 1:  font = new WritableFont(f.getFont(), size, WritableFont.BOLD); break;
+            case 2:  font = new WritableFont(f.getFont(), size, WritableFont.NO_BOLD, true); break;
+            case 3:  font = new WritableFont(f.getFont(), size, WritableFont.NO_BOLD, false, UnderlineStyle.SINGLE); break;
+            case 4:  font = new WritableFont(f.getFont(), size, WritableFont.BOLD, true); break;
+            case 5:  font = new WritableFont(f.getFont(), size, WritableFont.BOLD, false, UnderlineStyle.SINGLE); break;
+            case 6:  font = new WritableFont(f.getFont(), size, WritableFont.BOLD, true, UnderlineStyle.SINGLE); break;
+            default: font = new WritableFont(f.getFont(), size, WritableFont.NO_BOLD, true, UnderlineStyle.SINGLE); break;
         }
         return(font);
     }
 
-    public Font createFont(Workbook wb, short size, IndexedColors color)
+    public WritableFont createFont(Font_t f, int size, Color_t color)
     {
-        Font font = createFont(wb, size);
-        
-       	font.setColor(color.getIndex());
+        WritableFont font = createFont(f, size);
+        try { font.setColour(color.getColor()); }
+        catch (Exception e) { throw new RuntimeException("Invalid Colour"); }
         return(font);
     }
 }
