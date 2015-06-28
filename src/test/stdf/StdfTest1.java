@@ -116,7 +116,7 @@ public class StdfTest1
 		Path p = FileSystems.getDefault().getPath("x.stdf");
 		stdf.write(p.toFile());
         Files.delete(p);
-		rdr = new StdfReader(tdb, p.toFile().getAbsolutePath());
+		rdr = new StdfReader(tdb, p.toFile());
 		rdr.read(stdf.getBytes());
 		list = rdr.stream().collect(Collectors.toList());
 	}

@@ -2,6 +2,7 @@ package com.makechip.stdf2xls4.stdfapi;
 
 import gnu.trove.map.hash.TObjectFloatHashMap;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
@@ -44,12 +46,12 @@ public final class StdfAPI
 {
 	private TestIdDatabase tiddb;
 	private TestRecordDatabase tdb;
-	private final boolean dynamicLimits;
+	private final CliOptions options;
     public static final String TEXT_DATA = StdfRecord.TEXT_DATA;
     public static final String SERIAL_MARKER = StdfRecord.SERIAL_MARKER;
     private final Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap;
     private final Map<PageHeader, Boolean> wafersortMap;
-	private final List<String> stdfFiles;
+	private final List<File> stdfFiles;
 	private boolean timeStampedFiles;
 	private boolean wafersort;
 
@@ -60,12 +62,12 @@ public final class StdfAPI
 	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
 	}
 
-	public StdfAPI(List<String> stdfFiles, boolean dynamicLimits)
+	public StdfAPI(final CliOptions options)
 	{
 		tiddb = new TestIdDatabase();
-		this.dynamicLimits = dynamicLimits;
-		if (dynamicLimits) dynamicLimitMap = new HashMap<>(); else dynamicLimitMap = null;
-		this.stdfFiles = stdfFiles;
+		this.options = options;
+		if (options.dynamicLimits) dynamicLimitMap = new HashMap<>(); else dynamicLimitMap = null;
+		this.stdfFiles = options.stdfFiles;
 		new ArrayList<StdfRecord>();
 		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
 		wafersortMap = new HashMap<>();
@@ -105,24 +107,24 @@ public final class StdfAPI
         }
 	}
 	
-	public void initialize(boolean sortDevices)
+	public void initialize()
 	{
 		HashMap<PageHeader, List<List<StdfRecord>>> devList = new HashMap<>();
 		// load the stdf records; group records by device	
 		    stdfFiles.stream()
 			.map(p -> new StdfReader(tiddb, p, timeStampedFiles))
-			.flatMap(rdr -> rdr.read().stream())
+			.flatMap(rdr -> rdr.read().stream()).peek(p -> { if (options.dump) Log.msg(p.toString()); })
 			.collect(splitBySeparator(r -> r instanceof PartResultsRecord))
 			.stream()
 			.forEach(p -> createHeaders(new HeaderUtil(), devList, p));
-		if (dynamicLimits) // check for dynamicLimits
+		if (options.dynamicLimits) // check for dynamicLimits
 		{
 			devList.keySet().stream().forEach(p -> checkLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p), OptFlag_t.NO_LO_LIMIT));
 		    devList.keySet().stream().forEach(p -> checkLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p), OptFlag_t.NO_HI_LIMIT));	
 		}	
 		tdb = new TestRecordDatabase(tiddb, dynamicLimitMap);
 	    // now build TestRecord database:
-		devList.keySet().stream().forEach(p -> mapTests(sortDevices, p, devList.get(p)));
+		devList.keySet().stream().forEach(p -> mapTests(options.sort, p, devList.get(p)));
 	}
 	
 	private void mapTests(boolean sortDevices, PageHeader hdr, List<List<StdfRecord>> devList)
@@ -198,9 +200,9 @@ public final class StdfAPI
 		dl.add(l);
 	}
 	
-    private boolean hasTimeStamp(String name)
+    private boolean hasTimeStamp(File name)
     {
-    	String s = name.toLowerCase();
+    	String s = name.toString().toLowerCase();
     	int dotIndex = (s.endsWith(".std")) ? s.length() - 4 : (s.endsWith(".stdf")) ? s.length() - 5 : 0;
     	if (dotIndex < 1) return(false);
     	long timeStamp = 0L;
@@ -245,18 +247,10 @@ public final class StdfAPI
     	return(tdb.getRecord(hdr, dh, id));
     }
     
-	public static void main(String[] args)
-	{
-		if (args.length != 1)
-		{
-			System.out.println("Usage: java com.makechip.stdf2xls.stdf.StdfAPI <stdfFiles>");
-			System.exit(1);
-		}
-		List<String> files = new ArrayList<String>();
-	    Arrays.stream(args).forEach(p -> files.add(p));	
-		StdfAPI api = new StdfAPI(files, false);
-		api.initialize(false);
-		Log.msg(api.tdb.toString());
-	}
-	
+    @Override
+    public String toString()
+    {
+    	return(tdb.toString());
+    }
+    
 }

@@ -27,7 +27,7 @@ package com.makechip.stdf2xls4.xls.layout2;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
+import com.makechip.stdf2xls4.xls.SpreadSheetWriter1;
 
 
 public class TitleBlock
@@ -36,7 +36,7 @@ public class TitleBlock
     public static final int COL = 0;
     public static final int HEIGHT = 8;
     
-    public static void addBlock(Workbook wb, boolean xssf, SpreadSheetWriter2 sw, Sheet ws, String pageTitle, int titleWidth)
+    public static void addBlock(Workbook wb, boolean xssf, SpreadSheetWriter1 sw, Sheet ws, String pageTitle, int titleWidth)
     {
         LogoBlock.addBlock(wb, ws);
         PageTitleBlock.addBlock(sw, ws, xssf, pageTitle, titleWidth);

@@ -22,24 +22,12 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.makechip.stdf2xls4.xls.layout3;
 
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
+package com.makechip.stdf2xls4.xls;
 
 
-public class TitleBlock
+public interface SpreadSheetWriter
 {
-    public static final int ROW = 0;
-    public static final int COL = 0;
-    public static final int HEIGHT = 10;
-    
-    public static void addBlock(Workbook wb, boolean xssf, SpreadSheetWriter2 sw, Sheet ws, String pageTitle, int titleWidth)
-    {
-        LogoBlock.addBlock(wb, ws);
-        PageTitleBlock.addBlock(sw, ws, xssf, pageTitle, titleWidth);
-    }
+    public void generate();
 
 }

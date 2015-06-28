@@ -31,13 +31,13 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import com.makechip.stdf2xls4.xls.Cell_t;
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter3;
+import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
 
 public class LegendBlock
 {
     private static final int COL = 2;
     
-    public static void addBlock(SpreadSheetWriter3 sw, Sheet ws, HeaderBlock hb)
+    public static void addBlock(SpreadSheetWriter2 sw, Sheet ws, HeaderBlock hb)
     {
     	int ROW = TitleBlock.HEIGHT + hb.getHeight();
     	addCell(ws, COL, ROW, "Legend:", sw.HEADER1_FMT);

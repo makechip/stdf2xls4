@@ -32,7 +32,7 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
 import com.makechip.stdf2xls4.xls.Cell_t;
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
+import com.makechip.stdf2xls4.xls.SpreadSheetWriter1;
 
 class PageTitleBlock
 {
@@ -40,7 +40,7 @@ class PageTitleBlock
     private static final int START_COL = LogoBlock.getWidth();
     
     
-    public static void addBlock(SpreadSheetWriter2 sw, Sheet ws, boolean xssf, String title, int width)
+    public static void addBlock(SpreadSheetWriter1 sw, Sheet ws, boolean xssf, String title, int width)
     {
     	Row r = ws.getRow(TitleBlock.ROW);
     	if (r == null) r = ws.createRow(TitleBlock.ROW);

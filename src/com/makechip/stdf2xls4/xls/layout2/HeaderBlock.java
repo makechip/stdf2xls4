@@ -26,7 +26,7 @@ package com.makechip.stdf2xls4.xls.layout2;
 
 import org.apache.poi.ss.usermodel.Sheet;
 //import com.makechip.stdf2xls4.xls.Cell_t;
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
+import com.makechip.stdf2xls4.xls.SpreadSheetWriter1;
 
 public class HeaderBlock
 {
@@ -36,7 +36,7 @@ public class HeaderBlock
     //private SpreadSheetWriter2 sw;
     private int height;
     
-    public HeaderBlock(SpreadSheetWriter2 sw)
+    public HeaderBlock(SpreadSheetWriter1 sw)
     {
     	//this.sw = sw;
  //   	this.items = new ArrayList<HeaderItem>();

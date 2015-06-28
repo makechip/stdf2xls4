@@ -36,7 +36,7 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
 import com.makechip.stdf2xls4.xls.Cell_t;
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
+import com.makechip.stdf2xls4.xls.SpreadSheetWriter1;
 
 public class DataHeader 
 {
@@ -44,10 +44,10 @@ public class DataHeader
 	private final int row;
 	private final boolean wrapTestNames;
 	private final boolean hiPrecision;
-	private final SpreadSheetWriter2 sw;
+	private final SpreadSheetWriter1 sw;
 	private List<TestHeader> hdrs;
 	
-	public DataHeader(SpreadSheetWriter2 sw, List<TestHeader> hdrs, CornerBlock cb, HeaderBlock hb, boolean wrapTestNames, boolean hiPrecision)
+	public DataHeader(SpreadSheetWriter1 sw, List<TestHeader> hdrs, CornerBlock cb, HeaderBlock hb, boolean wrapTestNames, boolean hiPrecision)
 	{
 		col = cb.getWidth();
 		row = TitleBlock.HEIGHT + hb.getHeight();

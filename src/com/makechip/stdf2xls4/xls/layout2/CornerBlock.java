@@ -31,17 +31,17 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import com.makechip.stdf2xls4.xls.Cell_t;
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
+import com.makechip.stdf2xls4.xls.SpreadSheetWriter1;
 
 public class CornerBlock 
 {
 	private final int COL = TitleBlock.COL;
 	private final int ROW;
-	private final SpreadSheetWriter2 sw;
+	private final SpreadSheetWriter1 sw;
 	private boolean wafersort;
 	private boolean onePage;
 	
-	public CornerBlock(SpreadSheetWriter2 sw, boolean wafersort, int headerBlockHeight, boolean onePage)
+	public CornerBlock(SpreadSheetWriter1 sw, boolean wafersort, int headerBlockHeight, boolean onePage)
 	{
 		this.sw = sw;
 		this.wafersort = wafersort;

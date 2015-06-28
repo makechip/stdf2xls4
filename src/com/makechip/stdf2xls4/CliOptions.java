@@ -25,6 +25,7 @@
 package com.makechip.stdf2xls4;
 
 import java.io.File;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,8 +38,25 @@ import static java.util.Arrays.*;
 
 public class CliOptions 
 {
+	private static final String[] X_OPT = { "x", "xls-name", "Specify the spreadsheet filename" };
+	private static final String[] D_OPT = { "d", "dump", "Make ascii dump of STDF file(s) to stdout" };
+	private static final String[] E_OPT = { "e", "dump-test-records", "Make ascii dump of test records" };
+	private static final String[] N_OPT = { "n", "no-wrap-test-names", "Don't wrap test names - gives really wide columns" };
+	private static final String[] S_OPT = { "s", "no-overwrite", "Don't overwrite duplicate serial numbers or XY-coords" };
+	private static final String[] B_OPT = { "b", "one-page", "Put all steps/wafers on one page - add column for step# or wafer#" };
+	private static final String[] P_OPT = { "p", "precision", "Specify precision used in result and limit values - must be > 1 and < 13" };
+	private static final String[] F_OPT = { "f", "force-header", "Force basic header if header information not in datalog" }; 
+	private static final String[] V_OPT = { "v", "dont-skip-search-fails", "Don't skip bogus verigy(AKA Advantest) search fails" };
+	private static final String[] R_OPT = { "r", "rotate", "Rotate the spreadsheet so test names go vertically instead of horizontally" };
+	private static final String[] C_OPT = { "c", "msmode", "Allow up to 16000 columns for xlsx spreadsheets" };
+	private static final String[] Y_OPT = { "y", "dynamic-limits", "If a test has non-constant limits, show the limits on either side of each result" };
+	private static final String[] G_OPT = { "g", "gui", "Enable graphical user interface" }; 
+	private static final String[] T_OPT = { "t", "show-duplicates", "Don't suppress duplicates when using timestamped files" }; 
+	private static final String[] H_OPT = { "h", "help", "show this help text" }; 
+	private static final String[] M_OPT = { "m", "sort-by-device", "sort by serial-number or X-Y coordinate" }; 
 	public final File xlsName;
 	public final boolean dump;
+	public final boolean dumpTests;
 	public final boolean wrapTestNames;
 	public final boolean noOverwrite;
 	public final boolean showDuplicates;
@@ -49,29 +67,39 @@ public class CliOptions
 	public final boolean rotate;
 	public final boolean msMode;
 	public final boolean dynamicLimits;
+	public final boolean sort;
+	public final boolean gui;
 	public final List<File> stdfFiles;
+	private boolean success;
+	private StringWriter sout;
 	
 	public CliOptions(String[] args)
 	{
 	    OptionParser op = new OptionParser();	
-	    OptionSpec<Void> F = op.acceptsAll(asList("f", "force-header"), "Force STS header even if not in datalog");
-	    OptionSpec<Void> D = op.acceptsAll(asList("d", "dump"), "Make ascii dump of STDF file(s) to stdout"); // .requiredUnless("x", "xls-name");
-	    OptionSpec<File> X = op.acceptsAll(asList("x", "xls-name"), "Specify the spreadsheet filename").requiredUnless("d", "dump").withRequiredArg().ofType(File.class);
-	    OptionSpec<Void> C = op.acceptsAll(asList("c", "msmode"), "Allow up to 16000 columns for xlsx spreadsheets");
-	    OptionSpec<Void> N = op.acceptsAll(asList("n", "no-wrap-testnames"), "Don't wrap test names - gives really wide columns");
-	    OptionSpec<Integer> P = op.acceptsAll(asList("p", "precision"), "Specify precision used in result and limit values").withRequiredArg().ofType(int.class);
-	    OptionSpec<Void> S = op.acceptsAll(asList("s", "no-overwrite"), "Don't overwrite duplicate serial numbers or XY-coords");
-	    OptionSpec<Void> B = op.acceptsAll(asList("b", "one-page"), "Put all steps/wafers on one page - add column for step# or wafer#");
-	    OptionSpec<Void> T = op.acceptsAll(asList("t", "show-duplicates"), "Don't suppress duplicates when using timestamped files");
-	    OptionSpec<Void> V = op.acceptsAll(asList("v", "dont-skip-search-fails"), "Don't skip bogus verigy(AKA Advantest) search fails");
-	    OptionSpec<Void> R = op.acceptsAll(asList("r", "rotate"), "Rotate the spreadsheet so test names go vertically instead of horizontally");
-	    OptionSpec<Void> Y = op.acceptsAll(asList("y", "dynamic-limits"), "If a test has non-constant limits, show the limits on either side of each result");
-	    OptionSpec<Void> H = op.acceptsAll(asList("h", "help"), "Show this help text").forHelp();
-	    OptionSpec<File> files = op.nonOptions().ofType(File.class);
+	    sout = new StringWriter();
+	    OptionSpec<Void>    F = op.acceptsAll(asList(F_OPT[0], F_OPT[1]), F_OPT[2]);
+	    OptionSpec<Void>    D = op.acceptsAll(asList(D_OPT[0], D_OPT[1]), D_OPT[2]); // .requiredUnless("x", "xls-name");
+	    OptionSpec<Void>    E = op.acceptsAll(asList(E_OPT[0], E_OPT[1]), E_OPT[2]); // .requiredUnless("x", "xls-name");
+	    OptionSpec<Void>    C = op.acceptsAll(asList(C_OPT[0], C_OPT[1]), C_OPT[2]);
+	    OptionSpec<Void>    N = op.acceptsAll(asList(N_OPT[0], N_OPT[1]), N_OPT[2]);
+	    OptionSpec<Integer> P = op.acceptsAll(asList(P_OPT[0], P_OPT[1]), P_OPT[2]).withRequiredArg().ofType(int.class);
+	    OptionSpec<Void>    S = op.acceptsAll(asList(S_OPT[0], S_OPT[1]), S_OPT[2]);
+	    OptionSpec<Void>    B = op.acceptsAll(asList(B_OPT[0], B_OPT[1]), B_OPT[2]);
+	    OptionSpec<Void>    T = op.acceptsAll(asList(T_OPT[0], T_OPT[1]), T_OPT[2]);
+	    OptionSpec<Void>    V = op.acceptsAll(asList(V_OPT[0], V_OPT[1]), V_OPT[2]);
+	    OptionSpec<Void>    R = op.acceptsAll(asList(R_OPT[0], R_OPT[1]), R_OPT[2]);
+	    OptionSpec<Void>    Y = op.acceptsAll(asList(Y_OPT[0], Y_OPT[1]), Y_OPT[2]);
+	    OptionSpec<Void>    G = op.acceptsAll(asList(G_OPT[0], G_OPT[1]), G_OPT[2]);
+	    OptionSpec<Void>    M = op.acceptsAll(asList(M_OPT[0], M_OPT[1]), M_OPT[2]);
+	    OptionSpec<Void>    H = op.acceptsAll(asList(H_OPT[0], H_OPT[1]), H_OPT[2]).forHelp();
+	    OptionSpec<File>    X = op.acceptsAll(asList(X_OPT[0], X_OPT[1]), X_OPT[2]).
+	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1]).withRequiredArg().ofType(File.class);
+	    OptionSpec<File> files = op.nonOptions().describedAs("list of STDF files").ofType(File.class);
 	    
 	    OptionSet options = op.parse(args);
 	    
 	    forceHdr = options.has(F); 
+	    sort = options.has(M);
 	    wrapTestNames = !options.has(N);
 	    noOverwrite = options.has(S);
 	    showDuplicates = options.has(T);
@@ -81,46 +109,56 @@ public class CliOptions
 	    msMode = options.has(C);
 	    dynamicLimits = options.has(Y);
 	    dump = options.has(D);
+	    dumpTests = options.has(E);
+	    gui = options.has(G);
 	    xlsName = options.has(X) ? options.valueOf(X) : null;
 	    precision = options.has(P) ? options.valueOf(P) : 3;
 	    stdfFiles = files.values(options);
+	    success = true;
 	    
 	    if (options.has(H))
 	    {
-	    	try { op.printHelpOn(System.out); }
+	    	try { op.printHelpOn(sout); }
 	    	catch (Exception e) { Log.fatal(e); }
-	    	System.exit(0);
 	    }
 	    
 	    if (options.has(P))
 	    {
 	    	if (precision < 1 || precision > 12)
 	    	{
-	    		Log.msg("Error: precision must be greater that zero and less than, or equal to 12");
-	    		System.exit(1);
+	    		sout.write("Error: precision must be greater that zero and less than, or equal to 12");
+	    		success = false;
 	    	}
 	    }
 	    
-	    if (stdfFiles == null | stdfFiles.size() == 0)
+	    if (!options.has(H))
 	    {
-            Log.msg("Error: No STDF files have been specified");
-            System.exit(1);
+	    	if (stdfFiles == null | stdfFiles.size() == 0)
+	    	{
+	    		sout.write("Error: No STDF files have been specified");
+	    		success = false;
+	    	}
 	    }
 	    
-	    List<File> missingFiles = stdfFiles.stream().filter(f -> !f.exists()).collect(Collectors.toList());
-	    if (missingFiles.size() > 0)
+	    if (!options.has(H))
 	    {
-	    	Log.msg("Error: The following STDF files are not found:");
-	    	missingFiles.stream().forEach(f -> Log.msg(f.toString()));
-	    	System.exit(1);
+	    	List<File> missingFiles = stdfFiles.stream().filter(f -> !f.exists()).collect(Collectors.toList());
+	    	if (missingFiles.size() > 0)
+	    	{
+	    		sout.write("Error: The following STDF files are not found: ");
+	    		missingFiles.stream().forEach(f -> sout.write(f.toString()));
+	    		success = false;
+	    	}
 	    }
 	}
 	
-	@SuppressWarnings("unused")
+	public String getMessage() { return(sout.toString()); }
+	
+	public boolean isOptionsValid() { return(success); }
+	
 	public static void main(String[] args)
 	{
-		//CliOptions p = new CliOptions(new String[] { "-x", "x.xls", "a.stdf", "b.stdf", "c.stdf" });
-		CliOptions p = new CliOptions(new String[] { "-h" });
+		
 	}
 	
 }

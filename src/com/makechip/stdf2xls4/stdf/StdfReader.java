@@ -27,6 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import java.io.DataInputStream;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,16 +49,16 @@ public class StdfReader
     private final DefaultValueDatabase dvd;
     private final TestIdDatabase tdb;
     
-    public StdfReader(TestIdDatabase tdb, String filename)
+    public StdfReader(TestIdDatabase tdb, File filename)
     {
         this(tdb, filename, false);
     }
     
-    public StdfReader(TestIdDatabase tdb, String filename, boolean timeStampedFilePerDevice)
+    public StdfReader(TestIdDatabase tdb, File file, boolean timeStampedFilePerDevice)
     {
+    	filename = file.toString();
     	long timeStamp = timeStampedFilePerDevice ? getTimeStamp(filename) : 0L;
     	this.tdb = tdb;
-    	this.filename = filename;
     	dvd = new DefaultValueDatabase(timeStamp);
     	dvd.clearDefaults();
     	records = new ArrayList<>(100);
@@ -68,7 +69,7 @@ public class StdfReader
      */
     public StdfReader(TestIdDatabase tdb)
     {
-    	this(tdb, "", false);
+    	this(tdb, null, false);
     }
     
     /**
@@ -76,14 +77,14 @@ public class StdfReader
      */
     public StdfReader(TestIdDatabase tdb, long timeStamp)
     {
-    	this(tdb, "dummy_" + timeStamp + ".stdf", true);
+    	this(tdb, new File("dummy_" + timeStamp + ".stdf"), true);
     }
     
     public static void main(String[] args)
     {
     	if (args.length != 1) throw new RuntimeException("Missing filename argument");
     	TestIdDatabase tdb = new TestIdDatabase();
-    	StdfReader r = new StdfReader(tdb, args[0]);
+    	StdfReader r = new StdfReader(tdb, new File(args[0]));
     	r.read();
     	Log.msg("" + r.records.size() + " records read");
     }

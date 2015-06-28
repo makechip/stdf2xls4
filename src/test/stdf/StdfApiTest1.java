@@ -5,13 +5,13 @@ package test.stdf;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdfapi.DeviceHeader;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
 import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
@@ -30,10 +30,9 @@ public class StdfApiTest1
 	@Test
 	public void testStdfAPI1()
 	{
-		List<String> files = new ArrayList<>();
-		files.add("src/test/stdf/resources/d10_1.std");
-		StdfAPI api = new StdfAPI(files, false);
-		api.initialize(true);
+		CliOptions options = new CliOptions(new String[] { "-x", "x.xls", "src/test/stdf/resources/d10_1.std" });
+		StdfAPI api = new StdfAPI(options);
+		api.initialize();
 		Set<PageHeader> ph = api.getPageHeaders();
 		assertEquals(ph.size(), 1);
 		PageHeader[] pha = ph.toArray(new PageHeader[1]);

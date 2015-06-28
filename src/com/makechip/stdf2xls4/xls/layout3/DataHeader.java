@@ -29,7 +29,7 @@ import java.util.List;
 //import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import com.makechip.stdf2xls4.stdfapi.DeviceHeader;
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter3;
+import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
 
 public class DataHeader 
 {
@@ -38,7 +38,7 @@ public class DataHeader
 	//private final SpreadSheetWriter3 sw;
 	//private List<DeviceHeader> hdrs;
 	
-	public DataHeader(SpreadSheetWriter3 sw, List<DeviceHeader> hdrs, CornerBlock cb, HeaderBlock hb)
+	public DataHeader(SpreadSheetWriter2 sw, List<DeviceHeader> hdrs, CornerBlock cb, HeaderBlock hb)
 	{
 		//row = CornerBlock.ROW + cb.getHeight();
 		//this.sw = sw;

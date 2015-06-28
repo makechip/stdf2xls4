@@ -31,14 +31,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import com.makechip.stdf2xls4.xls.Cell_t;
-import com.makechip.stdf2xls4.xls.SpreadSheetWriter2;
+import com.makechip.stdf2xls4.xls.SpreadSheetWriter1;
 
 public class LegendBlock
 {
     private static int COL;
     private static final int ROW = TitleBlock.HEIGHT;
     
-    public static void addBlock(SpreadSheetWriter2 sw, Sheet ws, int cbWidth, boolean wrapTestNames)
+    public static void addBlock(SpreadSheetWriter1 sw, Sheet ws, int cbWidth, boolean wrapTestNames)
     {
     	COL = cbWidth;
     	if (wrapTestNames) ws.addMergedRegion(new CellRangeAddress(ROW, ROW, COL, COL+2));
