@@ -3,6 +3,8 @@ package com.makechip.stdf2xls4.xls.layout1;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.makechip.stdf2xls4.stdfapi.PageHeader;
+
 import jxl.write.Label;
 import jxl.write.WritableSheet;
 import jxl.write.WriteException;
@@ -15,7 +17,7 @@ public class HeaderBlock
     public static final int COL = TitleBlock.COL;
     //private final int height;
     
-    public HeaderBlock()
+    public HeaderBlock(PageHeader hdr)
     {
     }
     

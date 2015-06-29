@@ -278,11 +278,6 @@ public class ParametricTestRecord extends ParametricRecord
 	{
 		return(id);
 	}
-	@Override
-	protected void setTestName(String testName)
-	{
-		// not needed
-	}
 
 	@Override
 	public String getAlarmName()

@@ -1,5 +1,8 @@
 package com.makechip.stdf2xls4;
 
+import java.io.IOException;
+
+import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
@@ -17,7 +20,7 @@ public class Stdf2xls4
 		this.options = options;
 	}
 	
-	public void run() throws RowsExceededException, WriteException
+	public void run() throws RowsExceededException, WriteException, BiffException, IOException
 	{
 		StdfAPI api = new StdfAPI(options);
 		api.initialize();
@@ -29,8 +32,16 @@ public class Stdf2xls4
 		SpreadSheetWriter ssw = null;
 		if (options.xlsName != null)
 		{
-		    if (options.rotate) ssw = new SpreadSheetWriter2(options, api);	
-		    else ssw = new SpreadSheetWriter1(options, api);
+			if (options.xlsName.toString().endsWith(".xlsx"))
+			{
+		        if (options.rotate) ssw = new SpreadSheetWriter2(options, api);	
+		        else ssw = new SpreadSheetWriter1(options, api);
+			}
+			else
+			{
+				if (options.rotate) ssw = new com.makechip.stdf2xls4.xls.SpreadSheetWriter2(options, api); 
+				else ssw = new com.makechip.stdf2xls4.xls.SpreadSheetWriter1(options, api);
+			}
 		}
 		ssw.generate();
 	}

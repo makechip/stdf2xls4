@@ -26,50 +26,114 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+import gnu.trove.map.hash.TObjectFloatHashMap;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 /**
-*** @author eric
-*** @version $Id: MultipleResultParametricRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields for a Multiple Result Parametric Record.
+ *  @author eric
+ */
 public final class MultipleResultParametricRecord extends ParametricRecord
 {
-	private final LinkedHashMap<String, Float> rsltMap;
-	private final LinkedHashMap<String, Float> scaledRsltMap;
+	private final TObjectFloatHashMap<String> rsltMap;
+	private final TObjectFloatHashMap<String> scaledRsltMap;
 	private TestID id;
+	/**
+	 *  This is the ALARM_ID field of the MultipleResultParametricRecord.
+	 */
 	public final String alarmName;
+	/**
+	 *  This is the OPT_FLAG field of the MultipleResultParametricRecord.
+	 */
 	public final Set<OptFlag_t> optFlags;
+	/**
+	 *  This is the RES_SCAL field of the MultipleResultParametricRecord.
+	 */
 	public final byte resScal;
+	/**
+	 *  This is the LLM_SCAL  field of the MultipleResultParametricRecord.
+	 */
 	public final byte llmScal;
+	/**
+	 *  This is the HLM_SCAL field of the MultipleResultParametricRecord.
+	 */
 	public final byte hlmScal;
+	/**
+	 *  This is the LO_LIMIT field of the MultipleResultParametricRecord.
+	 */
 	public final float loLimit;
+	/**
+	 *  This is the HI_LIMIT field of the MultipleResultParametricRecord.
+	 */
 	public final float hiLimit;
+	/**
+	 *  This is the START_IN field of the MultipleResultParametricRecord.
+	 */
     public final float startIn;
+	/**
+	 *  This is the INCR_IN field of the MultipleResultParametricRecord.
+	 */
     public final float incrIn;
     private final byte[] rtnState;
     private final int[] rtnIndex;
     private final float[] results;
+	/**
+	 *  This is the UNITS field of the MultipleResultParametricRecord.
+	 */
     public final String units;
+	/**
+	 *  This is the UNITS_IN field of the MultipleResultParametricRecord.
+	 */
     public final String unitsIn;
+	/**
+	 *  This is the C_RESFMT field of the MultipleResultParametricRecord.
+	 */
     public final String resFmt;
+	/**
+	 *  This is the C_LLMFMT field of the MultipleResultParametricRecord.
+	 */
     public final String llmFmt;
+	/**
+	 *  This is the C_HLMFMT field of the MultipleResultParametricRecord.
+	 */
     public final String hlmFmt;
+	/**
+	 *  This is the LO_SPEC field of the MultipleResultParametricRecord.
+	 */
     public final float loSpec;
+	/**
+	 *  This is the HI_SPEC field of the MultipleResultParametricRecord.
+	 */
     public final float hiSpec;
+	/**
+	 *  This field holds a normalized LO_LIMIT such that
+	 *  the value in conjunction with the scaledUnits
+	 *  does not need to use scientific notation. It
+	 *  is not part of the STDF specification
+	 */
     public final float scaledLoLimit;
+	/**
+	 *  This field holds a normalized HI_LIMIT such that
+	 *  the value in conjunction with the scaledUnits
+	 *  does not need to use scientific notation. It
+	 *  is not part of the STDF specification
+	 */
     public final float scaledHiLimit;
+	/**
+	 *  This field holds a normalized value of the UNITS
+	 *  field.  It should be used with the scaledLoLimit,
+	 *  the scaledHiLimit, and the scaledResults. 
+	 */
     public final String scaledUnits;
     private final float[] scaledResults;
     
@@ -77,8 +141,12 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     public boolean isTestRecord() { return(true); }
     
     /**
-    *** @param p1
-    **/
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase.  This parameter is used for tracking the Test ID.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public MultipleResultParametricRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.MPR, dvd.getCpuType(), data);
@@ -86,8 +154,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         int k = getU2(0); 
         rtnState = getNibbles(j);
         results =  new float[k];
-        rsltMap = new LinkedHashMap<>();
-        scaledRsltMap = new LinkedHashMap<>();
+        rsltMap = new TObjectFloatHashMap<>(10, 0.7f, MISSING_FLOAT);
+        scaledRsltMap = new TObjectFloatHashMap<>(10, 0.7f, MISSING_FLOAT);
         for (int i=0; i<results.length; i++) results[i] = getR4(-Float.MAX_VALUE);
         String testName = getCn();
         id = TestID.createTestID(tdb, testNumber, testName);
@@ -145,9 +213,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         }
         else scaledLoLimit = dvd.scaledLoLimits.get(id);
         if (dvd.scaledHiLimits.get(id) == MISSING_FLOAT)
-        {
+        { 
         	scaledHiLimit = scaleValue(hiLimit, findScale(dvd));
-        	dvd.scaledLoLimits.put(id, scaledHiLimit);
+        	dvd.scaledHiLimits.put(id, scaledHiLimit);
         }
         else scaledHiLimit = dvd.scaledHiLimits.get(id);
         if (dvd.scaledUnits.get(id) == null)
@@ -176,17 +244,44 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         hiSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.hiSpecDefaults);
     }
     
+    /**
+     * This constructor is used to make a MultipleResultParametricRecord with field values. 
+     * @param tdb The TestIdDatabase is needed to get the TestID.
+     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+     * @param testNumber The TEST_NUM field.
+     * @param headNumber The HEAD_NUM field.
+     * @param siteNumber The SITE_NUM field.
+     * @param testFlags  The TEST_FLG field.
+     * @param paramFlags The PARM_FLG field.
+     * @param rtnState   The RTN_STAT field.
+     * @param results    The RTN_RSLT field.
+     * @param testName   The TEST_TXT field.
+     * @param alarmName  The ALARM_ID field.
+     * @param optFlags   The OPT_FLAG field.
+     * @param resScal    The RES_SCAL field.
+     * @param llmScal    The LLM_SCAL field.
+     * @param hlmScal    The HLM_SCAL field.
+     * @param loLimit    The LO_LIMIT field.
+     * @param hiLimit    The HI_LIMIT field.
+     * @param startIn    The START_IN field.
+     * @param incrIn     The INCR_IN field.
+     * @param rtnIndex   The RTN_INDX field.
+     * @param units      The UNITS field.
+     * @param unitsIn    The UNITS_IN field.
+     * @param resFmt     The C_RESFMT field.
+     * @param llmFmt     The C_LLMFMT field.
+     * @param hlmFmt     The C_HLMFMT field.
+     * @param loSpec     The LO_SPEC field.
+     * @param hiSpec     The HI_SPEC field.
+     */
     public MultipleResultParametricRecord(
             final TestIdDatabase tdb,
             final DefaultValueDatabase dvd,
-            final Cpu_t cpuType,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
             final byte testFlags,
             final byte paramFlags,
-            final int j,
-            final int k,
             final byte[] rtnState,
             final float[] results,
     	    final String testName,
@@ -208,7 +303,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-    	this(tdb, dvd, toBytes(cpuType, testNumber, headNumber, siteNumber, testFlags, 
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), testNumber, headNumber, siteNumber, testFlags, 
     			paramFlags, rtnState, results, testName, alarmName, optFlags, 
     			resScal, llmScal, hlmScal, loLimit, hiLimit, startIn, incrIn, rtnIndex, 
     			units, unitsIn, resFmt, llmFmt, hlmFmt, loSpec, hiSpec));
@@ -308,76 +403,52 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         return(list.toArray());
     }
     
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    testNumber: " + testNumber).append(Log.eol);
-        sb.append("    headNumber: " + headNumber).append(Log.eol);
-        sb.append("    siteNumber: " + siteNumber).append(Log.eol);
-        sb.append("    testFlags:");
-        testFlags.stream().forEach(p -> sb.append(" ").append(p));
-        sb.append("    paramFlags:");
-        paramFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
-        sb.append(Log.eol);
-        sb.append("    returned states:");
-        for (byte b : rtnState) sb.append(" " + b);
-        sb.append(Log.eol);
-        sb.append("    results:");
-        for (float p : results) sb.append(" " + p);
-        sb.append(Log.eol);
-        sb.append("    test name: ").append(id.testName).append(Log.eol);
-        sb.append("    alarm name: ").append(alarmName).append(Log.eol);
-        if (optFlags != null) 
-        {
-            sb.append("    optional flags:");
-        	optFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
-        	sb.append(Log.eol);
-        	sb.append("    result scaling exponent: " + resScal).append(Log.eol);
-        	sb.append("    low limit scaling exponent: " + llmScal).append(Log.eol);
-        	sb.append("    high limit scaling exponent: " + hlmScal).append(Log.eol);
-        	sb.append("    low limit: " + loLimit).append(Log.eol);
-        	sb.append("    high limit: " + hiLimit).append(Log.eol);
-        	sb.append("    starting input value: " + startIn).append(Log.eol);
-        	sb.append("    increment of input condition: " + incrIn).append(Log.eol);
-        	if (rtnIndex != null)
-        	{
-        		sb.append("    array of PMR indicies:");
-        		Arrays.stream(rtnIndex).forEach(p -> sb.append(" " + p));
-        	}
-        	sb.append(Log.eol);
-        	sb.append("    units: ").append(units).append(Log.eol);
-        	sb.append("    input condition units: ").append(unitsIn).append(Log.eol);
-        	sb.append("    result format string: ").append(resFmt).append(Log.eol);
-        	sb.append("    low limit format string: ").append(llmFmt).append(Log.eol);
-        	sb.append("    high limit format string: ").append(hlmFmt).append(Log.eol);
-        	sb.append("    low spec limit value: " + loSpec).append(Log.eol);
-        	sb.append("    high spec limit value: " + hiSpec).append(Log.eol);
-        }
-        return(sb.toString());
-    }
-
+    /**
+     * Get a copy of the RTN_STAT array.
+     * @return A deep copy of the RTN_STAT array.
+     */
     public final byte[] getRtnState() { return(Arrays.copyOf(rtnState, rtnState.length)); }
+    
+    /**
+     * Get a copy of the RTN_RSLT array.
+     * @return A deep copy of the RTN_RSLT array.
+     */
     public final float[] getResults() { return(Arrays.copyOf(results, results.length)); }
+    
+    /**
+     * Get a copy of the array of PMR indexes.
+     * @return A deep copy of the RTN_INDX array.
+     */
     public final int[] getRtnIndex() { return(Arrays.copyOf(rtnIndex, rtnIndex.length)); }
     
+    /**
+     * Get the pin names indicated by the RTN_INDX array.
+     * @return A stream containing the names of the pins tested.
+     */
     public Stream<String> getPinNames() { return(rsltMap.keySet().stream()); }
     
+    /**
+     * Get the result for a specific pin.
+     * @param pinName The name of a pin.
+     * @return The result for the specified pin, or StdfRecord.MISSING_FLOAT if
+     * the pin name is invalid.
+     */
     public float getResult(String pinName) { return(rsltMap.get(pinName)); }
     
+    /**
+     * Get the scaled result for a specific pin.  The scaled result is a normalized
+     * result that should be used in conjunction with the scaled units.  For example,
+     * if the result was 0.000001A, then the scaled result and scaled units would be 1.0uA.
+     * @param pinName The name of a pin.
+     * @return The scaled result for the specified pin, or StdfRecord.MISSING_FLOAT if
+     * the pin name is invalid.
+     */
     public float getScaledResult(String pinName) { return(scaledRsltMap.get(pinName)); }
 
 	@Override
 	public TestID getTestId()
 	{
 		return(id);
-	}
-
-	@Override
-	protected void setTestName(String testName)
-	{
-		// not needed
 	}
 
 	@Override
@@ -430,6 +501,119 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	public String getUnits()
 	{
 		return units;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("MultipleResultParametricRecord [rsltMap=").append(rsltMap);
+		builder.append(", scaledRsltMap=").append(scaledRsltMap);
+		builder.append(", id=").append(id);
+		builder.append(", alarmName=").append(alarmName);
+		builder.append(", optFlags=").append(optFlags);
+		builder.append(", resScal=").append(resScal);
+		builder.append(", llmScal=").append(llmScal);
+		builder.append(", hlmScal=").append(hlmScal);
+		builder.append(", loLimit=").append(loLimit);
+		builder.append(", hiLimit=").append(hiLimit);
+		builder.append(", startIn=").append(startIn);
+		builder.append(", incrIn=").append(incrIn);
+		builder.append(", rtnState=").append(Arrays.toString(rtnState));
+		builder.append(", rtnIndex=").append(Arrays.toString(rtnIndex));
+		builder.append(", results=").append(Arrays.toString(results));
+		builder.append(", units=").append(units);
+		builder.append(", unitsIn=").append(unitsIn);
+		builder.append(", resFmt=").append(resFmt);
+		builder.append(", llmFmt=").append(llmFmt);
+		builder.append(", hlmFmt=").append(hlmFmt);
+		builder.append(", loSpec=").append(loSpec);
+		builder.append(", hiSpec=").append(hiSpec);
+		builder.append(", scaledLoLimit=").append(scaledLoLimit);
+		builder.append(", scaledHiLimit=").append(scaledHiLimit);
+		builder.append(", scaledUnits=").append(scaledUnits);
+		builder.append(", scaledResults=").append(Arrays.toString(scaledResults));
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + alarmName.hashCode();
+		result = prime * result + Float.floatToIntBits(hiLimit);
+		result = prime * result + Float.floatToIntBits(hiSpec);
+		result = prime * result + hlmFmt.hashCode();
+		result = prime * result + hlmScal;
+		result = prime * result + id.hashCode();
+		result = prime * result + Float.floatToIntBits(incrIn);
+		result = prime * result + llmFmt.hashCode();
+		result = prime * result + llmScal;
+		result = prime * result + Float.floatToIntBits(loLimit);
+		result = prime * result + Float.floatToIntBits(loSpec);
+		result = prime * result + optFlags.hashCode();
+		result = prime * result + resFmt.hashCode();
+		result = prime * result + resScal;
+		result = prime * result + Arrays.hashCode(results);
+		result = prime * result + rsltMap.hashCode();
+		result = prime * result + Arrays.hashCode(rtnIndex);
+		result = prime * result + Arrays.hashCode(rtnState);
+		result = prime * result + Float.floatToIntBits(scaledHiLimit);
+		result = prime * result + Float.floatToIntBits(scaledLoLimit);
+		result = prime * result + Arrays.hashCode(scaledResults);
+		result = prime * result + scaledRsltMap.hashCode();
+		result = prime * result + scaledUnits.hashCode();
+		result = prime * result + Float.floatToIntBits(startIn);
+		result = prime * result + units.hashCode();
+		result = prime * result + unitsIn.hashCode();
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof MultipleResultParametricRecord)) return false;
+		MultipleResultParametricRecord other = (MultipleResultParametricRecord) obj;
+		if (!alarmName.equals(other.alarmName)) return false;
+		if (Float.floatToIntBits(hiLimit) != Float.floatToIntBits(other.hiLimit)) return false;
+		if (Float.floatToIntBits(hiSpec) != Float.floatToIntBits(other.hiSpec)) return false;
+		if (!hlmFmt.equals(other.hlmFmt)) return false;
+		if (hlmScal != other.hlmScal) return false;
+		if (id != other.id) return false;
+		if (Float.floatToIntBits(incrIn) != Float.floatToIntBits(other.incrIn)) return false;
+		if (!llmFmt.equals(other.llmFmt)) return false;
+		if (llmScal != other.llmScal) return false;
+		if (Float.floatToIntBits(loLimit) != Float.floatToIntBits(other.loLimit)) return false;
+		if (Float.floatToIntBits(loSpec) != Float.floatToIntBits(other.loSpec)) return false;
+		if (!optFlags.equals(other.optFlags)) return false;
+		if (!resFmt.equals(other.resFmt)) return false;
+		if (resScal != other.resScal) return false;
+		if (!Arrays.equals(results, other.results)) return false;
+		if (!rsltMap.equals(other.rsltMap)) return false;
+		if (!Arrays.equals(rtnIndex, other.rtnIndex)) return false;
+		if (!Arrays.equals(rtnState, other.rtnState)) return false;
+		if (Float.floatToIntBits(scaledHiLimit) != Float.floatToIntBits(other.scaledHiLimit)) return false;
+		if (Float.floatToIntBits(scaledLoLimit) != Float.floatToIntBits(other.scaledLoLimit)) return false;
+		if (!Arrays.equals(scaledResults, other.scaledResults)) return false;
+		if (!scaledRsltMap.equals(other.scaledRsltMap)) return false;
+		if (!scaledUnits.equals(other.scaledUnits)) return false;
+		if (Float.floatToIntBits(startIn) != Float.floatToIntBits(other.startIn)) return false;
+		if (!units.equals(other.units)) return false;
+		if (!unitsIn.equals(other.unitsIn)) return false;
+		if (!super.equals(obj)) return false;
+		return true;
 	}
 
 }

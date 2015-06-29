@@ -6,6 +6,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,10 +75,10 @@ public class StdfTest1
 		stdf.add(new GenericDataRecord(tdb, dvd, lgd));
 		stdf.add(new HardwareBinRecord(tdb, dvd, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
 		stdf.add(new MasterResultsRecord(tdb, dvd, 1000L, 'C', "lotDesc", "execDesc"));
-		stdf.add(new MultipleResultParametricRecord(tdb, dvd, Cpu_t.PC, 22L, (short) 1, (short) 0, (byte) 0,
-			(byte) 0, 2, 4, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+		stdf.add(new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, (short) 0, (byte) 0,
+			(byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 5, 6 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
 		stdf.add(new ParametricTestRecord(tdb, dvd, Cpu_t.PC, 44L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class),
 			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
@@ -650,6 +651,21 @@ public class StdfTest1
 		assertEquals("C", mrr.dispCode);
 		assertEquals("lotDesc", mrr.lotDesc);
 		assertEquals("execDesc", mrr.execDesc);
+
+		MasterResultsRecord mrr1 = new MasterResultsRecord(tdb, dvd, 1000L, 'C', "lotDesc", "execDesc");
+		MasterResultsRecord mrr2 = new MasterResultsRecord(tdb, dvd, 1000L, 'D', "lotDesc", "execDesc");
+		MasterResultsRecord mrr3 = new MasterResultsRecord(tdb, dvd, 1000L, 'C', "", "execDesc");
+		MasterResultsRecord mrr4 = new MasterResultsRecord(tdb, dvd, 1000L, 'C', "lotDesc", "");
+		MasterResultsRecord mrr5 = new MasterResultsRecord(tdb, dvd, 1100L, 'C', "lotDesc", "execDesc");
+		assertTrue(mrr.equals(mrr));
+		assertTrue(mrr.equals(mrr1));
+		assertEquals(mrr.hashCode(), mrr1.hashCode());
+		assertFalse(mrr.equals(mrr2));
+		assertFalse(mrr.equals(mrr3));
+		assertFalse(mrr.equals(mrr4));
+		assertFalse(mrr.equals(mrr5));
+		assertFalse(mrr.equals(""));
+		assertEquals("MasterResultsRecord [finishDate=Wed Dec 31 16:16:40 PST 1969, dispCode=C, lotDesc=lotDesc, execDesc=execDesc]", mrr.toString());
 	}
 	
 	//stdf.add(new MultipleResultParametricRecord(snum++, dnum, 22, 1, 0, EnumSet.noneOf(TestFlag_t.class),
@@ -684,8 +700,8 @@ public class StdfTest1
 	    assertEquals(3.0f, mpr.hiLimit, 5);
 	    assertEquals(0.0f, mpr.startIn, 5);
 	    assertEquals(0.0f, mpr.incrIn, 5);
-	    assertEquals(5, mpr.getRtnIndex()[0]);
-	    assertEquals(6, mpr.getRtnIndex()[1]);
+	    assertEquals(0, mpr.getRtnIndex()[0]);
+	    assertEquals(1, mpr.getRtnIndex()[1]);
 	    assertEquals("units", mpr.units);
 	    assertEquals("unitsIn", mpr.unitsIn);
 	    assertEquals("resFmt", mpr.resFmt);
@@ -693,6 +709,223 @@ public class StdfTest1
 	    assertEquals("hlmFmt", mpr.hlmFmt);
 	    assertEquals(3.0f, mpr.loSpec, 5);
 	    assertEquals(4.0f, mpr.hiSpec, 5);
+
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr1 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr2 = new MultipleResultParametricRecord(tdb, dvd, 23L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr3 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 2, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr4 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 1, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr5 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 1, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr6 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 1, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr7 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 2, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr8 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.3f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr9 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"xext", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr10 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "xlarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr11 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.of(OptFlag_t.NO_LO_LIMIT), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr12 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr13 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 2, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr14 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 3, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr15 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 2.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr16 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 4.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr17 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			1.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr18 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 2.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr19 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, //
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 1, 2 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr20 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "xnits", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr21 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "xnitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr22 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "xesFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr23 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "xlmFmt", "hlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr24 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "xlmFmt", 3.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr25 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 4.0f, 4.0f);
+	    tdb.clearIdDups();
+		MultipleResultParametricRecord mpr26 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 5.0f);
+		assertTrue(mpr.equals(mpr));
+		assertTrue(mpr.equals(mpr1));
+		assertEquals(mpr.hashCode(), mpr1.hashCode());
+		assertFalse(mpr.equals(null));
+		assertFalse(mpr.equals("A"));
+		assertFalse(mpr.equals(mpr2));
+		assertFalse(mpr.equals(mpr3));
+		assertFalse(mpr.equals(mpr4));
+		assertFalse(mpr.equals(mpr5));
+		assertFalse(mpr.equals(mpr6));
+		assertFalse(mpr.equals(mpr7));
+		assertFalse(mpr.equals(mpr8));
+		assertFalse(mpr.equals(mpr9));
+		assertFalse(mpr.equals(mpr10));
+		assertFalse(mpr.equals(mpr11));
+		assertFalse(mpr.equals(mpr12));
+		assertFalse(mpr.equals(mpr13));
+		assertFalse(mpr.equals(mpr14));
+		assertFalse(mpr.equals(mpr15));
+		assertFalse(mpr.equals(mpr16));
+		assertFalse(mpr.equals(mpr17));
+		assertFalse(mpr.equals(mpr18));
+		assertFalse(mpr.equals(mpr19));
+		assertFalse(mpr.equals(mpr20));
+		assertFalse(mpr.equals(mpr21));
+		assertFalse(mpr.equals(mpr22));
+		assertFalse(mpr.equals(mpr23));
+		assertFalse(mpr.equals(mpr24));
+		assertFalse(mpr.equals(mpr25));
+		assertFalse(mpr.equals(mpr26));
+		Log.msg("rtnIndex = " + Arrays.toString(mpr.getRtnIndex()));
+		mpr.getPinNames().forEach(p -> Log.msg(p));
+		assertEquals(1.0f, mpr.getResult("channelName1"), 3);
+		assertEquals(1.0f, mpr.getScaledResult("channelName1"), 3);
+		assertEquals("alarmName", mpr.getAlarmName());
+		assertEquals((byte) 0, mpr.getResScal());
+		assertEquals((byte) 1, mpr.getLlmScal());
+		assertEquals((byte) 2, mpr.getHlmScal());
+		assertEquals(1.0f, mpr.getLoLimit(), 3);
+		assertEquals(3.0f, mpr.getHiLimit(), 3);
+		assertEquals("units", mpr.getUnits());
+		String s = mpr.toString();
+		assertTrue(s.contains("MultipleResultParametricRecord ["));
+		assertTrue(s.contains("rsltMap="));
+		assertTrue(s.contains("scaledRsltMap="));
+		assertTrue(s.contains("id="));
+		assertTrue(s.contains("alarmName="));
+		assertTrue(s.contains("optFlags="));
+		assertTrue(s.contains("resScal="));
+		assertTrue(s.contains("llmScal="));
+		assertTrue(s.contains("hlmScal="));
+		assertTrue(s.contains("loLimit="));
+		assertTrue(s.contains("hiLimit="));
+		assertTrue(s.contains("startIn="));
+		assertTrue(s.contains("incrIn="));
+		assertTrue(s.contains("rtnState="));
+		assertTrue(s.contains("rtnIndex="));
+		assertTrue(s.contains("results="));
+		assertTrue(s.contains("units="));
+		assertTrue(s.contains("unitsIn="));
+		assertTrue(s.contains("resFmt="));
+		assertTrue(s.contains("llmFmt="));
+		assertTrue(s.contains("hlmFmt="));
+		assertTrue(s.contains("scaledLoLimit="));
+		assertTrue(s.contains("scaledHiLimit="));
+		assertTrue(s.contains("scaledResults="));
+		assertTrue(s.contains("loSpec="));
+		assertTrue(s.contains("hiSpec="));
+		MultipleResultParametricRecord mpr41 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.of(OptFlag_t.NO_HI_LIMIT), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+		MultipleResultParametricRecord mpr51 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.of(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+		MultipleResultParametricRecord mpr61 = new MultipleResultParametricRecord(tdb, dvd, 22L, (short) 1, 
+				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			"text", "alarmName", EnumSet.of(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+		assertEquals(StdfRecord.MISSING_FLOAT, mpr11.getLoLimit(), 3);
+		assertEquals(StdfRecord.MISSING_FLOAT, mpr41.getHiLimit(), 3);
+		assertEquals(StdfRecord.MISSING_FLOAT, mpr51.getLoLimit(), 3);
+		assertEquals(StdfRecord.MISSING_FLOAT, mpr61.getHiLimit(), 3);
+		assertEquals(StdfRecord.MISSING_BYTE, mpr51.getLlmScal(), 3);
+		assertEquals(StdfRecord.MISSING_BYTE, mpr61.getHlmScal(), 3);
 	}
 	
 	//stdf.add(new ParametricTestRecord(snum++, dnum, 44, 1, 0, EnumSet.noneOf(TestFlag_t.class),

@@ -41,8 +41,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 public final class CellStyleType
 {
     private static EnumMap<HAlignment_t, EnumMap<VAlignment_t, EnumMap<IndexedColors, EnumMap<IndexedColors, EnumMap<FontStyle_t, EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>>>>>> map = 
-            new EnumMap<HAlignment_t, EnumMap<VAlignment_t, EnumMap<IndexedColors, EnumMap<IndexedColors, EnumMap<FontStyle_t, EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>>>>>>(HAlignment_t.class);
-    private static IdentityHashMap<CellStyleType, CellStyle> styles = new IdentityHashMap<CellStyleType, CellStyle>();
+            new EnumMap<>(HAlignment_t.class);
+    private static IdentityHashMap<CellStyleType, CellStyle> styles = new IdentityHashMap<>();
 
     private final HAlignment_t horizontalAlignment;
     private final VAlignment_t verticalAlignment;
@@ -153,49 +153,49 @@ public final class CellStyleType
         EnumMap<VAlignment_t, EnumMap<IndexedColors, EnumMap<IndexedColors, EnumMap<FontStyle_t, EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>>>>> m1 = map.get(horizontalAlignment);
         if (m1 == null)
         {
-            m1 = new EnumMap<VAlignment_t, EnumMap<IndexedColors, EnumMap<IndexedColors, EnumMap<FontStyle_t, EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>>>>>(VAlignment_t.class);
+            m1 = new EnumMap<>(VAlignment_t.class);
             map.put(horizontalAlignment, m1);
         }
         EnumMap<IndexedColors, EnumMap<IndexedColors, EnumMap<FontStyle_t, EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>>>> m2 = m1.get(verticalAlignment);
         if (m2 == null)
         {
-            m2 = new EnumMap<IndexedColors, EnumMap<IndexedColors, EnumMap<FontStyle_t, EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>>>>(IndexedColors.class);
+            m2 = new EnumMap<>(IndexedColors.class);
             m1.put(verticalAlignment, m2);
         }
         EnumMap<IndexedColors, EnumMap<FontStyle_t, EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>>> m3 = m2.get(background);
         if (m3 == null)
         {
-            m3 = new EnumMap<IndexedColors, EnumMap<FontStyle_t, EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>>>(IndexedColors.class);
+            m3 = new EnumMap<>(IndexedColors.class);
             m2.put(background, m3);
         }
         EnumMap<FontStyle_t, EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>> m4 = m3.get(fontColor);
         if (m4 == null)
         {
-            m4 = new EnumMap<FontStyle_t, EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>>(FontStyle_t.class);
+            m4 = new EnumMap<>(FontStyle_t.class);
             m3.put(fontColor, m4);
         }
         EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>> m5 = m4.get(fontStyle);
         if (m5 == null)
         {
-            m5 = new EnumMap<FontName_t, HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>>(FontName_t.class);
+            m5 = new EnumMap<>(FontName_t.class);
             m4.put(fontStyle, m5);
         }
         HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>> m6 = m5.get(font);
         if (m6 == null)
         {
-            m6 = new HashMap<String, IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>>();
+            m6 = new HashMap<>();
             m5.put(font, m6);
         }
         IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>> m7 = m6.get(numberFormat);
         if (m7 == null)
         {
-            m7 = new IdentityHashMap<BorderType, TShortObjectHashMap<CellStyleType>>();
+            m7 = new IdentityHashMap<>();
             m6.put(numberFormat, m7);
         }
         TShortObjectHashMap<CellStyleType> m8 = m7.get(border);
         if (m8 == null)
         {
-            m8 = new TShortObjectHashMap<CellStyleType>();
+            m8 = new TShortObjectHashMap<>();
             m7.put(border, m8);
         }
         CellStyleType fs = m8.get(fontSize);

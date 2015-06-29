@@ -14,7 +14,7 @@ import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.WaferInformationRecord;
 
-class HeaderUtil
+public class HeaderUtil
 {
     public static final String HEADER_TAG = ">>> ";
     public static final String WAFER_ID = "WAFER_ID:";

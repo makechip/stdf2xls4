@@ -117,8 +117,6 @@ public abstract class ParametricRecord extends TestRecord
 
 	public abstract TestID getTestId();
 	
-	protected abstract void setTestName(String testName);
-	
 	public abstract String getAlarmName();
 	
 	public abstract Set<OptFlag_t> getOptFlags();

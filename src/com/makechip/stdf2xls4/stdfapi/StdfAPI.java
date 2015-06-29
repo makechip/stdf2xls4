@@ -53,7 +53,6 @@ public final class StdfAPI
     private final Map<PageHeader, Boolean> wafersortMap;
 	private final List<File> stdfFiles;
 	private boolean timeStampedFiles;
-	private boolean wafersort;
 
 	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 	{
@@ -71,6 +70,11 @@ public final class StdfAPI
 		new ArrayList<StdfRecord>();
 		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
 		wafersortMap = new HashMap<>();
+	}
+	
+	public boolean wafersort(PageHeader hdr)
+	{
+		return(wafersortMap.get(hdr));
 	}
 	
 	private void checkLimits(PageHeader hdr, TObjectFloatHashMap<TestID> lmap, List<List<StdfRecord>> list, OptFlag_t missingLimitFlag)
@@ -152,7 +156,7 @@ public final class StdfAPI
 		{
 			mir = (MasterInformationRecord) list.stream().filter(p -> p instanceof MasterInformationRecord).findFirst().orElse(null);
 		}
-		if (wafersort)
+		if (wafersortMap.get(hdr))
 		{
 		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.timeStamp, prr.xCoord, prr.yCoord);	
 		    else snxy = XY.getXY(prr.xCoord, prr.yCoord);

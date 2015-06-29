@@ -68,33 +68,26 @@ import static org.apache.poi.ss.usermodel.IndexedColors.WHITE;
 import static org.apache.poi.ss.usermodel.IndexedColors.YELLOW;
 
 @SuppressWarnings("all")
-public class SpreadSheetWriter1 implements SpreadSheetWriter
+public final class SpreadSheetWriter1 implements SpreadSheetWriter
 {
-    private final int firstDataCol;
+	private final CliOptions options;
+	private final StdfAPI api;
+    private int firstDataCol;
     public static final int MAX_ROWS = 1000000;
-    
+    private static final String[] decs = { "0.0", "0.00", "0.000", "0.0000", "0.00000", "0.000000", "0.0000000", "0.00000000",
+    	                                   "0.000000000", "0.0000000000", "0.00000000000", "0.000000000000" };
     private int colsPerPage;
-    private HashMap<String, TreeMap<SnOrXy, DeviceHeader>> devHdr;
     private Workbook wb = null;
     private Sheet[] ws;
     public static final Color myBlue = new XSSFColor(new byte[] { 0, 85, (byte) 165 });
-    private String fileName;
-	private boolean xssf;
     private int pages;
     private int currentRow;
-    private boolean waferMode;
-    private boolean wrapTestNames;
-    private boolean hiPrecision;
-    private boolean noOverWrite;
-    private boolean onePage;
     private int firstDataRow;
-    private final int RSLT_COL;
-    private final int X_COL;
-    private final int Y_COL;
-    private final int TEMP_COL;
+    private int RSLT_COL;
+    private int X_COL;
+    private int Y_COL;
+    private int TEMP_COL;
     private int testColumns;
-    private boolean sortByFilename;
-    private boolean showDuplicates;
     public CellStyle TEST_NUMBER_FMT;
     public CellStyle TEST_NAME_FMT;
     public final CellStyle TITLE_FMT;
@@ -107,13 +100,6 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     public final CellStyle HEADER3_FMT;
     public final CellStyle HEADER4_FMT;
     public final CellStyle HEADER5_FMT;
-    public final CellStyle PASS_VALUE_HP_FMT;
-    public final CellStyle FAIL_VALUE_HP_FMT;
-    public final CellStyle INVALID_VALUE_HP_FMT;
-    public final CellStyle UNRELIABLE_VALUE_HP_FMT;
-    public final CellStyle ALARM_VALUE_HP_FMT;
-    public final CellStyle TIMEOUT_VALUE_HP_FMT;
-    public final CellStyle ABORT_VALUE_HP_FMT;
     public final CellStyle PASS_VALUE_FMT;
     public final CellStyle FAIL_VALUE_FMT;
     public final CellStyle INVALID_VALUE_FMT;
@@ -131,19 +117,8 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
 
     public SpreadSheetWriter1(CliOptions options, StdfAPI api)
     {
-    	//this.fileName = opts.getXlsName();
-    	this.waferMode = waferMode;
-    	//this.wrapTestNames = opts.getWrapTestNames();
-    	//this.hiPrecision = opts.getHiP();
-    	//this.noOverWrite = opts.getNoOverwrite();
-    	//this.onePage = opts.getOnePage();
-    	this.sortByFilename = sortByFilename;
-    	//this.showDuplicates = opts.getShowDuplicates();
-    	RSLT_COL = waferMode ? 4 : 5;
-    	TEMP_COL = RSLT_COL + 1;
-    	X_COL = RSLT_COL + 2;
-    	Y_COL = RSLT_COL + 3;
-    	firstDataCol = 8;
+    	this.options = options;
+    	this.api = api;
     	/*
     	sData = new HashMap<String, List<ResultList2>>();
     	data = new HashMap<String, TreeMap<SnOrXy, LinkedHashMap<TestID, Result>>>();
@@ -187,30 +162,24 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         	TEST_NAME_FMT           = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
         }
         */
+    	String prec = decs[options.precision-1];
         TITLE_FMT               = CellStyleType.getCellStyle(wb, LEFT,   VAlignment_t.CENTER, SKY_BLUE,     WHITE, ARIAL,   BOLD,   "",       BorderType.DEFAULT_BORDER, (short) 20);
-        LO_LIMIT_FMT            = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        HI_LIMIT_FMT            = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
+        LO_LIMIT_FMT            = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, prec,     BorderType.DEFAULT_BORDER, (short) 10);
+        HI_LIMIT_FMT            = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, prec,     BorderType.DEFAULT_BORDER, (short) 10);
         UNIT_FMT                = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
         DATA_FMT                = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
         HEADER1_FMT             = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   BOLD,   "",       BorderType.DEFAULT_BORDER, (short) 8);
         HEADER2_FMT             = CellStyleType.getCellStyle(wb, RIGHT,  VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   BOLD,   "",       BorderType.DEFAULT_BORDER, (short) 10);
         HEADER3_FMT             = CellStyleType.getCellStyle(wb, LEFT,   VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
         HEADER4_FMT             = CellStyleType.getCellStyle(wb, RIGHT,  VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   BOLD,   "",       BorderType.DEFAULT_BORDER, (short) 8);
-        HEADER5_FMT             = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   BOLD,   "0.000",  BorderType.DEFAULT_BORDER, (short) 8);
-        PASS_VALUE_HP_FMT       = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        FAIL_VALUE_HP_FMT       = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, RED,          BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        INVALID_VALUE_HP_FMT    = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, BRIGHT_GREEN, BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        UNRELIABLE_VALUE_HP_FMT = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, LIGHT_BLUE,   BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        ALARM_VALUE_HP_FMT      = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, YELLOW,       BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        TIMEOUT_VALUE_HP_FMT    = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, PINK,         BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        ABORT_VALUE_HP_FMT      = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, TURQUOISE,    BLACK, COURIER, NORMAL, "0.0000", BorderType.DEFAULT_BORDER, (short) 10);
-        PASS_VALUE_FMT          = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        FAIL_VALUE_FMT          = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, RED,          BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        INVALID_VALUE_FMT       = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, BRIGHT_GREEN, BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        UNRELIABLE_VALUE_FMT    = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, LIGHT_BLUE,   BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        ALARM_VALUE_FMT         = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, YELLOW,       BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        TIMEOUT_VALUE_FMT       = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, PINK,         BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
-        ABORT_VALUE_FMT         = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, TURQUOISE,    BLACK, COURIER, NORMAL, "0.000",  BorderType.DEFAULT_BORDER, (short) 10);
+        HEADER5_FMT             = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, ARIAL,   BOLD,   prec,     BorderType.DEFAULT_BORDER, (short) 8);
+        PASS_VALUE_FMT          = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, COURIER, NORMAL, prec,     BorderType.DEFAULT_BORDER, (short) 10);
+        FAIL_VALUE_FMT          = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, RED,          BLACK, COURIER, NORMAL, prec,     BorderType.DEFAULT_BORDER, (short) 10);
+        INVALID_VALUE_FMT       = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, BRIGHT_GREEN, BLACK, COURIER, NORMAL, prec,     BorderType.DEFAULT_BORDER, (short) 10);
+        UNRELIABLE_VALUE_FMT    = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, LIGHT_BLUE,   BLACK, COURIER, NORMAL, prec,     BorderType.DEFAULT_BORDER, (short) 10);
+        ALARM_VALUE_FMT         = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, YELLOW,       BLACK, COURIER, NORMAL, prec,     BorderType.DEFAULT_BORDER, (short) 10);
+        TIMEOUT_VALUE_FMT       = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, PINK,         BLACK, COURIER, NORMAL, prec,     BorderType.DEFAULT_BORDER, (short) 10);
+        ABORT_VALUE_FMT         = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, TURQUOISE,    BLACK, COURIER, NORMAL, prec,     BorderType.DEFAULT_BORDER, (short) 10);
         STATUS_PASS_FMT         = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, WHITE,        BLACK, COURIER, NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
         STATUS_FAIL_FMT         = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, RED,          BLACK, COURIER, NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
         STATUS_INVALID_FMT      = CellStyleType.getCellStyle(wb, CENTER, VAlignment_t.CENTER, BRIGHT_GREEN, BLACK, COURIER, NORMAL, "",       BorderType.DEFAULT_BORDER, (short) 10);
@@ -522,9 +491,9 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private void locateRow(String waferOrStep, SnOrXy snOrXy, int page)
     {
         TIntArrayList xlist = new TIntArrayList();
-        if (waferMode)
+        if (true) // waferMode
         {
-        	if (!noOverWrite)
+        	if (!options.noOverwrite)
         	{
         		for (int row=firstDataRow; row<=MAX_ROWS; row++)
         		{
@@ -598,7 +567,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
                     currentRow = row;
                     return;
                 }
-                if (!noOverWrite)
+                if (!options.noOverwrite)
                 {
                 	String sn = c.getStringCellValue();
                 	if (sn.equals(snOrXy.getSerialNumber()))
@@ -622,7 +591,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         if (ws == null) return;
         try
         {
-        	FileOutputStream fos = new FileOutputStream(fileName);
+        	FileOutputStream fos = new FileOutputStream(options.xlsName);
             wb.write(fos);
             wb.close();
             fos.close();
@@ -687,17 +656,6 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     		m2.put(id, r);
     	}
     	*/
-    }
-    
-    private void addDeviceHeader(String waferOrStep, SnOrXy snOrxy, DeviceHeader dh)
-    {
-        TreeMap<SnOrXy, DeviceHeader> m1 = devHdr.get(waferOrStep);
-        if (m1 == null)
-        {
-            m1 = new TreeMap<SnOrXy, DeviceHeader>();
-            devHdr.put(waferOrStep, m1);
-        }
-        m1.put(snOrxy, dh);
     }
     
     private void addColumnId(String waferOrStep)

@@ -75,7 +75,6 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     private final int firstDataRow;
     public final int MAX_COLS;
     
-    private HashMap<String, TreeMap<SnOrXy, DeviceHeader>> devHdr;
     private Workbook wb = null;
     private Sheet  ws;
     public static final Color myBlue = new XSSFColor(new byte[] { 0, 85, (byte) 165 });
@@ -617,17 +616,6 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     		m2.put(id, r);
     	}
     	*/
-    }
-    
-    private void addDeviceHeader(String waferOrStep, SnOrXy snOrxy, DeviceHeader dh)
-    {
-        TreeMap<SnOrXy, DeviceHeader> m1 = devHdr.get(waferOrStep);
-        if (m1 == null)
-        {
-            m1 = new TreeMap<SnOrXy, DeviceHeader>();
-            devHdr.put(waferOrStep, m1);
-        }
-        m1.put(snOrxy, dh);
     }
     
     private void addColumnId(String waferOrStep)

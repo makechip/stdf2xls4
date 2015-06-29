@@ -20,14 +20,12 @@ import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import jxl.Cell;
@@ -37,7 +35,6 @@ import jxl.LabelCell;
 import jxl.NumberCell;
 import jxl.Workbook;
 import jxl.format.Colour;
-import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.Number;
 import jxl.write.WritableSheet;
@@ -47,8 +44,6 @@ import jxl.write.biff.RowsExceededException;
 
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.SpreadSheetWriter;
-import com.makechip.stdf2xls4.stdfapi.HeaderUtil;
-import com.makechip.stdf2xls4.stdfapi.PageHeader;
 import com.makechip.stdf2xls4.stdfapi.SnOrXy;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
 import com.makechip.stdf2xls4.stdf.TestID;
@@ -62,13 +57,10 @@ import com.makechip.util.Log;
 import static com.makechip.stdf2xls4.xls.Format_t.*;
 
 @SuppressWarnings("unused")
-public class SpreadSheetWriter1 implements SpreadSheetWriter
+public class SpreadSheetWriter2 implements SpreadSheetWriter
 {
 	private final CliOptions options;
 	private final StdfAPI api;
-    private HeaderBlock hb;	
-    private CornerBlock cb;
-	
     private final int firstDataCol;
     public static final int MAX_ROWS = 1000000;
     
@@ -83,8 +75,13 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private CellView statusView   = new CellView();
     private CellView unitsView    = new CellView();
     private CellView hdrView      = new CellView();
+    private boolean waferMode;
+    private boolean wrapTestNames;
+    private boolean hiPrecision;
+    private boolean noOverWrite;
+    private boolean onePage;
     private int firstDataRow;
-    private int RSLT_COL;
+    private final int RSLT_COL;
     private final int X_COL;
     private final int Y_COL;
     private final int TEMP_COL;
@@ -92,31 +89,63 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private boolean sortByFilename;
     private boolean showDuplicates;
 
-    public SpreadSheetWriter1(CliOptions options, StdfAPI api) throws IOException, BiffException, WriteException
+    public SpreadSheetWriter2(CliOptions options, StdfAPI api)
     {
     	this.options = options;
     	this.api = api;
+    	RSLT_COL = waferMode ? 4 : 5;
     	TEMP_COL = RSLT_COL + 1;
     	X_COL = RSLT_COL + 2;
     	Y_COL = RSLT_COL + 3;
     	firstDataCol = 8;
-        FormatFactory.reInitialize();
+        System.out.println("Initializing workbook: " + options.xlsName);
+        try
+        {
+            FormatFactory.reInitialize();
+        }
+        catch (Exception e) { e.printStackTrace(); }
         wb = null; 
-       	if (options.xlsName.exists()) 
-       	{
-       		Workbook w = Workbook.getWorkbook(options.xlsName);
-       		wb = Workbook.createWorkbook(options.xlsName, w);
+      	Workbook w = null;
+       	try { w = Workbook.getWorkbook(options.xlsName); }
+       	catch (Exception e) 
+       	{ 
+       	    Log.warning("Unable to open existing spreadsheet: " + options.xlsName);
+       	    w = null; 
        	}
-       	else wb = Workbook.createWorkbook(options.xlsName);
+       	if (w != null)
+       	{
+       		try { wb = Workbook.createWorkbook(options.xlsName, w); }
+       		catch (Exception e)
+        	{
+       			System.out.println("Exception: " + e.getMessage());
+       			System.exit(-1);
+        	}
+       	}
+       	else
+       	{
+       		try
+        	{
+        		wb = Workbook.createWorkbook(options.xlsName);
+        	}
+       		catch (Exception e)
+        	{
+            	System.out.println("Exception: " + e.getMessage());
+            	System.exit(-1);
+        	}
+        }
        	wb.setColourRGB(Colour.SKY_BLUE, 0, 85, 165);
         sheetNum = 0;
-        HEADER1_FMT.getFormat().setWrap(true);
-        tnumView.setSize(18*256);
-        loLimitView.setSize(16*256);
-        hiLimitView.setSize(16*256);
-        statusView.setSize(16*256);
-        unitsView.setSize(8*256);
-        hdrView.setSize(14*256);
+        try
+        {
+            HEADER1_FMT.getFormat().setWrap(true);
+            tnumView.setSize(18*256);
+            loLimitView.setSize(16*256);
+            hiLimitView.setSize(16*256);
+            statusView.setSize(16*256);
+            unitsView.setSize(8*256);
+            hdrView.setSize(14*256);
+        }
+        catch (Exception e) { e.printStackTrace(); }
     }
 
     // 1. Make logo
@@ -126,23 +155,23 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     // 5. Enter data
     public void generate() throws RowsExceededException, WriteException
     {
-    	if (options.onePage)
+    	/*
+    	boolean first = true;
+    	for (String waferOrStep : sData.keySet())
     	{
-    		openSheet(api.getPageHeaders().stream().findFirst().orElse(new PageHeader(new HashMap<String, String>())));
-    		for (PageHeader hdr : api.getPageHeaders()) writeData(hdr);
-    	}
-    	else
-    	{
-    	    for (PageHeader hdr : api.getPageHeaders())
+    		if (onePage)
     		{
-    			openSheet(hdr);
-    		    writeData(hdr);
+    			if (first) openSheet(waferOrStep);
+    			first = false;
     		}
+    		else openSheet(waferOrStep);
+    		writeData(waferOrStep);
     	}
         close();
+        */
     }
         
-    private void writeData(PageHeader hdr) throws RowsExceededException, WriteException
+    private void writeData(String waferOrStep) throws RowsExceededException, WriteException
     {
         /*	
     	if (sortByFilename && showDuplicates) noOverWrite = true;
@@ -210,42 +239,61 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         */
     } 
     
-    private void openSheet(PageHeader hdr)
+    private void openSheet(String waferOrStep)
     {
-    	hb = new HeaderBlock(hdr);
-    	cb = new CornerBlock(api.wafersort(hdr), hb.getHeight(), false);
-        int numTests = api.getTestHeaders(hdr).size();
-        int pages = numTests / colsPerPage;
-        if (numTests % colsPerPage != 0) pages++;
-        String waferOrStep = api.wafersort(hdr) ? hdr.get(HeaderUtil.WAFER_ID) : hdr.get(HeaderUtil.STEP);
+    	/*
+        int pages = 0;
+        LinkedHashSet<ColIdentifier> list = dataHeader.get(waferOrStep);
+        if (list.size() % colsPerPage == 0) pages = list.size() / colsPerPage;
+        else pages = 1 + (list.size() / colsPerPage);
         ws = new WritableSheet[pages];
-        firstDataRow = getFirstDataRow();
-        for (int i=0; i<pages; i++)
+        try
         {
-        	String name = null;
-        	name = (api.wafersort(hdr) ? "    WAFER " : "    STEP ") + waferOrStep + " Page " + (i+1);
-        	ws[i] = wb.getSheet(name);
-        	if (ws[i] == null) newSheet(i, name, waferOrStep);
-        	else // count test columns 
-        	{
-        		int tnumRow = firstDataRow - 5;
-        		int j = firstDataCol;
-        		int testCols = 0;
-        		while (true)
-        		{
-        			Cell c = ws[i].getCell(j, tnumRow);
-        			if (c.getType() == CellType.EMPTY) break;
-        			testCols++;
-        			j++;
-        		}
-        		if (testCols < colsPerPage) testColumns = testCols;
-        	}
+            for (int i=0; i<pages; i++)
+            {
+                String name = null;
+                if (onePage) name = "    ALL STEPS";
+                else name = (waferMode ? "    WAFER " : "    STEP ") + waferOrStep + " Page " + (i+1);
+                ws[i] = wb.getSheet(name);
+                if (ws[i] == null) 
+                {
+                	newSheet(i, name, waferOrStep);
+                }
+                else // count test columns 
+                {
+                	int tnumRow = getFirstDataRow(waferOrStep) - 5;
+                	int j = firstDataCol;
+                	int testCols = 0;
+                	while (true)
+                	{
+                		Cell c = ws[i].getCell(j, tnumRow);
+                		if (c.getType() == CellType.EMPTY) break;
+                		testCols++;
+                		j++;
+                	}
+                	if (testCols < colsPerPage) testColumns = testCols;
+                }
+            }
         }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            System.out.println("Exception: " + e.getMessage());
+            System.exit(-1);
+        }
+        firstDataRow = getFirstDataRow(waferOrStep);
+        */
     }
     
-    private int getFirstDataRow()
+    private int getFirstDataRow(String waferOrStep)
     {
+    	/*
+        StepInfo si = headerInfo.get(waferOrStep);
+        HeaderBlock hb = new HeaderBlock(si.getHeaderItems());
+        CornerBlock cb = new CornerBlock(waferMode, hb.getHeight(), onePage);
         return(TitleBlock.HEIGHT + hb.getHeight() + cb.getHeight());
+        */
+    	return(0);
     }
 
     private void newSheet(int page, String name, String waferOrStep)
@@ -342,12 +390,12 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     	*/
     }
     
-    private void locateRow(PageHeader hdr, String waferOrStep, SnOrXy snOrXy, int page)
+    private void locateRow(String waferOrStep, SnOrXy snOrXy, int page)
     {
         TIntArrayList xlist = new TIntArrayList();
-        if (api.wafersort(hdr))
+        if (waferMode)
         {
-        	if (!options.noOverwrite)
+        	if (!noOverWrite)
         	{
         		for (int row=firstDataRow; row<=MAX_ROWS; row++)
         		{
@@ -404,7 +452,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
                     currentRow = row;
                     return;
                 }
-                if (!options.noOverwrite)
+                if (!noOverWrite)
                 {
                 	LabelCell cd = (LabelCell) c;
                 	String sn = cd.getString();

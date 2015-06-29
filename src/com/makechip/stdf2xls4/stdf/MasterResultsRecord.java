@@ -30,24 +30,40 @@ import java.util.Date;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 /**
-*** @author eric
-*** @version $Id: MasterResultsRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields for a Master Results Record.
+ *  @author eric
+ */
 public class MasterResultsRecord extends StdfRecord
 {
+	/**
+	 *  This is the FINISH_T field of the MasterResultsRecord.
+	 */
     public final long finishDate;
+    /**
+     *  This is the DISP_COD field of the MasterResultsRecord.
+     */
     public final String dispCode;
+    /**
+     * This is the USR_DESC field of the MasterResultsRecord.
+     */
     public final String lotDesc;
+    /**
+     *  This is the EXC_DESC field of the MasterResultsRecord.
+     */
     public final String execDesc;
     
     /**
-    *** @param p1
-    *** @param p2
-    **/
-    public MasterResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase.  This value is not used by the HardwareBinRecord.
+     *         It is provided so that all StdfRecord classes have the same argument signatures,
+     *         so that function references can be used to refer to the constructors of StdfRecords.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
+   public MasterResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.MRR, dvd.getCpuType(), data);
         finishDate = getU4(0);
@@ -57,6 +73,16 @@ public class MasterResultsRecord extends StdfRecord
         execDesc = getCn();
     }
     
+   /**
+    * This constructor is used to generate binary stream data from the field values.
+    * @param tdb The TestIdDatabase. This value is not used, but is needed so that
+     * this constructor can call the previous constructor to avoid code duplication.
+    * @param dvd The DefaultValueDatabase is used to access the CPU type.
+    * @param finishDate The FINISH_T field.
+    * @param dispCode The DISP_COD field.
+    * @param lotDesc The LOT_DESC field.
+    * @param execDesc The EXC_DESC field.
+    */
     public MasterResultsRecord(
     	TestIdDatabase tdb,
     	DefaultValueDatabase dvd,
@@ -68,6 +94,9 @@ public class MasterResultsRecord extends StdfRecord
     	this(tdb, dvd, toBytes(dvd.getCpuType(), finishDate, "" + dispCode, lotDesc, execDesc));
     }
     
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -84,24 +113,60 @@ public class MasterResultsRecord extends StdfRecord
 		return(l.toArray());
 	}
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    finish date: ").append(getFinishDate()).append(Log.eol);
-        sb.append("    lot disposition code: ").append(dispCode).append(Log.eol);
-        sb.append("    user lot description: ").append(lotDesc).append(Log.eol);
-        sb.append("    exec lot description: ").append(execDesc).append(Log.eol);
-        return(sb.toString());
-    }
-
     /**
+     * This method returns the String form of the FINISH_T date.
      * @return the finishDate
      */
-    private String getFinishDate()
+    public String getFinishDate()
     {
         return(new Date(1000L * finishDate).toString());
     }
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("MasterResultsRecord [finishDate=").append(getFinishDate());
+		builder.append(", dispCode=").append(dispCode);
+		builder.append(", lotDesc=").append(lotDesc);
+		builder.append(", execDesc=").append(execDesc);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + dispCode.hashCode();
+		result = prime * result + execDesc.hashCode();
+		result = prime * result + (int) (finishDate ^ (finishDate >>> 32));
+		result = prime * result + lotDesc.hashCode();
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof MasterResultsRecord)) return false;
+		MasterResultsRecord other = (MasterResultsRecord) obj;
+		if (!dispCode.equals(other.dispCode)) return false;
+		if (!execDesc.equals(other.execDesc)) return false;
+		if (finishDate != other.finishDate) return false;
+		if (!lotDesc.equals(other.lotDesc)) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
 
 }

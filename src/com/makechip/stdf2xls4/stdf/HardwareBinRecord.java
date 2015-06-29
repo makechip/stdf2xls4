@@ -31,9 +31,9 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
-*** @author eric
-*** @version $Id: HardwareBinRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields for a Hardware Bin Record.
+ *  @author eric
+ */
 public class HardwareBinRecord extends StdfRecord
 {
 	/**

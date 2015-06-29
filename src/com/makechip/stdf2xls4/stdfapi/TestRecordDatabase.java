@@ -92,9 +92,9 @@ public class TestRecordDatabase
 		{
 		case DTR: tr = new DatalogTestResult(((DatalogTextRecord) r).text); break;
 		case FTR: tr = new TestResult(((FunctionalTestRecord) r).testFlags); break;
-		case PTR: tr = new ParametricTestResult(((ParametricRecord) r).testFlags, ((ParametricTestRecord) r).result); break;
+		case PTR: tr = new ParametricTestResult(((ParametricRecord) r).testFlags, ((ParametricTestRecord) r).scaledResult); break;
 		case MPR: MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);
-		tr = new ParametricTestResult(mpr.testFlags, mpr.getResults()[0]);
+		tr = new ParametricTestResult(mpr.testFlags, mpr.getScaledResult(mpr.getPinNames().findFirst().orElse("")));
 		break;
 		default: throw new RuntimeException("Unknown test record type: " + r.type);
 		}
@@ -252,14 +252,14 @@ public class TestRecordDatabase
 		case FTR: list.add(new TestHeader(r.getTestId())); break;
 		case PTR: ParametricTestRecord ptr = ParametricTestRecord.class.cast(r);
 		          if (hasDynamicLimits(hdr, ptr.getTestId())) list.add(new LoLimitHeader(ptr.getTestId()));  
-		          list.add(new ParametricTestHeader(ptr.getTestId(), ptr.units, ptr.loLimit, ptr.hiLimit));
+		          list.add(new ParametricTestHeader(ptr.getTestId(), ptr.scaledUnits, ptr.scaledLoLimit, ptr.scaledHiLimit));
 		          if (hasDynamicLimits(hdr, ptr.getTestId())) list.add(new HiLimitHeader(ptr.getTestId()));
 		          break;
 		case MPR: MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);
 				  if (hasDynamicLimits(hdr, mpr.getTestId())) list.add(new LoLimitHeader(mpr.getTestId()));
 				  mpr.getPinNames(). forEach(pin -> { 
 					    	  				  PinTestID pid = TestID.PinTestID.getTestID(tdb, mpr.getTestId(), pin); 
-					    	  				  list.add(new MultiParametricTestHeader(pid, mpr.units, mpr.loLimit, mpr.hiLimit)); });
+					    	  				  list.add(new MultiParametricTestHeader(pid, mpr.scaledUnits, mpr.scaledLoLimit, mpr.scaledHiLimit)); });
 				  if (hasDynamicLimits(hdr, mpr.getTestId())) list.add(new HiLimitHeader(mpr.getTestId()));
 				  break;
 		case DTR: list.add(new TestHeader(r.getTestId())); break; 
