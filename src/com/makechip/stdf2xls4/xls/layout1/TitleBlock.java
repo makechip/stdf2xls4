@@ -12,7 +12,7 @@ public class TitleBlock
     public static void addBlock(WritableSheet ws, String pageTitle, int titleWidth) throws WriteException
     {
         LogoBlock.addBlock(ws);
-        //LegendBlock.addBlock(ws);
+        LegendBlock.addBlock(ws);
         PageTitleBlock.addBlock(pageTitle, titleWidth, ws);
     }
 

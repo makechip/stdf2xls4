@@ -225,7 +225,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         	String name = null;
         	name = (api.wafersort(hdr) ? "    WAFER " : "    STEP ") + waferOrStep + " Page " + (i+1);
         	ws[i] = wb.getSheet(name);
-        	if (ws[i] == null) newSheet(i, name, waferOrStep);
+        	if (ws[i] == null) newSheet(i, name, hdr);
         	else // count test columns 
         	{
         		int tnumRow = firstDataRow - 5;
@@ -248,38 +248,28 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         return(TitleBlock.HEIGHT + hb.getHeight() + cb.getHeight());
     }
 
-    private void newSheet(int page, String name, String waferOrStep)
+    private void newSheet(int page, String name, PageHeader hdr)
     {
+    	ws[page] = wb.createSheet(name, sheetNum);
+    	HeaderBlock hb = new HeaderBlock(hdr);
+    	//hb.addBlock(ws[page]);
+    	CornerBlock cb = new CornerBlock(api.wafersort(hdr), hb.getHeight(), options.onePage);
+    	//cb.addBlock(ws[page]);
     	/*
-        try
-        {
-            ws[page] = wb.createSheet(name, sheetNum);
-            StepInfo si = headerInfo.get(waferOrStep);
-            HeaderBlock hb = new HeaderBlock(si.getHeaderItems());
-            hb.addBlock(ws[page]);
-            CornerBlock cb = new CornerBlock(waferMode, hb.getHeight(), onePage);
-            cb.addBlock(ws[page]);
-            LinkedHashSet<ColIdentifier> m = dataHeader.get(waferOrStep);
-            List<ColIdentifier> l1 = new ArrayList<ColIdentifier>();
-            for (ColIdentifier ci : m) l1.add(ci);
-            List<ColIdentifier> list = new ArrayList<ColIdentifier>();
-            for (int i=0; i<colsPerPage; i++)
-            {
-                if ((i+colsPerPage*page) == m.size()) break;
-                ColIdentifier cid = l1.get(i+colsPerPage*page);
-                list.add(cid);
-            }
-            TitleBlock.addBlock(ws[page], name, LegendBlock.getWidth() + ((list.size() >= colsPerPage) ? colsPerPage : list.size()));
-            DataHeader dh = new DataHeader(list, cb, hb, wrapTestNames, hiPrecision);
-            dh.addBlock(ws[page]);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            System.out.println("Exception: " + e.getMessage());
-            System.exit(-1);
-        }
-        */
+    	LinkedHashSet<ColIdentifier> m = dataHeader.get(waferOrStep);
+    	List<ColIdentifier> l1 = new ArrayList<ColIdentifier>();
+    	for (ColIdentifier ci : m) l1.add(ci);
+    	List<ColIdentifier> list = new ArrayList<ColIdentifier>();
+    	for (int i=0; i<colsPerPage; i++)
+    	{
+    		if ((i+colsPerPage*page) == m.size()) break;
+    		ColIdentifier cid = l1.get(i+colsPerPage*page);
+    		list.add(cid);
+    	}
+    	TitleBlock.addBlock(ws[page], name, LegendBlock.getWidth() + ((list.size() >= colsPerPage) ? colsPerPage : list.size()));
+    	DataHeader dh = new DataHeader(list, cb, hb, wrapTestNames, hiPrecision);
+    	dh.addBlock(ws[page]);
+    	*/
     }
     
     private void setStatus(WritableSheet wsi, int col, int row) throws RowsExceededException, WriteException
