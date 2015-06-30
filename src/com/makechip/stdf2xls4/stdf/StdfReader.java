@@ -121,6 +121,11 @@ public class StdfReader
                 Record_t type = Record_t.getRecordType(rdr.readByte(), rdr.readByte());
                 byte[] record = new byte[recLen];
                 len = rdr.read(record);
+                String s = new String(record);
+                if (type == Record_t.DTR)
+                {
+                    if (s.trim().startsWith(StdfRecord.TEXT_DATA) && !s.contains(StdfRecord.SERIAL_MARKER)) type = Record_t.DTRX;
+                }
                 records.add(type.getInstance(tdb, dvd, record));
         	}                
         }
@@ -140,7 +145,13 @@ public class StdfReader
     	    {
     	    	int recLen = dvd.getCpuType().getU2(bytes[ptr++], bytes[ptr++]);
     	    	Record_t type = Record_t.getRecordType(bytes[ptr++],  bytes[ptr++]);
-                records.add(type.getInstance(tdb, dvd, Arrays.copyOfRange(bytes, ptr, ptr+recLen)));
+    	    	byte[] record = Arrays.copyOfRange(bytes, ptr, ptr+recLen);
+                String s = new String(record);
+                if (type == Record_t.DTR)
+                {
+                    if (s.trim().startsWith(StdfRecord.TEXT_DATA) && !s.contains(StdfRecord.SERIAL_MARKER)) type = Record_t.DTRX;
+                }
+                records.add(type.getInstance(tdb, dvd, record));
     	    	ptr += recLen;
     	    }
     	}

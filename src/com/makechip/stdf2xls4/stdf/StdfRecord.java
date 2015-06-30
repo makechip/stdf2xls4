@@ -51,8 +51,6 @@ public abstract class StdfRecord
 	
 	protected abstract void toBytes();
 	
-	public boolean isTestRecord() { return(false); }
-	
 	public byte[] getBytes() 
 	{ 
 		byte[] b = new byte[bytes.length + 4];

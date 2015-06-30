@@ -42,6 +42,14 @@ import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 public class FunctionalTestRecord extends TestRecord
 {
 	/**
+	 *  This is the HEAD_NUM field.
+	 */
+	public final short headNumber;
+	/**
+	 *  This is the SITE_NUM field.
+	 */
+	public final short siteNumber;
+	/**
 	 *  This is the TEST_FLG field. 
 	 */
 	public final Set<TestFlag_t> testFlags;
@@ -105,7 +113,10 @@ public class FunctionalTestRecord extends TestRecord
 	 *  This is the PATG_NUM field.
 	 */
     public final short patGenNum;
-
+    /**
+     *  This field holds the TEST_NUM and TEST_TXT fields.
+     */
+    public final TestID id;
     private final int numFailPinBits;
     private final int numEnCompBits;
     
@@ -115,13 +126,6 @@ public class FunctionalTestRecord extends TestRecord
     private final byte[] pgmState;
     private final byte[] failPin;
     private final byte[] enComps;
-    private final TestID id;
-    
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#isTestRecord()
-	 */
-    @Override
-    public boolean isTestRecord() { return(true); }
     
     /**
      * Constructor to create an FTR record from the binary data stream.
@@ -134,6 +138,9 @@ public class FunctionalTestRecord extends TestRecord
     public FunctionalTestRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.FTR, dvd.getCpuType(), data);
+        long testNumber = getU4(MISSING_LONG);
+        headNumber = getU1(MISSING_SHORT);
+        siteNumber = getU1(MISSING_SHORT);
         EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());
         testFlags = Collections.unmodifiableSet(s);
         boolean missingData = ptr >= getSize();
@@ -320,7 +327,7 @@ public class FunctionalTestRecord extends TestRecord
     {
     	bytes = toBytes(
         cpuType,
-        testNumber,
+        id.testNumber,
         headNumber,
         siteNumber,
         testFlags,
@@ -537,20 +544,10 @@ public class FunctionalTestRecord extends TestRecord
 		builder.append(", failPin=").append(Arrays.toString(failPin));
 		builder.append(", enComps=").append(Arrays.toString(enComps));
 		builder.append(", id=").append(id);
-		builder.append(", testNumber=").append(testNumber);
 		builder.append(", headNumber=").append(headNumber);
 		builder.append(", siteNumber=").append(siteNumber);
 		builder.append("]");
 		return builder.toString();
-	}
-
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getTestId()
-	 */
-	@Override
-	public TestID getTestId() 
-	{
-		return(id);
 	}
 
 	/* (non-Javadoc)
@@ -565,6 +562,7 @@ public class FunctionalTestRecord extends TestRecord
 		result = prime * result + (int) (cycleCount ^ (cycleCount >>> 32));
 		result = prime * result + Arrays.hashCode(enComps);
 		result = prime * result + Arrays.hashCode(failPin);
+		result = prime * result + headNumber;
 		result = prime * result + id.hashCode();
 		result = prime * result + numEnCompBits;
 		result = prime * result + (int) (numFail ^ (numFail >>> 32));
@@ -579,6 +577,7 @@ public class FunctionalTestRecord extends TestRecord
 		result = prime * result + rsltTxt.hashCode();
 		result = prime * result + Arrays.hashCode(rtnIndex);
 		result = prime * result + Arrays.hashCode(rtnState);
+		result = prime * result + siteNumber;
 		result = prime * result + testFlags.hashCode();
 		result = prime * result + timeSetName.hashCode();
 		result = prime * result + vecName.hashCode();
@@ -603,7 +602,8 @@ public class FunctionalTestRecord extends TestRecord
 		if (cycleCount != other.cycleCount) return false;
 		if (!Arrays.equals(enComps, other.enComps)) return false;
 		if (!Arrays.equals(failPin, other.failPin)) return false;
-		if (id != other.id) return false; 
+		if (headNumber != other.headNumber) return false;
+		if (id != other.id) return false;
 		if (numEnCompBits != other.numEnCompBits) return false;
 		if (numFail != other.numFail) return false;
 		if (numFailPinBits != other.numFailPinBits) return false;
@@ -617,6 +617,7 @@ public class FunctionalTestRecord extends TestRecord
 		if (!rsltTxt.equals(other.rsltTxt)) return false;
 		if (!Arrays.equals(rtnIndex, other.rtnIndex)) return false;
 		if (!Arrays.equals(rtnState, other.rtnState)) return false;
+		if (siteNumber != other.siteNumber) return false;
 		if (!testFlags.equals(other.testFlags)) return false;
 		if (!timeSetName.equals(other.timeSetName)) return false;
 		if (!vecName.equals(other.vecName)) return false;
@@ -626,7 +627,16 @@ public class FunctionalTestRecord extends TestRecord
 		if (yFailAddr != other.yFailAddr) return false;
 		return true;
 	}
-    
+
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getTestId()
+	 */
+	@Override
+	public TestID getTestId()
+	{
+		return(id);
+	}
+
    
 }
 

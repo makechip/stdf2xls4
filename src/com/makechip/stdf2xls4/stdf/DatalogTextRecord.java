@@ -35,12 +35,9 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
  *  generation.  These formats are:<br>
  *  1. Supplying an alphanumeric serial number (Some testers only support numeric serial numbers)<br>
  *     TEXT_DATA : S/N : serial_number<br>
- *  2. Generic Data per device (A "phony" test result)<br>
- *     TEXT_DATA : test_name : value [ : test_number [ : site_number [ : head_number ]]]<br>
- *     (Note: the square brackets indicate optional fields, and they do not actually appear in the text)<br>
- *  3. Fields that will appear in the spreadsheet headers<br>
+ *  2. Fields that will appear in the spreadsheet headers<br>
  *     >>> header_name : header_value<br>
- *  4. Legacy fields:   <br>
+ *  3. Legacy fields:   <br>
  *     CUSTOMER: value<br>
  *     DEVICE NUMBER: value<br>
  *     SOW: value<br>
@@ -87,16 +84,6 @@ public class DatalogTextRecord extends StdfRecord
     public DatalogTextRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, String text)
     {
     	this(tdb, dvd, getCnBytes(text));
-    }
-    
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#isTestRecord()
-	 */
-    @Override
-    public boolean isTestRecord() 
-    { 
-    	String s = text.trim();
-    	return(s.startsWith("TEXT_DATA") && text.contains(":") && !text.contains(SERIAL_MARKER)); 
     }
     
 	/* (non-Javadoc)

@@ -34,41 +34,113 @@ import java.util.Set;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
-
 import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 /**
-*** @author eric
-*** @version $Id: ParametricTestRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields the a Parametric Test Record.
+ *  @author eric
+ */
 public class ParametricTestRecord extends ParametricRecord
 {
+	/**
+	 *  This is the RESULT field
+	 */
     public final float result; 
+    /**
+     *  This is the ALARM_ID field
+     */
     public final String alarmName;
-    private final TestID id;
+    /**
+     *  This is the OPT_FLAG field
+     */
     public final Set<OptFlag_t> optFlags; 
+    /**
+     *  This is the RES_SCAL field
+     */
     public final byte resScal;
+    /**
+     *  This is the LLM_SCAL field
+     */
     public final byte llmScal;
+    /**
+     *  This is the HLM_SCAL field
+     */
     public final byte hlmScal; 
+    /**
+     *  This is the LO_LIMIT field
+     */
     public final float loLimit; 
+    /**
+     *  This is the HI_LIMIT field
+     */
     public final float hiLimit;
+    /**
+     *  This is the UNITS field
+     */
     public final String units;
+    /**
+     *  This is the C_RESFMT field
+     */
     public final String resFmt;
+    /**
+     *  This is the C_LLMFMT field
+     */
     public final String llmFmt;
+    /**
+     *  This is the C_HLMFMT field
+     */
     public final String hlmFmt;
+    /**
+     *  This is the LO_SPEC field
+     */
     public final float loSpec;
+    /**
+     *  This is the HI_SPEC field
+     */
     public final float hiSpec;
+    /**
+     *  This field holds the TEST_NUM and TEST_TXT fields. 
+     */
+    public final TestID id;
+	/**
+	 *  This field holds a normalized LO_LIMIT such that
+	 *  the value in conjunction with the scaledUnits
+	 *  does not need to use scientific notation. It
+	 *  is not part of the STDF specification
+	 */
     public final float scaledLoLimit;
+	/**
+	 *  This field holds a normalized HI_LIMIT such that
+	 *  the value in conjunction with the scaledUnits
+	 *  does not need to use scientific notation. It
+	 *  is not part of the STDF specification
+	 */
     public final float scaledHiLimit;
+	/**
+	 *  This field holds a normalized value of the UNITS
+	 *  field.  It should be used with the scaledLoLimit,
+	 *  the scaledHiLimit, and the scaledResults.  This is
+	 *  not part of the STDF specification.
+	 */
     public final String scaledUnits;
+    /**
+     *  This field holds a normalized value of the RESULT
+     *  field.  It should be used with the scaledLoLimit, the
+     *  scaledHiLimit, and the scaledUnits. This is not part
+     *  of the STDF specification.
+     */
     public final float scaledResult;
     
     /**
-    *** @param p1
-    **/
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase.  This parameter is used for tracking the Test ID.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public ParametricTestRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
     	super(Record_t.PTR, dvd.getCpuType(), data);
+    	long testNumber = dvd.getCpuType().getU4(data[0], data[1], data[2], data[3]);
         result = getR4(MISSING_FLOAT);
         String testName = getCn(); 
         id = TestID.createTestID(tdb, testNumber, testName); 
@@ -103,23 +175,23 @@ public class ParametricTestRecord extends ParametricRecord
         // scale limits and units here:
         if (dvd.scaledLoLimits.get(id) == MISSING_FLOAT)
         {
-            scaledLoLimit = scaleValue(loLimit, findScale(dvd));	
+            scaledLoLimit = scaleValue(loLimit, findScale(dvd, id));	
             dvd.scaledLoLimits.put(id, scaledLoLimit);
         }
         else scaledLoLimit = dvd.scaledLoLimits.get(id);
         if (dvd.scaledHiLimits.get(id) == MISSING_FLOAT)
         {
-        	scaledHiLimit = scaleValue(hiLimit, findScale(dvd));
-        	dvd.scaledLoLimits.put(id, scaledHiLimit);
+        	scaledHiLimit = scaleValue(hiLimit, findScale(dvd, id));
+        	dvd.scaledHiLimits.put(id, scaledHiLimit);
         }
         else scaledHiLimit = dvd.scaledHiLimits.get(id);
         if (dvd.scaledUnits.get(id) == null)
         {
-        	scaledUnits = scaleUnits(units, findScale(dvd));
+        	scaledUnits = scaleUnits(units, findScale(dvd, id));
         	dvd.scaledUnits.put(id, scaledUnits);
         }
         else scaledUnits = dvd.scaledUnits.get(id);
-        scaledResult = scaleValue(result, findScale(dvd));
+        scaledResult = scaleValue(result, findScale(dvd, id));
         
         resFmt = setString(MISSING_STRING, getCn(), id , dvd.resFmtDefaults);
         llmFmt = setString(MISSING_STRING, getCn(), id , dvd.llmFmtDefaults);
@@ -128,10 +200,34 @@ public class ParametricTestRecord extends ParametricRecord
         hiSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.hiSpecDefaults);
     }
     
+    /**
+     * This constructor is used to make a ParametricTestRecord with field values.
+     * @param tdb The TestIdDatabase is needed to get the TestID.
+     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+     * @param testNumber The TEST_NUM field.
+     * @param headNumber The HEAD_NUM field.
+     * @param siteNumber The SITE_NUM field.
+     * @param testFlags  The TEST_FLG field.
+     * @param paramFlags The PARM_FLG field.
+     * @param result     The RESULT field.
+     * @param testName   The TEST_TXT field.
+     * @param alarmName  The ALARM_ID field.
+     * @param optFlags   The OPT_FLAG field.
+     * @param resScal    The RES_SCAL field.
+     * @param llmScal    The LLM_SCAL field.
+     * @param hlmScal    The HLM_SCAL field.
+     * @param loLimit    The LO_LIMIT field.
+     * @param hiLimit    The HI_LIMIT field.
+     * @param units      The UNITS field.
+     * @param resFmt     The C_RESFMT field.
+     * @param llmFmt     The C_LLMFMT field.
+     * @param hlmFmt     The C_HLMFMT field.
+     * @param loSpec     The LO_SPEC field.
+     * @param hiSpec     The HI_SPEC field.
+     */
     public ParametricTestRecord(
             final TestIdDatabase tdb,
             final DefaultValueDatabase dvd,
-            final Cpu_t cpuType,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
@@ -153,17 +249,20 @@ public class ParametricTestRecord extends ParametricRecord
     	    final float loSpec,
     	    final float hiSpec)
     {
-    	this(tdb, dvd, toBytes(cpuType, testNumber, headNumber, siteNumber, testFlags, paramFlags, result, testName,
-    		 alarmName, optFlags, resScal, llmScal, hlmScal, loLimit, hiLimit, units, resFmt, llmFmt,
-    		 hlmFmt, loSpec, hiSpec));
+    	this(tdb, dvd, toBytes(dvd.getCpuType(), testNumber, headNumber, siteNumber, testFlags, 
+    		 paramFlags, result, testName, alarmName, optFlags, resScal, llmScal, hlmScal, 
+    		 loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec));
     }
     
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
     @Override
     protected void toBytes()
     {
     	bytes = toBytes(
             cpuType,
-            testNumber,
+            id.testNumber,
             headNumber,
             siteNumber,
             (byte) testFlags.stream().mapToInt(b -> b.getBit()).sum(),
@@ -235,68 +334,36 @@ public class ParametricTestRecord extends ParametricRecord
         return(list.toArray());
     }
     	    
-    @Override
-    public boolean isTestRecord() { return(true); }
-    	    
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    testNumber: " + testNumber).append(Log.eol);
-        sb.append("    headNumber: " + headNumber).append(Log.eol);
-        sb.append("    siteNumber: " + siteNumber).append(Log.eol);
-        sb.append("    testFlags:");
-        testFlags.stream().forEach(p -> sb.append(" ").append(p));
-        sb.append("    paramFlags:");
-        paramFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
-        sb.append(Log.eol);
-        sb.append("    result: " + result).append(Log.eol);
-        sb.append("    test name: ").append(id.testName).append(Log.eol);
-        sb.append("    alarm name: ").append(alarmName).append(Log.eol);
-        if (optFlags != null)
-        {
-            sb.append("    optional flags:");
-        	optFlags.stream().forEach(o -> sb.append(" ").append(o.toString()));
-        	sb.append(Log.eol);
-        	sb.append("    result scaling exponent: " + resScal).append(Log.eol);
-        	sb.append("    low limit scaling exponent: " + llmScal).append(Log.eol);
-        	sb.append("    high limit scaling exponent: " + hlmScal).append(Log.eol);
-        	sb.append("    low limit: " + loLimit).append(Log.eol);
-        	sb.append("    high limit: " + hiLimit).append(Log.eol);
-        	sb.append("    units: "); sb.append(units).append(Log.eol);
-        	sb.append("    result format string: ").append(resFmt).append(Log.eol);
-        	sb.append("    low limit format string: ").append(llmFmt).append(Log.eol);
-        	sb.append("    high limit format string: ").append(hlmFmt).append(Log.eol);
-        	sb.append("    low spec limit value: " + loSpec).append(Log.eol);
-        	sb.append("    high spec limit value: " + hiSpec).append(Log.eol);
-        }
-        return(sb.toString());
-    }
-	@Override
-	public TestID getTestId()
-	{
-		return(id);
-	}
-
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getAlarmName()
+	 */
 	@Override
 	public String getAlarmName()
 	{
 		return alarmName;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getOptFlags()
+	 */
 	@Override
 	public Set<OptFlag_t> getOptFlags()
 	{
 		return optFlags;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getResScal()
+	 */
 	@Override
 	public byte getResScal()
 	{
 		return resScal;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getLlmScal()
+	 */
 	@Override
 	public byte getLlmScal()
 	{
@@ -304,6 +371,9 @@ public class ParametricTestRecord extends ParametricRecord
 		return llmScal;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getHlmScal()
+	 */
 	@Override
 	public byte getHlmScal()
 	{
@@ -311,6 +381,9 @@ public class ParametricTestRecord extends ParametricRecord
 		return hlmScal;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getLoLimit()
+	 */
 	@Override
 	public float getLoLimit()
 	{
@@ -318,6 +391,9 @@ public class ParametricTestRecord extends ParametricRecord
 		return loLimit;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getHiLimit()
+	 */
 	@Override
 	public float getHiLimit()
 	{
@@ -325,10 +401,116 @@ public class ParametricTestRecord extends ParametricRecord
 		return hiLimit;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getUnits()
+	 */
 	@Override
 	public String getUnits()
 	{
 		return units;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("ParametricTestRecord [result=").append(result);
+		builder.append(", alarmName=").append(alarmName);
+		builder.append(", id=").append(id);
+		builder.append(", optFlags=").append(optFlags);
+		builder.append(", resScal=").append(resScal);
+		builder.append(", llmScal=").append(llmScal);
+		builder.append(", hlmScal=").append(hlmScal);
+		builder.append(", loLimit=").append(loLimit);
+		builder.append(", hiLimit=").append(hiLimit);
+		builder.append(", units=").append(units);
+		builder.append(", resFmt=").append(resFmt);
+		builder.append(", llmFmt=").append(llmFmt);
+		builder.append(", hlmFmt=").append(hlmFmt);
+		builder.append(", loSpec=").append(loSpec);
+		builder.append(", hiSpec=").append(hiSpec);
+		builder.append(", scaledLoLimit=").append(scaledLoLimit);
+		builder.append(", scaledHiLimit=").append(scaledHiLimit);
+		builder.append(", scaledUnits=").append(scaledUnits);
+		builder.append(", scaledResult=").append(scaledResult);
+		builder.append(", testFlags=").append(testFlags);
+		builder.append(", paramFlags=").append(paramFlags);
+		builder.append(", headNumber=").append(headNumber);
+		builder.append(", siteNumber=").append(siteNumber);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + alarmName.hashCode();
+		result = prime * result + Float.floatToIntBits(hiLimit);
+		result = prime * result + Float.floatToIntBits(hiSpec);
+		result = prime * result + hlmFmt.hashCode();
+		result = prime * result + hlmScal;
+		result = prime * result + id.hashCode();
+		result = prime * result + llmFmt.hashCode();
+		result = prime * result + llmScal;
+		result = prime * result + Float.floatToIntBits(loLimit);
+		result = prime * result + Float.floatToIntBits(loSpec);
+		result = prime * result + optFlags.hashCode();
+		result = prime * result + resFmt.hashCode();
+		result = prime * result + resScal;
+		result = prime * result + Float.floatToIntBits(this.result);
+		result = prime * result + Float.floatToIntBits(scaledHiLimit);
+		result = prime * result + Float.floatToIntBits(scaledLoLimit);
+		result = prime * result + Float.floatToIntBits(scaledResult);
+		result = prime * result + scaledUnits.hashCode();
+		result = prime * result + units.hashCode();
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof ParametricTestRecord)) return false;
+		ParametricTestRecord other = (ParametricTestRecord) obj;
+		if (!alarmName.equals(other.alarmName)) return false;
+		if (Float.floatToIntBits(hiLimit) != Float .floatToIntBits(other.hiLimit)) return false;
+		if (Float.floatToIntBits(hiSpec) != Float.floatToIntBits(other.hiSpec)) return false;
+		if (!hlmFmt.equals(other.hlmFmt)) return false;
+		if (hlmScal != other.hlmScal) return false;
+		if (id != other.id) return false;
+		if (!llmFmt.equals(other.llmFmt)) return false;
+		if (llmScal != other.llmScal) return false;
+		if (Float.floatToIntBits(loLimit) != Float .floatToIntBits(other.loLimit)) return false;
+		if (Float.floatToIntBits(loSpec) != Float.floatToIntBits(other.loSpec)) return false;
+		if (!optFlags.equals(other.optFlags)) return false;
+		if (!resFmt.equals(other.resFmt)) return false;
+		if (resScal != other.resScal) return false;
+		if (Float.floatToIntBits(result) != Float.floatToIntBits(other.result)) return false;
+		if (!units.equals(other.units)) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getTestId()
+	 */
+	@Override
+	public TestID getTestId()
+	{
+		return(id);
+	}
+	
+
 
 }

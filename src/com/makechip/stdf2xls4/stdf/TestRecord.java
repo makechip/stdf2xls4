@@ -3,20 +3,23 @@ package com.makechip.stdf2xls4.stdf;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
+/**
+ * This is the superclass for any StdfRecord that represents a test result.
+ * @author eric
+ *
+ */
 public abstract class TestRecord extends StdfRecord 
 {
-	public final long testNumber;
-	public final short headNumber;
-	public final short siteNumber;
-	
+	/**
+	 * This CTOR gets the head number and site number from the binary stream data.
+	 * @param type The record type.  Required by the StdfRecord constructor.
+	 * @param cpuType The CPU type.  Required for byte to number conversions.
+	 * @param data The binary stream data for this record; required by the StdfRecord constructor.
+	 */
 	protected TestRecord(Record_t type, Cpu_t cpuType, byte[] data)
 	{
 		super(type, cpuType, data);
-		testNumber = getU4(MISSING_LONG);
-		headNumber = getU1(MISSING_SHORT);
-		siteNumber = getU1(MISSING_SHORT);
 	}
-	
+
 	public abstract TestID getTestId();
-	
 }

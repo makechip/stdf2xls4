@@ -79,7 +79,7 @@ public class StdfTest1
 			(byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
-		stdf.add(new ParametricTestRecord(tdb, dvd, Cpu_t.PC, 44L, (short) 1, (short) 0, (byte) 0,
+		stdf.add(new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class),
 			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
 		stdf.add(new PartCountRecord(tdb, dvd, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
@@ -137,7 +137,6 @@ public class StdfTest1
 	    FileAttributesRecord far = (FileAttributesRecord) r;
 	    assertEquals(Cpu_t.PC, far.cpuType);
 	    assertEquals(4, far.stdfVersion);
-	    assertFalse(r.isTestRecord());
 	    assertEquals("FileAttributesRecord [stdfVersion=4, cpuType=PC]", far.toString());
 	    FileAttributesRecord far1 = new FileAttributesRecord(tdb, dvd, 4, Cpu_t.VAX);
 	    assertFalse(far.equals(far1));
@@ -155,7 +154,6 @@ public class StdfTest1
 	public void testC()
 	{
         StdfRecord r = list.get(1);
-	    assertFalse(r.isTestRecord());
         assertTrue(r instanceof AuditTrailRecord);
         AuditTrailRecord atr = (AuditTrailRecord) r;
         assertEquals(100000000L, atr.date);
@@ -184,7 +182,6 @@ public class StdfTest1
 	public void testD()
 	{
 		StdfRecord r = list.get(2);
-	    assertFalse(r.isTestRecord());
 		assertTrue(r instanceof MasterInformationRecord);
 		MasterInformationRecord mir = (MasterInformationRecord) r;
 		assertEquals(1000L, mir.jobDate);
@@ -287,7 +284,6 @@ public class StdfTest1
 	public void testE()
 	{
 		StdfRecord r = list.get(3);
-	    assertFalse(r.isTestRecord());
 		assertTrue(r instanceof RetestDataRecord);
 		RetestDataRecord rdr = (RetestDataRecord) r;
 		int[] bins = rdr.getRetestBins();
@@ -306,7 +302,6 @@ public class StdfTest1
 	public void testF()
 	{
 		StdfRecord r = list.get(4);
-	    assertFalse(r.isTestRecord());
 		assertTrue(r instanceof SiteDescriptionRecord);
 		SiteDescriptionRecord sdr = (SiteDescriptionRecord) r;
 		assertEquals(1, sdr.headNumber);
@@ -339,7 +334,6 @@ public class StdfTest1
 	public void testG()
 	{
 		StdfRecord r1 = list.get(5);
-	    assertFalse(r1.isTestRecord());
 		assertTrue(r1 instanceof PinMapRecord);
 		PinMapRecord pmr = (PinMapRecord) r1;
 	    assertEquals(0, pmr.pmrIdx);
@@ -386,7 +380,6 @@ public class StdfTest1
 	public void testH()
 	{
 	    StdfRecord r = list.get(9);
-	    assertFalse(r.isTestRecord());
 	    assertTrue(r instanceof BeginProgramSectionRecord);
 	    BeginProgramSectionRecord bpr = (BeginProgramSectionRecord) r;
 	    assertEquals("beginProgramSectionRecord", bpr.seqName);
@@ -407,23 +400,19 @@ public class StdfTest1
 	public void testI()
 	{
 		StdfRecord r = list.get(10);
-	    assertFalse(r.isTestRecord());
 		assertTrue(r instanceof DatalogTextRecord);
 		DatalogTextRecord dtr = (DatalogTextRecord) r;
 		assertEquals("datalogTextRecord", dtr.text);
 		DatalogTextRecord dtr1 = new DatalogTextRecord(tdb, dvd, "datalogTextRecord");
 		DatalogTextRecord dtr2 = new DatalogTextRecord(tdb, dvd, "TEXT_DATA : 55.0");
-		assertTrue(dtr2.isTestRecord());
 		assertEquals("DatalogTextRecord [text=datalogTextRecord]", dtr.toString());
 		assertTrue(dtr.equals(dtr));
 		assertTrue(dtr.equals(dtr1));
 		assertFalse(dtr1.equals(dtr2));
 		assertFalse(dtr.equals(null));
 		assertEquals(dtr.hashCode(), dtr1.hashCode());
-		DatalogTextRecord dtr3 = new DatalogTextRecord(tdb, dvd, "TEXT_DATA : S/N : 55.0");
-		assertFalse(dtr3.isTestRecord());
-		DatalogTextRecord dtr4 = new DatalogTextRecord(tdb, dvd, "TEXT_DATA   S/N   55.0");
-		assertFalse(dtr4.isTestRecord());
+		//DatalogTextRecord dtr3 = new DatalogTextRecord(tdb, dvd, "TEXT_DATA : S/N : 55.0");
+		//DatalogTextRecord dtr4 = new DatalogTextRecord(tdb, dvd, "TEXT_DATA   S/N   55.0");
 	}
 	
 	//stdf.add(new FunctionalTestRecord(snum++, dnum, 3, (short) 2, (short) 1, EnumSet.noneOf(TestFlag_t.class),
@@ -437,10 +426,8 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(11);
 		assertTrue(r instanceof FunctionalTestRecord);
-	    assertTrue(r.isTestRecord());
 		FunctionalTestRecord ftr = (FunctionalTestRecord) r;
-		assertTrue(ftr.isTestRecord());
-		assertEquals(3, ftr.testNumber);
+		assertEquals(3, ftr.id.testNumber);
 		assertEquals(2, ftr.headNumber);
 		assertEquals(1, ftr.siteNumber);
 		assertTrue(ftr.testFlags.size() == 0);
@@ -496,7 +483,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(12);
 		assertTrue(r instanceof GenericDataRecord);
-		assertFalse(r.isTestRecord());
 		GenericDataRecord gdr = (GenericDataRecord) r;
 		assertEquals("GenericDataRecord [list=[Data [type=I_4, value=33, padCnt=0], Data [type=R_8, value=44.0, padCnt=0]]]", gdr.toString());
 		assertTrue(gdr.equals(gdr));
@@ -564,7 +550,6 @@ public class StdfTest1
 
 		r = list.get(29);
 		assertTrue(r instanceof GenericDataRecord);
-		assertFalse(r.isTestRecord());
 		GenericDataRecord gdr1 = (GenericDataRecord) r;
 		l = gdr1.list; 
 		GenericDataRecord.Data d0 = l.get(0);
@@ -610,7 +595,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(13);
 		assertTrue(r instanceof HardwareBinRecord);
-		assertFalse(r.isTestRecord());
 		HardwareBinRecord hbr = (HardwareBinRecord) r;
 		assertEquals(1, hbr.headNumber);
 		assertEquals(0, hbr.siteNumber);
@@ -645,7 +629,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(14);
 		assertTrue(r instanceof MasterResultsRecord);
-		assertFalse(r.isTestRecord());
 		MasterResultsRecord mrr = (MasterResultsRecord) r;
 		assertEquals(1000L, mrr.finishDate);
 		assertEquals("C", mrr.dispCode);
@@ -677,9 +660,8 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(15);
 		assertTrue(r instanceof MultipleResultParametricRecord);
-	    assertTrue(r.isTestRecord());
 		MultipleResultParametricRecord mpr = (MultipleResultParametricRecord) r;
-	    assertEquals(22, mpr.testNumber);
+	    assertEquals(22, mpr.id.testNumber);
 	    assertEquals(1, mpr.headNumber);
 	    assertEquals(0, mpr.siteNumber);
 	    assertEquals(0, mpr.testFlags.size());
@@ -926,19 +908,24 @@ public class StdfTest1
 		assertEquals(StdfRecord.MISSING_FLOAT, mpr61.getHiLimit(), 3);
 		assertEquals(StdfRecord.MISSING_BYTE, mpr51.getLlmScal(), 3);
 		assertEquals(StdfRecord.MISSING_BYTE, mpr61.getHlmScal(), 3);
+		assertTrue(mpr.hasLoLimit());
+		assertTrue(mpr.hasHiLimit());
+		assertFalse(mpr11.hasLoLimit());
+		assertFalse(mpr51.hasLoLimit());
+		assertFalse(mpr41.hasHiLimit());
+		assertFalse(mpr61.hasHiLimit());
 	}
 	
-	//stdf.add(new ParametricTestRecord(snum++, dnum, 44, 1, 0, EnumSet.noneOf(TestFlag_t.class),
-	//	EnumSet.noneOf(ParamFlag_t.class), 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class),
-	//	(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
+//		stdf.add(new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, (byte) 0,
+//			(byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class),
+//			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
 	@Test
 	public void testO()
 	{
 		StdfRecord r = list.get(16);
 		assertTrue(r instanceof ParametricTestRecord);
-	    assertTrue(r.isTestRecord());
 		ParametricTestRecord ptr = (ParametricTestRecord) r;
-	    assertEquals(44, ptr.testNumber);
+	    assertEquals(44, ptr.id.testNumber);
 	    assertEquals(1, ptr.headNumber);
 	    assertEquals(0, ptr.siteNumber);
 	    assertEquals(0, ptr.testFlags.size());
@@ -958,6 +945,142 @@ public class StdfTest1
 	    assertEquals("hlmFmt", ptr.hlmFmt);
 	    assertEquals(1.0f, ptr.loSpec, 5);
 	    assertEquals(2.0f, ptr.hiSpec, 5);
+
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr1 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+		assertTrue(ptr.equals(ptr));
+		assertTrue(ptr.equals(ptr1));
+		assertEquals(ptr.hashCode(), ptr1.hashCode());
+		assertFalse(ptr.equals(null));
+		assertFalse(ptr.equals("A"));
+		String s = ptr.toString();
+		assertTrue(s.contains("ParametricTestRecord ["));
+		assertTrue(s.contains("result="));
+		assertTrue(s.contains("alarmName="));
+		assertTrue(s.contains("id="));
+		assertTrue(s.contains("optFlags="));
+		assertTrue(s.contains("resScal="));
+		assertTrue(s.contains("llmScal="));
+		assertTrue(s.contains("hlmScal="));
+		assertTrue(s.contains("loLimit="));
+		assertTrue(s.contains("hiLimit="));
+		assertTrue(s.contains("units="));
+		assertTrue(s.contains("resFmt="));
+		assertTrue(s.contains("llmFmt="));
+		assertTrue(s.contains("hlmFmt="));
+		assertTrue(s.contains("loSpec="));
+		assertTrue(s.contains("hiSpec="));
+		assertTrue(s.contains("scaledLoLimit="));
+		assertTrue(s.contains("scaledHiLimit="));
+		assertTrue(s.contains("scaledUnits="));
+		assertTrue(s.contains("scaledResult="));
+		assertTrue(s.contains("testFlags="));
+		assertTrue(s.contains("paramFlags="));
+		assertTrue(s.contains("testNumber="));
+		assertTrue(s.contains("headNumber="));
+		assertTrue(s.contains("siteNumber="));
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr2 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.NO_LO_LIMIT), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr3 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.NO_HI_LIMIT), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr4 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr5 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+		assertFalse(ptr.equals(ptr2));
+		assertEquals("alarmName", ptr.getAlarmName());
+		assertEquals((byte) 1, ptr.getResScal());
+		assertEquals((byte) 2, ptr.getLlmScal());
+		assertEquals(StdfRecord.MISSING_BYTE, ptr4.getLlmScal());
+		assertEquals((byte) 3, ptr.getHlmScal());
+		assertEquals(StdfRecord.MISSING_BYTE, ptr5.getHlmScal());
+		assertEquals(1.0f, ptr.getLoLimit(), 3);
+		assertEquals(10.0f, ptr.getHiLimit(), 3);
+		assertEquals(StdfRecord.MISSING_FLOAT, ptr2.getLoLimit(), 3);
+		assertEquals(StdfRecord.MISSING_FLOAT, ptr4.getLoLimit(), 3);
+		assertEquals(StdfRecord.MISSING_FLOAT, ptr3.getHiLimit(), 3);
+		assertEquals(StdfRecord.MISSING_FLOAT, ptr5.getHiLimit(), 3);
+		assertEquals("units", ptr.getUnits());
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr10 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "xlarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr11 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 11.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr12 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.1f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr13 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "xlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr14 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 4, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr15 = new ParametricTestRecord(tdb, dvd, 54L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr16 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "xlmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr17 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 1, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr18 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.1f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr19 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.NO_LO_SPEC_LIMIT), (byte) 1,  // set OPT flags
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr20 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "xesFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr21 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.6f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr22 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "xnits", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+	    tdb.clearIdDups();
+		ParametricTestRecord ptr23 = new ParametricTestRecord(tdb, dvd, 44L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 9,  // set OPT flags
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+		assertFalse(ptr.equals(ptr10));
+		assertFalse(ptr.equals(ptr11));
+		assertFalse(ptr.equals(ptr12));
+		assertFalse(ptr.equals(ptr13));
+		assertFalse(ptr.equals(ptr14));
+		assertFalse(ptr.equals(ptr15));
+		assertFalse(ptr.equals(ptr16));
+		assertFalse(ptr.equals(ptr17));
+		assertFalse(ptr.equals(ptr18));
+		assertFalse(ptr.equals(ptr19));
+		assertFalse(ptr.equals(ptr20));
+		assertFalse(ptr.equals(ptr21));
+		assertFalse(ptr.equals(ptr22));
+		assertFalse(ptr.equals(ptr23));
 	}
 	
 	//stdf.add(new PartCountRecord(snum++, dnum, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
@@ -966,7 +1089,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(17);
 		assertTrue(r instanceof PartCountRecord);
-		assertFalse(r.isTestRecord());
 		PartCountRecord ptr = (PartCountRecord) r;
         assertEquals(1, ptr.headNumber); 
         assertEquals(0, ptr.siteNumber); 
@@ -983,7 +1105,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(18);
 		assertTrue(r instanceof PartInformationRecord);
-		assertFalse(r.isTestRecord());
 		PartInformationRecord ptr = (PartInformationRecord) r;
 		assertEquals(1, ptr.headNumber);
 		assertEquals(0, ptr.siteNumber);
@@ -996,7 +1117,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(19);
 		assertTrue(r instanceof PartResultsRecord);
-		assertFalse(r.isTestRecord());
 		PartResultsRecord ptr = (PartResultsRecord) r;
 		assertEquals(1, ptr.headNumber);
 		assertEquals(0, ptr.siteNumber);
@@ -1019,7 +1139,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(20);
 		assertTrue(r instanceof PinGroupRecord);
-		assertFalse(r.isTestRecord());
 		PinGroupRecord pgr = (PinGroupRecord) r;
 		assertEquals(pgr.toString(), "PinGroupRecord [groupIndex=1, groupName=group1, pmrIdx=[1, 2]]");
 		assertEquals(pgr.groupIndex, 1);
@@ -1037,7 +1156,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(21);
 		assertTrue(r instanceof PinListRecord);
-		assertFalse(r.isTestRecord());
 		PinListRecord ptr = (PinListRecord) r;
 	    //assertEquals(1, ptr.getPinIndex()[0]);
 	    //assertEquals(2, ptr.getPinIndex()[1]);
@@ -1061,7 +1179,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(22);
 		assertTrue(r instanceof SoftwareBinRecord);
-		assertFalse(r.isTestRecord());
 		SoftwareBinRecord ptr = (SoftwareBinRecord) r;
         assertEquals(1, ptr.headNumber);	
         assertEquals(0, ptr.siteNumber);	
@@ -1078,7 +1195,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(23);
 		assertTrue(r instanceof TestSynopsisRecord);
-		assertFalse(r.isTestRecord());
 		TestSynopsisRecord ptr = (TestSynopsisRecord) r;
         assertEquals(1, ptr.headNumber);	
         assertEquals(0, ptr.siteNumber);	
@@ -1104,7 +1220,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(24);
 		assertTrue(r instanceof WaferConfigurationRecord);
-		assertFalse(r.isTestRecord());
 		WaferConfigurationRecord ptr = (WaferConfigurationRecord) r;
         assertEquals(6.0f, ptr.waferSize, 5);	
         assertEquals(3.3f, ptr.dieHeight, 5);	
@@ -1123,7 +1238,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(25);
 		assertTrue(r instanceof WaferInformationRecord);
-		assertFalse(r.isTestRecord());
 		WaferInformationRecord ptr = (WaferInformationRecord) r;
         assertEquals(1, ptr.headNumber);	
         assertEquals(0, ptr.siteGroupNumber);	
@@ -1138,7 +1252,6 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(26);
 		assertTrue(r instanceof WaferResultsRecord);
-		assertFalse(r.isTestRecord());
 		WaferResultsRecord ptr = (WaferResultsRecord) r;
         assertEquals(1, ptr.headNumber);	
         assertEquals(0, ptr.siteGroupNumber);	
@@ -1161,7 +1274,6 @@ public class StdfTest1
     {
     	StdfRecord r = list.get(27);
     	assertTrue(r instanceof EndProgramSectionRecord);
-    	assertFalse(r.isTestRecord());
     	assertEquals("EndProgramSectionRecord []", r.toString());
     	EndProgramSectionRecord esr1 = new EndProgramSectionRecord(tdb, dvd);
     	EndProgramSectionRecord esr2 = new EndProgramSectionRecord(null, dvd);
@@ -1177,10 +1289,8 @@ public class StdfTest1
 	{
 		StdfRecord r = list.get(28);
 		assertTrue(r instanceof FunctionalTestRecord);
-	    assertTrue(r.isTestRecord());
 		FunctionalTestRecord ftr = (FunctionalTestRecord) r;
-		assertTrue(ftr.isTestRecord());
-		assertEquals(3, ftr.testNumber);
+		assertEquals(3, ftr.id.testNumber);
 		assertEquals(2, ftr.headNumber);
 		assertEquals(1, ftr.siteNumber);
 		assertEquals(StdfRecord.MISSING_INT, ftr.cycleCount);

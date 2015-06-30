@@ -47,7 +47,6 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 {
 	private final TObjectFloatHashMap<String> rsltMap;
 	private final TObjectFloatHashMap<String> scaledRsltMap;
-	private TestID id;
 	/**
 	 *  This is the ALARM_ID field of the MultipleResultParametricRecord.
 	 */
@@ -84,9 +83,6 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	 *  This is the INCR_IN field of the MultipleResultParametricRecord.
 	 */
     public final float incrIn;
-    private final byte[] rtnState;
-    private final int[] rtnIndex;
-    private final float[] results;
 	/**
 	 *  This is the UNITS field of the MultipleResultParametricRecord.
 	 */
@@ -132,13 +128,18 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	/**
 	 *  This field holds a normalized value of the UNITS
 	 *  field.  It should be used with the scaledLoLimit,
-	 *  the scaledHiLimit, and the scaledResults. 
+	 *  the scaledHiLimit, and the scaledResults.  This is
+	 *  not part of the STDF specification.
 	 */
     public final String scaledUnits;
+    /**
+     * This field holds the TEST_NUM and TEST_TXT fields.
+     */
+	public final TestID id;
     private final float[] scaledResults;
-    
-    @Override
-    public boolean isTestRecord() { return(true); }
+    private final byte[] rtnState;
+    private final int[] rtnIndex;
+    private final float[] results;
     
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
@@ -150,6 +151,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     public MultipleResultParametricRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.MPR, dvd.getCpuType(), data);
+        long testNumber = dvd.getCpuType().getU4(data[0], data[1], data[2], data[3]);
         int j = getU2(0);
         int k = getU2(0); 
         rtnState = getNibbles(j);
@@ -208,26 +210,26 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         // scale limits and units here:
         if (dvd.scaledLoLimits.get(id) == MISSING_FLOAT)
         {
-            scaledLoLimit = scaleValue(loLimit, findScale(dvd));	
+            scaledLoLimit = scaleValue(loLimit, findScale(dvd, id));	
             dvd.scaledLoLimits.put(id, scaledLoLimit);
         }
         else scaledLoLimit = dvd.scaledLoLimits.get(id);
         if (dvd.scaledHiLimits.get(id) == MISSING_FLOAT)
         { 
-        	scaledHiLimit = scaleValue(hiLimit, findScale(dvd));
+        	scaledHiLimit = scaleValue(hiLimit, findScale(dvd, id));
         	dvd.scaledHiLimits.put(id, scaledHiLimit);
         }
         else scaledHiLimit = dvd.scaledHiLimits.get(id);
         if (dvd.scaledUnits.get(id) == null)
         {
-        	scaledUnits = scaleUnits(units, findScale(dvd));
+        	scaledUnits = scaleUnits(units, findScale(dvd, id));
         	dvd.scaledUnits.put(id, scaledUnits);
         }
         else scaledUnits = dvd.scaledUnits.get(id);
         scaledResults = new float[results.length];
         for (int i=0; i<results.length; i++)
         {
-            scaledResults[i] = scaleValue(results[i], findScale(dvd));
+            scaledResults[i] = scaleValue(results[i], findScale(dvd, id));
         }
         n = 0;
         for (int i : rtnIndex)
@@ -309,12 +311,15 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     			units, unitsIn, resFmt, llmFmt, hlmFmt, loSpec, hiSpec));
     }
     
-    @Override
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
+   @Override
     protected void toBytes()
     {
     	bytes = toBytes(
     			cpuType,
-                testNumber,
+                id.testNumber,
                 headNumber,
                 siteNumber,
                 (byte) testFlags.stream().mapToInt(b -> b.getBit()).sum(),
@@ -445,30 +450,36 @@ public final class MultipleResultParametricRecord extends ParametricRecord
      */
     public float getScaledResult(String pinName) { return(scaledRsltMap.get(pinName)); }
 
-	@Override
-	public TestID getTestId()
-	{
-		return(id);
-	}
-
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getAlarmName()
+	 */
 	@Override
 	public String getAlarmName()
 	{
 		return alarmName;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getOptFlags()
+	 */
 	@Override
 	public Set<OptFlag_t> getOptFlags()
 	{
 		return optFlags;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getResScal()
+	 */
 	@Override
 	public byte getResScal()
 	{
 		return resScal;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getLlmScal()
+	 */
 	@Override
 	public byte getLlmScal()
 	{
@@ -476,6 +487,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		return llmScal;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getHlmScal()
+	 */
 	@Override
 	public byte getHlmScal()
 	{
@@ -483,6 +497,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		return hlmScal;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getLoLimit()
+	 */
 	@Override
 	public float getLoLimit()
 	{
@@ -490,6 +507,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		return loLimit;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getHiLimit()
+	 */
 	@Override
 	public float getHiLimit()
 	{
@@ -497,11 +517,15 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		return hiLimit;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getUnits()
+	 */
 	@Override
 	public String getUnits()
 	{
 		return units;
 	}
+
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -536,6 +560,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		builder.append(", scaledHiLimit=").append(scaledHiLimit);
 		builder.append(", scaledUnits=").append(scaledUnits);
 		builder.append(", scaledResults=").append(Arrays.toString(scaledResults));
+		builder.append(", testFlags=").append(testFlags);
+		builder.append(", paramFlags=").append(paramFlags);
 		builder.append("]");
 		return builder.toString();
 	}
@@ -566,11 +592,6 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		result = prime * result + rsltMap.hashCode();
 		result = prime * result + Arrays.hashCode(rtnIndex);
 		result = prime * result + Arrays.hashCode(rtnState);
-		result = prime * result + Float.floatToIntBits(scaledHiLimit);
-		result = prime * result + Float.floatToIntBits(scaledLoLimit);
-		result = prime * result + Arrays.hashCode(scaledResults);
-		result = prime * result + scaledRsltMap.hashCode();
-		result = prime * result + scaledUnits.hashCode();
 		result = prime * result + Float.floatToIntBits(startIn);
 		result = prime * result + units.hashCode();
 		result = prime * result + unitsIn.hashCode();
@@ -584,6 +605,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (!super.equals(obj)) return false;
 		if (!(obj instanceof MultipleResultParametricRecord)) return false;
 		MultipleResultParametricRecord other = (MultipleResultParametricRecord) obj;
 		if (!alarmName.equals(other.alarmName)) return false;
@@ -595,7 +617,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		if (Float.floatToIntBits(incrIn) != Float.floatToIntBits(other.incrIn)) return false;
 		if (!llmFmt.equals(other.llmFmt)) return false;
 		if (llmScal != other.llmScal) return false;
-		if (Float.floatToIntBits(loLimit) != Float.floatToIntBits(other.loLimit)) return false;
+		if (Float.floatToIntBits(loLimit) != Float .floatToIntBits(other.loLimit)) return false;
 		if (Float.floatToIntBits(loSpec) != Float.floatToIntBits(other.loSpec)) return false;
 		if (!optFlags.equals(other.optFlags)) return false;
 		if (!resFmt.equals(other.resFmt)) return false;
@@ -604,16 +626,20 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		if (!rsltMap.equals(other.rsltMap)) return false;
 		if (!Arrays.equals(rtnIndex, other.rtnIndex)) return false;
 		if (!Arrays.equals(rtnState, other.rtnState)) return false;
-		if (Float.floatToIntBits(scaledHiLimit) != Float.floatToIntBits(other.scaledHiLimit)) return false;
-		if (Float.floatToIntBits(scaledLoLimit) != Float.floatToIntBits(other.scaledLoLimit)) return false;
-		if (!Arrays.equals(scaledResults, other.scaledResults)) return false;
-		if (!scaledRsltMap.equals(other.scaledRsltMap)) return false;
-		if (!scaledUnits.equals(other.scaledUnits)) return false;
-		if (Float.floatToIntBits(startIn) != Float.floatToIntBits(other.startIn)) return false;
+		if (Float.floatToIntBits(startIn) != Float .floatToIntBits(other.startIn)) return false;
 		if (!units.equals(other.units)) return false;
 		if (!unitsIn.equals(other.unitsIn)) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
+
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getTestId()
+	 */
+	@Override
+	public TestID getTestId()
+	{
+		return(id);
+	}
+
 
 }
