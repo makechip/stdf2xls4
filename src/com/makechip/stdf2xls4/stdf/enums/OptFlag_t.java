@@ -69,18 +69,12 @@ public enum OptFlag_t
      */
     NO_HI_LIMIT(128);
    
-    private final byte bit;
+    public final byte bit;
     
     private OptFlag_t(int bit)
     {
     	this.bit = (byte) bit;
     }
-    
-    /**
-     * Get the bit position within the STDF OPT_FLAG for this flag.
-     * @return
-     */
-    public byte getBit() { return(bit); }
     
     /**
      * Given the OPT_FLAG byte this method will return a Set containing
@@ -90,16 +84,10 @@ public enum OptFlag_t
      */
     public static EnumSet<OptFlag_t> getBits(byte b)
     {
-        EnumSet<OptFlag_t> optFlags = EnumSet.noneOf(OptFlag_t.class); 
-        if ((b & (byte) 1)   == (byte) 1)   optFlags.add(OptFlag_t.RES_SCAL_INVALID);
-        if ((b & (byte) 2)   == (byte) 2)   optFlags.add(OptFlag_t.START_INCR_IN_INVALID);
-        if ((b & (byte) 4)   == (byte) 4)   optFlags.add(OptFlag_t.NO_LO_SPEC_LIMIT);
-        if ((b & (byte) 8)   == (byte) 8)   optFlags.add(OptFlag_t.NO_HI_SPEC_LIMIT);
-        if ((b & (byte) 16)  == (byte) 16)  optFlags.add(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID);
-        if ((b & (byte) 32)  == (byte) 32)  optFlags.add(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID);
-        if ((b & (byte) 64)  == (byte) 64)  optFlags.add(OptFlag_t.NO_LO_LIMIT);
-        if ((b & (byte) 128) == (byte) 128) optFlags.add(OptFlag_t.NO_HI_LIMIT);
-        return(optFlags);
+        EnumSet<OptFlag_t> set = EnumSet.noneOf(OptFlag_t.class); 
+        EnumSet<OptFlag_t> all = EnumSet.allOf(OptFlag_t.class); 
+        all.stream().filter(p -> (byte) (p.bit & b) == p.bit).forEach(x -> set.add(x));
+        return(set);
     }
 
 }

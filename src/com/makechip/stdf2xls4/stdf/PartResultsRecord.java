@@ -111,7 +111,7 @@ public class PartResultsRecord extends StdfRecord
 	protected void toBytes()
 	{
 	    bytes = toBytes(cpuType, headNumber, siteNumber, 
-	    	            (byte) partInfoFlags.stream().mapToInt(p -> p.getBit()).sum(),
+	    	            (byte) partInfoFlags.stream().mapToInt(p -> p.bit).sum(),
 	    	            numExecs, hwBinNumber, swBinNumber, xCoord, yCoord, testTime,
 	    	            partID, partDescription, repair);
 	}

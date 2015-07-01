@@ -68,7 +68,11 @@ public enum ParamFlag_t
      */
     HI_LIMIT_EQ_PASS(128);
     
-    private final byte bit;
+    /**
+     *  The binary value of the bit position of this flag.
+     *  For example, if the bit-position is 3, this will have a value of 8.
+     */
+    public final byte bit;
     
     private ParamFlag_t(int bit)
     {
@@ -76,28 +80,16 @@ public enum ParamFlag_t
     }
     
 	/**
-	 * Returns the bit position in the STDF byte that holds these flags.
-	 * @return The bit position within the PARM_FLAG byte.
-	 */
-    public byte getBit() { return(bit); }
-    
-	/**
 	 * Given the STDF PARM_FLAG byte this method will return the
 	 * enums that are set in the byte.
 	 * @param b The PARM_FLAG byte.
 	 * @return A Set of the enum values that are set in the PARM_FLAG byte.
 	 */
-    public static EnumSet<ParamFlag_t> getBits(byte b)
+    public static EnumSet<ParamFlag_t> getBits(final byte b)
     {
         EnumSet<ParamFlag_t> set = EnumSet.noneOf(ParamFlag_t.class);
-        if ((b & (byte) 1)   == (byte) 1)   set.add(ParamFlag_t.SCALE_ERROR);
-        if ((b & (byte) 2)   == (byte) 2)   set.add(ParamFlag_t.DRIFT_ERROR);
-        if ((b & (byte) 4)   == (byte) 4)   set.add(ParamFlag_t.OSCILLATION);
-        if ((b & (byte) 8)   == (byte) 8)   set.add(ParamFlag_t.VALUE_HIGH);
-        if ((b & (byte) 16)  == (byte) 16)  set.add(ParamFlag_t.VALUE_LOW);
-        if ((b & (byte) 32)  == (byte) 32)  set.add(ParamFlag_t.ALTERNATE_PASS);
-        if ((b & (byte) 64)  == (byte) 64)  set.add(ParamFlag_t.LO_LIMIT_EQ_PASS);
-        if ((b & (byte) 128) == (byte) 128) set.add(ParamFlag_t.HI_LIMIT_EQ_PASS);
+        EnumSet<ParamFlag_t> all = EnumSet.allOf(ParamFlag_t.class);
+        all.stream().filter(p -> (byte) (p.bit & b) == p.bit).forEach(x -> set.add(x));
         return(set);
     }
 

@@ -393,10 +393,10 @@ public class FunctionalTestRecord extends TestRecord
         list.addAll(getU1Bytes(headNumber));
         list.addAll(getU1Bytes(siteNumber));
         byte b = 0;
-        for (TestFlag_t t : testFlags) b |= t.getBit();
+        for (TestFlag_t t : testFlags) b |= t.bit;
         list.add(b);
         b = 0;
-        for (FTROptFlag_t t : optFlags) b |= t.getBit();
+        for (FTROptFlag_t t : optFlags) b |= t.bit;
         list.add(b);
         list.addAll(cpuType.getU4Bytes(cycleCount));
         list.addAll(cpuType.getU4Bytes(relVaddr));
@@ -436,7 +436,7 @@ public class FunctionalTestRecord extends TestRecord
         list.addAll(getU1Bytes(headNumber));
         list.addAll(getU1Bytes(siteNumber));
         byte b = 0;
-        for (TestFlag_t t : testFlags) b |= t.getBit();
+        for (TestFlag_t t : testFlags) b |= t.bit;
         list.add(b);
         return(list.toArray());
     }

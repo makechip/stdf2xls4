@@ -265,8 +265,8 @@ public class ParametricTestRecord extends ParametricRecord
             id.testNumber,
             headNumber,
             siteNumber,
-            (byte) testFlags.stream().mapToInt(b -> b.getBit()).sum(),
-            (byte) paramFlags.stream().mapToInt(b -> b.getBit()).sum(),
+            (byte) testFlags.stream().mapToInt(b -> b.bit).sum(),
+            (byte) paramFlags.stream().mapToInt(b -> b.bit).sum(),
     	    result, 
     	    id.testName,
     	    alarmName,
@@ -318,7 +318,7 @@ public class ParametricTestRecord extends ParametricRecord
         list.addAll(getCnBytes(aName));
         if (oFlags != null)
         {
-        	list.add((byte) oFlags.stream().mapToInt(b -> b.getBit()).sum());
+        	list.add((byte) oFlags.stream().mapToInt(b -> b.bit).sum());
             list.addAll(getI1Bytes(rScal));
             list.addAll(getI1Bytes(lScal));
             list.addAll(getI1Bytes(hScal));

@@ -57,7 +57,11 @@ public enum FTROptFlag_t
 	 */
 	VEC_OFFSET_INVALID(32);
 	
-	private final byte bit;
+    /**
+     *  The binary value of the bit position of this flag.
+     *  For example, if the bit-position is 3, this will have a value of 8.
+     */
+	public final byte bit;
 	
 	private FTROptFlag_t(int bit)
 	{
@@ -65,26 +69,16 @@ public enum FTROptFlag_t
 	}
 	
 	/**
-	 * Returns the bit position in the STDF byte that holds these flags.
-	 * @return The bit position within the OPT_FLAG byte.
-	 */
-	public byte getBit() { return(bit); }
-	
-	/**
 	 * Given the STDF OPT_FLAG byte this method will return the
 	 * enums that are set in the byte.
 	 * @param b The OPT_FLAG byte.
 	 * @return A Set of the enum values that are set in the OPT_FLAG byte.
 	 */
-    public static EnumSet<FTROptFlag_t> getBits(byte b)
+    public static EnumSet<FTROptFlag_t> getBits(final byte b)
     {
         EnumSet<FTROptFlag_t> set = EnumSet.noneOf(FTROptFlag_t.class);
-        if ((b & (byte) 1) == (byte) 1) set.add(CYCLE_CNT_INVALID);
-        if ((b & (byte) 2) == (byte) 2) set.add(REL_VADDR_INVALID);
-        if ((b & (byte) 4) == (byte) 4) set.add(REPEAT_CNT_INVALID);
-        if ((b & (byte) 8) == (byte) 8) set.add(NUM_FAIL_INVALID);
-        if ((b & (byte) 16) == (byte) 16) set.add(XY_FAIL_ADDR_INVALID);
-        if ((b & (byte) 32) == (byte) 32) set.add(VEC_OFFSET_INVALID);
+        EnumSet<FTROptFlag_t> all = EnumSet.allOf(FTROptFlag_t.class);
+        all.stream().filter(p -> (byte) (p.bit & b) == p.bit).forEach(x -> set.add(x));
         return(set);
     }
 

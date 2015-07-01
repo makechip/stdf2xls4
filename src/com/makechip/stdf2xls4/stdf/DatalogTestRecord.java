@@ -83,12 +83,12 @@ public class DatalogTestRecord extends TestRecord
         	if (st.hasMoreTokens())
         	{
         		String site = st.nextToken();
-        		Short s = new Short(site);
+        		Short s = new Short(site.trim());
         		sn = s.shortValue();
         		if (st.hasMoreElements())
         		{
         			String head = st.nextToken();
-        			Short ss = new Short(head);
+        			Short ss = new Short(head.trim());
         			hn = ss.shortValue();
         		}
         		else hn = (short) 0;
@@ -97,8 +97,8 @@ public class DatalogTestRecord extends TestRecord
         }
         siteNumber = sn;
         headNumber = hn;
-        Long tn = new Long(tnum);
-        id = TestID.createTestID(tdb, tn, tname);
+        Long tn = new Long(tnum.trim());
+        id = TestID.createTestID(tdb, tn, tname.trim());
         StringTokenizer st2 = new StringTokenizer(valueUnitsOpt, "\" \t()"); 
         String v = st2.nextToken();
         if (st2.hasMoreTokens()) units = st2.nextToken(); else units = "";
@@ -184,10 +184,10 @@ public class DatalogTestRecord extends TestRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
-		if (!super.equals(obj)) return false;
+		if (!(obj instanceof DatalogTestRecord)) return false;
 		DatalogTestRecord other = (DatalogTestRecord) obj;
 		if (!text.equals(other.text)) return false;
-		if (!(obj instanceof DatalogTestRecord)) return false;
+		if (!super.equals(obj)) return false;
 		return true;
 	}
 

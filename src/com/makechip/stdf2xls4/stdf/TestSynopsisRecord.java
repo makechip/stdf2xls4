@@ -122,7 +122,7 @@ public class TestSynopsisRecord extends StdfRecord
 		l.addAll(getCnBytes(testName));
 		l.addAll(getCnBytes(sequencerName));
 		l.addAll(getCnBytes(testLabel));
-		l.add((byte) optFlags.stream().mapToInt(b -> b.getBit()).sum());
+		l.add((byte) optFlags.stream().mapToInt(b -> b.bit).sum());
 		l.addAll(cpuType.getR4Bytes(testTime));
 		l.addAll(cpuType.getR4Bytes(testMin));
 		l.addAll(cpuType.getR4Bytes(testMax));

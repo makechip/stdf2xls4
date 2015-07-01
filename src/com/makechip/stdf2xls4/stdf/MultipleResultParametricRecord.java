@@ -322,8 +322,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
                 id.testNumber,
                 headNumber,
                 siteNumber,
-                (byte) testFlags.stream().mapToInt(b -> b.getBit()).sum(),
-                (byte) paramFlags.stream().mapToInt(b -> b.getBit()).sum(),
+                (byte) testFlags.stream().mapToInt(b -> b.bit).sum(),
+                (byte) paramFlags.stream().mapToInt(b -> b.bit).sum(),
                 rtnState,
                 results,
                 id.testName,
@@ -388,7 +388,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         list.addAll(getCnBytes(aName));
         if (oFlags != null)
         {
-        	list.add((byte) oFlags.stream().mapToInt(b -> b.getBit()).sum());
+        	list.add((byte) oFlags.stream().mapToInt(b -> b.bit).sum());
             list.addAll(getI1Bytes(rScal));
             list.addAll(getI1Bytes(lScal));
             list.addAll(getI1Bytes(hScal));

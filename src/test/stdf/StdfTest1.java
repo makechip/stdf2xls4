@@ -114,18 +114,20 @@ public class StdfTest1
 		lgd2.add(d8);
 		lgd2.add(d9);
 		stdf.add(new GenericDataRecord(tdb, dvd, lgd2));
+		stdf.add(new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : 30.0 (fA) : 12 : 1 : 3"));
 		Path p = FileSystems.getDefault().getPath("x.stdf");
 		stdf.write(p.toFile());
         Files.delete(p);
 		rdr = new StdfReader(tdb, p.toFile());
 		rdr.read(stdf.getBytes());
 		list = rdr.stream().collect(Collectors.toList());
+		Log.msg("list.size(); = " + list.size());
 	}
 	
 	@Test
 	public void testA()
 	{
-		assertEquals(30, list.size());
+		assertEquals(31, list.size());
 	}
 
     @Test
@@ -1375,8 +1377,44 @@ public class StdfTest1
 	}
 	
 	@Test
-	public void testA1()
+	public void testB1()
 	{
+		StdfRecord r = list.get(30);
+		Log.msg("class = " + r.getClass().getSimpleName());
+		assertTrue(r instanceof DatalogTestRecord);
+		DatalogTestRecord dtr = (DatalogTestRecord) r;
+		DatalogTestRecord dtr1 = new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : 30.0 (fA) : 12 : 1 : 3");
+		assertEquals(12L, dtr.id.testNumber);
+		assertEquals("testName", dtr.id.testName);
+		assertEquals("fA", dtr.units);
+		assertEquals(30.0f, dtr.value);
+		assertEquals(Data_t.R_4, dtr.valueType);
+		assertEquals((short) 1, dtr.siteNumber);
+		assertEquals((short) 3, dtr.headNumber);
+		assertTrue(dtr.equals(dtr));
+		assertTrue(dtr.equals(dtr1));
+		assertEquals(dtr.hashCode(), dtr1.hashCode());
+		assertFalse(dtr.equals(null));
+		assertFalse(dtr.equals("A"));
+		DatalogTestRecord dtr2 = new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : 30.0 (fA) : 12 : 1");
+		DatalogTestRecord dtr3 = new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : 30.0 (fA) : 12");
+		DatalogTestRecord dtr4 = new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : 30.0");
+		assertFalse(dtr2.equals(dtr4));
+	    assertEquals("DatalogTestRecord [text=TEXT_DATA : testName : 30.0]", dtr4.toString());
+	    assertEquals((short) 1, dtr2.siteNumber);
+	    assertEquals(12L, dtr3.id.testNumber);
+	    assertEquals(30.0f, dtr4.value);
+	    assertEquals("", dtr4.units);
+	    assertEquals(0L, dtr4.getTestId().testNumber);
+		DatalogTestRecord dtr5 = new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : 30");
+		DatalogTestRecord dtr6 = new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : 1.1.1");
+		DatalogTestRecord dtr7 = new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : XXX");
+		assertEquals(30, dtr5.value);
+		assertEquals(Data_t.I_4, dtr5.valueType);
+		assertEquals("1.1.1", dtr6.value);
+		assertEquals(Data_t.C_N, dtr6.valueType);
+		assertEquals("XXX", dtr7.value);
+		assertEquals(Data_t.C_N, dtr7.valueType);
 	}	
 		
 

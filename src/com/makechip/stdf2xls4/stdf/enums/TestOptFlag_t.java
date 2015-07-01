@@ -27,32 +27,53 @@ package com.makechip.stdf2xls4.stdf.enums;
 
 import java.util.EnumSet;
 
+/**
+ * This enum represents the bits in the OPT_FLAG byte of the TestSynopsysRecord.
+ * @author eric
+ *
+ */
 public enum TestOptFlag_t
 {
+	/**
+	 * Bit 0 - If set indicates that the TEST_MIN value is invalid.
+	 */
     TEST_MIN_INVALID(1),
+    /**
+     *  Bit 1 - If set indicates that the TEST_MAX value is invalid.
+     */
     TEST_MAX_INVALID(2),
+    /**
+     *  Bit 2 - If set indicates that the TEST_TIM value is invalid.
+     */
     TEST_TIME_INVALID(4),
+    /**
+     *  Bit 4 - If set indicates that the TST_SUMS value is invalid.
+     */
     TEST_SUMS_INVALID(16),
+    /**
+     *  Bit 5 - If set indicates that the TST_SQRS value is invalid.
+     */
     TEST_SQRS_INVALID(32);
    
-    private final byte bit;
+    public final byte bit;
     
     private TestOptFlag_t(int bit)
     {
     	this.bit = (byte) bit;
     }
     
-    public byte getBit() { return(bit); }
-    
+	/**
+	 * Given the STDF PARM_FLAG byte this method will return the
+	 * enums that are set in the byte.
+	 * @param b The PARM_FLAG byte.
+	 * @return A Set of the enum values that are set in the PARM_FLAG byte.
+	 */
     public static EnumSet<TestOptFlag_t> getBits(byte b)
     {
-        EnumSet<TestOptFlag_t> optFlags = EnumSet.noneOf(TestOptFlag_t.class); 
-        if ((b & (byte) 1)   == (byte) 1)   optFlags.add(TestOptFlag_t.TEST_MIN_INVALID);
-        if ((b & (byte) 2)   == (byte) 2)   optFlags.add(TestOptFlag_t.TEST_MAX_INVALID);
-        if ((b & (byte) 4)   == (byte) 4)   optFlags.add(TestOptFlag_t.TEST_TIME_INVALID);
-        if ((b & (byte) 16)  == (byte) 16)  optFlags.add(TestOptFlag_t.TEST_SUMS_INVALID);
-        if ((b & (byte) 32)  == (byte) 32)  optFlags.add(TestOptFlag_t.TEST_SQRS_INVALID);
-        return(optFlags);
+        EnumSet<TestOptFlag_t> set = EnumSet.noneOf(TestOptFlag_t.class); 
+        EnumSet<TestOptFlag_t> all = EnumSet.allOf(TestOptFlag_t.class); 
+        all.stream().filter(p -> (byte) (p.bit & b) == p.bit).forEach(x -> set.add(x));
+        return(set);
     }
 
 }

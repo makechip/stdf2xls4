@@ -27,35 +27,63 @@ package com.makechip.stdf2xls4.stdf.enums;
 
 import java.util.EnumSet;
 
+/**
+ * This enum represents the bits in the TEST_FLG byte of the FunctionalTestRecord,
+ * ParametricTestRecord, and MultipleResultParametricRecord.
+ * @author eric
+ *
+ */
 public enum TestFlag_t
 {
+	/**
+	 *  Bit 0 - If set indicates an alarm occurred during this test.
+	 */
     ALARM(1),
+    /**
+     *  Bit 1 - If set indicates that the RESULT field is invalid.
+     */
+    RESULT_INVALID(2),
+    /**
+     *  Bit 2 - If set indicates that the RESULT is unreliable.
+     */
     UNRELIABLE(4),
+    /**
+     *  Bit 3 - If set indicates that a timeout occurred during this test.
+     */
     TIMEOUT(8),
+    /**
+     *  Bit 4 - If set indicates that the test was not executed.
+     */
     NOT_EXECUTED(16),
+    /**
+     *  Bit 5 - If set indicates that the test was aborted.
+     */
     ABORT(32),
+    /**
+     *  Bit 6 - If set indicates that no pass/fail indication was given.
+     */
     NO_PASS_FAIL(64),
+    /**
+     *  Bit 7 - If set indicates that the test failed.
+     */
     FAIL(128);
     
-    private final byte bit;
+    /**
+     *  The binary value of the bit position of this flag.
+     *  For example, if the bit-position is 3, this will have a value of 8.
+     */
+   public final byte bit;
     
     private TestFlag_t(int bit)
     {
     	this.bit = (byte) bit;
     }
     
-    public byte getBit() { return(bit); }
-    
     public static EnumSet<TestFlag_t> getBits(byte b)
     {
         EnumSet<TestFlag_t> set = EnumSet.noneOf(TestFlag_t.class);
-        if ((b & (byte) 1) == (byte) 1) set.add(ALARM);
-        if ((b & (byte) 4) == (byte) 4) set.add(UNRELIABLE);
-        if ((b & (byte) 8) == (byte) 8) set.add(TIMEOUT);
-        if ((b & (byte) 16) == (byte) 16) set.add(NOT_EXECUTED);
-        if ((b & (byte) 32) == (byte) 32) set.add(ABORT);
-        if ((b & (byte) 64) == (byte) 64) set.add(NO_PASS_FAIL);
-        if ((b & (byte) 128) == (byte) 128) set.add(FAIL);
+        EnumSet<TestFlag_t> all = EnumSet.allOf(TestFlag_t.class);
+        all.stream().filter(p -> (byte) (p.bit & b) == p.bit).forEach(x -> set.add(x));
         return(set);
     }
 }

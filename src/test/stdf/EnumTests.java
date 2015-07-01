@@ -121,25 +121,25 @@ public class EnumTests {
 	@Test
 	public void FTROptFlag_t_test()
 	{
-		assertEquals(FTROptFlag_t.CYCLE_CNT_INVALID.getBit(), 1);
-		assertEquals(FTROptFlag_t.REL_VADDR_INVALID.getBit(), 2);
-		assertEquals(FTROptFlag_t.REPEAT_CNT_INVALID.getBit(), 4);
-		assertEquals(FTROptFlag_t.NUM_FAIL_INVALID.getBit(), 8);
-		assertEquals(FTROptFlag_t.XY_FAIL_ADDR_INVALID.getBit(), 16);
-		assertEquals(FTROptFlag_t.VEC_OFFSET_INVALID.getBit(), 32);
+		assertEquals(FTROptFlag_t.CYCLE_CNT_INVALID.bit, 1);
+		assertEquals(FTROptFlag_t.REL_VADDR_INVALID.bit, 2);
+		assertEquals(FTROptFlag_t.REPEAT_CNT_INVALID.bit, 4);
+		assertEquals(FTROptFlag_t.NUM_FAIL_INVALID.bit, 8);
+		assertEquals(FTROptFlag_t.XY_FAIL_ADDR_INVALID.bit, 16);
+		assertEquals(FTROptFlag_t.VEC_OFFSET_INVALID.bit, 32);
 	}
 	
 	@Test
 	public void OptFlag_t_test()
 	{
-		assertEquals(OptFlag_t.RES_SCAL_INVALID.getBit(), 1);
-		assertEquals(OptFlag_t.START_INCR_IN_INVALID.getBit(), 2);
-		assertEquals(OptFlag_t.NO_LO_SPEC_LIMIT.getBit(), 4);
-		assertEquals(OptFlag_t.NO_HI_SPEC_LIMIT.getBit(), 8);
-		assertEquals(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID.getBit(), 16);
-		assertEquals(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID.getBit(), 32);
-		assertEquals(OptFlag_t.NO_LO_LIMIT.getBit(), 64);
-		assertEquals(OptFlag_t.NO_HI_LIMIT.getBit(), -128);
+		assertEquals(OptFlag_t.RES_SCAL_INVALID.bit, 1);
+		assertEquals(OptFlag_t.START_INCR_IN_INVALID.bit, 2);
+		assertEquals(OptFlag_t.NO_LO_SPEC_LIMIT.bit, 4);
+		assertEquals(OptFlag_t.NO_HI_SPEC_LIMIT.bit, 8);
+		assertEquals(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID.bit, 16);
+		assertEquals(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID.bit, 32);
+		assertEquals(OptFlag_t.NO_LO_LIMIT.bit, 64);
+		assertEquals(OptFlag_t.NO_HI_LIMIT.bit, -128);
 		EnumSet<OptFlag_t> s = OptFlag_t.getBits((byte) 0xFF);
 		assertTrue(s.contains(OptFlag_t.RES_SCAL_INVALID));
 		assertTrue(s.contains(OptFlag_t.START_INCR_IN_INVALID));
@@ -154,14 +154,14 @@ public class EnumTests {
 	@Test 
 	public void ParamFlag_t_test()
 	{
-	    assertEquals(ParamFlag_t.SCALE_ERROR.getBit(), 1);	
-	    assertEquals(ParamFlag_t.DRIFT_ERROR.getBit(), 2);	
-	    assertEquals(ParamFlag_t.OSCILLATION.getBit(), 4);	
-	    assertEquals(ParamFlag_t.VALUE_HIGH.getBit(), 8);	
-	    assertEquals(ParamFlag_t.VALUE_LOW.getBit(), 16);	
-	    assertEquals(ParamFlag_t.ALTERNATE_PASS.getBit(), 32);	
-	    assertEquals(ParamFlag_t.LO_LIMIT_EQ_PASS.getBit(), 64);	
-	    assertEquals(ParamFlag_t.HI_LIMIT_EQ_PASS.getBit(), -128);	
+	    assertEquals(ParamFlag_t.SCALE_ERROR.bit, 1);	
+	    assertEquals(ParamFlag_t.DRIFT_ERROR.bit, 2);	
+	    assertEquals(ParamFlag_t.OSCILLATION.bit, 4);	
+	    assertEquals(ParamFlag_t.VALUE_HIGH.bit, 8);	
+	    assertEquals(ParamFlag_t.VALUE_LOW.bit, 16);	
+	    assertEquals(ParamFlag_t.ALTERNATE_PASS.bit, 32);	
+	    assertEquals(ParamFlag_t.LO_LIMIT_EQ_PASS.bit, 64);	
+	    assertEquals(ParamFlag_t.HI_LIMIT_EQ_PASS.bit, -128);	
 	    EnumSet<ParamFlag_t> s = ParamFlag_t.getBits((byte) 0xFF);
 	    assertTrue(s.contains(ParamFlag_t.SCALE_ERROR));	
 	    assertTrue(s.contains(ParamFlag_t.DRIFT_ERROR));	
@@ -176,11 +176,11 @@ public class EnumTests {
 	@Test
 	public void PartInfoFlag_t_test()
 	{
-		assertEquals(PartInfoFlag_t.RETEST_EXEC0.getBit(), 1);
-		assertEquals(PartInfoFlag_t.RETEST_EXEC1.getBit(), 2);
-		assertEquals(PartInfoFlag_t.ABNORMAL_END_OF_TEST.getBit(), 4);
-		assertEquals(PartInfoFlag_t.PART_FAILED.getBit(), 8);
-		assertEquals(PartInfoFlag_t.NO_PASS_FAIL_INDICATION.getBit(), 16);
+		assertEquals(PartInfoFlag_t.RETEST_EXEC0.bit, 1);
+		assertEquals(PartInfoFlag_t.RETEST_EXEC1.bit, 2);
+		assertEquals(PartInfoFlag_t.ABNORMAL_END_OF_TEST.bit, 4);
+		assertEquals(PartInfoFlag_t.PART_FAILED.bit, 8);
+		assertEquals(PartInfoFlag_t.NO_PASS_FAIL_INDICATION.bit, 16);
 		EnumSet<PartInfoFlag_t> s = PartInfoFlag_t.getBits((byte) 0x1F);
 		assertTrue(s.contains(PartInfoFlag_t.RETEST_EXEC0));
 		assertTrue(s.contains(PartInfoFlag_t.RETEST_EXEC1));
@@ -199,13 +199,13 @@ public class EnumTests {
 	@Test
 	public void TestFlag_t_test()
 	{
-		assertEquals(TestFlag_t.ALARM.getBit(), 1);
-		assertEquals(TestFlag_t.UNRELIABLE.getBit(), 4);
-		assertEquals(TestFlag_t.TIMEOUT.getBit(), 8);
-		assertEquals(TestFlag_t.NOT_EXECUTED.getBit(), 16);
-		assertEquals(TestFlag_t.ABORT.getBit(), 32);
-		assertEquals(TestFlag_t.NO_PASS_FAIL.getBit(), 64);
-		assertEquals(TestFlag_t.FAIL.getBit(), -128);
+		assertEquals(TestFlag_t.ALARM.bit, 1);
+		assertEquals(TestFlag_t.UNRELIABLE.bit, 4);
+		assertEquals(TestFlag_t.TIMEOUT.bit, 8);
+		assertEquals(TestFlag_t.NOT_EXECUTED.bit, 16);
+		assertEquals(TestFlag_t.ABORT.bit, 32);
+		assertEquals(TestFlag_t.NO_PASS_FAIL.bit, 64);
+		assertEquals(TestFlag_t.FAIL.bit, -128);
 		EnumSet<TestFlag_t> s = TestFlag_t.getBits((byte) 0xFF);
 		assertTrue(s.contains(TestFlag_t.ALARM));
 		assertTrue(s.contains(TestFlag_t.UNRELIABLE));
@@ -219,11 +219,11 @@ public class EnumTests {
 	@Test
 	public void TestOptFlag_t_test()
 	{
-		assertEquals(TestOptFlag_t.TEST_MIN_INVALID.getBit(), 1);
-		assertEquals(TestOptFlag_t.TEST_MAX_INVALID.getBit(), 2);
-		assertEquals(TestOptFlag_t.TEST_TIME_INVALID.getBit(), 4);
-		assertEquals(TestOptFlag_t.TEST_SUMS_INVALID.getBit(), 16);
-		assertEquals(TestOptFlag_t.TEST_SQRS_INVALID.getBit(), 32);
+		assertEquals(TestOptFlag_t.TEST_MIN_INVALID.bit, 1);
+		assertEquals(TestOptFlag_t.TEST_MAX_INVALID.bit, 2);
+		assertEquals(TestOptFlag_t.TEST_TIME_INVALID.bit, 4);
+		assertEquals(TestOptFlag_t.TEST_SUMS_INVALID.bit, 16);
+		assertEquals(TestOptFlag_t.TEST_SQRS_INVALID.bit, 32);
 	}
 
 }
