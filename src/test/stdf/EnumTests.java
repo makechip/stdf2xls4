@@ -104,18 +104,18 @@ public class EnumTests {
 	@Test
 	public void Data_t_test()
 	{
-		assertEquals(Data_t.U_1.getNumBytes(), 1);
-		assertEquals(Data_t.U_2.getNumBytes(), 2);
-		assertEquals(Data_t.U_4.getNumBytes(), 4);
-		assertEquals(Data_t.I_1.getNumBytes(), 1);
-		assertEquals(Data_t.I_2.getNumBytes(), 2);
-		assertEquals(Data_t.I_4.getNumBytes(), 4);
-		assertEquals(Data_t.R_4.getNumBytes(), 4);
-		assertEquals(Data_t.R_8.getNumBytes(), 8);
-		assertEquals(Data_t.C_N.getNumBytes(), 1);
-		assertEquals(Data_t.B_N.getNumBytes(), 1);
-		assertEquals(Data_t.D_N.getNumBytes(), 1);
-		assertEquals(Data_t.N_N.getNumBytes(), 1);
+		assertEquals(Data_t.U_1.numBytes, 1);
+		assertEquals(Data_t.U_2.numBytes, 2);
+		assertEquals(Data_t.U_4.numBytes, 4);
+		assertEquals(Data_t.I_1.numBytes, 1);
+		assertEquals(Data_t.I_2.numBytes, 2);
+		assertEquals(Data_t.I_4.numBytes, 4);
+		assertEquals(Data_t.R_4.numBytes, 4);
+		assertEquals(Data_t.R_8.numBytes, 8);
+		assertEquals(Data_t.C_N.numBytes, 1);
+		assertEquals(Data_t.B_N.numBytes, 1);
+		assertEquals(Data_t.D_N.numBytes, 1);
+		assertEquals(Data_t.N_N.numBytes, 1);
 	}
 	
 	@Test
@@ -193,7 +193,7 @@ public class EnumTests {
 	public void Record_t_test()
 	{
 		assertEquals(Record_t.getRecordType(99, 99), null);
-		assertEquals(Record_t.PMR.getDescription(), "Pin Map Record");
+		assertEquals(Record_t.PMR.description, "Pin Map Record");
 	}
 	
 	@Test

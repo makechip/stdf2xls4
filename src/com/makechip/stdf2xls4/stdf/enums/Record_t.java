@@ -25,9 +25,9 @@
 
 package com.makechip.stdf2xls4.stdf.enums;
 
-import com.makechip.stdf2xls4.stdf.DefaultValueDatabase;
+import java.util.EnumSet;
+
 import com.makechip.stdf2xls4.stdf.*;
-import com.makechip.util.Log;
 
 /**
 *** @author eric
@@ -62,9 +62,9 @@ public enum Record_t
     WIR("Wafer Information Record", (short) 2, (short) 10, WaferInformationRecord::new),
     WRR("Wafer Results Record", (short) 2, (short) 20, WaferResultsRecord::new);
 
-    private String description;
-    private short recordType;
-    private short recordSubType;
+    public final String description;
+    public final short recordType;
+    public final short recordSubType;
     private FuncIf ctor;
     
     @FunctionalInterface
@@ -80,23 +80,11 @@ public enum Record_t
         this.ctor = ctor;
     }
 
-    public String getDescription() { return(description); }
-
-    public short getRecordType() { return(recordType); }
-
-    public short getRecordSubType() { return(recordSubType); }
-
     public static Record_t getRecordType(int type, int subType)
     {
-        for (Record_t r : Record_t.class.getEnumConstants())
-        {
-            if (r.getRecordType() == type && r.getRecordSubType() == subType) 
-            {
-            	return(r);
-            }
-        }
-        Log.msg("record type is null for type = " + type + " subType = " + subType);
-        return(null);
+        EnumSet<Record_t> set = EnumSet.allOf(Record_t.class);
+        Record_t r = set.stream().filter(p -> p.recordType == type && p.recordSubType == subType).findFirst().orElse(null);
+        return(r);
     }
 
     public StdfRecord getInstance(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] bytes)

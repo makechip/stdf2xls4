@@ -103,7 +103,7 @@ public class FileAttributesRecord extends StdfRecord
 	private static byte[] toBytes(Cpu_t cpuType, byte stdfVersion)
 	{
 		TByteArrayList l = new TByteArrayList();
-        l.add(cpuType.getType());
+        l.add(cpuType.type);
         l.add(stdfVersion);
         return(l.toArray());
 	}

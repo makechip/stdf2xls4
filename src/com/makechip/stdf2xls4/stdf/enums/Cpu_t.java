@@ -36,18 +36,16 @@ public enum Cpu_t
     SUN(1),
     PC(2);
     
-    private final byte type_;
+    /**
+     * The byte value used in the STDF stream to identify the CPU type.
+     * 0 for VAX computers, 1 for Sun 1, 2, 3, and 4 computers, or 2 for IBM-PC compatible computers.
+     */
+    public final byte type;
 
     private Cpu_t(int type)
     {
-    	this.type_ = (byte) type;
+    	this.type = (byte) type;
     }
-    
-    /**
-     * Gets the byte value used in the STDF stream to identify the CPU type.
-     * @return 0 for VAX computers, 1 for Sun 1, 2, 3, and 4 computers, or 2 for IBM-PC compatible computers.
-     */
-    public byte getType() { return(type_); }
     
     /**
      * Given a byte value from the File Attributes Record CPU_TYPE field

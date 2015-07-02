@@ -41,8 +41,8 @@ public abstract class StdfRecord
 	{
 		byte[] b = cpuType.getU2Bytes(bytes.length);
 		ds.write(b, 0, b.length);
-		b[0] = (byte) type.getRecordType();
-		b[1] = (byte) type.getRecordSubType();
+		b[0] = (byte) type.recordType;
+		b[1] = (byte) type.recordSubType;
 		ds.write(b[0]);
 		ds.write(b[1]);
 		toBytes();
@@ -57,8 +57,8 @@ public abstract class StdfRecord
 		byte[] l = cpuType.getU2Bytes(bytes.length);
 		b[0] = l[0];
 		b[1] = l[1];
-		b[2] = (byte) type.getRecordType();
-	    b[3] = (byte) type.getRecordSubType();	
+		b[2] = (byte) type.recordType;
+	    b[3] = (byte) type.recordSubType;	
 	    //Log.msg("b[2] = " + b[2] + " b[3] = " + b[3]);
 	    for (int i=4; i<b.length; i++) b[i] = bytes[i-4];
 		return(Arrays.copyOf(b, b.length));

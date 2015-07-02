@@ -301,7 +301,7 @@ public class GenericDataRecord extends StdfRecord
 	private static void setField(Cpu_t cpuType, TByteArrayList l, Data field)
 	{
 		IntStream.generate(() -> 0).limit(field.padCnt).forEach(v -> l.add((byte) 0));
-		l.add((byte) field.type.getFieldType());
+		l.add((byte) field.type.type);
 		switch (field.type)
 		{
         case U_1: l.add(getU1Bytes((short) field.value)); break;

@@ -87,13 +87,16 @@ public enum Data_t
      * Fixed length Field of nibbles
      */
     N_N(13, 1);
- //   N_1(14, 1),
- //   B_1(15, 1),
- //   C_1(16, 1),
- //   V(17, -1);
 
-    private final int type;
-    private final int numBytes;
+    /**
+     * The numeric representation of the data type.
+     * (This is used in the GenericDataRecord)
+     */
+    public final int type;
+    /**
+     * The number of bytes used by the data type, or 1 if a variable length field.
+     */
+    public final int numBytes;
 
     private Data_t(int type, int numBytes)
     {
@@ -102,18 +105,6 @@ public enum Data_t
     }
 
     /**
-     * Get the number of bytes stored by this data type.
-     * @return The number of bytes used by the data type, or 1 if a variable length field.
-     */
-    public int getNumBytes() { return(numBytes); }
-    /**
-     * Get the numeric type used for this type.  
-     * (This is used in the GenericDataRecord)
-     * @return The numeric representation of the data type.
-     */
-    public int getFieldType() { return(type); }
-    
-    /**
      * Convert the numeric representation of the data type back into the enum value.
      * @param fieldType The value returned by @see getFieldType().
      * @return The enum representation of the data type corresponding to the given numeric value.
@@ -121,7 +112,7 @@ public enum Data_t
     public static Data_t getDataType(int fieldType)
     {
     	EnumSet<Data_t> set = EnumSet.allOf(Data_t.class);
-    	return(set.stream().filter(d -> d.getFieldType() == fieldType).findFirst().orElse(null));
+    	return(set.stream().filter(d -> d.type == fieldType).findFirst().orElse(null));
     }
 
 }

@@ -61,6 +61,61 @@ import com.makechip.util.Log;
 
 import static com.makechip.stdf2xls4.xls.Format_t.*;
 
+/**
+ * This class is used to generate Spreadsheets in the old "xls" format, and
+ * with test headers running across the page, and devices running down the page.
+ * The layout of the spreadsheet is as follows:<br>
+ * <br>
+ * <pre> 
+      |   0  |   1  |   2  |  3   |   4  |   5  |   6  |   7  |   8  |   9  |
+     -+------+------+------+------+------+------+------+------+------+------+
+     0|                                                       |
+     -+                                                       +
+      |                                                       |
+     -+                                                       +
+      |                                                       |
+     -+                                                       +
+      |                                                       |
+     -+                  HeaderBlock                          +   PageTitleBlock ---->
+      |                                                       |
+     -+                                                       +
+      |                                                       |
+     -+                                                       +
+      |                                                       |
+     -+                                                       +
+     n|                                                       |
+     -+------+------+------+------+------+------+------+------+------+------+
+   1+n|                    |                           |      |
+     -+                    +                           +      +
+      |                    |                           |  C   |
+     -+                    +                           +  o   +
+      |                    |                           |  r   |
+     -+                    +                           +  n   +
+      |  LegendBlock       |       LogoBlock           |  e   |
+     -+                    +                           +  r   +   DataBlock ---->
+      |                    |                           |  B   |
+     -+                    +                           +  l   +
+      |                    |                           |  o   |
+     -+                    +                           +  c   +
+   7+n|                    |                           |  k   |
+     -+------+------+------+------+------+------+------+      +
+   8+n|      |      ?      ?        CornerBlock               |
+     -+      +------+------+------+------+------+------+------+------+------+
+   9+n|                                                       |
+     -+                            Device Info                +
+      |                                 |                     |
+     -+                                 |                     +       Test Results  ---->
+      |                                 V                     |             |
+      +                                                       +             |
+      |                                                       |             V
+</pre> 
+ * 
+ * The actual spreadsheet looks like this:
+ * <p> <IMG SRC="{@docRoot}/doc-files/xls1.png"> 
+ * 
+ * @author eric
+ *
+ */
 @SuppressWarnings("unused")
 public class SpreadSheetWriter1 implements SpreadSheetWriter
 {
@@ -100,7 +155,6 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     	X_COL = RSLT_COL + 2;
     	Y_COL = RSLT_COL + 3;
     	firstDataCol = 8;
-        FormatFactory.reInitialize();
         wb = null; 
        	if (options.xlsName.exists()) 
        	{
@@ -108,7 +162,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
        		wb = Workbook.createWorkbook(options.xlsName, w);
        	}
        	else wb = Workbook.createWorkbook(options.xlsName);
-       	wb.setColourRGB(Colour.SKY_BLUE, 0, 85, 165);
+       	wb.setColourRGB(Colour.SKY_BLUE, 82, 123, 188);
         sheetNum = 0;
         HEADER1_FMT.getFormat().setWrap(true);
         tnumView.setSize(18*256);
@@ -408,21 +462,21 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         }
     }
     
-    public void setCell(WritableSheet wsi, int row, int col, String contents, int formatHandle)
+    public void setCell(WritableSheet wsi, int row, int col, String contents, Format_t format)
     {
-        try { wsi.addCell(new Label(row, col, contents, FormatFactory.getFormat(formatHandle))); }
+        try { wsi.addCell(new Label(row, col, contents, format.getFormat())); }
         catch (Exception e) { e.printStackTrace(); }
     }
 
-    public void setCell(WritableSheet wsi, int row, int col, double value, int formatHandle)
+    public void setCell(WritableSheet wsi, int row, int col, double value, Format_t format)
     {
-        try { wsi.addCell(new Number(row, col, value, FormatFactory.getFormat(formatHandle))); }
+        try { wsi.addCell(new Number(row, col, value, format.getFormat(options.precision))); }
         catch (Exception e) { e.printStackTrace(); }
     }
     
-    public void setCell(WritableSheet wsi, int row, int col, int value, int formatHandle)
+    public void setCell(WritableSheet wsi, int row, int col, int value, Format_t format)
     {
-        try { wsi.addCell(new Number(row, col, value, FormatFactory.getFormat(formatHandle))); }
+        try { wsi.addCell(new Number(row, col, value, format.getFormat())); }
         catch (Exception e) { e.printStackTrace(); }
     }
     

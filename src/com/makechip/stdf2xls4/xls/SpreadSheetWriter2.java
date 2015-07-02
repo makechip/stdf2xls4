@@ -99,11 +99,6 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     	Y_COL = RSLT_COL + 3;
     	firstDataCol = 8;
         System.out.println("Initializing workbook: " + options.xlsName);
-        try
-        {
-            FormatFactory.reInitialize();
-        }
-        catch (Exception e) { e.printStackTrace(); }
         wb = null; 
       	Workbook w = null;
        	try { w = Workbook.getWorkbook(options.xlsName); }
@@ -466,21 +461,21 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
         }
     }
     
-    public void setCell(WritableSheet wsi, int row, int col, String contents, int formatHandle)
+    public void setCell(WritableSheet wsi, int row, int col, String contents, Format_t format)
     {
-        try { wsi.addCell(new Label(row, col, contents, FormatFactory.getFormat(formatHandle))); }
+        try { wsi.addCell(new Label(row, col, contents, format.getFormat())); }
         catch (Exception e) { e.printStackTrace(); }
     }
 
-    public void setCell(WritableSheet wsi, int row, int col, double value, int formatHandle)
+    public void setCell(WritableSheet wsi, int row, int col, double value, Format_t format)
     {
-        try { wsi.addCell(new Number(row, col, value, FormatFactory.getFormat(formatHandle))); }
+        try { wsi.addCell(new Number(row, col, value, format.getFormat(options.precision))); }
         catch (Exception e) { e.printStackTrace(); }
     }
     
-    public void setCell(WritableSheet wsi, int row, int col, int value, int formatHandle)
+    public void setCell(WritableSheet wsi, int row, int col, int value, Format_t format)
     {
-        try { wsi.addCell(new Number(row, col, value, FormatFactory.getFormat(formatHandle))); }
+        try { wsi.addCell(new Number(row, col, value, format.getFormat())); }
         catch (Exception e) { e.printStackTrace(); }
     }
     

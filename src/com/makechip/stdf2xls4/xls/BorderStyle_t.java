@@ -36,37 +36,11 @@ public enum BorderStyle_t
     THIN(BorderLineStyle.THIN),
     DEFAULT(BorderLineStyle.THIN);
 
-    private BorderLineStyle style;
+    public final BorderLineStyle style;
 
     private BorderStyle_t(BorderLineStyle style)
     {
         this.style = style;
-    }
-
-    public BorderLineStyle getStyle() { return(style); }
-
-    public static BorderStyle_t getStyle(int ordinal)
-    {
-        switch (ordinal)
-        {
-            case  0: return(NONE);
-            case  1: return(DASH_DOT);
-            case  2: return(DASH_DOT_DOT);
-            case  3: return(DASHED);
-            case  4: return(DOTTED);
-            case  5: return(DOUBLE);
-            case  6: return(HAIR);
-            case  7: return(MEDIUM);
-            case  8: return(MEDIUM_DASH_DOT);
-            case  9: return(MEDIUM_DASH_DOT_DOT);
-            case 10: return(MEDIUM_DASHED);
-            case 11: return(SLANTED_DASH_DOT);
-            case 12: return(THICK);
-            case 13: return(THIN);
-            case 14: return(DEFAULT);
-            default:
-        }
-        return(DEFAULT);
     }
 
 }

@@ -52,7 +52,7 @@ public enum Color_t
     DARK_RED2(Colour.DARK_RED2),
     TEAL2(Colour.TEAL2),
     BLUE2(Colour.BLUE2),
-    SKY_BLUE(Colour.SKY_BLUE),
+    SKY_BLUE(Colour.SKY_BLUE), // Note: this is overwritten to a custom color.
     LIGHT_TURQUOISE(Colour.LIGHT_TURQUOISE),
     LIGHT_GREEN(Colour.LIGHT_GREEN),
     VERY_LIGHT_YELLOW(Colour.VERY_LIGHT_YELLOW),
@@ -76,27 +76,14 @@ public enum Color_t
     PLUM(Colour.PLUM),
     INDIGO(Colour.INDIGO),
     GREY_80_PERCENT(Colour.GREY_80_PERCENT),
+    MC_BLUE(Colour.SKY_BLUE),
     DEFAULT(Colour.WHITE);
 
-    private Colour color;
+    public final Colour color;
 
     private Color_t(Colour color)
     {
         this.color = color;
-    }
-
-    public static Color_t getColor(int ordinal)
-    {
-        for (Color_t c : Color_t.class.getEnumConstants())
-        {
-            if (ordinal == c.ordinal()) return(c);
-        }
-        return(null);
-    }
-
-    public Colour getColor()
-    {
-        return(color);
     }
 
 }
