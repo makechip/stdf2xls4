@@ -177,7 +177,7 @@ public final class StdfAPI
 			}
 			else
 			{
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.timeStamp, prr.getPartID()) : SN.getSN(prr.getPartID());
+				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.timeStamp, prr.partID) : SN.getSN(prr.partID);
 			}
 		}
 		List<TestRecord> l = list.stream()

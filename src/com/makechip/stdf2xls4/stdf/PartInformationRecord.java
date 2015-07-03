@@ -28,22 +28,30 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 
 /**
-*** @author eric
-*** @version $Id: PartInformationRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields of a Part Information Record.
+ *  @author eric
+ */
 public class PartInformationRecord extends StdfRecord
 {
+	/**
+	 *  This is the HEAD_NUM field.
+	 */
     public final short headNumber;
+    /**
+     *  This is the SITE_NUM field.
+     */
     public final short siteNumber;
     
     /**
-    *** @param p1
-    *** @param p2
-    **/
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase.  This parameter is not used.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public PartInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PIR, dvd.getCpuType(), data);
@@ -51,11 +59,22 @@ public class PartInformationRecord extends StdfRecord
         siteNumber = getU1((short) -1);
     }
     
+    /**
+     * 
+     * This constructor is used to make a ParametricTestRecord with field values.
+     * @param tdb The TestIdDatabase is needed to get the TestID.
+     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+     * @param headNumber The HEAD_NUM field.
+     * @param siteNumber The SITE_NUM field.
+     */
     public PartInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, short headNumber, short siteNumber)
     {
         this(tdb, dvd, toBytes(headNumber, siteNumber));
     }
     
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -70,14 +89,46 @@ public class PartInformationRecord extends StdfRecord
 		return(l.toArray());
 	}
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    head number: " + headNumber).append(Log.eol);
-        sb.append("    site number: " + siteNumber).append(Log.eol);
-        return(sb.toString());
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("PartInformationRecord [headNumber=").append(headNumber);
+		builder.append(", siteNumber=").append(siteNumber);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + headNumber;
+		result = prime * result + siteNumber;
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof PartInformationRecord)) return false;
+		PartInformationRecord other = (PartInformationRecord) obj;
+		if (headNumber != other.headNumber) return false;
+		if (siteNumber != other.siteNumber) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
+
 
 }

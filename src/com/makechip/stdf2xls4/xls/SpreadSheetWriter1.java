@@ -124,7 +124,6 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private HeaderBlock hb;	
     private CornerBlock cb;
 	
-    private final int firstDataCol;
     public static final int MAX_ROWS = 1000000;
     
     private int colsPerPage;
@@ -139,22 +138,22 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private CellView unitsView    = new CellView();
     private CellView hdrView      = new CellView();
     private int firstDataRow;
-    private int RSLT_COL;
-    private final int X_COL;
-    private final int Y_COL;
-    private final int TEMP_COL;
     private int testColumns;
     private boolean sortByFilename;
     private boolean showDuplicates;
+    private int wafer_step_col;
+    private int x_col;
+    private int y_sn_col;
+    private int rslt_col;
+    private int temp_col;
+    private int hw_bin_col;
+    private int sw_bin_col;
+    private int firstDataCol;
 
     public SpreadSheetWriter1(CliOptions options, StdfAPI api) throws IOException, BiffException, WriteException
     {
     	this.options = options;
     	this.api = api;
-    	TEMP_COL = RSLT_COL + 1;
-    	X_COL = RSLT_COL + 2;
-    	Y_COL = RSLT_COL + 3;
-    	firstDataCol = 8;
         wb = null; 
        	if (options.xlsName.exists()) 
        	{
@@ -221,20 +220,20 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
            	for (int page=0; page<pages; page++)
            	{
                	locateRow(waferOrStep, sn, page); // sets currentRow
-               	if (onePage) ws[page].addCell(new Label(RSLT_COL-3, currentRow, waferOrStep, DATA_FMT.getFormat()));
-               	ws[page].addCell(new Number(RSLT_COL-2, currentRow, dh.getHwBin(), DATA_FMT.getFormat()));
-               	ws[page].addCell(new Number(RSLT_COL-1, currentRow, dh.getSwBin(), DATA_FMT.getFormat()));
-               	if (dh.isPass()) setStatus(ws[page], RSLT_COL, currentRow, Error_t.PASS);
-               	else setStatus(ws[page], RSLT_COL, currentRow, Error_t.FAIL);
-               	ws[page].addCell(new Label(TEMP_COL, currentRow, t, DATA_FMT.getFormat()));
+               	if (onePage) ws[page].addCell(new Label(rslt_col-3, currentRow, waferOrStep, DATA_FMT.getFormat()));
+               	ws[page].addCell(new Number(rslt_col-2, currentRow, dh.getHwBin(), DATA_FMT.getFormat()));
+               	ws[page].addCell(new Number(rslt_col-1, currentRow, dh.getSwBin(), DATA_FMT.getFormat()));
+               	if (dh.isPass()) setStatus(ws[page], rslt_col, currentRow, Error_t.PASS);
+               	else setStatus(ws[page], rslt_col, currentRow, Error_t.FAIL);
+               	ws[page].addCell(new Label(temp_col, currentRow, t, DATA_FMT.getFormat()));
                	if (waferMode)
                	{
-               	    ws[page].addCell(new Number(X_COL, currentRow, sn.getX(), DATA_FMT.getFormat()));
-               	    ws[page].addCell(new Number(Y_COL, currentRow, sn.getY(), DATA_FMT.getFormat()));
+               	    ws[page].addCell(new Number(x_col, currentRow, sn.getX(), DATA_FMT.getFormat()));
+               	    ws[page].addCell(new Number(y_sn_col, currentRow, sn.getY(), DATA_FMT.getFormat()));
                	}
                	else
                	{
-               	    ws[page].addCell(new Label(X_COL, currentRow, sn.getSerialNumber(), DATA_FMT.getFormat()));
+               	    ws[page].addCell(new Label(x_col, currentRow, sn.getSerialNumber(), DATA_FMT.getFormat()));
                	}
                	for (int i=0; i<testColumns; i++)
                	{
@@ -266,6 +265,14 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     
     private void openSheet(PageHeader hdr)
     {
+        wafer_step_col = api.wafersort(hdr) ? 1 : 2;
+        x_col = wafer_step_col + 1;
+        y_sn_col = 3;
+        rslt_col = y_sn_col + 1;
+        temp_col = rslt_col + 1;
+        hw_bin_col = temp_col + 1;
+        sw_bin_col = hw_bin_col + 1;
+        firstDataCol = sw_bin_col + 1;
     	hb = new HeaderBlock(hdr);
     	cb = new CornerBlock(api.wafersort(hdr), hb.getHeight(), false);
         int numTests = api.getTestHeaders(hdr).size();
@@ -395,7 +402,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         	{
         		for (int row=firstDataRow; row<=MAX_ROWS; row++)
         		{
-        			Cell c = ws[page].getCell(X_COL, row);
+        			Cell c = ws[page].getCell(x_col, row);
         			if (c.getType() == CellType.EMPTY)
         			{
         				currentRow = row;
@@ -409,7 +416,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         		while (it.hasNext())
         		{
         			int row = it.next();
-        			NumberCell c = (NumberCell) ws[page].getCell(Y_COL, row);
+        			NumberCell c = (NumberCell) ws[page].getCell(y_sn_col, row);
         			short yval = (short) c.getValue();
         			if (yval == snOrXy.getY())
         			{	
@@ -422,7 +429,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
             {
                 for (int i=firstDataRow; i<=MAX_ROWS; i++)
                 {
-                    Cell c = ws[page].getWritableCell(X_COL, i);
+                    Cell c = ws[page].getWritableCell(x_col, i);
                     CellType t = c.getType();
                     if (t == CellType.EMPTY)
                     {
@@ -442,7 +449,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         {
             for (int row=firstDataRow; row<=MAX_ROWS; row++)
             {
-                Cell c = ws[page].getWritableCell(X_COL, row);
+                Cell c = ws[page].getWritableCell(x_col, row);
                 if (c.getType() == CellType.EMPTY)
                 {
                     currentRow = row;

@@ -29,27 +29,50 @@ import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 
 /**
-*** @author eric
-*** @version $Id: PartCountRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields of a Part Count Record.
+ *  @author eric
+ */
 public class PartCountRecord extends StdfRecord
 {
+	/**
+	 *  This is the HEAD_NUM field.
+	 */
     public final short headNumber;
+	/**
+	 *  This is the SITE_NUM field.
+	 */
     public final short siteNumber;
+	/**
+	 *   This is the PART_CNT field.
+	 */
     public final long partsTested;
+	/**
+	 *  This is the RTST_CNT field.
+	 */
     public final long partsReTested;
+	/**
+	 *  This is the ABRT_CNT field.
+	 */
     public final long aborts;
+	/**
+	 *  This is the GOOD_CNT field.
+	 */
     public final long good;
+	/**
+	 *  This is the FUNC_CNT field.
+	 */
     public final long functional;
     
     /**
-    *** @param p1
-    *** @param p2
-    **/
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase.  This parameter is not used.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public PartCountRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PCR, dvd.getCpuType(), data);
@@ -62,6 +85,19 @@ public class PartCountRecord extends StdfRecord
         functional = getU4(4294967295L);
     }
     
+    /**
+     * 
+     * This constructor is used to make a ParametricTestRecord with field values.
+     * @param tdb The TestIdDatabase is needed to get the TestID.
+     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+     * @param headNumber The HEAD_NUM field.
+     * @param siteNumber The SITE_NUM field.
+     * @param partsTested The PART_CNT field.
+     * @param partsReTested The RTST_CNT field.
+     * @param aborts The ABRT_CNT field.
+     * @param good The GOOD_CNT field.
+     * @param functional The FUNC_CNT field.
+     */
     public PartCountRecord(
     		TestIdDatabase tdb, DefaultValueDatabase dvd,
     		short headNumber,
@@ -75,7 +111,10 @@ public class PartCountRecord extends StdfRecord
     	this(tdb,  dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional));
     }
     
-	@Override
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
+ 	@Override
 	protected void toBytes()
 	{
 	    bytes = toBytes(cpuType, headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional);	
@@ -102,18 +141,61 @@ public class PartCountRecord extends StdfRecord
 	    return(l.toArray());
 	}
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    head number: " + headNumber).append(Log.eol);
-        sb.append("    site number: " + siteNumber).append(Log.eol);
-        sb.append("    parts tested: " + partsTested).append(Log.eol);
-        sb.append("    number of aborts: " + aborts).append(Log.eol);
-        sb.append("    number good: " + good).append(Log.eol);
-        sb.append("    number functional: " + functional).append(Log.eol);
-        return(sb.toString());
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("PartCountRecord [headNumber="); builder.append(headNumber);
+		builder.append(", siteNumber=").append(siteNumber);
+		builder.append(", partsTested=").append(partsTested);
+		builder.append(", partsReTested=").append(partsReTested);
+		builder.append(", aborts=").append(aborts);
+		builder.append(", good=").append(good);
+		builder.append(", functional=").append(functional);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (int) (aborts ^ (aborts >>> 32));
+		result = prime * result + (int) (functional ^ (functional >>> 32));
+		result = prime * result + (int) (good ^ (good >>> 32));
+		result = prime * result + headNumber;
+		result = prime * result + (int) (partsReTested ^ (partsReTested >>> 32));
+		result = prime * result + (int) (partsTested ^ (partsTested >>> 32));
+		result = prime * result + siteNumber;
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof PartCountRecord)) return false;
+		PartCountRecord other = (PartCountRecord) obj;
+		if (aborts != other.aborts) return false;
+		if (functional != other.functional) return false;
+		if (good != other.good) return false;
+		if (headNumber != other.headNumber) return false;
+		if (partsReTested != other.partsReTested) return false;
+		if (partsTested != other.partsTested) return false;
+		if (siteNumber != other.siteNumber) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
+
 
 }

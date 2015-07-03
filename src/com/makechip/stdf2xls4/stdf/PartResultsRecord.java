@@ -32,37 +32,89 @@ import java.util.Set;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 /**
-*** @author eric
-*** @version $Id: PartResultsRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields of a Part Results Record.
+ *  @author eric
+ */
 public class PartResultsRecord extends StdfRecord
 {
 	private static int sn = -1;
     
+	/**
+	 *  This is the HEAD_NUM field.
+	 */
     public final short headNumber;
+    /**
+     *  This is the SITE_NUM field.
+     */
     public final short siteNumber;
+    /**
+     *  This is the PART_FLG field with bits represented by enum values.
+     */
     public final Set<PartInfoFlag_t> partInfoFlags;
+    /**
+     *  This is the NUM_TEST field.
+     */
     public final int numExecs;
+    /**
+     *  This is the HARD_BIN field.
+     */
     public final int hwBinNumber;
+    /**
+     *  This is the SOFT_BIN field.
+     */
     public final int swBinNumber;
+    /**
+     *  This is the X_COORD field.
+     */
     public final short xCoord;
+    /**
+     *  This is the Y_COORD field.
+     */
     public final short yCoord;
+    /**
+     *  This is the TEST_T field.
+     */
     public final long testTime;
-    private String partID;
+    /**
+     *  This is the PART_ID field.
+     */
+    public final String partID;
+    /**
+     *  This is the PART_TXT field.
+     */
     public final String partDescription;
+    /**
+     *  This is the PART_FIX field.
+     */
     private final byte[] repair;
     
+    /**
+     * Tests if bit 2 of the PART_FLG field is set.
+     * @return True if the PART_FLG field indicates and abnormal end of test.
+     */
     public boolean abnormalEOT() { return(partInfoFlags.contains(PartInfoFlag_t.ABNORMAL_END_OF_TEST)); }
+    /**
+     * Tests if bit 3 of the PART_FLG field is set.
+     * @return True if the part failed, false if the part passed.
+     */
     public boolean failed() { return(partInfoFlags.contains(PartInfoFlag_t.PART_FAILED)); }
+    /**
+     * Tests if bit 4 of the PART_FLG field is set.
+     * @return True if bit 3 is invalid, false otherwise.
+     */
     public boolean noPassFailIndication() { return(partInfoFlags.contains(PartInfoFlag_t.NO_PASS_FAIL_INDICATION)); }
     
     /**
-    *** @param p1
-    **/
-    public PartResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase is cleared whenever this record is encountered.
+     *  This is so that duplicate TestIDs can be tracked, and be uniquified for each device.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
+   public PartResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PRR, dvd.getCpuType(), data);
         tdb.clearIdDups();
@@ -76,16 +128,31 @@ public class PartResultsRecord extends StdfRecord
         xCoord = getI2((short) -32768);
         yCoord = getI2((short) -32768);
         testTime = getU4(-1);
-        partID = getCn();
-        if (partID == null)
-        {
-        	partID = "" + sn;
-        	sn--;
-        }
+        String pid = getCn();
+        partID = (pid.equals("")) ? "" + sn-- : pid;
         partDescription = getCn();
         repair = getBn();
     }
     
+    /**
+     * 
+     * This constructor is used to make a ParametricTestRecord with field values.
+     *  @param tdb The TestIdDatabase is cleared whenever this record is encountered.
+     *  This is so that duplicate TestIDs can be tracked, and be uniquified for each device.
+     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+     * @param headNumber This is the HEAD_NUM field.
+     * @param siteNumber This is the SITE_NUM field.
+     * @param partInfoFlags This is the PART_FLG field.
+     * @param numExecs This is the NUM_TEST field.
+     * @param hwBinNumber This is the HARD_BIN field.
+     * @param swBinNumber This is the SOFT_BIN field.
+     * @param xCoord This is the X_COORD field.
+     * @param yCoord This is the Y_COORD field.
+     * @param testTime This is the TEST_T field.
+     * @param partID This is the PART_ID field.
+     * @param partDescription This is the PART_TXT field.
+     * @param repair This is the PART_FIX field.
+     */
     public PartResultsRecord(
         TestIdDatabase tdb,
         DefaultValueDatabase dvd,
@@ -107,6 +174,9 @@ public class PartResultsRecord extends StdfRecord
     		                   partID, partDescription, repair));
     }
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -147,46 +217,82 @@ public class PartResultsRecord extends StdfRecord
 		return(l.toArray());
 	}
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    head number: " + headNumber).append(Log.eol);
-        sb.append("    site number: " + siteNumber).append(Log.eol);
-        sb.append("    test flags:");
-        partInfoFlags.stream().forEach(e -> sb.append(" ").append(e.toString()));
-        sb.append(Log.eol);
-        sb.append("    number of tests executed: " + numExecs).append(Log.eol);
-        sb.append("    hardware bin number: " + hwBinNumber).append(Log.eol);
-        sb.append("    software bin number: " + swBinNumber).append(Log.eol);
-        sb.append("    wafer X-coordinate: " + xCoord).append(Log.eol);
-        sb.append("    wafer Y-coordinate: " + yCoord).append(Log.eol);
-        sb.append("    test time: " + testTime).append(Log.eol);
-        sb.append("    part ID: "); sb.append(partID).append(Log.eol);
-        sb.append("    part description: ").append(partDescription).append(Log.eol);
-        if (repair != null)
-        {
-        	sb.append("    repair info:");
-        	for (int i=0; i<repair.length; i++) sb.append(" " + repair[i]);
-        }
-        sb.append(Log.eol);
-        return(sb.toString()); 
-    }
+    /* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("PartResultsRecord [headNumber=").append(headNumber);
+		builder.append(", siteNumber=").append(siteNumber);
+		builder.append(", partInfoFlags=").append(partInfoFlags);
+		builder.append(", numExecs=").append(numExecs);
+		builder.append(", hwBinNumber=").append(hwBinNumber);
+		builder.append(", swBinNumber=").append(swBinNumber);
+		builder.append(", xCoord=").append(xCoord);
+		builder.append(", yCoord=").append(yCoord);
+		builder.append(", testTime=").append(testTime);
+		builder.append(", partID=").append(partID);
+		builder.append(", partDescription=").append(partDescription);
+		builder.append(", repair=").append(Arrays.toString(repair));
+		builder.append("]");
+		return builder.toString();
+	}
 
     /**
-     * @return the partID
-     */
-    public String getPartID()
-    {
-        return partID;
-    }
-
-    /**
-     * @return the repair
+     * Get the PART_FIX field.
+     * @return A deep copy of the repair array.
      */
     public byte[] getRepair()
     {
         return Arrays.copyOf(repair, repair.length);
     }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + headNumber;
+		result = prime * result + hwBinNumber;
+		result = prime * result + numExecs;
+		result = prime * result + partDescription.hashCode();
+		result = prime * result + partID.hashCode();
+		result = prime * result + partInfoFlags.hashCode();
+		result = prime * result + Arrays.hashCode(repair);
+		result = prime * result + siteNumber;
+		result = prime * result + swBinNumber;
+		result = prime * result + (int) (testTime ^ (testTime >>> 32));
+		result = prime * result + xCoord;
+		result = prime * result + yCoord;
+		return result;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof PartResultsRecord)) return false;
+		PartResultsRecord other = (PartResultsRecord) obj;
+		if (headNumber != other.headNumber) return false;
+		if (hwBinNumber != other.hwBinNumber) return false;
+		if (numExecs != other.numExecs) return false;
+		if (!partDescription.equals(other.partDescription)) return false;
+		if (!partID.equals(other.partID)) return false;
+		if (!partInfoFlags.equals(other.partInfoFlags)) return false;
+		if (!Arrays.equals(repair, other.repair)) return false;
+		if (siteNumber != other.siteNumber) return false;
+		if (swBinNumber != other.swBinNumber) return false;
+		if (testTime != other.testTime) return false;
+		if (xCoord != other.xCoord) return false;
+		if (yCoord != other.yCoord) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
+    
 }

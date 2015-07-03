@@ -1099,6 +1099,35 @@ public class StdfTest1
         assertEquals(0L, ptr.aborts); 
         assertEquals(2L, ptr.good); 
         assertEquals(1L, ptr.functional); 
+		PartCountRecord ptr1 = new PartCountRecord(tdb, dvd, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L);
+		PartCountRecord ptr2 = new PartCountRecord(tdb, dvd, (short) 0, (short) 0, 2L, 1L, 0L, 2L, 1L);
+		PartCountRecord ptr3 = new PartCountRecord(tdb, dvd, (short) 1, (short) 1, 2L, 1L, 0L, 2L, 1L);
+		PartCountRecord ptr4 = new PartCountRecord(tdb, dvd, (short) 1, (short) 0, 1L, 1L, 0L, 2L, 1L);
+		PartCountRecord ptr5 = new PartCountRecord(tdb, dvd, (short) 1, (short) 0, 2L, 0L, 0L, 2L, 1L);
+		PartCountRecord ptr6 = new PartCountRecord(tdb, dvd, (short) 1, (short) 0, 2L, 1L, 1L, 2L, 1L);
+		PartCountRecord ptr7 = new PartCountRecord(tdb, dvd, (short) 1, (short) 0, 2L, 1L, 0L, 1L, 1L);
+		PartCountRecord ptr8 = new PartCountRecord(tdb, dvd, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 0L);
+		assertTrue(ptr.equals(ptr));
+		assertTrue(ptr.equals(ptr1));
+		assertEquals(ptr.hashCode(), ptr1.hashCode());
+		assertFalse(ptr.equals(null));
+		assertFalse(ptr.equals("A"));
+		assertFalse(ptr1.equals(ptr2));
+		assertFalse(ptr1.equals(ptr3));
+		assertFalse(ptr1.equals(ptr4));
+		assertFalse(ptr1.equals(ptr5));
+		assertFalse(ptr1.equals(ptr6));
+		assertFalse(ptr1.equals(ptr7));
+		assertFalse(ptr1.equals(ptr8));
+		String s = ptr.toString();
+		assertTrue(s.contains("PartCountRecord ["));
+		assertTrue(s.contains("headNumber="));
+		assertTrue(s.contains("siteNumber="));
+		assertTrue(s.contains("partsTested="));
+		assertTrue(s.contains("partsReTested="));
+		assertTrue(s.contains("aborts="));
+		assertTrue(s.contains("good="));
+		assertTrue(s.contains("functional="));
 	}
 	
 	//stdf.add(new PartInformationRecord(snum++, dnum, (short) 1, (short) 0));
@@ -1110,6 +1139,20 @@ public class StdfTest1
 		PartInformationRecord ptr = (PartInformationRecord) r;
 		assertEquals(1, ptr.headNumber);
 		assertEquals(0, ptr.siteNumber);
+		PartInformationRecord ptr1 = new PartInformationRecord(tdb, dvd, (short) 1, (short) 0);
+		PartInformationRecord ptr2 = new PartInformationRecord(tdb, dvd, (short) 0, (short) 0);
+		PartInformationRecord ptr3 = new PartInformationRecord(tdb, dvd, (short) 1, (short) 1);
+		assertTrue(ptr.equals(ptr));
+		assertTrue(ptr.equals(ptr1));
+		assertEquals(ptr.hashCode(), ptr1.hashCode());
+		assertFalse(ptr.equals(null));
+		assertFalse(ptr.equals("A"));
+		assertFalse(ptr.equals(ptr2));
+		assertFalse(ptr.equals(ptr3));
+		String s = ptr.toString();
+		assertTrue(s.contains("PartInformationRecord ["));
+		assertTrue(s.contains("headNumber="));
+		assertTrue(s.contains("siteNumber="));
 	}
 	
 	//stdf.add(new PartResultsRecord(snum++, dnum, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
@@ -1129,11 +1172,77 @@ public class StdfTest1
 		assertEquals(1, ptr.xCoord);
 		assertEquals(2, ptr.yCoord);
 		assertEquals(10L, ptr.testTime);
-		assertEquals("partID", ptr.getPartID());
+		assertEquals("partID", ptr.partID);
 		assertEquals("partDescription", ptr.partDescription);
 		assertEquals(0, ptr.getRepair()[0]);
 		assertEquals(1, ptr.getRepair()[1]);
 		assertEquals(2, ptr.getRepair()[2]);
+		PartResultsRecord ptr1 = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
+			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptr2 = new PartResultsRecord(tdb, dvd, (short) 0, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
+			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptr3 = new PartResultsRecord(tdb, dvd, (short) 1, (short) 1, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
+			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptr4 = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 1, 1, 2, 3, (short) 1, (short) 2,
+			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptr5 = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 2, 2, 3, (short) 1, (short) 2,
+			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptr6 = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 1, 3, 3, (short) 1, (short) 2,
+			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptr7 = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 1, 2, 4, (short) 1, (short) 2,
+			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptr8 = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 0, (short) 2,
+			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptr9 = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 1,
+			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptra = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
+			                                          11L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptrb = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
+			                                          10L, "xartID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptrc = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
+			                                          10L, "partID", "xartDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+		PartResultsRecord ptrd = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
+			                                          10L, "partID", "partDescription", new byte[] { (byte) 1, (byte) 1, (byte) 2 });
+		assertTrue(ptr.equals(ptr));
+		assertTrue(ptr.equals(ptr1));
+		assertEquals(ptr.hashCode(), ptr1.hashCode());
+		assertFalse(ptr.equals(null));
+		assertFalse(ptr.equals("A"));
+		String s = ptr.toString();
+		assertTrue(s.contains("PartResultsRecord ["));
+		assertTrue(s.contains("siteNumber="));
+		assertTrue(s.contains("headNumber="));
+		assertTrue(s.contains("partInfoFlags="));
+		assertTrue(s.contains("numExecs="));
+		assertTrue(s.contains("hwBinNumber="));
+		assertTrue(s.contains("swBinNumber="));
+		assertTrue(s.contains("xCoord="));
+		assertTrue(s.contains("yCoord="));
+		assertTrue(s.contains("testTime="));
+		assertTrue(s.contains("partID="));
+		assertTrue(s.contains("partDescription="));
+		assertTrue(s.contains("repair="));
+		assertFalse(ptr1.equals(ptr2));
+		assertFalse(ptr1.equals(ptr3));
+		assertFalse(ptr1.equals(ptr4));
+		assertFalse(ptr1.equals(ptr5));
+		assertFalse(ptr1.equals(ptr6));
+		assertFalse(ptr1.equals(ptr7));
+		assertFalse(ptr1.equals(ptr8));
+		assertFalse(ptr1.equals(ptr9));
+		assertFalse(ptr1.equals(ptra));
+		assertFalse(ptr1.equals(ptrb));
+		assertFalse(ptr1.equals(ptrc));
+		assertFalse(ptr1.equals(ptrd));
+		PartResultsRecord ptre = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 28, 1, 2, 3, (short) 1, (short) 2,
+			                                          10L, "", "partDescription", new byte[] { (byte) 1, (byte) 1, (byte) 2 });
+		assertEquals("-1", ptre.partID);
+		assertFalse(ptr.abnormalEOT());
+		assertFalse(ptr.failed());
+		assertFalse(ptr.noPassFailIndication());
+		assertTrue(ptre.abnormalEOT());
+		assertTrue(ptre.failed());
+		assertTrue(ptre.noPassFailIndication());
 	}
 	
 	@Test

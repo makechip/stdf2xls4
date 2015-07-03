@@ -36,7 +36,7 @@ import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 /**
- *  This class holds the fields the a Parametric Test Record.
+ *  This class holds the fields of a Parametric Test Record.
  *  @author eric
  */
 public class ParametricTestRecord extends ParametricRecord
