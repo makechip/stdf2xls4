@@ -33,19 +33,28 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 
 /**
-*** @author eric
-*** @version $Id: PinGroupRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields for a Pin Group Record.
+ *  @author eric
+ */
 public class PinGroupRecord extends StdfRecord
 {
+	/**
+	 *  This is the GPR_INDX field.
+	 */
     public final int groupIndex;
+	/**
+	 *  This is the GRP_NAM field.
+	 */
     public final String groupName;
     private final int[] pmrIdx;
     
     /**
-    *** @param p1
-    *** @param p2
-    **/
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase is not used for this record.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public PinGroupRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PGR, dvd.getCpuType(), data);
@@ -56,6 +65,14 @@ public class PinGroupRecord extends StdfRecord
         for (int i=0; i<k; i++) pmrIdx[i] = getU2(-1);
     }
     
+    /**
+     * This constructor is used to make a PinGroupRecord with field values. 
+     * @param tdb The TestIdDatabase is not used for this record.
+     * @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     * @param groupIndex This is the GRP_INDX field.
+     * @param groupName This is the GRP_NAM field.
+     * @param pmrIdx This is the PMR_INDX field.
+     */
     public PinGroupRecord(
     	TestIdDatabase tdb, 
     	DefaultValueDatabase dvd,
@@ -66,6 +83,9 @@ public class PinGroupRecord extends StdfRecord
     	this(tdb, dvd, toBytes(dvd.getCpuType(), groupIndex, groupName, pmrIdx));
     }
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -83,7 +103,9 @@ public class PinGroupRecord extends StdfRecord
 	}
     
     /**
-     * @return the pmrIdx
+     * This method provides access to the PMR_INDX field. The INDX_CNT field
+     * is just the length of this array.
+     * @return the pmrIdx A deep copy of the PMR_INDX array.
      */
     public int[] getPmrIdx()
     {
@@ -97,16 +119,41 @@ public class PinGroupRecord extends StdfRecord
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("PinGroupRecord [groupIndex=");
-		builder.append(groupIndex);
-		builder.append(", ");
-		builder.append("groupName=");
-		builder.append(groupName);
-		builder.append(", ");
-		builder.append("pmrIdx=");
-		builder.append(Arrays.toString(pmrIdx));
+		builder.append("PinGroupRecord [groupIndex="); builder.append(groupIndex);
+		builder.append(", ").append("groupName=").append(groupName);
+		builder.append(", ").append("pmrIdx=").append(Arrays.toString(pmrIdx));
 		builder.append("]");
 		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + groupIndex;
+		result = prime * result + groupName.hashCode();
+		result = prime * result + Arrays.hashCode(pmrIdx);
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof PinGroupRecord)) return false;
+		PinGroupRecord other = (PinGroupRecord) obj;
+		if (groupIndex != other.groupIndex) return false;
+		if (!groupName.equals(other.groupName)) return false;
+		if (!Arrays.equals(pmrIdx, other.pmrIdx)) return false;
+		if (!super.equals(obj)) return false;
+		return true;
 	}
 
     

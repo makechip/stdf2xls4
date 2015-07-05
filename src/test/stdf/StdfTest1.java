@@ -1258,6 +1258,23 @@ public class StdfTest1
 		assertEquals(idx.length, 2);
 		assertEquals(idx[0], 1);
 		assertEquals(idx[1], 2);
+		PinGroupRecord pgr1 = new PinGroupRecord(tdb, dvd, 1, "group1", new int[] { 1, 2, });
+		PinGroupRecord pgr2 = new PinGroupRecord(tdb, dvd, 0, "group1", new int[] { 1, 2, });
+		PinGroupRecord pgr3 = new PinGroupRecord(tdb, dvd, 1, "xroup1", new int[] { 1, 2, });
+		PinGroupRecord pgr4 = new PinGroupRecord(tdb, dvd, 1, "group1", new int[] { 0, 2, });
+		assertEquals(pgr.hashCode(), pgr1.hashCode());
+		assertTrue(pgr.equals(pgr));
+		assertTrue(pgr.equals(pgr1));
+		assertFalse(pgr.equals(null));
+		assertFalse(pgr.equals("A"));
+		assertFalse(pgr1.equals(pgr2));
+		assertFalse(pgr1.equals(pgr3));
+		assertFalse(pgr1.equals(pgr4));
+		String s = pgr.toString();
+		assertTrue(s.contains("PinGroupRecord ["));
+		assertTrue(s.contains("groupIndex="));
+		assertTrue(s.contains("groupName="));
+		assertTrue(s.contains("pmrIdx="));
 	}
 	
 	//stdf.add(new PinListRecord(snum++, dnum, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
@@ -1268,8 +1285,8 @@ public class StdfTest1
 		StdfRecord r = list.get(21);
 		assertTrue(r instanceof PinListRecord);
 		PinListRecord ptr = (PinListRecord) r;
-	    //assertEquals(1, ptr.getPinIndex()[0]);
-	    //assertEquals(2, ptr.getPinIndex()[1]);
+	    assertEquals(1, ptr.getPinIndex()[0]);
+	    assertEquals(2, ptr.getPinIndex()[1]);
 	    assertEquals(3, ptr.getMode()[0]);
 	    assertEquals(4, ptr.getMode()[1]);
 	    assertEquals(2, ptr.getRadix()[0]);
@@ -1282,6 +1299,59 @@ public class StdfTest1
 	    assertEquals("f", ptr.getPgmChal()[1]);
 	    assertEquals("g", ptr.getRtnChal()[0]);
 	    assertEquals("h", ptr.getRtnChal()[1]);
+		PinListRecord ptr1 = new PinListRecord(tdb, dvd, new int[] { 1, 2 }, new int[] { 3, 4 }, 
+				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
+				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
+				                               new String[] { "g", "h" });
+		PinListRecord ptr2 = new PinListRecord(tdb, dvd, new int[] { 0, 2 }, new int[] { 3, 4 }, 
+				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
+				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
+				                               new String[] { "g", "h" });
+		PinListRecord ptr3 = new PinListRecord(tdb, dvd, new int[] { 1, 2 }, new int[] { 1, 4 }, 
+				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
+				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
+				                               new String[] { "g", "h" });
+		PinListRecord ptr4 = new PinListRecord(tdb, dvd, new int[] { 1, 2 }, new int[] { 3, 4 }, 
+				                               new int[] { 1, 2 }, new String[] { "a", "b" }, 
+				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
+				                               new String[] { "g", "h" });
+		PinListRecord ptr5 = new PinListRecord(tdb, dvd, new int[] { 1, 2 }, new int[] { 3, 4 }, 
+				                               new int[] { 2, 2 }, new String[] { "b", "b" }, 
+				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
+				                               new String[] { "g", "h" });
+		PinListRecord ptr6 = new PinListRecord(tdb, dvd, new int[] { 1, 2 }, new int[] { 3, 4 }, 
+				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
+				                               new String[] { "b", "d" }, new String[] { "e", "f" }, 
+				                               new String[] { "g", "h" });
+		PinListRecord ptr7 = new PinListRecord(tdb, dvd, new int[] { 1, 2 }, new int[] { 3, 4 }, 
+				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
+				                               new String[] { "c", "d" }, new String[] { "b", "f" }, 
+				                               new String[] { "g", "h" });
+		PinListRecord ptr8 = new PinListRecord(tdb, dvd, new int[] { 1, 2 }, new int[] { 3, 4 }, 
+				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
+				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
+				                               new String[] { "b", "h" });
+		assertEquals(ptr.hashCode(), ptr1.hashCode());
+		assertTrue(ptr.equals(ptr));
+		assertTrue(ptr.equals(ptr1));
+		assertFalse(ptr.equals(null));
+		assertFalse(ptr.equals("A"));
+		assertFalse(ptr1.equals(ptr2));
+		assertFalse(ptr1.equals(ptr3));
+		assertFalse(ptr1.equals(ptr4));
+		assertFalse(ptr1.equals(ptr5));
+		assertFalse(ptr1.equals(ptr6));
+		assertFalse(ptr1.equals(ptr7));
+		assertFalse(ptr1.equals(ptr8));
+		String s = ptr.toString();
+		assertTrue(s.contains("PinListRecord ["));
+		assertTrue(s.contains("pinIndex="));
+		assertTrue(s.contains("mode="));
+		assertTrue(s.contains("radix="));
+		assertTrue(s.contains("pgmChar="));
+		assertTrue(s.contains("rtnChar="));
+		assertTrue(s.contains("pgmChal="));
+		assertTrue(s.contains("rtnChal="));
 	}
 	
 	//stdf.add(new SoftwareBinRecord(snum++, dnum, (short) 1, (short) 0, 5, 45, "F", "binName"));
