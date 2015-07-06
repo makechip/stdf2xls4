@@ -6,9 +6,9 @@ import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
+import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter1;
+import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter2;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
-import com.makechip.stdf2xls4.xlsx.SpreadSheetWriter1;
-import com.makechip.stdf2xls4.xlsx.SpreadSheetWriter2;
 import com.makechip.util.Log;
 
 public class Stdf2xls4
@@ -39,8 +39,8 @@ public class Stdf2xls4
 			}
 			else
 			{
-				if (options.rotate) ssw = new com.makechip.stdf2xls4.xls.SpreadSheetWriter2(options, api); 
-				else ssw = new com.makechip.stdf2xls4.xls.SpreadSheetWriter1(options, api);
+				if (options.rotate) ssw = new com.makechip.stdf2xls4.excel.xls.SpreadSheetWriter2(options, api); 
+				else ssw = new com.makechip.stdf2xls4.excel.xls.SpreadSheetWriter1(options, api);
 			}
 		}
 		ssw.generate();
