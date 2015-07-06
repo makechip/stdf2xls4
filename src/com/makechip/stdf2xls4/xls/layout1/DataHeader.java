@@ -21,7 +21,7 @@ public class DataHeader
 	
 	public DataHeader(CornerBlock cb, HeaderBlock hb, boolean wrapTestNames, boolean hiPrecision)
 	{
-		col = cb.getWidth();
+		//col = cb.getWidth();
 		row = TitleBlock.HEIGHT + hb.getHeight();
 		this.wrapTestNames = wrapTestNames;
 		this.hiPrecision = hiPrecision;

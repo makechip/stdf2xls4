@@ -9,62 +9,52 @@ import jxl.write.biff.RowsExceededException;
 
 public class CornerBlock 
 {
-	private final int COL = TitleBlock.COL;
-	private final int ROW;
 	private boolean wafersort;
 	private boolean onePage;
 	
-	public CornerBlock(boolean wafersort, int headerBlockHeight, boolean onePage)
+	public CornerBlock(boolean wafersort, boolean onePage)
 	{
 		this.wafersort = wafersort;
 		this.onePage = onePage;
-		ROW = headerBlockHeight + LogoBlock.getHeight();
 	}
 	
-	public void addBlock(WritableSheet ws) throws RowsExceededException, WriteException
+	public void addBlock(WritableSheet ws, HeaderBlock hb) throws RowsExceededException, WriteException
 	{
-		int rsltCol = wafersort ? COL + 4 : COL + 5;
+		final int startCol = onePage ? (wafersort ? 1 : 2) : (wafersort ? 2 : 3);
+		final int devRow = hb.getHeight() + 8;
+		final int testRow = hb.getHeight();
+		int col = startCol;
+		int row = devRow;
 		if (onePage)
 		{
 			String s = (wafersort) ? "Wafer" : "Step";
-			ws.addCell(new Label(rsltCol-3, ROW+5, s, HEADER1_FMT.getFormat()));
+			ws.addCell(new Label(col++, row, s, HEADER1_FMT.getFormat()));
 		}
-		ws.addCell(new Label(rsltCol-2, ROW+5, "HW Bin", HEADER1_FMT.getFormat()));
-		ws.addCell(new Label(rsltCol-1, ROW+5, "SW Bin", HEADER1_FMT.getFormat()));
-		ws.addCell(new Label(rsltCol, ROW+5, "Rslt", HEADER1_FMT.getFormat()));
-		ws.addCell(new Label(rsltCol+1, ROW+5, "Temp", HEADER1_FMT.getFormat()));
-		int col = 0;
 		if (wafersort)
 		{
-			ws.addCell(new Label(rsltCol+2, ROW+5, "X", HEADER1_FMT.getFormat()));
-			ws.addCell(new Label(rsltCol+3, ROW+5, "Y", HEADER1_FMT.getFormat()));
-			col = rsltCol + 3;
+	        ws.addCell(new Label(col++, row, "X", HEADER1_FMT.getFormat()));	
+	        ws.addCell(new Label(col++, row, "Y", HEADER1_FMT.getFormat()));	
 		}
-		else
+		else 
 		{
-			ws.addCell(new Label(rsltCol+2, ROW+5, "S/N", HEADER1_FMT.getFormat()));
-			col = rsltCol + 2;
+			ws.addCell(new Label(col++, row, "S/N", HEADER1_FMT.getFormat()));
 		}
-		ws.mergeCells(0, ROW, col, ROW);
-		ws.mergeCells(0, ROW+1, col, ROW+1);
-		ws.mergeCells(0, ROW+2, col, ROW+2);
-		ws.mergeCells(0, ROW+3, col, ROW+3);
-		ws.mergeCells(0, ROW+4, col, ROW+4);
-        ws.addCell(new Label(0, ROW, "Test Name", HEADER4_FMT.getFormat()));
-        ws.addCell(new Label(0, ROW+1, "Test Num", HEADER4_FMT.getFormat()));
-        ws.addCell(new Label(0, ROW+2, "Lo Limit", HEADER4_FMT.getFormat()));
-        ws.addCell(new Label(0, ROW+3, "Hi Limit", HEADER4_FMT.getFormat()));
-        ws.addCell(new Label(0, ROW+4, "Units", HEADER4_FMT.getFormat()));
-        ws.setRowView(ROW, 2000);
-	}
-
-	public int getHeight()
-	{
-		return(6);
+		ws.addCell(new Label(col++, row, "HW Bin", HEADER1_FMT.getFormat()));
+		ws.addCell(new Label(col++, row, "SW Bin", HEADER1_FMT.getFormat()));
+		ws.addCell(new Label(col++, row, "Result", HEADER1_FMT.getFormat()));
+		ws.addCell(new Label(col++, row, "Temp", HEADER1_FMT.getFormat()));
+		
+		col = 7;
+		row = testRow;
+		
+		ws.mergeCells(col, row, col, row+2);
+        ws.addCell(new Label(col, row, "Test Name", HEADER4_FMT.getFormat()));
+        ws.addCell(new Label(col, row+3, "Test Num", HEADER4_FMT.getFormat()));
+        ws.addCell(new Label(col, row+4, "Lo Limit", HEADER4_FMT.getFormat()));
+        ws.addCell(new Label(col, row+5, "Hi Limit", HEADER4_FMT.getFormat()));
+        ws.addCell(new Label(col, row+6, "Units", HEADER4_FMT.getFormat()));
 	}
 	
-	public int getWidth()
-	{
-		return(8);
-	}
+	public int getHeight() {  return(8); }
+
 }

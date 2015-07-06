@@ -13,6 +13,7 @@ import static com.makechip.stdf2xls4.xls.Format_t.*;
 @SuppressWarnings("unused")
 public class HeaderBlock
 {
+	public static final int WIDTH = 8;
     public static final int ROW = TitleBlock.HEIGHT;
     public static final int COL = TitleBlock.COL;
     //private final int height;
@@ -36,8 +37,6 @@ public class HeaderBlock
         }
         */
     }
-    
-    public int getWidth() { return(LogoBlock.getWidth() + LegendBlock.getWidth()-1); }
     
     public int getHeight() 
     { 

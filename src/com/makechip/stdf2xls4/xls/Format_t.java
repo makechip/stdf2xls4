@@ -33,7 +33,7 @@ public enum Format_t
     TEST_NAME_FMT(ARIAL_NORMAL,           10, Alignment.LEFT,   CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     TEST_NAME_FMT_WRAP(ARIAL_NORMAL,      10, Alignment.JUSTIFY,CENTRE, true,  WHITE,        BLACK, THIN, BLACK),
     TITLE_FMT(ARIAL_BOLD,                 20, Alignment.LEFT,   CENTRE, false, SKY_BLUE,     BLACK, THIN, WHITE),
-    LOGO_FMT(ARIAL_BOLD,                  24, Alignment.LEFT,   CENTRE, false, MC_BLUE,      BLACK, THIN, WHITE),
+    LOGO_FMT(ARIAL_BOLD,                  24, Alignment.CENTRE, CENTRE, false, MC_BLUE,      BLACK, THIN, WHITE),
     LO_LIMIT_FMT(ARIAL_NORMAL,            10, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     HI_LIMIT_FMT(ARIAL_NORMAL,            10, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     UNIT_FMT(ARIAL_NORMAL,                10, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),

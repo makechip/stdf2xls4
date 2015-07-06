@@ -7,13 +7,19 @@ import jxl.write.WriteException;
 
 class PageTitleBlock
 {
-    //private static final int START_COL = LogoBlock.getWidth() + LegendBlock.getWidth();
-    private static final int START_COL = LogoBlock.getWidth();
-    
-    
-    public static void addBlock(String title, int width, WritableSheet ws) throws WriteException
+    private static final int COL = HeaderBlock.WIDTH;
+    private final String title;
+    private final int width;
+   
+    public PageTitleBlock(String title, int width)
     {
-        ws.mergeCells(START_COL, TitleBlock.ROW, START_COL + width - 1, TitleBlock.HEIGHT - 1);
-        ws.addCell(new Label(START_COL, TitleBlock.ROW, title, TITLE_FMT.getFormat()));
+    	this.title = title;
+    	this.width = width;
+    }
+    
+    public void addBlock(WritableSheet ws, HeaderBlock hb) throws WriteException
+    {
+        ws.mergeCells(COL, TitleBlock.ROW, COL + width - 1, hb.getHeight() - 1);
+        ws.addCell(new Label(COL, 0, title, TITLE_FMT.getFormat()));
     }
 }

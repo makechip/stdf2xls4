@@ -274,7 +274,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         sw_bin_col = hw_bin_col + 1;
         firstDataCol = sw_bin_col + 1;
     	hb = new HeaderBlock(hdr);
-    	cb = new CornerBlock(api.wafersort(hdr), hb.getHeight(), false);
+    	cb = new CornerBlock(api.wafersort(hdr), false);
         int numTests = api.getTestHeaders(hdr).size();
         int pages = numTests / colsPerPage;
         if (numTests % colsPerPage != 0) pages++;
@@ -314,7 +314,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     	ws[page] = wb.createSheet(name, sheetNum);
     	HeaderBlock hb = new HeaderBlock(hdr);
     	//hb.addBlock(ws[page]);
-    	CornerBlock cb = new CornerBlock(api.wafersort(hdr), hb.getHeight(), options.onePage);
+    	CornerBlock cb = new CornerBlock(api.wafersort(hdr), options.onePage);
     	//cb.addBlock(ws[page]);
     	/*
     	LinkedHashSet<ColIdentifier> m = dataHeader.get(waferOrStep);
