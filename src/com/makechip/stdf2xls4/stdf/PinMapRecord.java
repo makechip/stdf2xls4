@@ -30,23 +30,50 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 
 /**
-*** @author eric
-*** @version $Id: PinMapRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields for a Pin Map Record.
+ *  @author eric
+ */
 public class PinMapRecord extends StdfRecord
 {
+    /**
+     *  The PMR_INDX field.
+     */
     public final int pmrIdx;
+    /**
+     *  The CHAN_TYP field.
+     */
     public final int channelType;
+    /**
+     *  The CHAN_NAM field.
+     */
     public final String channelName;
+    /**
+     *  The PHY_NAM field.
+     */
     public final String physicalPinName;
+    /**
+     *  The LOG_NAM field.
+     */
     public final String logicalPinName;
+    /**
+     *  The HEAD_NUM field.
+     */
     public final short headNumber;
+    /**
+     *  The SITE_NUM field.
+     */
     public final short siteNumber;
     
+    /**
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase is not used for this record.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public PinMapRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.PMR, dvd.getCpuType(), data);
@@ -68,10 +95,10 @@ public class PinMapRecord extends StdfRecord
         {
         	String name = m1.get(pmrIdx);
         	if (name == null) m1.put(pmrIdx, channelName);
-        	else
-        	{
-        		if (!name.equals(channelName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + channelName);
-        	}
+        	//else
+        	//{
+        	//	if (!name.equals(channelName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + channelName);
+        	//}
         }
         TIntObjectHashMap<String> m2 = dvd.physMap.get(siteNumber);
         if (m2 == null)
@@ -84,10 +111,10 @@ public class PinMapRecord extends StdfRecord
         {
         	String name = m2.get(pmrIdx);
         	if (name == null) m2.put(pmrIdx, physicalPinName);
-        	else
-        	{
-        		if (!name.equals(physicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + physicalPinName);
-        	}
+        	//else
+        	//{
+        	//	if (!name.equals(physicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + physicalPinName);
+        	//}
         }
         TIntObjectHashMap<String> m3 = dvd.logMap.get(siteNumber);
         if (m3 == null)
@@ -100,13 +127,26 @@ public class PinMapRecord extends StdfRecord
         {
         	String name = m3.get(pmrIdx);
         	if (name == null) m3.put(pmrIdx, logicalPinName);
-        	else
-        	{
-        		if (!name.equals(logicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + logicalPinName);
-        	}
+        	//else
+        	//{
+        	//	if (!name.equals(logicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + logicalPinName);
+        	//}
         }
     }
     
+    /**
+     * 
+     * This constructor is used to make a PinGroupRecord with field values. 
+     * @param tdb The TestIdDatabase is not used for this record.
+     * @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     * @param pmrIdx The PMR_INDX field.
+     * @param channelType The CHAN_TYP field.
+     * @param channelName The CHAN_NAM field.
+     * @param physicalPinName The PHY_PIN field.
+     * @param logicalPinName  The LOG_PIN field.
+     * @param headNumber The HEAD_NUM field.
+     * @param siteNumber The SITE_NUM field.
+     */
     public PinMapRecord(
     	TestIdDatabase tdb,
         DefaultValueDatabase dvd,
@@ -122,6 +162,9 @@ public class PinMapRecord extends StdfRecord
     			               physicalPinName, logicalPinName, headNumber, siteNumber));
     }
     
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -149,20 +192,50 @@ public class PinMapRecord extends StdfRecord
 		return(l.toArray());
 	}
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":");
-        sb.append(Log.eol);
-        sb.append("    pin index: " + pmrIdx); sb.append(Log.eol);
-        sb.append("    channel type: " + channelType); sb.append(Log.eol);
-        sb.append("    channel name: "); sb.append(channelName); sb.append(Log.eol);
-        sb.append("    physical pin name: "); sb.append(physicalPinName); sb.append(Log.eol);
-        sb.append("    logical pin name: "); sb.append(logicalPinName); sb.append(Log.eol);
-        sb.append("    head number: " + headNumber); sb.append(Log.eol);
-        sb.append("    site number: " + siteNumber); sb.append(Log.eol);
-        return(sb.toString());
-    }
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PinMapRecord [pmrIdx=").append(pmrIdx);
+		builder.append(", channelType=").append(channelType);
+		builder.append(", channelName=").append(channelName);
+		builder.append(", physicalPinName=").append(physicalPinName);
+		builder.append(", logicalPinName=").append(logicalPinName);
+		builder.append(", headNumber=").append(headNumber);
+		builder.append(", siteNumber=").append(siteNumber);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + channelName.hashCode();
+		result = prime * result + channelType;
+		result = prime * result + headNumber;
+		result = prime * result + logicalPinName.hashCode();
+		result = prime * result + physicalPinName.hashCode();
+		result = prime * result + pmrIdx;
+		result = prime * result + siteNumber;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return(false);
+		if (getClass() != obj.getClass()) return false;
+		PinMapRecord other = (PinMapRecord) obj;
+		if (!channelName.equals(other.channelName)) return false;
+		if (channelType != other.channelType) return false;
+		if (headNumber != other.headNumber) return false;
+		if (!logicalPinName.equals(other.logicalPinName)) return false;
+		if (!physicalPinName.equals(other.physicalPinName)) return false;
+		if (pmrIdx != other.pmrIdx) return false;
+		if (siteNumber != other.siteNumber) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
+
 
 }

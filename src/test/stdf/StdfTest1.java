@@ -293,7 +293,17 @@ public class StdfTest1
 		assertEquals(2, bins[1]);
 		assertEquals(3, bins[2]);
 		assertEquals(4, bins[3]);
-		
+		RetestDataRecord rdr1 = new RetestDataRecord(tdb, dvd, new int[] { 1, 2, 3, 4 });
+		RetestDataRecord rdr2 = new RetestDataRecord(tdb, dvd, new int[] { 0, 2, 3, 4 });
+	    assertTrue(rdr.equals(rdr));	
+	    assertTrue(rdr.equals(rdr1));	
+	    assertEquals(rdr.hashCode(), rdr1.hashCode());
+	    assertFalse(rdr.equals(null));
+	    assertFalse(rdr.equals("A"));
+	    assertFalse(rdr1.equals(rdr2));
+	    String s = rdr.toString();
+	    assertTrue(s.contains("RetestDataRecord ["));
+	    assertTrue(s.contains("retestBins="));
 	}
 	
 	//sdrs.add(new SiteDescriptionRecord((short) 1, (short) 2, (short) 1, new int[] { 0 },
@@ -337,17 +347,17 @@ public class StdfTest1
 	{
 		StdfRecord r1 = list.get(5);
 		assertTrue(r1 instanceof PinMapRecord);
-		PinMapRecord pmr = (PinMapRecord) r1;
-	    assertEquals(0, pmr.pmrIdx);
-	    assertEquals(3, pmr.channelType);
-	    assertEquals("channelName0", pmr.channelName);
-	    assertEquals("physicalPinName0", pmr.physicalPinName);
-	    assertEquals("logicalPinName0", pmr.logicalPinName);
-	    assertEquals(1, pmr.headNumber);
-	    assertEquals(0, pmr.siteNumber);
+		PinMapRecord pmr1 = (PinMapRecord) r1;
+	    assertEquals(0, pmr1.pmrIdx);
+	    assertEquals(3, pmr1.channelType);
+	    assertEquals("channelName0", pmr1.channelName);
+	    assertEquals("physicalPinName0", pmr1.physicalPinName);
+	    assertEquals("logicalPinName0", pmr1.logicalPinName);
+	    assertEquals(1, pmr1.headNumber);
+	    assertEquals(0, pmr1.siteNumber);
 	    r1 = list.get(6);
 	    assertTrue(r1 instanceof PinMapRecord);
-	    pmr = (PinMapRecord) r1;
+	    PinMapRecord pmr = (PinMapRecord) r1;
 	    assertEquals(1, pmr.pmrIdx);
 	    assertEquals(3, pmr.channelType);
 	    assertEquals("channelName1", pmr.channelName);
@@ -375,6 +385,35 @@ public class StdfTest1
 	    assertEquals("logicalPinName3", pmr.logicalPinName);
 	    assertEquals(1, pmr.headNumber);
 	    assertEquals(0, pmr.siteNumber);
+		PinMapRecord pmr2 = new PinMapRecord(tdb, dvd, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0);
+		PinMapRecord pmr3 = new PinMapRecord(tdb, dvd, 1, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0);
+		PinMapRecord pmr4 = new PinMapRecord(tdb, dvd, 0, 2, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0);
+		PinMapRecord pmr5 = new PinMapRecord(tdb, dvd, 0, 3, "xhannelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0);
+		PinMapRecord pmr6 = new PinMapRecord(tdb, dvd, 0, 3, "channelName0", "xhysicalPinName0", "logicalPinName0", (short) 1, (short) 0);
+		PinMapRecord pmr7 = new PinMapRecord(tdb, dvd, 0, 3, "channelName0", "physicalPinName0", "xogicalPinName0", (short) 1, (short) 0);
+		PinMapRecord pmr8 = new PinMapRecord(tdb, dvd, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 0, (short) 0);
+		PinMapRecord pmr9 = new PinMapRecord(tdb, dvd, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 1);
+		assertTrue(pmr2.equals(pmr1));
+		assertEquals(pmr1.hashCode(), pmr2.hashCode());
+		assertTrue(pmr1.equals(pmr1));
+		assertFalse(pmr1.equals(null));
+		assertFalse(pmr1.equals("A"));
+		assertFalse(pmr2.equals(pmr3));
+		assertFalse(pmr2.equals(pmr4));
+		assertFalse(pmr2.equals(pmr5));
+		assertFalse(pmr2.equals(pmr6));
+		assertFalse(pmr2.equals(pmr7));
+		assertFalse(pmr2.equals(pmr8));
+		assertFalse(pmr2.equals(pmr9));
+		String s = pmr2.toString();
+		assertTrue(s.contains("PinMapRecord ["));
+		assertTrue(s.contains("pmrIdx="));
+		assertTrue(s.contains("channelType="));
+		assertTrue(s.contains("channelName="));
+		assertTrue(s.contains("physicalPinName="));
+		assertTrue(s.contains("logicalPinName="));
+		assertTrue(s.contains("headNumber="));
+		assertTrue(s.contains("siteNumber="));
 	}
 	
 	//stdf.add(new BeginProgramSelectionRecord(snum++, dnum, "beginProgramSectionRecord"));
