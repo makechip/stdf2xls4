@@ -17,8 +17,6 @@ import static com.makechip.stdf2xls4.excel.xls.Format_t.*;
 public class HeaderBlock implements Block
 {
 	public static final int WIDTH = 8;
-    public static final int ROW = TitleBlock.HEIGHT;
-    public static final int COL = TitleBlock.COL;
     //private final int height;
     
     public HeaderBlock(PageHeader hdr)

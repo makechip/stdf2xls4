@@ -86,20 +86,22 @@ import static com.makechip.stdf2xls4.excel.xls.Format_t.*;
      n|                                                       |
      -+------+------+------+------+------+------+------+------+------+------+
    1+n|                    |                           |      |
-     -+                    +                           +      +
-      |                    |                           |  C   |
+   1+n|                    |                           |      | 
+   1+n|                    |                           |      |
+     -+                    +                           +      + TestNames ->
+      |                    |                           |  C   | 
      -+                    +                           +  o   +
-      |                    |                           |  r   |
+      |                    |                           |  r   | TestNumbers ->
      -+                    +                           +  n   +
-      |  LegendBlock       |       LogoBlock           |  e   |
-     -+                    +                           +  r   +   DataBlock ---->
-      |                    |                           |  B   |
+      |  LegendBlock       |       LogoBlock           |  e   | LoLimits ->
+     -+                    +                           +  r   +                 DataBlock ---->
+      |                    |                           |  B   | HiLimits ->
      -+                    +                           +  l   +
-      |                    |                           |  o   |
+      |                    |                           |  o   | PinNames ->
      -+                    +                           +  c   +
    7+n|                    |                           |  k   |
-     -+------+------+------+------+------+------+------+      +
-   8+n|      |      ?      ?        CornerBlock               |
+     -+------+------+------+------+------+------+------+      + Units ->
+   8+n|      |  wf  ?stp/x ? y/sn   hbin   sbin   rslt   temp |
      -+      +------+------+------+------+------+------+------+------+------+
    9+n|                                                       |
      -+                            Device Info                +
@@ -138,17 +140,9 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private CellView unitsView    = new CellView();
     private CellView hdrView      = new CellView();
     private int firstDataRow;
-    private int testColumns;
-    private boolean sortByFilename;
-    private boolean showDuplicates;
-    private int wafer_step_col;
-    private int x_col;
-    private int y_sn_col;
-    private int rslt_col;
-    private int temp_col;
-    private int hw_bin_col;
-    private int sw_bin_col;
     private int firstDataCol;
+    private int testColumns;
+    private TitleBlock titleBlock;
 
     public SpreadSheetWriter1(CliOptions options, StdfAPI api) throws IOException, BiffException, WriteException
     {
@@ -265,16 +259,6 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     
     private void openSheet(PageHeader hdr)
     {
-        wafer_step_col = api.wafersort(hdr) ? 1 : 2;
-        x_col = wafer_step_col + 1;
-        y_sn_col = 3;
-        rslt_col = y_sn_col + 1;
-        temp_col = rslt_col + 1;
-        hw_bin_col = temp_col + 1;
-        sw_bin_col = hw_bin_col + 1;
-        firstDataCol = sw_bin_col + 1;
-    	hb = new HeaderBlock(hdr);
-    	cb = new CornerBlock(api.wafersort(hdr), options.onePage, hb);
         int numTests = api.getTestHeaders(hdr).size();
         int pages = numTests / colsPerPage;
         if (numTests % colsPerPage != 0) pages++;
@@ -306,7 +290,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     
     private int getFirstDataRow()
     {
-        return(TitleBlock.HEIGHT + hb.getHeight() + cb.getHeight());
+        return(titleBlock.getHeight());
     }
 
     private void newSheet(int page, String name, PageHeader hdr)
@@ -402,7 +386,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         	{
         		for (int row=firstDataRow; row<=MAX_ROWS; row++)
         		{
-        			Cell c = ws[page].getCell(x_col, row);
+        			Cell c = ws[page].getCell(titleBlock.getXCol(), row);
         			if (c.getType() == CellType.EMPTY)
         			{
         				currentRow = row;
@@ -416,7 +400,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         		while (it.hasNext())
         		{
         			int row = it.next();
-        			NumberCell c = (NumberCell) ws[page].getCell(y_sn_col, row);
+        			NumberCell c = (NumberCell) ws[page].getCell(titleBlock.getSnOrYCol(), row);
         			short yval = (short) c.getValue();
         			if (yval == snOrXy.getY())
         			{	
@@ -429,7 +413,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
             {
                 for (int i=firstDataRow; i<=MAX_ROWS; i++)
                 {
-                    Cell c = ws[page].getWritableCell(x_col, i);
+                    Cell c = ws[page].getWritableCell(titleBlock.getXCol(), i);
                     CellType t = c.getType();
                     if (t == CellType.EMPTY)
                     {
@@ -449,7 +433,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         {
             for (int row=firstDataRow; row<=MAX_ROWS; row++)
             {
-                Cell c = ws[page].getWritableCell(x_col, row);
+                Cell c = ws[page].getWritableCell(titleBlock.getXCol(), row);
                 if (c.getType() == CellType.EMPTY)
                 {
                     currentRow = row;

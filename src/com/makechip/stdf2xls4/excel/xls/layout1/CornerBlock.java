@@ -58,13 +58,29 @@ public class CornerBlock implements Block
 		col = 7;
 		row = testRow;
 		
-		ws.mergeCells(col, row, col, row+2);
+		ws.mergeCells(col, row, col, row+1);
         ws.addCell(new Label(col, row, "Test Name", HEADER4_FMT.getFormat()));
-        ws.addCell(new Label(col, row+3, "Test Num", HEADER4_FMT.getFormat()));
-        ws.addCell(new Label(col, row+4, "Lo Limit", HEADER4_FMT.getFormat()));
-        ws.addCell(new Label(col, row+5, "Hi Limit", HEADER4_FMT.getFormat()));
+        ws.addCell(new Label(col, row+2, "Test Num", HEADER4_FMT.getFormat()));
+        ws.addCell(new Label(col, row+3, "Lo Limit", HEADER4_FMT.getFormat()));
+        ws.addCell(new Label(col, row+4, "Hi Limit", HEADER4_FMT.getFormat()));
+        ws.addCell(new Label(col, row+5, "Pin", HEADER4_FMT.getFormat()));
         ws.addCell(new Label(col, row+6, "Units", HEADER4_FMT.getFormat()));
 	}
+
+	public int getWaferOrStepCol() { return(startCol);	}
+	public int getXCol()     { return(onePage ? startCol + 1 : startCol);  }
+	public int getSnOrYCol() { return(wafersort ? getXCol() + 1 : getXCol()); }
+	public int getHwBinCol() { return(4); }
+	public int getSwBinCol() { return(5); }
+	public int getResultCol() { return(6); }
+	public int getTempCol() { return(7); }
+	public int getFirstDataRow() { return(devRow); }
+	public int getTestNameRow() { return(devRow - 8); }
+	public int getTestNumberRow() { return(devRow - 6); }
+	public int getLoLimitRow() { return(devRow - 5); }
+	public int getHiLimitRow() { return(devRow - 4); }
+	public int getPinNameRow() { return(devRow - 3); }
+	public int getUnitsRow()   { return(devRow - 2); }
 	
 	@Override
 	public int getHeight() {  return(8); }

@@ -35,8 +35,8 @@ public class ParametricTestHeader extends TestHeader
 		if (!super.equals(obj)) return false;
 		if (!(obj instanceof ParametricTestHeader)) return false;
 		ParametricTestHeader other = (ParametricTestHeader) obj;
-		if (Float.floatToIntBits(hiLimit) != Float .floatToIntBits(other.hiLimit)) return false;
-		if (Float.floatToIntBits(loLimit) != Float .floatToIntBits(other.loLimit)) return false;
+		if (Float.floatToIntBits(hiLimit) != Float.floatToIntBits(other.hiLimit)) return false;
+		if (Float.floatToIntBits(loLimit) != Float.floatToIntBits(other.loLimit)) return false;
 		if (units == null)
 		{
 			if (other.units != null) return false;

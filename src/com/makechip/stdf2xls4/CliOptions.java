@@ -54,6 +54,7 @@ public class CliOptions
 	private static final String[] T_OPT = { "t", "show-duplicates", "Don't suppress duplicates when using timestamped files" }; 
 	private static final String[] H_OPT = { "h", "help", "show this help text" }; 
 	private static final String[] M_OPT = { "m", "sort-by-device", "sort by serial-number or X-Y coordinate" }; 
+	private static final String[] A_OPT = { "a", "pin-suffix", "Assume test names for ParametricTestRecords have the pin name following the last underscore" };
 	public final File xlsName;
 	public final boolean dump;
 	public final boolean dumpTests;
@@ -69,6 +70,7 @@ public class CliOptions
 	public final boolean dynamicLimits;
 	public final boolean sort;
 	public final boolean gui;
+	public final boolean pinSuffix;
 	public final List<File> stdfFiles;
 	private boolean success;
 	private StringWriter sout;
@@ -77,6 +79,7 @@ public class CliOptions
 	{
 	    OptionParser op = new OptionParser();	
 	    sout = new StringWriter();
+	    OptionSpec<Void>    A = op.acceptsAll(asList(A_OPT[0], A_OPT[1]), A_OPT[2]);
 	    OptionSpec<Void>    F = op.acceptsAll(asList(F_OPT[0], F_OPT[1]), F_OPT[2]);
 	    OptionSpec<Void>    D = op.acceptsAll(asList(D_OPT[0], D_OPT[1]), D_OPT[2]); // .requiredUnless("x", "xls-name");
 	    OptionSpec<Void>    E = op.acceptsAll(asList(E_OPT[0], E_OPT[1]), E_OPT[2]); // .requiredUnless("x", "xls-name");
@@ -98,6 +101,7 @@ public class CliOptions
 	    
 	    OptionSet options = op.parse(args);
 	    
+	    pinSuffix = options.has(A);
 	    forceHdr = options.has(F); 
 	    sort = options.has(M);
 	    wrapTestNames = !options.has(N);

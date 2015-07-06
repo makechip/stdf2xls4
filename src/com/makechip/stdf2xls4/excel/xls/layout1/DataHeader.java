@@ -2,72 +2,111 @@ package com.makechip.stdf2xls4.excel.xls.layout1;
 
 import static com.makechip.stdf2xls4.excel.xls.Format_t.*;
 
+import java.io.IOException;
 import java.util.List;
 
 import jxl.write.Label;
 import jxl.write.Number;
 import jxl.write.WritableSheet;
 import jxl.write.WriteException;
+import jxl.write.biff.RowsExceededException;
 
-import com.makechip.stdf2xls4.stdf.StdfRecord;
+import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.stdfapi.MultiParametricTestHeader;
+import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
+import com.makechip.stdf2xls4.stdfapi.TestHeader;
 
-@SuppressWarnings("unused")
-public class DataHeader 
+public class DataHeader implements Block
 {
-	private int col;
-	private int row;
-	private boolean wrapTestNames;
-	private boolean hiPrecision;
+	private final int col;
+	private final int row;
+	private final boolean wrapTestNames;
+	private final int precision;
+	private final List<TestHeader> hdrs;
+	private final boolean pinSuffix;
 	
-	public DataHeader(CornerBlock cb, HeaderBlock hb, boolean wrapTestNames, boolean hiPrecision)
+	public DataHeader(HeaderBlock hb, boolean wrapTestNames, boolean pinSuffix, int precision, List<TestHeader> hdrs)
 	{
-		//col = cb.getWidth();
-		row = TitleBlock.HEIGHT + hb.getHeight();
+		col = hb.getWidth();
+		row = hb.getHeight();
 		this.wrapTestNames = wrapTestNames;
-		this.hiPrecision = hiPrecision;
+		this.precision = precision;
+		this.hdrs = hdrs;
+		this.pinSuffix = pinSuffix;
 	}
 	
-	public void addBlock(WritableSheet ws) throws WriteException
+	@Override
+	public void addBlock(WritableSheet ws) throws RowsExceededException, WriteException, IOException
 	{
 		int c = col;
-		/*
-		for (ColIdentifier cid : hdrs)
+		for (TestHeader hdr : hdrs)
 		{
-			if (!wrapTestNames) ws.setColumnView(c, cid.getTestName().length());
-			else
+			if (!wrapTestNames) ws.setColumnView(c, getCellWidth(hdr.getTestName()));
+			else ws.setColumnView(c, 4 + precision);
+			ws.mergeCells(c, row, c, row+1);
+			if (hdr instanceof ParametricTestHeader)
 			{
-				if (hiPrecision) ws.setColumnView(c, 13);
-				else ws.setColumnView(c, 11);
+			    if (pinSuffix)
+			    {
+			        String tname = hdr.getTestName(); 	
+			        int li = tname.lastIndexOf('_');
+			        if (li > 0)
+			        {
+			            String testName = tname.substring(0, li);
+			            String ppin = tname.substring(li);
+			            ws.addCell(new Label(c, row, testName, HEADER1_FMT.getFormat()));             
+			            ws.addCell(new Label(c, row+5, ppin, HEADER1_FMT.getFormat()));             
+			        }
+			        else ws.addCell(new Label(c, row, tname, HEADER1_FMT.getFormat()));
+			    }
+			    else ws.addCell(new Label(c, row, hdr.getTestName(), HEADER1_FMT.getFormat()));
 			}
-			ws.addCell(new Label(c, row, cid.getTestName(), HEADER1_FMT.getFormat()));
-			ws.addCell(new Number(c, row+1, cid.getTestNumber(), HEADER1_FMT.getFormat()));
-			if (cid.getLoLimit() == Record.MISSING_FLOAT)
+			else ws.addCell(new Label(c, row, hdr.getTestName(), HEADER1_FMT.getFormat()));
+			ws.addCell(new Number(c, row+2, hdr.getTestNumber(), HEADER1_FMT.getFormat()));
+			ws.mergeCells(col, row+6, col, row+7);
+			if (hdr instanceof ParametricTestHeader)
 			{
-				ws.addCell(new Label(c, row+2, "", HEADER1_FMT.getFormat()));
+			    ParametricTestHeader phdr = (ParametricTestHeader) hdr;	
+			    if (phdr.noLoLimit) ws.addCell(new Label(c, row+3, "", HEADER1_FMT.getFormat()));
+			    else ws.addCell(new Number(c, row+3, phdr.loLimit, HEADER5_FMT.getFormat()));
+			    if (phdr.noHiLimit) ws.addCell(new Label(c, row+4, "", HEADER1_FMT.getFormat()));
+			    else ws.addCell(new Number(c, row+4, phdr.hiLimit, HEADER5_FMT.getFormat()));
+				ws.addCell(new Label(c, row+6, phdr.units, HEADER1_FMT.getFormat()));
 			}
-			else
+			else if (hdr instanceof MultiParametricTestHeader)
 			{
-				ws.addCell(new Number(c, row+2, cid.getLoLimit(), HEADER5_FMT.getFormat()));
+			    MultiParametricTestHeader mhdr = (MultiParametricTestHeader) hdr;	
+			    if (mhdr.noLoLimit) ws.addCell(new Label(c, row+3, "", HEADER1_FMT.getFormat()));
+			    else ws.addCell(new Number(c, row+3, mhdr.loLimit, HEADER5_FMT.getFormat()));
+			    if (mhdr.noHiLimit) ws.addCell(new Label(c, row+4, "", HEADER1_FMT.getFormat()));
+			    else ws.addCell(new Number(c, row+4, mhdr.hiLimit, HEADER5_FMT.getFormat()));
+				ws.addCell(new Label(c, row+5, mhdr.pin, HEADER1_FMT.getFormat()));
+				ws.addCell(new Label(c, row+6, mhdr.units, HEADER1_FMT.getFormat()));
 			}
-			if (cid.getHiLimit() == Record.MISSING_FLOAT)
-			{
-				ws.addCell(new Label(c, row+3, "", HEADER1_FMT.getFormat()));
-			}
-			else
-			{
-				ws.addCell(new Number(c, row+3, cid.getHiLimit(), HEADER5_FMT.getFormat()));
-			}
-			if (cid.getUnits() == null || cid.getUnits().equals(""))
-			{
-				ws.addCell(new Label(c, row+4, "", HEADER1_FMT.getFormat()));
-			}
-			else
-			{
-				ws.addCell(new Label(c, row+4, cid.getUnits(), HEADER1_FMT.getFormat()));
-			}
-			ws.mergeCells(c, row+4, c, row+5);
 			c++;
 		}
-		*/
+	}
+	
+	private int getCellWidth(String testName)
+	{
+		double w = 0.0;
+		for (int i=0; i<testName.length(); i++)
+		{
+			if (Character.isUpperCase(testName.charAt(i))) w += 1.5;
+			else w += 1.0;
+		}
+		return((int) w);
+	}
+
+	@Override
+	public int getWidth()
+	{
+		return(hdrs.size());
+	}
+
+	@Override
+	public int getHeight()
+	{
+		return(8);
 	}
 }

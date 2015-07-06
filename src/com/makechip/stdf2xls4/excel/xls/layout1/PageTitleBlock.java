@@ -18,17 +18,17 @@ class PageTitleBlock implements Block
     private final int width;
     private final int height;
    
-    public PageTitleBlock(String title, int width, HeaderBlock hb)
+    public PageTitleBlock(String title, int testWidth, HeaderBlock hb)
     {
     	this.title = title;
-    	this.width = width;
+    	this.width = testWidth;
     	height = hb.getHeight();
     }
     
     @Override
     public void addBlock(WritableSheet ws) throws WriteException, RowsExceededException, IOException
     {
-        ws.mergeCells(COL, TitleBlock.ROW, COL + width - 1, height - 1);
+        ws.mergeCells(COL, 0, COL + width - 1, height - 1);
         ws.addCell(new Label(COL, 0, title, TITLE_FMT.getFormat()));
     }
 
