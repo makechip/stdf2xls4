@@ -19,6 +19,7 @@ import com.makechip.stdf2xls4.stdfapi.ParametricTestResult;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
 import com.makechip.stdf2xls4.stdfapi.TestResult;
+import com.makechip.util.Log;
 
 /**
  * @author eric
@@ -32,7 +33,8 @@ public class StdfApiTest1
 	{
 		CliOptions options = new CliOptions(new String[] { "-x", "x.xls", "src/test/stdf/resources/d10_1.std" });
 		StdfAPI api = new StdfAPI(options);
-		api.initialize();
+		try { api.initialize(); }
+		catch (Exception e) { Log.fatal(e); }
 		Set<PageHeader> ph = api.getPageHeaders();
 		assertEquals(ph.size(), 1);
 		PageHeader[] pha = ph.toArray(new PageHeader[1]);

@@ -204,7 +204,7 @@ public class SiteDescriptionRecord extends StdfRecord
 	}
 	
 	/**
-     * This constructor is used to make a PinGroupRecord with field values. 
+     * This constructor is used to make a SiteDescriptionRecord with field values. 
      * @param tdb The TestIdDatabase is not used for this record.
      * @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
 	 * @param headNumber The HEAD_NUM field.

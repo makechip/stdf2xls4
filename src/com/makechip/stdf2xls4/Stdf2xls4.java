@@ -8,6 +8,7 @@ import jxl.write.biff.RowsExceededException;
 
 import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter1;
 import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter2;
+import com.makechip.stdf2xls4.stdf.StdfException;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
 import com.makechip.util.Log;
 
@@ -20,7 +21,7 @@ public class Stdf2xls4
 		this.options = options;
 	}
 	
-	public void run() throws RowsExceededException, WriteException, BiffException, IOException
+	public void run() throws RowsExceededException, WriteException, BiffException, IOException, StdfException
 	{
 		StdfAPI api = new StdfAPI(options);
 		api.initialize();

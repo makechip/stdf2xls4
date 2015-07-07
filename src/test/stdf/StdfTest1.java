@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -114,13 +113,14 @@ public class StdfTest1
 		lgd2.add(d8);
 		lgd2.add(d9);
 		stdf.add(new GenericDataRecord(tdb, dvd, lgd2));
-		stdf.add(new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : 30.0 (fA) : 12 : 1 : 3"));
+		stdf.add(new DatalogTextRecord(tdb, dvd, "TEXT_DATA : testName : 30.0 (fA) : 12 : 1 : 3"));
+		stdf.add(new DatalogTextRecord(tdb, dvd, "TEXT_DATA : S/N : 30"));
 		Path p = FileSystems.getDefault().getPath("x.stdf");
 		stdf.write(p.toFile());
         Files.delete(p);
 		rdr = new StdfReader(tdb, p.toFile());
 		rdr.read(stdf.getBytes());
-		list = rdr.stream().collect(Collectors.toList());
+		list = rdr.getRecords();
 		Log.msg("list.size(); = " + list.size());
 	}
 	
@@ -1470,6 +1470,32 @@ public class StdfTest1
         assertEquals(45, ptr.count);	
         assertEquals("F", ptr.pf);	
         assertEquals("binName", ptr.binName);	
+		SoftwareBinRecord ptr1 = new SoftwareBinRecord(tdb, dvd, (short) 1, (short) 0, 5, 45, 'F', "binName");
+		SoftwareBinRecord ptr2 = new SoftwareBinRecord(tdb, dvd, (short) 0, (short) 0, 5, 45, 'F', "binName");
+		SoftwareBinRecord ptr3 = new SoftwareBinRecord(tdb, dvd, (short) 1, (short) 1, 5, 45, 'F', "binName");
+		SoftwareBinRecord ptr4 = new SoftwareBinRecord(tdb, dvd, (short) 1, (short) 0, 6, 45, 'F', "binName");
+		SoftwareBinRecord ptr5 = new SoftwareBinRecord(tdb, dvd, (short) 1, (short) 0, 5, 46, 'F', "binName");
+		SoftwareBinRecord ptr6 = new SoftwareBinRecord(tdb, dvd, (short) 1, (short) 0, 5, 45, 'P', "binName");
+		SoftwareBinRecord ptr7 = new SoftwareBinRecord(tdb, dvd, (short) 1, (short) 0, 5, 45, 'F', "xinName");
+		String s = ptr.toString();
+		assertTrue(ptr.equals(ptr));
+		assertTrue(ptr.equals(ptr1));
+		assertEquals(ptr.hashCode(), ptr1.hashCode());
+		assertFalse(ptr.equals(null));
+		assertFalse(ptr.equals("A"));
+		assertFalse(ptr1.equals(ptr2));
+		assertFalse(ptr1.equals(ptr3));
+		assertFalse(ptr1.equals(ptr4));
+		assertFalse(ptr1.equals(ptr5));
+		assertFalse(ptr1.equals(ptr6));
+		assertFalse(ptr1.equals(ptr7));
+		assertTrue(s.contains("SoftwareBinRecord ["));
+		assertTrue(s.contains("headNumber="));
+		assertTrue(s.contains("siteNumber="));
+		assertTrue(s.contains("swBinNumber="));
+		assertTrue(s.contains("count="));
+		assertTrue(s.contains("pf="));
+		assertTrue(s.contains("binName="));
 	}
 	
     //stdf.add(new TestSynopsisRecord(snum++, dnum, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
@@ -1698,6 +1724,16 @@ public class StdfTest1
 		assertEquals("XXX", dtr7.value);
 		assertEquals(Data_t.C_N, dtr7.valueType);
 	}	
+
+	@Test
+	public void testB2()
+	{
+		StdfRecord r = list.get(31);
+		assertTrue(r instanceof DatalogTextRecord);
+		DatalogTextRecord dtr = (DatalogTextRecord) r;
+		assertEquals("TEXT_DATA : S/N : 30", dtr.text);
+	}
+
 		
 
 }

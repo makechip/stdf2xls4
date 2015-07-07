@@ -3,16 +3,14 @@ package com.makechip.stdf2xls4.stdfapi;
 import gnu.trove.map.hash.TObjectFloatHashMap;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.makechip.stdf2xls4.CliOptions;
@@ -20,6 +18,7 @@ import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
+import com.makechip.stdf2xls4.stdf.StdfException;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
@@ -54,12 +53,12 @@ public final class StdfAPI
 	private final List<File> stdfFiles;
 	private boolean timeStampedFiles;
 
-	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
-	{
-	    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
-	                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
-	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
-	}
+	//private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
+	//{
+	//    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
+	//                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
+	//                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
+	//}
 
 	public StdfAPI(final CliOptions options)
 	{
@@ -111,16 +110,27 @@ public final class StdfAPI
         }
 	}
 	
-	public void initialize()
+	public void initialize() throws StdfException, IOException
 	{
 		HashMap<PageHeader, List<List<StdfRecord>>> devList = new HashMap<>();
 		// load the stdf records; group records by device	
-		    stdfFiles.stream()
-			.map(p -> new StdfReader(tiddb, p, timeStampedFiles))
-			.flatMap(rdr -> rdr.read().stream()).peek(p -> { if (options.dump) Log.msg(p.toString()); })
-			.collect(splitBySeparator(r -> r instanceof PartResultsRecord))
-			.stream()
-			.forEach(p -> createHeaders(new HeaderUtil(), devList, p));
+		for (File f : stdfFiles)
+		{
+			StdfReader rdr = new StdfReader(tiddb, f, timeStampedFiles);
+			rdr.read();
+			List<StdfRecord> l = new ArrayList<>();
+			for (StdfRecord rec : rdr.getRecords())
+			{
+			    if (options.dump) Log.msg(rec.toString());
+			    if (rec instanceof PartResultsRecord)
+			    {
+			    	l.add(rec);
+			        createHeaders(new HeaderUtil(), devList, l);
+			        l = new ArrayList<>();
+			    }
+			    else l.add(rec);
+			}
+		}
 		if (options.dynamicLimits) // check for dynamicLimits
 		{
 			devList.keySet().stream().forEach(p -> checkLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p), OptFlag_t.NO_LO_LIMIT));
@@ -129,6 +139,14 @@ public final class StdfAPI
 		tdb = new TestRecordDatabase(tiddb, dynamicLimitMap);
 	    // now build TestRecord database:
 		devList.keySet().stream().forEach(p -> mapTests(options.sort, p, devList.get(p)));
+	}
+	
+	private void createHeaders(HeaderUtil hdr, HashMap<PageHeader, List<List<StdfRecord>>> devList, List<StdfRecord> l)
+	{
+		l.stream().forEach(r -> hdr.setHeader(r));
+		List<List<StdfRecord>> dl = devList.get(hdr.getHeader());
+		if (dl == null) devList.put(hdr.getHeader(), dl = new ArrayList<>());
+		dl.add(l);
 	}
 	
 	private void mapTests(boolean sortDevices, PageHeader hdr, List<List<StdfRecord>> devList)
@@ -194,14 +212,6 @@ public final class StdfAPI
 	private boolean isSn(DatalogTextRecord r)
 	{
 		return(r.text.contains(TEXT_DATA) && r.text.contains(":") && r.text.contains(SERIAL_MARKER));
-	}
-	
-	private void createHeaders(HeaderUtil hdr, HashMap<PageHeader, List<List<StdfRecord>>> devList, List<StdfRecord> l)
-	{
-		l.stream().forEach(r -> hdr.setHeader(r));
-		List<List<StdfRecord>> dl = devList.get(hdr.getHeader());
-		if (dl == null) devList.put(hdr.getHeader(), dl = new ArrayList<>());
-		dl.add(l);
 	}
 	
     private boolean hasTimeStamp(File name)

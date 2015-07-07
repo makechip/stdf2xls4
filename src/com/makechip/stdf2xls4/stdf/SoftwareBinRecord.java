@@ -29,27 +29,45 @@ import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
-
-
 
 /**
-*** @author eric
-*** @version $Id: SoftwareBinRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields for a Software Bin Record.
+ *  @author eric
+ */
 public class SoftwareBinRecord extends StdfRecord
 {
+    /**
+     *  This is the HEAD_NUM field.
+     */
     public final short headNumber;
+    /**
+     *  This is the SITE_NUM field.
+     */
     public final short siteNumber;
+    /**
+     *  This is the SBIN_NUM field.
+     */
     public final int swBinNumber;
+    /**
+     *  This is the SBIN_CNT field.
+     */
     public final int count;
+    /**
+     *  This is the SBIN_PF field.
+     */
     public final String pf;
+    /**
+     *  This is the SBIN_NAM field.
+     */
     public final String binName;
     
     /**
-    *** @param p1
-    *** @param p2
-    **/
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase is not used for this record.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public SoftwareBinRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.SBR, dvd.getCpuType(), data);
@@ -62,6 +80,9 @@ public class SoftwareBinRecord extends StdfRecord
         binName = getCn();
     }
 
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -87,6 +108,18 @@ public class SoftwareBinRecord extends StdfRecord
 		return(l.toArray());
 	}
 	
+	/**
+	 * 
+     * This constructor is used to make a SoftwareBinRecord with field values. 
+     * @param tdb The TestIdDatabase is not used for this record.
+     * @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+	 * @param headNumber The HEAD_NUM field.
+	 * @param siteNumber The SITE_NUM field.
+	 * @param swBinNumber The SBIN_NUM field.
+	 * @param count    The SBIN_CNT field.
+	 * @param pf       The SBIN_PF field.
+	 * @param binName  The SBIN_NAM field.
+	 */
 	public SoftwareBinRecord(
 			TestIdDatabase tdb,
 			DefaultValueDatabase dvd,
@@ -99,19 +132,59 @@ public class SoftwareBinRecord extends StdfRecord
 	{
 		this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, swBinNumber, count, pf, binName));
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("SoftwareBinRecord [headNumber=").append(headNumber);
+		builder.append(", siteNumber=").append(siteNumber);
+		builder.append(", swBinNumber=").append(swBinNumber);
+		builder.append(", count=").append(count);
+		builder.append(", pf=").append(pf);
+		builder.append(", binName=").append(binName);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + binName.hashCode();
+		result = prime * result + count;
+		result = prime * result + headNumber;
+		result = prime * result + pf.hashCode();
+		result = prime * result + siteNumber;
+		result = prime * result + swBinNumber;
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof SoftwareBinRecord)) return false;
+		SoftwareBinRecord other = (SoftwareBinRecord) obj;
+		if (!binName.equals(other.binName)) return false;
+		if (count != other.count) return false;
+		if (headNumber != other.headNumber) return false;
+		if (!pf.equals(other.pf)) return false;
+		if (siteNumber != other.siteNumber) return false;
+		if (swBinNumber != other.swBinNumber) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
     
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    head number: " + headNumber).append(Log.eol);
-        sb.append("    site number: " + siteNumber).append(Log.eol);
-        sb.append("    software bin number: " + swBinNumber).append(Log.eol);
-        sb.append("    bin count: " + count).append(Log.eol);
-        sb.append("    pass/fail indication: ").append(pf).append(Log.eol);
-        sb.append("    bin name: ").append(binName).append(Log.eol);
-        return(sb.toString());
-    }
     
 }

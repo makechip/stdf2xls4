@@ -33,10 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
-
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 /**
 *** @author eric
@@ -80,15 +77,6 @@ public class StdfReader
     	this(tdb, new File("dummy_" + timeStamp + ".stdf"), true);
     }
     
-    public static void main(String[] args)
-    {
-    	if (args.length != 1) throw new RuntimeException("Missing filename argument");
-    	TestIdDatabase tdb = new TestIdDatabase();
-    	StdfReader r = new StdfReader(tdb, new File(args[0]));
-    	r.read();
-    	Log.msg("" + r.records.size() + " records read");
-    }
-    
     private StdfRecord FARcheck(int len, byte[] bytes) throws StdfException
     {
        	if (len != 6) throw new StdfException("Malformed FAR record");
@@ -108,7 +96,7 @@ public class StdfReader
     	return(Long.parseLong(stamp));
     }
     
-   public StdfReader read()
+   public StdfReader read() throws IOException, StdfException
     {
         try (DataInputStream rdr = new DataInputStream(new BufferedInputStream(new FileInputStream(filename), 1000000)))
         {
@@ -129,36 +117,31 @@ public class StdfReader
                 records.add(type.getInstance(tdb, dvd, record));
         	}                
         }
-        catch (IOException e) { Log.fatal(e); }
-        catch (StdfException e2) { Log.fatal(e2.getMessage()); }
+        catch (IOException e) { throw new IOException(e.getMessage()); }
         return(this);
     }
     
-    public void read(byte[] bytes)
+    public void read(byte[] bytes) throws StdfException
     {
-    	try
+    	byte[] far = Arrays.copyOf(bytes, 6);
+    	int ptr = 6;
+    	records.add(FARcheck(6, far));
+    	while (ptr <= (bytes.length - 2))
     	{
-    	    byte[] far = Arrays.copyOf(bytes, 6);
-    	    int ptr = 6;
-    	    records.add(FARcheck(6, far));
-    	    while (ptr <= (bytes.length - 2))
-    	    {
-    	    	int recLen = dvd.getCpuType().getU2(bytes[ptr++], bytes[ptr++]);
-    	    	Record_t type = Record_t.getRecordType(bytes[ptr++],  bytes[ptr++]);
-    	    	byte[] record = Arrays.copyOfRange(bytes, ptr, ptr+recLen);
-                String s = new String(record);
-                if (type == Record_t.DTR)
-                {
-                	s = s.substring(1);
-                    if (s.startsWith(StdfRecord.TEXT_DATA) && !s.contains(StdfRecord.SERIAL_MARKER)) type = Record_t.DTRX;
-                }
-                records.add(type.getInstance(tdb, dvd, record));
-    	    	ptr += recLen;
-    	    }
+    		int recLen = dvd.getCpuType().getU2(bytes[ptr++], bytes[ptr++]);
+    		Record_t type = Record_t.getRecordType(bytes[ptr++],  bytes[ptr++]);
+    		byte[] record = Arrays.copyOfRange(bytes, ptr, ptr+recLen);
+    		String s = new String(record);
+    		if (type == Record_t.DTR)
+    		{
+    			s = s.substring(1);
+    			if (s.startsWith(StdfRecord.TEXT_DATA) && !s.contains(StdfRecord.SERIAL_MARKER)) type = Record_t.DTRX;
+    		}
+    		records.add(type.getInstance(tdb, dvd, record));
+    		ptr += recLen;
     	}
-    	catch (StdfException e) { Log.fatal(e); }
     }
     
-    public Stream<StdfRecord> stream() { return(records.stream()); }
+    public List<StdfRecord> getRecords() { return(records); }
 
 }
