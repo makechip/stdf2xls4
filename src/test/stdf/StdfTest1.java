@@ -50,7 +50,7 @@ public class StdfTest1
 			"supervisorID", 1234L);
 		RetestDataRecord srdr = new RetestDataRecord(tdb, dvd, new int[] { 1, 2, 3, 4 });
 		List<SiteDescriptionRecord> sdrs = new ArrayList<SiteDescriptionRecord>();
-		sdrs.add(new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, (short) 1, new int[] { 0 },
+		sdrs.add(new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 },
 			"handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID",
 			"dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID",
 			"laserType", "laserID", "equipType", "equipID"));
@@ -318,7 +318,6 @@ public class StdfTest1
 		SiteDescriptionRecord sdr = (SiteDescriptionRecord) r;
 		assertEquals(1, sdr.headNumber);
 		assertEquals(2, sdr.siteGroupNumber);
-		assertEquals(1, sdr.numSites);
 		assertEquals(0, sdr.getSiteNumbers()[0]);
 		assertEquals("handlerType", sdr.handlerType);
 		assertEquals("handlerID", sdr.handlerID);
@@ -336,6 +335,71 @@ public class StdfTest1
 		assertEquals("laserID", sdr.laserID);
 		assertEquals("equipType", sdr.equipType);
 		assertEquals("equipID", sdr.equipID);
+		SiteDescriptionRecord sdr1 = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr2 = new SiteDescriptionRecord(tdb, dvd, (short) 0, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr3 = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 0, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr4 = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 1 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr5 = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "xandlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr6 = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "xandlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr7 = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "xrobeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr8 = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "xrobeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr9 = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "xoadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdra = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "xoadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrb = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "xibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrc = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "xibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrd = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "xfaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdre = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "xfaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrf = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "xontactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrg = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "xontactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrh = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "xaserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdri = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "xaserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrj = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "xquipType", "equipID");
+		SiteDescriptionRecord sdrk = new SiteDescriptionRecord(tdb, dvd, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "xquipID");
+		assertTrue(sdr.equals(sdr));
+		assertTrue(sdr.equals(sdr1));
+		assertEquals(sdr.hashCode(), sdr1.hashCode());
+		assertFalse(sdr.equals(null));
+		assertFalse(sdr.equals("A"));
+		assertFalse(sdr1.equals(sdr2));
+		assertFalse(sdr1.equals(sdr3));
+		assertFalse(sdr1.equals(sdr4));
+		assertFalse(sdr1.equals(sdr5));
+		assertFalse(sdr1.equals(sdr6));
+		assertFalse(sdr1.equals(sdr7));
+		assertFalse(sdr1.equals(sdr8));
+		assertFalse(sdr1.equals(sdr9));
+		assertFalse(sdr1.equals(sdra));
+		assertFalse(sdr1.equals(sdrb));
+		assertFalse(sdr1.equals(sdrc));
+		assertFalse(sdr1.equals(sdrd));
+		assertFalse(sdr1.equals(sdre));
+		assertFalse(sdr1.equals(sdrf));
+		assertFalse(sdr1.equals(sdrg));
+		assertFalse(sdr1.equals(sdrh));
+		assertFalse(sdr1.equals(sdri));
+		assertFalse(sdr1.equals(sdrj));
+		assertFalse(sdr1.equals(sdrk));
+		String s = sdr.toString();
+		assertTrue(s.contains("SiteDescriptionRecord ["));
+		assertTrue(s.contains("headNumber="));
+		assertTrue(s.contains("siteGroupNumber="));
+		assertTrue(s.contains("handlerType="));
+		assertTrue(s.contains("handlerID="));
+		assertTrue(s.contains("probeCardType="));
+		assertTrue(s.contains("probeCardID="));
+		assertTrue(s.contains("loadBoardType="));
+		assertTrue(s.contains("loadBoardID="));
+		assertTrue(s.contains("dibBoardType="));
+		assertTrue(s.contains("dibBoardID="));
+		assertTrue(s.contains("ifaceCableType="));
+		assertTrue(s.contains("ifaceCableID="));
+		assertTrue(s.contains("contactorType="));
+		assertTrue(s.contains("contactorID="));
+		assertTrue(s.contains("laserType="));
+		assertTrue(s.contains("laserID="));
+		assertTrue(s.contains("equipType="));
+		assertTrue(s.contains("equipID="));
+		assertTrue(s.contains("siteNumbers="));
 	}
 	
 	// stdf.add(new PinMapRecord(false, snum++, dnum, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
