@@ -97,11 +97,15 @@ public class StdfWriter
     
     public void write(String filename)
     {
+    	Log.msg("records.size() = " + records.size());
+    	int cnt = 0;
     	try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename)))
     	{
-    		for (StdfRecord r : records) r.writeStdf(dos);
+    		for (StdfRecord r : records) { r.writeStdf(dos); cnt++; }
+    		dos.close();
     	}
     	catch (IOException e) { Log.fatal(e); }
+    	Log.msg("Records written = " + cnt);
     }
     
 }

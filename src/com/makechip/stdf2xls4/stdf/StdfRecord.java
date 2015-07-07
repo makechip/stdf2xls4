@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.util.Log;
 
 
 public abstract class StdfRecord
@@ -41,8 +42,8 @@ public abstract class StdfRecord
 	{
 		byte[] b = cpuType.getU2Bytes(bytes.length);
 		ds.write(b, 0, b.length);
-		b[0] = (byte) type.recordType;
-		b[1] = (byte) type.recordSubType;
+		b[0] = (type == Record_t.DTRX) ? (byte) Record_t.DTR.recordType : (byte) type.recordType;
+		b[1] = (type == Record_t.DTRX) ? (byte) Record_t.DTR.recordSubType : (byte) type.recordSubType;
 		ds.write(b[0]);
 		ds.write(b[1]);
 		toBytes();
@@ -57,9 +58,8 @@ public abstract class StdfRecord
 		byte[] l = cpuType.getU2Bytes(bytes.length);
 		b[0] = l[0];
 		b[1] = l[1];
-		b[2] = (byte) type.recordType;
-	    b[3] = (byte) type.recordSubType;	
-	    //Log.msg("b[2] = " + b[2] + " b[3] = " + b[3]);
+		b[2] = (type == Record_t.DTRX) ? (byte) Record_t.DTR.recordType : (byte) type.recordType;
+	    b[3] = (type == Record_t.DTRX) ? (byte) Record_t.DTR.recordSubType : (byte) type.recordSubType;	
 	    for (int i=4; i<b.length; i++) b[i] = bytes[i-4];
 		return(Arrays.copyOf(b, b.length));
 	}

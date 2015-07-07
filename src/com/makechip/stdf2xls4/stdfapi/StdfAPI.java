@@ -176,7 +176,7 @@ public final class StdfAPI
 		}
 		if (wafersortMap.get(hdr))
 		{
-		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.timeStamp, prr.xCoord, prr.yCoord);	
+		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.getTimeStamp(), prr.xCoord, prr.yCoord);	
 		    else snxy = XY.getXY(prr.xCoord, prr.yCoord);
 		}
 		else
@@ -191,11 +191,11 @@ public final class StdfAPI
 				st.nextToken(); // burn "TEXT_DATA"
 				st.nextToken(); // burn "S/N"
 				String sn = st.nextToken();
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.timeStamp, sn) : SN.getSN(sn);
+				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.getTimeStamp(), sn) : SN.getSN(sn);
 			}
 			else
 			{
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.timeStamp, prr.partID) : SN.getSN(prr.partID);
+				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.getTimeStamp(), prr.partID) : SN.getSN(prr.partID);
 			}
 		}
 		List<TestRecord> l = list.stream()

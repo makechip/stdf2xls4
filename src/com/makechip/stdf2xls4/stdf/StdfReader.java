@@ -33,7 +33,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.util.Log;
 
 /**
 *** @author eric
@@ -93,6 +95,9 @@ public class StdfReader
     {
     	int dotIndex = (name.toLowerCase().endsWith(".std")) ? name.length() - 4 : name.length() - 5;
     	String stamp = name.substring(dotIndex - 14, dotIndex);
+    	Log.msg("stamp = " + stamp);
+    	long l = Long.parseLong(stamp);
+        Log.msg("stamp = " + l);	
     	return(Long.parseLong(stamp));
     }
     
@@ -112,7 +117,8 @@ public class StdfReader
                 String s = new String(record);
                 if (type == Record_t.DTR)
                 {
-                    if (s.trim().startsWith(StdfRecord.TEXT_DATA) && !s.contains(StdfRecord.SERIAL_MARKER)) type = Record_t.DTRX;
+                	s = s.substring(1);
+                    if (s.startsWith(StdfRecord.TEXT_DATA) && !s.contains(StdfRecord.SERIAL_MARKER)) type = Record_t.DTRX;
                 }
                 records.add(type.getInstance(tdb, dvd, record));
         	}                

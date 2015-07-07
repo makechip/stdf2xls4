@@ -35,6 +35,7 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
+import com.makechip.util.Log;
 /**
  *  This class holds the fields for an STDF FunctionalTestRecord.
  *  @author eric
@@ -126,6 +127,7 @@ public class FunctionalTestRecord extends TestRecord
     private final byte[] pgmState;
     private final byte[] failPin;
     private final byte[] enComps;
+    private final boolean missing;
     
     /**
      * Constructor to create an FTR record from the binary data stream.
@@ -151,6 +153,7 @@ public class FunctionalTestRecord extends TestRecord
         }
         if (missingData)
         {
+        	missing = true;
         	cycleCount = MISSING_INT;
         	relVaddr = MISSING_INT;
         	rptCnt = MISSING_INT;
@@ -179,6 +182,7 @@ public class FunctionalTestRecord extends TestRecord
         }
         else
         {
+        	missing = false;
             cycleCount = getU4(MISSING_INT);
             relVaddr = getU4(MISSING_INT);
             rptCnt = getU4(MISSING_INT);
@@ -325,36 +329,43 @@ public class FunctionalTestRecord extends TestRecord
     @Override
     protected void toBytes()
     {
-    	bytes = toBytes(
-        cpuType,
-        id.testNumber,
-        headNumber,
-        siteNumber,
-        testFlags,
-        optFlags,
-        cycleCount,
-        relVaddr,
-        rptCnt,
-        numFail,
-        xFailAddr,
-        yFailAddr,
-        vecOffset,
-        rtnIndex,
-        rtnState,
-        pgmIndex,
-        pgmState,
-        numFailPinBits,
-        failPin,
-        vecName,
-        timeSetName,
-        vecOpCode,
-        id.testName,
-        alarmName,
-        progTxt,
-        rsltTxt,
-        patGenNum,
-        numEnCompBits,
-        enComps);
+    	if (missing)
+    	{
+    		bytes = toBytes(cpuType, id.testNumber, headNumber, siteNumber, testFlags);
+    	}
+    	else
+    	{
+    		bytes = toBytes(
+    				cpuType,
+    				id.testNumber,
+    				headNumber,
+    				siteNumber,
+    				testFlags,
+    				optFlags,
+    				cycleCount,
+    				relVaddr,
+    				rptCnt,
+    				numFail,
+    				xFailAddr,
+    				yFailAddr,
+    				vecOffset,
+    				rtnIndex,
+    				rtnState,
+    				pgmIndex,
+    				pgmState,
+    				numFailPinBits,
+    				failPin,
+    				vecName,
+    				timeSetName,
+    				vecOpCode,
+    				id.testName,
+    				alarmName,
+    				progTxt,
+    				rsltTxt,
+    				patGenNum,
+    				numEnCompBits,
+    				enComps);
+    	}
     }
     
     private static byte[] toBytes(

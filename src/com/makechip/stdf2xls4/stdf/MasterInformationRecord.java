@@ -192,7 +192,7 @@ public class MasterInformationRecord extends StdfRecord
 	 *  This is not an STDF field.  It is used for tracking file timestamps
 	 *  when one STDF file per device is used with timestamped filenames.
 	 */
-    public final long timeStamp; // not an STDF value; for filename timestamp tracking 
+    private long timeStamp; // not an STDF value; for filename timestamp tracking 
     
     /**
      * This constructor is used to generate binary Stream data.  It can be used to convert
@@ -291,6 +291,7 @@ public class MasterInformationRecord extends StdfRecord
 		                       familyID, dateCode, facilityID, floorID, fabID, frequency, 
 		                       specName, specVersion, flowID, setupID, designRevision, 
 		                       engLotID, romCodeID, testerSerialNumber, supervisorID));
+    	this.timeStamp = timeStamp;
     }
     
     /**
@@ -592,5 +593,13 @@ public class MasterInformationRecord extends StdfRecord
 		return true;
 	}
 
+	/**
+	 * Get the timestamp that was on the STDF file.  Note than time-stamped
+	 * files only work when there is one device per STDF file, and the
+	 * timestamp is in the correct format.  See the stdf2xls user manual
+	 * for the timestamp format.
+	 * @return The timestamp for the STDF file that this record came from.
+	 */
+	public long getTimeStamp() { return(timeStamp); }
 
 }
