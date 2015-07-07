@@ -38,9 +38,10 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.util.Log;
 
 /**
-*** @author eric
-*** @version $Id: StdfReader.java 261 2008-10-23 00:14:14Z ericw $
-**/
+ *  This class reads an STDF file, and produces the list of STDF records
+ *  that are containing in the file.
+ *  @author eric
+ */
 public class StdfReader
 {
     private final String filename;
@@ -48,11 +49,23 @@ public class StdfReader
     private final DefaultValueDatabase dvd;
     private final TestIdDatabase tdb;
     
-    public StdfReader(TestIdDatabase tdb, File filename)
+    /**
+     * This CTOR is used to read an STDF file when time-stamped files are not being used.
+     * @param tdb  The TestID database. Used for tracking test IDs.
+     * @param file An STDF file.
+     */
+    public StdfReader(TestIdDatabase tdb, File file)
     {
-        this(tdb, filename, false);
+        this(tdb, file, false);
     }
     
+    /**
+     * This CTOR is used to read a time-stamped STDF file.  See the stdf2xls4 user manual
+     * for information on time-stamped files.
+     * @param tdb The TestID database. Used for tracking test IDs.
+     * @param file An STDF file.
+     * @param timeStampedFilePerDevice Indicates that file time-stamps are to be tracked.
+     */
     public StdfReader(TestIdDatabase tdb, File file, boolean timeStampedFilePerDevice)
     {
     	filename = file.toString();
@@ -65,6 +78,7 @@ public class StdfReader
     
     /**
      * Use this CTOR when reading an array of bytes.
+     * @param tdb The TestID database. Used for tracking test IDs.
      */
     public StdfReader(TestIdDatabase tdb)
     {
@@ -72,7 +86,10 @@ public class StdfReader
     }
     
     /**
-     * Use this CTOR when reading an array of bytes.
+     * Use this CTOR when reading an array of bytes, and emulating a time-stamped file.
+     * @param tdb The TestID database. Used for tracking test IDs.
+     * @param timeStamp The time-stamp to be used.  See the stdf2xls4 user manual for
+     * valid time-stamp values.
      */
     public StdfReader(TestIdDatabase tdb, long timeStamp)
     {
@@ -101,6 +118,12 @@ public class StdfReader
     	return(Long.parseLong(stamp));
     }
     
+   /**
+    * Use this method to read the records in an STDF file.
+    * @return This STDF reader.
+    * @throws IOException
+    * @throws StdfException
+    */
    public StdfReader read() throws IOException, StdfException
     {
         try (DataInputStream rdr = new DataInputStream(new BufferedInputStream(new FileInputStream(filename), 1000000)))
@@ -127,6 +150,11 @@ public class StdfReader
         return(this);
     }
     
+   /**
+    * Use this method to convert an STDF byte stream into a list of STDF records.
+    * @param bytes A valid STDF byte stream.
+    * @throws StdfException
+    */
     public void read(byte[] bytes) throws StdfException
     {
     	byte[] far = Arrays.copyOf(bytes, 6);
@@ -148,6 +176,11 @@ public class StdfReader
     	}
     }
     
+    /**
+     * Use this method to get the list of STDF records that is created
+     * when one of the read() methods is called.
+     * @return The list of STDF records loaded by one of the read() methods.
+     */
     public List<StdfRecord> getRecords() { return(records); }
 
 }
