@@ -116,6 +116,7 @@ public class StdfTest3
 		stdf.add(new DatalogTextRecord(tdb, dvd, "TEXT_DATA : testName : 30.0 (fA) : 12 : 1 : 3"));
 		stdf.add(new DatalogTextRecord(tdb, dvd, "TEXT_DATA : S/N : 30"));
 		Path p = FileSystems.getDefault().getPath("x_20150707123333.std");
+		p.toFile().deleteOnExit();
 		stdf.write(p.toFile());
 		rdr = new StdfReader(tdb, p.toFile(), true);
 		Log.msg("BEGIN READ");
