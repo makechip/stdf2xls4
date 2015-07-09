@@ -37,20 +37,20 @@ import java.util.List;
 import com.makechip.util.Log;
 
 /**
-*** @author eric
-*** @version $Id: StdfReader.java 261 2008-10-23 00:14:14Z ericw $
-**/
+ *  This class is used to generate STDF files.
+ *  @author eric
+ */
 public class StdfWriter
 {
-    protected FileAttributesRecord far;
-    protected List<AuditTrailRecord> atrs;
-    protected MasterInformationRecord mir;
-    protected RetestDataRecord rdr;
-    protected List<SiteDescriptionRecord> sdrs;
-    protected List<StdfRecord> records;
+    private FileAttributesRecord far;
+    private List<AuditTrailRecord> atrs;
+    private MasterInformationRecord mir;
+    private RetestDataRecord rdr;
+    private List<SiteDescriptionRecord> sdrs;
+    private List<StdfRecord> records;
     
     /**
-     * 
+     * Constructor for an StdfWriter. 
      * @param filename Name of output file.
      * @param far FileAttributesRecord (required).
      * @param atrs List of one or more AuditTrailRecords (may be null).
@@ -78,11 +78,20 @@ public class StdfWriter
         if (sdrs != null) sdrs.stream().forEach(p -> records.add(p));
     }
     
+    /**
+     * Add a record to the list of records to be written to the file.
+     * The records are written out in the order that they are added.
+     * @param record An STDF record.
+     */
     public void add(StdfRecord record)
     {
         records.add(record);	
     }
     
+    /**
+     * Get the bytes that this Writer will write out.
+     * @return The set of bytes that this writer will write to a file.
+     */
     public byte[] getBytes()
     {
     	TByteArrayList l = new TByteArrayList();
@@ -90,12 +99,22 @@ public class StdfWriter
         return(l.toArray());	
     }
     
-    public void write(File f)
+    /**
+     * Write out the records contained in this Writer.
+     * @param f The file where the records will be written.
+     * @throws IOException
+     */
+    public void write(File f) throws IOException
     {
     	write(f.getAbsolutePath());
     }
     
-    public void write(String filename)
+    /**
+     * Write out the records contained in this Writer.
+     * @param filename The name of the file where the records will be written.
+     * @throws IOException
+     */
+    public void write(String filename) throws IOException
     {
     	Log.msg("records.size() = " + records.size());
     	int cnt = 0;
@@ -104,8 +123,25 @@ public class StdfWriter
     		for (StdfRecord r : records) { r.writeStdf(dos); cnt++; }
     		dos.close();
     	}
-    	catch (IOException e) { Log.fatal(e); }
+    	catch (IOException e) { throw new IOException(e); }
     	Log.msg("Records written = " + cnt);
     }
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("StdfWriter [far="); builder.append(far);
+		if (atrs != null) builder.append(", atrs=").append(atrs);
+		builder.append(", mir=").append(mir);
+		if (rdr != null) builder.append(", rdr=").append(rdr);
+		if (sdrs != null) builder.append(", sdrs=").append(sdrs);
+		builder.append(", records=").append(records);
+		builder.append("]");
+		return builder.toString();
+	}
     
 }

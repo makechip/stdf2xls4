@@ -128,6 +128,14 @@ public class StdfTest1
 	public void testA()
 	{
 		assertEquals(32, list.size());
+		String s = stdf.toString();
+	    assertTrue(s.contains("StdfWriter ["));	
+	    assertTrue(s.contains("far="));	
+	    assertTrue(s.contains("atrs="));	
+	    assertTrue(s.contains("mir="));	
+	    assertTrue(s.contains("rdr="));	
+	    assertTrue(s.contains("sdrs="));	
+	    assertTrue(s.contains("records="));	
 	}
 
     @Test
