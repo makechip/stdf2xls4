@@ -201,7 +201,8 @@ public abstract class ParametricRecord extends TestRecord
         else if (getOptFlags().contains(OptFlag_t.NO_HI_LIMIT)) val = llim;
         else val = (hlim > llim) ? hlim : llim;
         int scale = 0;
-        if (val <= 1.0E-6f) scale = 9;
+        if (val <= 1.0E-9f) scale = 12;
+        else if (val <= 1.0E-6f) scale = 9;
         else if (val <= 0.001f) scale = 6;
         else if (val <= 1.0f) scale = 3;
         else if (val <= 1000.0f) scale = 0;
@@ -291,13 +292,13 @@ public abstract class ParametricRecord extends TestRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
-		if (!super.equals(obj)) return false;
 		if (!(obj instanceof ParametricRecord)) return false;
 		ParametricRecord other = (ParametricRecord) obj;
 		if (headNumber != other.headNumber) return false;
 		if (!paramFlags.equals(other.paramFlags)) return false;
 		if (siteNumber != other.siteNumber) return false;
 		if (!testFlags.equals(other.testFlags)) return false;
+		if (!super.equals(obj)) return false;
 		return true;
 	}
 

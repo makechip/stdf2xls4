@@ -1,7 +1,7 @@
 /**
  * 
  */
-package test.stdf;
+package com.makechip.stdf2xls4.stdfapi;
 
 import static org.junit.Assert.*;
 
@@ -31,7 +31,7 @@ public class StdfApiTest1
 	@Test
 	public void testStdfAPI1()
 	{
-		CliOptions options = new CliOptions(new String[] { "-x", "x.xls", "src/test/stdf/resources/d10_1.std" });
+		CliOptions options = new CliOptions(new String[] { "-x", "x.xls", "tests/com/makechip/stdf2xls4/stdf/resources/d10_1.std" });
 		StdfAPI api = new StdfAPI(options);
 		try { api.initialize(); }
 		catch (Exception e) { Log.fatal(e); }

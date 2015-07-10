@@ -1,4 +1,4 @@
-package test.stdf;
+package com.makechip.stdf2xls4.stdf.enums;
 
 import static org.junit.Assert.*;
 

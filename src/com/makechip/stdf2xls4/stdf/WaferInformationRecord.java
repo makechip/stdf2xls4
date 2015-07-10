@@ -29,24 +29,39 @@ import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 
 /**
-*** @author eric
-*** @version $Id: WaferInformationRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields for a Wafer Information Record.
+ *  @author eric
+ */
 public class WaferInformationRecord extends StdfRecord
 {
+    /**
+     *  The HEAD_NUM field.
+     */
     public final short headNumber;
+    /**
+     *  The SITE_GRP field.
+     */
     public final short siteGroupNumber;
+    /**
+     *  The START_T field.
+     */
     public final long startDate;
+    /**
+     *  The WAFER_ID field.
+     */
     public final String waferID;
     
-    /**
-    *** @param p1
-    **/
-    public WaferInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+   /**
+    *  Constructor used by the STDF reader to load binary data into this class.
+    *  @param tdb The TestIdDatabase.  This parameter is not used.
+    *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+    *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+    *         REC_SUB values are not included in this array.
+    */
+   public WaferInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.WIR, dvd.getCpuType(), data);
         headNumber = getU1((short) -1);
@@ -55,6 +70,9 @@ public class WaferInformationRecord extends StdfRecord
         waferID = getCn();
     }
     
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -76,6 +94,15 @@ public class WaferInformationRecord extends StdfRecord
 		return(l.toArray());
 	}
 	
+	/**
+     * This constructor is used to make a ParametricTestRecord with field values.
+     * @param tdb The TestIdDatabase is not used in this class.
+     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+	 * @param headNumber      The HEAD_NUM field.
+	 * @param siteGroupNumber The SITE_GRP field.
+	 * @param startDate       The START_T field.
+	 * @param waferID         The WAFER_ID field.
+	 */
 	public WaferInformationRecord(
 		TestIdDatabase tdb,
 		DefaultValueDatabase dvd,
@@ -87,16 +114,52 @@ public class WaferInformationRecord extends StdfRecord
 		this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteGroupNumber, startDate, waferID));
 	}
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getName());
-        sb.append(":").append(Log.eol);
-        sb.append("    head number: " + headNumber).append(Log.eol);
-        sb.append("    site group number: " + siteGroupNumber).append(Log.eol);
-        sb.append("    start date: "); sb.append(startDate).append(Log.eol);
-        sb.append("    wafer ID: "); sb.append(waferID).append(Log.eol);
-        return(sb.toString());
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("WaferInformationRecord [headNumber=").append(headNumber);
+		builder.append(", siteGroupNumber=").append(siteGroupNumber);
+		builder.append(", startDate=").append(startDate);
+		builder.append(", waferID=").append(waferID);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + headNumber;
+		result = prime * result + siteGroupNumber;
+		result = prime * result + (int) (startDate ^ (startDate >>> 32));
+		result = prime * result + waferID.hashCode();
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof WaferInformationRecord)) return false;
+		WaferInformationRecord other = (WaferInformationRecord) obj;
+		if (headNumber != other.headNumber) return false;
+		if (siteGroupNumber != other.siteGroupNumber) return false;
+		if (startDate != other.startDate) return false;
+		if (!waferID.equals(other.waferID)) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
+
     
 }

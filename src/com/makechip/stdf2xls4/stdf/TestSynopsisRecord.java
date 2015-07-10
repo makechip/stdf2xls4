@@ -33,36 +33,88 @@ import java.util.Set;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
-import com.makechip.util.Log;
 
 /**
-*** @author eric
-*** @version $Id: TestSynopsisRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields for a Test Synopsis Record.
+ *  @author eric
+ */
 public class TestSynopsisRecord extends StdfRecord
 {
-    
+    /**
+     *  The HEAD_NUM field.
+     */
     public final short headNumber;
+    /**
+     *  The SITE_NUM field.
+     */
     public final short siteNumber;
+    /**
+     *  The TEST_TYP field.
+     */
     public final char testType;
+    /**
+     *  The TEST_NUM field.
+     */
     public final long testNumber;
+    /**
+     *  The EXEC_CNT field.
+     */
     public final long numExecs;
+    /**
+     *  The FAIL_CNT field.
+     */
     public final long numFailures;
+    /**
+     *  The ALRM_CNT field.
+     */
     public final long numAlarms;
+    /**
+     *  The TEST_NAM field.
+     */
     public final String testName;
+    /**
+     *  The SEQ_NAME field.
+     */
     public final String sequencerName;
+    /**
+     *  The TEST_LBL field.
+     */
     public final String testLabel;
+    /**
+     *  The OPT_FLAG field.
+     */
     public Set<TestOptFlag_t> optFlags; 
+    /**
+     *  The TEST_TIM field.
+     */
     public float testTime;
+    /**
+     *  The TEST_MIN field.
+     */
     public float testMin;
+    /**
+     *  The TEST_MAX field.
+     */
     public float testMax;
+    /**
+     *  The TST_SUMS field.
+     */
     public float testSum;
+    /**
+     *  The TEST_SQRS field.
+     */
     public float testSumSquares;
     
     /**
-    *** @param p1
-    **/
-    public TestSynopsisRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase.  This value is not used by the TestSynopsisRecord.
+     *         It is provided so that all StdfRecord classes have the same argument signatures,
+     *         so that function references can be used to refer to the constructors of StdfRecords.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
+   public TestSynopsisRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.TSR, dvd.getCpuType(), data);
         headNumber = getU1((short) -1);
@@ -84,6 +136,9 @@ public class TestSynopsisRecord extends StdfRecord
         testSumSquares = getR4(-Float.MAX_VALUE);
     }
     
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -131,6 +186,29 @@ public class TestSynopsisRecord extends StdfRecord
 		return(l.toArray());
 	}
 	
+	/**
+     * This constructor is used to generate binary Stream data.  It can be used to convert
+     * the field values back into binary stream data.
+     * @param tdb The TestIdDatabase. This value is not used, but is needed so that
+     * this constructor can call the previous constructor to avoid code duplication.
+     * @param dvd The DefaultValueDatabase is used to access the CPU type.
+	 * @param headNumber The HEAD_NUM field.
+	 * @param siteNumber The SITE_NUM field.
+	 * @param testType   The TEST_TYP field.
+	 * @param testNumber The TEST_NUM field.
+	 * @param numExecs   The EXEC_CNT field.
+	 * @param numFailures The FAIL_CNT field.
+	 * @param numAlarms  The ALRM_CNT field.
+	 * @param testName   The TEST_NAM field.
+	 * @param sequencerName The SEQ_NAME field.
+	 * @param testLabel  The TEST_LBL field.
+	 * @param optFlags   The OPT_FLAG field.
+	 * @param testTime   The TEST_TIM field.
+	 * @param testMin    The TEST_MIN field.
+	 * @param testMax    The TEST_MAX field.
+	 * @param testSum    The TST_SUMS field.
+	 * @param testSumSquares The TST_SQRS field.
+	 */
 	public TestSynopsisRecord(
 	    TestIdDatabase tdb,
 	    DefaultValueDatabase dvd,
@@ -156,31 +234,88 @@ public class TestSynopsisRecord extends StdfRecord
 	    		        optFlags, testTime, testMin, testMax, testSum, testSumSquares));
 	}
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(":").append(Log.eol);
-        sb.append("    headNumber: " + headNumber).append(Log.eol);
-        sb.append("    siteNumber: " + siteNumber).append(Log.eol);
-        sb.append("    test type: " + testType).append(Log.eol);
-        sb.append("    test number: " + testNumber).append(Log.eol);
-        sb.append("    number of test execs: " + numExecs).append(Log.eol);
-        sb.append("    number of failures: " + numFailures).append(Log.eol);
-        System.err.print("numAlarms = " + numAlarms + "\n");
-        sb.append("    number of alarms: " + (numAlarms == -1 ? 0 : numAlarms)).append(Log.eol);
-        sb.append("    test name: "); sb.append(testName).append(Log.eol);
-        sb.append("    sequencer name: "); sb.append(sequencerName).append(Log.eol);
-        sb.append("    test label: "); sb.append(testLabel).append(Log.eol);
-        sb.append("    optional data flags:");
-        optFlags.stream().forEach(p -> sb.append(" ").append(p.toString()));
-        sb.append(Log.eol);
-        sb.append("    test time: " + testTime).append(Log.eol);
-        sb.append("    minimum result value: " + testMin).append(Log.eol);
-        sb.append("    maximum result value: " + testMax).append(Log.eol);
-        sb.append("    sum of result values: " + testSum).append(Log.eol);
-        sb.append("    sum of squares of result values: " + testSumSquares).append(Log.eol);
-        return(sb.toString());
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("TestSynopsisRecord [headNumber=").append(headNumber);
+		builder.append(", siteNumber=").append(siteNumber);
+		builder.append(", testType=").append(testType);
+		builder.append(", testNumber=").append(testNumber);
+		builder.append(", numExecs=").append(numExecs);
+		builder.append(", numFailures=").append(numFailures);
+		builder.append(", numAlarms=").append(numAlarms);
+		builder.append(", testName=").append(testName);
+		builder.append(", sequencerName=").append(sequencerName);
+		builder.append(", testLabel=").append(testLabel);
+		builder.append(", optFlags=").append(optFlags);
+		builder.append(", testTime=").append(testTime);
+		builder.append(", testMin=").append(testMin);
+		builder.append(", testMax=").append(testMax);
+		builder.append(", testSum=").append(testSum);
+		builder.append(", testSumSquares=").append(testSumSquares);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + headNumber;
+		result = prime * result + (int) (numAlarms ^ (numAlarms >>> 32));
+		result = prime * result + (int) (numExecs ^ (numExecs >>> 32));
+		result = prime * result + (int) (numFailures ^ (numFailures >>> 32));
+		result = prime * result + optFlags.hashCode();
+		result = prime * result + sequencerName.hashCode();
+		result = prime * result + siteNumber;
+		result = prime * result + testLabel.hashCode();
+		result = prime * result + Float.floatToIntBits(testMax);
+		result = prime * result + Float.floatToIntBits(testMin);
+		result = prime * result + testName.hashCode();
+		result = prime * result + (int) (testNumber ^ (testNumber >>> 32));
+		result = prime * result + Float.floatToIntBits(testSum);
+		result = prime * result + Float.floatToIntBits(testSumSquares);
+		result = prime * result + Float.floatToIntBits(testTime);
+		result = prime * result + testType;
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof TestSynopsisRecord)) return false;
+		TestSynopsisRecord other = (TestSynopsisRecord) obj;
+		if (headNumber != other.headNumber) return false;
+		if (numAlarms != other.numAlarms) return false;
+		if (numExecs != other.numExecs) return false;
+		if (numFailures != other.numFailures) return false;
+		if (!optFlags.equals(other.optFlags)) return false;
+		if (!sequencerName.equals(other.sequencerName)) return false;
+		if (siteNumber != other.siteNumber) return false;
+		if (!testLabel.equals(other.testLabel)) return false;
+		if (Float.floatToIntBits(testMax) != Float.floatToIntBits(other.testMax)) return false;
+		if (Float.floatToIntBits(testMin) != Float.floatToIntBits(other.testMin)) return false;
+		if (!testName.equals(other.testName)) return false;
+		if (testNumber != other.testNumber) return false;
+		if (Float.floatToIntBits(testSum) != Float.floatToIntBits(other.testSum)) return false;
+		if (Float.floatToIntBits(testSumSquares) != Float.floatToIntBits(other.testSumSquares)) return false;
+		if (Float.floatToIntBits(testTime) != Float.floatToIntBits(other.testTime)) return false;
+		if (testType != other.testType) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
+
 
 }

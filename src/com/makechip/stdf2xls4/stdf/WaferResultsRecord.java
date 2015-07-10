@@ -29,32 +29,77 @@ import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 /**
-*** @author eric
-*** @version $Id: WaferResultsRecord.java 258 2008-10-22 01:22:44Z ericw $
-**/
+ *  This class holds the fields for a Wafer Results Record.
+ *  @author eric
+ */
 public class WaferResultsRecord extends StdfRecord
 {
+    /**
+     *  The HEAD_NUM field.
+     */
     public final short headNumber;
+    /**
+     *  The SITE_GRP field.
+     */
     public final short siteGroupNumber;
+    /**
+     *  The FINISH_T field.
+     */
     public final long finishDate;
+    /**
+     *  The PART_CNT field.
+     */
     public final long partCount;
+    /**
+     *  The RTST_CNT field.
+     */
     public final long retestCount;
+    /**
+     *  The ABRT_CNT field.
+     */
     public final long abortCount;
+    /**
+     * The GOOD_CNT field.
+     */
     public final long passCount;
+    /**
+     *  The FUNC_CNT field.
+     */
     public final long functionalCount;
+    /**
+     *  The WAFER_ID field.
+     */
     public final String waferID;
+    /**
+     *  The FABWF_ID field.
+     */
     public final String fabWaferID;
+    /**
+     *  The FRAME_ID field.
+     */
     public final String waferFrameID;
+    /**
+     *  The MASK_ID field.
+     */
     public final String waferMaskID;
+    /**
+     *  The USR_DESC field.
+     */
     public final String userWaferDesc;
+    /**
+     *  The EXC_DESC field.
+     */
     public final String execWaferDesc;
     
     /**
-    *** @param p1
-    **/
+     *  Constructor used by the STDF reader to load binary data into this class.
+     *  @param tdb The TestIdDatabase.  This parameter is not used.
+     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
+     *         REC_SUB values are not included in this array.
+     */
     public WaferResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
     {
         super(Record_t.WRR, dvd.getCpuType(), data);
@@ -74,6 +119,9 @@ public class WaferResultsRecord extends StdfRecord
         execWaferDesc = getCn();
     }
     
+	/* (non-Javadoc)
+	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
+	 */
 	@Override
 	protected void toBytes()
 	{
@@ -117,6 +165,25 @@ public class WaferResultsRecord extends StdfRecord
 		return(l.toArray());
 	}
 	
+	/**
+     * This constructor is used to make a ParametricTestRecord with field values.
+     * @param tdb The TestIdDatabase is not used in this class.
+     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+	 * @param headNumber       The HEAD_NUM field.
+	 * @param siteGroupNumber  The SITE_GRP field.
+	 * @param finishDate       The FINISH_T field.
+	 * @param partCount        The PART_CNT field.
+	 * @param retestCount      The RTST_CNT field.
+	 * @param abortCount       The ABRT_CNT field.
+	 * @param passCount        The GOOD_CNT field.
+	 * @param functionalCount  The FUNC_CNT field.
+	 * @param waferID          The WADER_ID field.
+	 * @param fabWaferID       The FABWF_ID field.
+	 * @param waferFrameID     The FRAME_ID field.
+	 * @param waferMaskID      The MASK_ID field.
+	 * @param userWaferDesc    The USR_DESC field.
+	 * @param execWaferDesc    The EXC_DESC field.
+	 */
 	public WaferResultsRecord(
 		TestIdDatabase tdb,
 		DefaultValueDatabase dvd,
@@ -140,26 +207,82 @@ public class WaferResultsRecord extends StdfRecord
 	    		        waferFrameID, waferMaskID, userWaferDesc, execWaferDesc));
     }
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(getClass().getName());
-        sb.append(":").append(Log.eol);
-        sb.append("    head number: " + headNumber).append(Log.eol);
-        sb.append("    site group number: " + siteGroupNumber).append(Log.eol);
-        sb.append("    finish date: ").append(finishDate).append(Log.eol);
-        sb.append("    number of parts tested: " + partCount).append(Log.eol);
-        sb.append("    number of parts re-tested: " + retestCount).append(Log.eol);
-        sb.append("    number of aborts: " + abortCount).append(Log.eol);
-        sb.append("    number of good parts: " + passCount).append(Log.eol);
-        sb.append("    number of functional parts: " + functionalCount).append(Log.eol);
-        sb.append("    wafer ID: ").append(waferID).append(Log.eol);
-        sb.append("    fab wafer ID: ").append(fabWaferID).append(Log.eol);
-        sb.append("    wafer frame ID: ").append(waferFrameID).append(Log.eol);
-        sb.append("    wafer mask ID: ").append(waferMaskID).append(Log.eol);
-        sb.append("    user wafer description: ").append(userWaferDesc).append(Log.eol);
-        sb.append("    exec wafer description: ").append(execWaferDesc).append(Log.eol);
-        return(sb.toString());
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("WaferResultsRecord [headNumber=").append(headNumber);
+		builder.append(", siteGroupNumber=").append(siteGroupNumber);
+		builder.append(", finishDate=").append(finishDate);
+		builder.append(", partCount=").append(partCount);
+		builder.append(", retestCount=").append(retestCount);
+		builder.append(", abortCount=").append(abortCount);
+		builder.append(", passCount=").append(passCount);
+		builder.append(", functionalCount=").append(functionalCount);
+		builder.append(", waferID=").append(waferID);
+		builder.append(", fabWaferID=").append(fabWaferID);
+		builder.append(", waferFrameID=").append(waferFrameID);
+		builder.append(", waferMaskID=").append(waferMaskID);
+		builder.append(", userWaferDesc=").append(userWaferDesc);
+		builder.append(", execWaferDesc=").append(execWaferDesc);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (int) (abortCount ^ (abortCount >>> 32));
+		result = prime * result + execWaferDesc.hashCode();
+		result = prime * result + fabWaferID.hashCode();
+		result = prime * result + (int) (finishDate ^ (finishDate >>> 32));
+		result = prime * result + (int) (functionalCount ^ (functionalCount >>> 32));
+		result = prime * result + headNumber;
+		result = prime * result + (int) (partCount ^ (partCount >>> 32));
+		result = prime * result + (int) (passCount ^ (passCount >>> 32));
+		result = prime * result + (int) (retestCount ^ (retestCount >>> 32));
+		result = prime * result + siteGroupNumber;
+		result = prime * result + userWaferDesc.hashCode();
+		result = prime * result + waferFrameID.hashCode();
+		result = prime * result + waferID.hashCode();
+		result = prime * result + waferMaskID.hashCode();
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!(obj instanceof WaferResultsRecord)) return false;
+		WaferResultsRecord other = (WaferResultsRecord) obj;
+		if (abortCount != other.abortCount) return false;
+		if (!execWaferDesc.equals(other.execWaferDesc)) return false;
+		if (!fabWaferID.equals(other.fabWaferID)) return false;
+		if (finishDate != other.finishDate) return false;
+		if (functionalCount != other.functionalCount) return false;
+		if (headNumber != other.headNumber) return false;
+		if (partCount != other.partCount) return false;
+		if (passCount != other.passCount) return false;
+		if (retestCount != other.retestCount) return false;
+		if (siteGroupNumber != other.siteGroupNumber) return false;
+		if (!userWaferDesc.equals(other.userWaferDesc)) return false;
+		if (!waferFrameID.equals(other.waferFrameID)) return false;
+		if (!waferID.equals(other.waferID)) return false;
+		if (!waferMaskID.equals(other.waferMaskID)) return false;
+		if (!super.equals(obj)) return false;
+		return true;
+	}
+
 
 }

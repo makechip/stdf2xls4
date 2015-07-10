@@ -1,4 +1,4 @@
-package test.stdf;
+package com.makechip.stdf2xls4.stdf;
 
 import static org.junit.Assert.*;
 
@@ -13,7 +13,6 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.makechip.stdf2xls4.stdf.*;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
@@ -24,7 +23,7 @@ import com.makechip.util.Log;
  * @author eric
  *
  */
-public class StdfTest1
+public class StdfTest3
 {
 	static DefaultValueDatabase dvd = new DefaultValueDatabase(0L);
 	static TestIdDatabase tdb = new TestIdDatabase();
@@ -115,27 +114,21 @@ public class StdfTest1
 		stdf.add(new GenericDataRecord(tdb, dvd, lgd2));
 		stdf.add(new DatalogTextRecord(tdb, dvd, "TEXT_DATA : testName : 30.0 (fA) : 12 : 1 : 3"));
 		stdf.add(new DatalogTextRecord(tdb, dvd, "TEXT_DATA : S/N : 30"));
-		Path p = FileSystems.getDefault().getPath("x.stdf");
+		Path p = FileSystems.getDefault().getPath("x_20150707123333.std");
+		p.toFile().deleteOnExit();
 		stdf.write(p.toFile());
-        Files.delete(p);
-		rdr = new StdfReader(tdb, p.toFile());
-		rdr.read(stdf.getBytes());
+		rdr = new StdfReader(tdb, p.toFile(), true);
+		Log.msg("BEGIN READ");
+		rdr.read();
 		list = rdr.getRecords();
 		Log.msg("list.size(); = " + list.size());
+        Files.delete(p);
 	}
 	
 	@Test
 	public void testA()
 	{
 		assertEquals(32, list.size());
-		String s = stdf.toString();
-	    assertTrue(s.contains("StdfWriter ["));	
-	    assertTrue(s.contains("far="));	
-	    assertTrue(s.contains("atrs="));	
-	    assertTrue(s.contains("mir="));	
-	    assertTrue(s.contains("rdr="));	
-	    assertTrue(s.contains("sdrs="));	
-	    assertTrue(s.contains("records="));	
 	}
 
     @Test
@@ -232,208 +225,15 @@ public class StdfTest1
 		assertEquals("romCodeID", mir.romCodeID);
 		assertEquals("testerSerialNumber", mir.testerSerialNumber);
 		assertEquals("supervisorID", mir.supervisorID);
-		assertEquals(0, mir.getTimeStamp());
+		assertEquals(20150707123333L, mir.getTimeStamp());
 		
 		MasterInformationRecord mir1 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mir2 = new MasterInformationRecord(tdb, dvd, 1001L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mir3 = new MasterInformationRecord(tdb, dvd, 1000L, 2001L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mir4 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 0,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mir5 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'a', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mir6 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'b', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mir7 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'b', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mir8 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 101, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mir9 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'r', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mira = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "rotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirb = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "rartType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirc = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "rodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mird = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "resterType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mire = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "robName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirf = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "robRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirg = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"rublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirh = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "rperatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord miri = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "rxecSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirj = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "rxecSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirk = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "rtepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirl = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "remperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirm = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "rserText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirn = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"ruxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord miro = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "rackageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirp = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "ramilyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirq = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "rateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirr = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "racilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirs = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "rloorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirt = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","rabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord miru = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "rrequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirv = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "rpecName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirw = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"rpecVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirx = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "rlowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord miry = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "retupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirz = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "resignRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirA = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "rngLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirB = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "xomCodeID", "testerSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirC = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "resterSerialNumber", "supervisorID", 0L);
-		MasterInformationRecord mirD = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "rupervisorID", 0L);
-		MasterInformationRecord mirE = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
-			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
-			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 1L);
+			'A', 'B', 'C', 100, 'D', "lotID",
+			"partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  "sublotID", "operatorName",
+			"execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", "auxDataFile",
+			"packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber",
+			"supervisorID", 20150707123333L);
 		assertEquals(mir1.hashCode(), mir.hashCode());
 		assertTrue(mir.equals(mir1));
 		assertTrue(mir.equals(mir));
@@ -480,45 +280,6 @@ public class StdfTest1
 		assertTrue(s.contains("testerSerialNumber="));
 		assertTrue(s.contains("supervisorID="));
 		assertTrue(s.contains("timeStamp="));
-		assertFalse(mir1.equals(mir2));
-		assertFalse(mir1.equals(mir3));
-		assertFalse(mir1.equals(mir4));
-		assertFalse(mir1.equals(mir5));
-		assertFalse(mir1.equals(mir6));
-		assertFalse(mir1.equals(mir7));
-		assertFalse(mir1.equals(mir8));
-		assertFalse(mir1.equals(mir9));
-		assertFalse(mir1.equals(mira));
-		assertFalse(mir1.equals(mirb));
-		assertFalse(mir1.equals(mirc));
-		assertFalse(mir1.equals(mird));
-		assertFalse(mir1.equals(mire));
-		assertFalse(mir1.equals(mirf));
-		assertFalse(mir1.equals(mirg));
-		assertFalse(mir1.equals(mirh));
-		assertFalse(mir1.equals(miri));
-		assertFalse(mir1.equals(mirj));
-		assertFalse(mir1.equals(mirk));
-		assertFalse(mir1.equals(mirl));
-		assertFalse(mir1.equals(mirm));
-		assertFalse(mir1.equals(mirn));
-		assertFalse(mir1.equals(miro));
-		assertFalse(mir1.equals(mirp));
-		assertFalse(mir1.equals(mirq));
-		assertFalse(mir1.equals(mirr));
-		assertFalse(mir1.equals(mirs));
-		assertFalse(mir1.equals(mirt));
-		assertFalse(mir1.equals(miru));
-		assertFalse(mir1.equals(mirv));
-		assertFalse(mir1.equals(mirw));
-		assertFalse(mir1.equals(mirx));
-		assertFalse(mir1.equals(miry));
-		assertFalse(mir1.equals(mirz));
-		assertFalse(mir1.equals(mirA));
-		assertFalse(mir1.equals(mirB));
-		assertFalse(mir1.equals(mirC));
-		assertFalse(mir1.equals(mirD));
-		assertFalse(mir1.equals(mirE));
 	}
 	
 	// RetestDataRecord rdr = new RetestDataRecord(new int[] { 1, 2, 3, 4 });
@@ -1579,7 +1340,7 @@ public class StdfTest1
 		assertFalse(ptr1.equals(ptrd));
 		PartResultsRecord ptre = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 28, 1, 2, 3, (short) 1, (short) 2,
 			                                          10L, "", "partDescription", new byte[] { (byte) 1, (byte) 1, (byte) 2 });
-		assertEquals("-1", ptre.partID);
+		assertEquals("-2", ptre.partID);
 		assertFalse(ptr.abnormalEOT());
 		assertFalse(ptr.failed());
 		assertFalse(ptr.noPassFailIndication());

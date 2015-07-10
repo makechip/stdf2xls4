@@ -1,4 +1,4 @@
-package test.stdf;
+package com.makechip.stdf2xls4.stdf;
 
 import static org.junit.Assert.*;
 
@@ -13,7 +13,6 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.makechip.stdf2xls4.stdf.*;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
@@ -24,7 +23,7 @@ import com.makechip.util.Log;
  * @author eric
  *
  */
-public class StdfTest3
+public class StdfTest1
 {
 	static DefaultValueDatabase dvd = new DefaultValueDatabase(0L);
 	static TestIdDatabase tdb = new TestIdDatabase();
@@ -115,21 +114,27 @@ public class StdfTest3
 		stdf.add(new GenericDataRecord(tdb, dvd, lgd2));
 		stdf.add(new DatalogTextRecord(tdb, dvd, "TEXT_DATA : testName : 30.0 (fA) : 12 : 1 : 3"));
 		stdf.add(new DatalogTextRecord(tdb, dvd, "TEXT_DATA : S/N : 30"));
-		Path p = FileSystems.getDefault().getPath("x_20150707123333.std");
-		p.toFile().deleteOnExit();
+		Path p = FileSystems.getDefault().getPath("x.stdf");
 		stdf.write(p.toFile());
-		rdr = new StdfReader(tdb, p.toFile(), true);
-		Log.msg("BEGIN READ");
-		rdr.read();
+        Files.delete(p);
+		rdr = new StdfReader(tdb, p.toFile());
+		rdr.read(stdf.getBytes());
 		list = rdr.getRecords();
 		Log.msg("list.size(); = " + list.size());
-        Files.delete(p);
 	}
 	
 	@Test
 	public void testA()
 	{
 		assertEquals(32, list.size());
+		String s = stdf.toString();
+	    assertTrue(s.contains("StdfWriter ["));	
+	    assertTrue(s.contains("far="));	
+	    assertTrue(s.contains("atrs="));	
+	    assertTrue(s.contains("mir="));	
+	    assertTrue(s.contains("rdr="));	
+	    assertTrue(s.contains("sdrs="));	
+	    assertTrue(s.contains("records="));	
 	}
 
     @Test
@@ -226,15 +231,208 @@ public class StdfTest3
 		assertEquals("romCodeID", mir.romCodeID);
 		assertEquals("testerSerialNumber", mir.testerSerialNumber);
 		assertEquals("supervisorID", mir.supervisorID);
-		assertEquals(20150707123333L, mir.getTimeStamp());
+		assertEquals(0, mir.getTimeStamp());
 		
 		MasterInformationRecord mir1 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
-			'A', 'B', 'C', 100, 'D', "lotID",
-			"partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  "sublotID", "operatorName",
-			"execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", "auxDataFile",
-			"packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber",
-			"supervisorID", 20150707123333L);
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mir2 = new MasterInformationRecord(tdb, dvd, 1001L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mir3 = new MasterInformationRecord(tdb, dvd, 1000L, 2001L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mir4 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 0,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mir5 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'a', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mir6 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'b', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mir7 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'b', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mir8 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 101, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mir9 = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'r', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mira = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "rotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirb = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "rartType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirc = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "rodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mird = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "resterType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mire = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "robName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirf = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "robRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirg = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"rublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirh = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "rperatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord miri = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "rxecSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirj = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "rxecSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirk = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "rtepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirl = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "remperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirm = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "rserText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirn = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"ruxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord miro = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "rackageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirp = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "ramilyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirq = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "rateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirr = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "racilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirs = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "rloorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirt = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","rabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord miru = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "rrequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirv = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "rpecName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirw = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"rpecVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirx = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "rlowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord miry = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "retupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirz = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "resignRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirA = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "rngLotID", "romCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirB = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "xomCodeID", "testerSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirC = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "resterSerialNumber", "supervisorID", 0L);
+		MasterInformationRecord mirD = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "rupervisorID", 0L);
+		MasterInformationRecord mirE = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
+			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
+			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
+			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", 1L);
 		assertEquals(mir1.hashCode(), mir.hashCode());
 		assertTrue(mir.equals(mir1));
 		assertTrue(mir.equals(mir));
@@ -281,6 +479,45 @@ public class StdfTest3
 		assertTrue(s.contains("testerSerialNumber="));
 		assertTrue(s.contains("supervisorID="));
 		assertTrue(s.contains("timeStamp="));
+		assertFalse(mir1.equals(mir2));
+		assertFalse(mir1.equals(mir3));
+		assertFalse(mir1.equals(mir4));
+		assertFalse(mir1.equals(mir5));
+		assertFalse(mir1.equals(mir6));
+		assertFalse(mir1.equals(mir7));
+		assertFalse(mir1.equals(mir8));
+		assertFalse(mir1.equals(mir9));
+		assertFalse(mir1.equals(mira));
+		assertFalse(mir1.equals(mirb));
+		assertFalse(mir1.equals(mirc));
+		assertFalse(mir1.equals(mird));
+		assertFalse(mir1.equals(mire));
+		assertFalse(mir1.equals(mirf));
+		assertFalse(mir1.equals(mirg));
+		assertFalse(mir1.equals(mirh));
+		assertFalse(mir1.equals(miri));
+		assertFalse(mir1.equals(mirj));
+		assertFalse(mir1.equals(mirk));
+		assertFalse(mir1.equals(mirl));
+		assertFalse(mir1.equals(mirm));
+		assertFalse(mir1.equals(mirn));
+		assertFalse(mir1.equals(miro));
+		assertFalse(mir1.equals(mirp));
+		assertFalse(mir1.equals(mirq));
+		assertFalse(mir1.equals(mirr));
+		assertFalse(mir1.equals(mirs));
+		assertFalse(mir1.equals(mirt));
+		assertFalse(mir1.equals(miru));
+		assertFalse(mir1.equals(mirv));
+		assertFalse(mir1.equals(mirw));
+		assertFalse(mir1.equals(mirx));
+		assertFalse(mir1.equals(miry));
+		assertFalse(mir1.equals(mirz));
+		assertFalse(mir1.equals(mirA));
+		assertFalse(mir1.equals(mirB));
+		assertFalse(mir1.equals(mirC));
+		assertFalse(mir1.equals(mirD));
+		assertFalse(mir1.equals(mirE));
 	}
 	
 	// RetestDataRecord rdr = new RetestDataRecord(new int[] { 1, 2, 3, 4 });
@@ -1188,6 +1425,36 @@ public class StdfTest3
 		assertFalse(ptr.equals(ptr21));
 		assertFalse(ptr.equals(ptr22));
 		assertFalse(ptr.equals(ptr23));
+		ParametricTestRecord ptra = new ParametricTestRecord(tdb, dvd, 64L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 1E-10f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 9,  // set OPT flags
+			(byte) 2, (byte) 3, 1E-11f, 1E-9f, "F", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+		ParametricTestRecord ptrb = new ParametricTestRecord(tdb, dvd, 65L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 1E-4f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 9,  // set OPT flags
+			(byte) 2, (byte) 3, 1E-5f, 1E-3f, "F", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+		ParametricTestRecord ptrc = new ParametricTestRecord(tdb, dvd, 66L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 1E5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 9,  // set OPT flags
+			(byte) 2, (byte) 3, 1E6f, 1E5f, "F", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+		assertEquals(100.0f, ptra.scaledResult, 5);
+		assertEquals("pF", ptra.scaledUnits);
+		assertEquals(100.0f, ptrb.scaledResult, 5);
+		assertEquals("uF", ptrb.scaledUnits);
+	    assertEquals(100.0f, ptrc.scaledResult,5);
+	    assertEquals("kF", ptrc.scaledUnits);
+		ParametricTestRecord ptrd = new ParametricTestRecord(tdb, dvd, 67L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 1E-7f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 9,  // set OPT flags
+			(byte) 2, (byte) 3, 1E-8f, 1E-9f, "F", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+		assertEquals(100.0f, ptrd.scaledResult, 5);
+		assertEquals("nF", ptrd.scaledUnits);
+		ParametricTestRecord ptre = new ParametricTestRecord(tdb, dvd, 68L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 1E8f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 9,  // set OPT flags
+			(byte) 2, (byte) 3, 1E9f, 1E7f, "F", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+		assertEquals(100.0f, ptre.scaledResult, 5);
+		assertEquals("MF", ptre.scaledUnits);
+		ParametricTestRecord ptrf = new ParametricTestRecord(tdb, dvd, 69L, (short) 1, (short) 0, 
+			(byte) 0, (byte) 0, 1E10f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 9,  // set OPT flags
+			(byte) 2, (byte) 3, 1E11f, 1E9f, "F", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+		assertEquals(10.0f, ptrf.scaledResult, 5);
+		assertEquals("GF", ptrf.scaledUnits);
 	}
 	
 	//stdf.add(new PartCountRecord(snum++, dnum, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
@@ -1341,7 +1608,7 @@ public class StdfTest3
 		assertFalse(ptr1.equals(ptrd));
 		PartResultsRecord ptre = new PartResultsRecord(tdb, dvd, (short) 1, (short) 0, (byte) 28, 1, 2, 3, (short) 1, (short) 2,
 			                                          10L, "", "partDescription", new byte[] { (byte) 1, (byte) 1, (byte) 2 });
-		assertEquals("-2", ptre.partID);
+		assertEquals("-1", ptre.partID);
 		assertFalse(ptr.abnormalEOT());
 		assertFalse(ptr.failed());
 		assertFalse(ptr.noPassFailIndication());
@@ -1524,6 +1791,79 @@ public class StdfTest3
         assertEquals(2.2f, ptr.testMax, 5);	
         assertEquals(3.3f, ptr.testSum, 5);	
         assertEquals(4.4f, ptr.testSumSquares, 5);	
+	    TestSynopsisRecord ptr1 = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptr2 = new TestSynopsisRecord(tdb, dvd, (short) 0, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptr3 = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 1, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptr4 = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'F', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptr5 = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 11L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptr6 = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 12L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptr7 = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 13L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptr8 = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 14L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptr9 = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "xestName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptra = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "xequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptrb = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "xestLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptrc = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.of(TestOptFlag_t.TEST_MAX_INVALID), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptrd = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 4.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptre = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 5.0f, 2.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptrf = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 6.2f, 3.3f, 4.4f);	
+	    TestSynopsisRecord ptrg = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 7.3f, 4.4f);	
+	    TestSynopsisRecord ptrh = new TestSynopsisRecord(tdb, dvd, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 8.4f);	
+	    String s = ptr.toString();
+	    assertTrue(ptr.equals(ptr));
+	    assertTrue(ptr.equals(ptr1));
+	    assertEquals(ptr.hashCode(), ptr1.hashCode());
+	    assertFalse(ptr.equals(null));
+	    assertFalse(ptr.equals("A"));
+	    assertFalse(ptr1.equals(ptr2));
+	    assertFalse(ptr1.equals(ptr3));
+	    assertFalse(ptr1.equals(ptr4));
+	    assertFalse(ptr1.equals(ptr5));
+	    assertFalse(ptr1.equals(ptr6));
+	    assertFalse(ptr1.equals(ptr7));
+	    assertFalse(ptr1.equals(ptr8));
+	    assertFalse(ptr1.equals(ptr9));
+	    assertFalse(ptr1.equals(ptra));
+	    assertFalse(ptr1.equals(ptrb));
+	    assertFalse(ptr1.equals(ptrc));
+	    assertFalse(ptr1.equals(ptrd));
+	    assertFalse(ptr1.equals(ptre));
+	    assertFalse(ptr1.equals(ptrf));
+	    assertFalse(ptr1.equals(ptrg));
+	    assertFalse(ptr1.equals(ptrh));
+	    assertTrue(s.contains("TestSynopsisRecord ["));
+	    assertTrue(s.contains("headNumber="));
+	    assertTrue(s.contains("siteNumber="));
+	    assertTrue(s.contains("testType="));
+	    assertTrue(s.contains("testNumber="));
+	    assertTrue(s.contains("numExecs="));
+	    assertTrue(s.contains("numFailures="));
+	    assertTrue(s.contains("numAlarms="));
+	    assertTrue(s.contains("testName="));
+	    assertTrue(s.contains("sequencerName="));
+	    assertTrue(s.contains("testLabel="));
+	    assertTrue(s.contains("optFlags="));
+	    assertTrue(s.contains("testTime="));
+	    assertTrue(s.contains("testMin="));
+	    assertTrue(s.contains("testMax="));
+	    assertTrue(s.contains("testSum="));
+	    assertTrue(s.contains("testSumSquares="));
 	}
 	
     //stdf.add(new WaferConfigurationRecord(snum++, dnum, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5'));
@@ -1542,6 +1882,41 @@ public class StdfTest3
         assertEquals(2, ptr.centerY);	
         assertEquals('5', ptr.posX);	
         assertEquals('5', ptr.posY);	
+	    WaferConfigurationRecord ptr1 = new WaferConfigurationRecord(tdb, dvd, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5');
+	    WaferConfigurationRecord ptr2 = new WaferConfigurationRecord(tdb, dvd, 1.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5');
+	    WaferConfigurationRecord ptr3 = new WaferConfigurationRecord(tdb, dvd, 6.0f, 1.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5');
+	    WaferConfigurationRecord ptr4 = new WaferConfigurationRecord(tdb, dvd, 6.0f, 3.3f, 1.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5');
+	    WaferConfigurationRecord ptr5 = new WaferConfigurationRecord(tdb, dvd, 6.0f, 3.3f, 4.4f, (short) 0, 'L', (short) 1, (short) 2, '5', '5');
+	    WaferConfigurationRecord ptr6 = new WaferConfigurationRecord(tdb, dvd, 6.0f, 3.3f, 4.4f, (short) 1, '0', (short) 1, (short) 2, '5', '5');
+	    WaferConfigurationRecord ptr7 = new WaferConfigurationRecord(tdb, dvd, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 0, (short) 2, '5', '5');
+	    WaferConfigurationRecord ptr8 = new WaferConfigurationRecord(tdb, dvd, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 0, '5', '5');
+	    WaferConfigurationRecord ptr9 = new WaferConfigurationRecord(tdb, dvd, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '0', '5');
+	    WaferConfigurationRecord ptra = new WaferConfigurationRecord(tdb, dvd, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '0');
+	    String s = ptr.toString();
+	    assertTrue(ptr.equals(ptr));
+	    assertTrue(ptr.equals(ptr1));
+	    assertEquals(ptr.hashCode(), ptr1.hashCode());
+	    assertFalse(ptr.equals(null));
+	    assertFalse(ptr.equals("A"));
+	    assertFalse(ptr1.equals(ptr2));
+	    assertFalse(ptr1.equals(ptr3));
+	    assertFalse(ptr1.equals(ptr4));
+	    assertFalse(ptr1.equals(ptr5));
+	    assertFalse(ptr1.equals(ptr6));
+	    assertFalse(ptr1.equals(ptr7));
+	    assertFalse(ptr1.equals(ptr8));
+	    assertFalse(ptr1.equals(ptr9));
+	    assertFalse(ptr1.equals(ptra));
+	    assertTrue(s.contains("WaferConfigurationRecord ["));
+	    assertTrue(s.contains("waferSize="));
+	    assertTrue(s.contains("dieHeight="));
+	    assertTrue(s.contains("dieWidth="));
+	    assertTrue(s.contains("units="));
+	    assertTrue(s.contains("flatOrient="));
+	    assertTrue(s.contains("centerX="));
+	    assertTrue(s.contains("centerY="));
+	    assertTrue(s.contains("posX="));
+	    assertTrue(s.contains("posY="));
 	}
 	
     //stdf.add(new WaferInformationRecord(snum++, dnum, (short) 1, (short) 0, 1000L, "waferID"));
@@ -1555,6 +1930,26 @@ public class StdfTest3
         assertEquals(0, ptr.siteGroupNumber);	
         assertEquals(1000L, ptr.startDate);	
         assertEquals("waferID", ptr.waferID);	
+	    WaferInformationRecord ptr1 = new WaferInformationRecord(tdb, dvd, (short) 1, (short) 0, 1000L, "waferID");
+	    WaferInformationRecord ptr2 = new WaferInformationRecord(tdb, dvd, (short) 2, (short) 0, 1000L, "waferID");
+	    WaferInformationRecord ptr3 = new WaferInformationRecord(tdb, dvd, (short) 1, (short) 2, 1000L, "waferID");
+	    WaferInformationRecord ptr4 = new WaferInformationRecord(tdb, dvd, (short) 1, (short) 0, 1002L, "waferID");
+	    WaferInformationRecord ptr5 = new WaferInformationRecord(tdb, dvd, (short) 1, (short) 0, 1000L, "2aferID");
+	    assertTrue(ptr.equals(ptr));
+	    assertTrue(ptr.equals(ptr1));
+	    assertEquals(ptr.hashCode(), ptr1.hashCode());
+	    assertFalse(ptr.equals(null));
+	    assertFalse(ptr.equals("A"));
+	    assertFalse(ptr1.equals(ptr2));
+	    assertFalse(ptr1.equals(ptr3));
+	    assertFalse(ptr1.equals(ptr4));
+	    assertFalse(ptr1.equals(ptr5));
+	    String s = ptr.toString();
+	    assertTrue(s.contains("WaferInformationRecord ["));
+	    assertTrue(s.contains("headNumber="));
+	    assertTrue(s.contains("siteGroupNumber="));
+	    assertTrue(s.contains("startDate="));
+	    assertTrue(s.contains("waferID="));
 	}
 	
 	//stdf.add(new WaferResultsRecord(snum++, dnum, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
@@ -1579,6 +1974,71 @@ public class StdfTest3
         assertEquals("waferMaskID", ptr.waferMaskID);	
         assertEquals("userWaferDesc", ptr.userWaferDesc);	
         assertEquals("execWaferDesc", ptr.execWaferDesc);	
+		WaferResultsRecord ptr1 = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptr2 = new WaferResultsRecord(tdb, dvd, (short) 5, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptr3 = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 5, 1000L, 1L, 2L, 0L, 1L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptr4 = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1500L, 1L, 2L, 0L, 1L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptr5 = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 5L, 2L, 0L, 1L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptr6 = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 5L, 0L, 1L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptr7 = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 5L, 1L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptr8 = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 5L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptr9 = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 5L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptra = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
+			"xaferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptrb = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
+			"waferID", "xabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptrc = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
+			"waferID", "fabWaferID", "xaferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptrd = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "xaferMaskID", "userWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptre = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "xserWaferDesc", "execWaferDesc");
+		WaferResultsRecord ptrf = new WaferResultsRecord(tdb, dvd, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "xxecWaferDesc");
+		assertTrue(ptr.equals(ptr));
+		assertTrue(ptr.equals(ptr1));
+		assertEquals(ptr.hashCode(), ptr1.hashCode());
+		assertFalse(ptr.equals(null));
+		assertFalse(ptr.equals("A"));
+		assertFalse(ptr1.equals(ptr2));
+		assertFalse(ptr1.equals(ptr3));
+		assertFalse(ptr1.equals(ptr4));
+		assertFalse(ptr1.equals(ptr5));
+		assertFalse(ptr1.equals(ptr6));
+		assertFalse(ptr1.equals(ptr7));
+		assertFalse(ptr1.equals(ptr8));
+		assertFalse(ptr1.equals(ptr9));
+		assertFalse(ptr1.equals(ptra));
+		assertFalse(ptr1.equals(ptrb));
+		assertFalse(ptr1.equals(ptrc));
+		assertFalse(ptr1.equals(ptrd));
+		assertFalse(ptr1.equals(ptre));
+		assertFalse(ptr1.equals(ptrf));
+		String s = ptr.toString();
+		assertTrue(s.contains("WaferResultsRecord ["));
+		assertTrue(s.contains("headNumber="));
+		assertTrue(s.contains("siteGroupNumber="));
+		assertTrue(s.contains("finishDate="));
+		assertTrue(s.contains("partCount="));
+		assertTrue(s.contains("retestCount="));
+		assertTrue(s.contains("abortCount="));
+		assertTrue(s.contains("passCount="));
+		assertTrue(s.contains("functionalCount="));
+		assertTrue(s.contains("waferID="));
+		assertTrue(s.contains("fabWaferID="));
+		assertTrue(s.contains("waferFrameID="));
+		assertTrue(s.contains("waferMaskID="));
+		assertTrue(s.contains("userWaferDesc="));
+		assertTrue(s.contains("execWaferDesc="));
 	}
 	
     @Test

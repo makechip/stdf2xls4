@@ -1,4 +1,4 @@
-package test.stdf;
+package com.makechip.stdf2xls4.stdf;
 
 import static org.junit.Assert.*;
 
@@ -10,7 +10,6 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.makechip.stdf2xls4.stdf.*;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.util.Log;
 

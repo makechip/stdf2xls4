@@ -1,17 +1,15 @@
-package test.stdf;
+package com.makechip.stdf2xls4.stdf;
 
-import static org.junit.Assert.*;
-
+import java.io.IOException;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.makechip.stdf2xls4.stdf.*;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
@@ -21,7 +19,7 @@ import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
  * @author eric
  *
  */
-public class StdfTest2
+public class StdfTest4
 {
 	static DefaultValueDatabase dvd = new DefaultValueDatabase(0L);
 	static TestIdDatabase tdb = new TestIdDatabase();
@@ -34,7 +32,7 @@ public class StdfTest2
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
-		FileAttributesRecord far = new FileAttributesRecord(tdb, dvd, 4, Cpu_t.PC);
+		FileAttributesRecord far = new FileAttributesRecord(tdb, dvd, 5, Cpu_t.PC);
 		List<AuditTrailRecord> atrs = new ArrayList<AuditTrailRecord>();
 		atrs.add(new AuditTrailRecord(tdb, dvd, 100000000L, "cmdline"));
 		MasterInformationRecord mir = new MasterInformationRecord(tdb, dvd, 1000L, 2000L, (short) 1,
@@ -112,31 +110,17 @@ public class StdfTest2
 		stdf.add(new GenericDataRecord(tdb, dvd, lgd2));
 		stdf.add(new DatalogTextRecord(tdb, dvd, "TEXT_DATA : testName : 30.0 (fA) : 12 : 1 : 3"));
 		stdf.add(new DatalogTextRecord(tdb, dvd, "TEXT_DATA : S/N : 30"));
-		Path p = FileSystems.getDefault().getPath("x.stdf");
+		Path p = FileSystems.getDefault().getPath("x_20150707123333.stdf");
 		stdf.write(p.toFile());
-        Files.delete(p);
-		rdr = new StdfReader(tdb, 20150707123333L);
-		rdr.read(stdf.getBytes());
+		rdr = new StdfReader(tdb, p.toFile(), true);
+	}
+		
+		
+     @Test(expected=StdfException.class)
+     public void Test1() throws StdfException, IOException
+     {
+		rdr.read();
 		list = rdr.getRecords();
 	}
 	
-	@Test
-	public void testA()
-	{
-		StdfRecord r = list.get(2);
-		assertTrue(r instanceof MasterInformationRecord);
-		MasterInformationRecord mir = (MasterInformationRecord) r;
-		assertEquals(20150707123333L, mir.getTimeStamp());
-	}
-	
-	@Test
-	public void testB()
-	{
-		StdfRecord r = list.get(31);
-		assertTrue(r instanceof DatalogTextRecord);
-		DatalogTextRecord dtr = (DatalogTextRecord) r;
-		assertEquals("TEXT_DATA : S/N : 30", dtr.text);
-	}
-
-
 }
