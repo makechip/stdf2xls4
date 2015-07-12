@@ -130,6 +130,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
 {
 	private final CliOptions options;
 	private final StdfAPI api;
+    private final boolean newSpreadsheet;
     private HeaderBlock hb;	
     private CornerBlock cb;
 	
@@ -161,8 +162,13 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
        	{
        		Workbook w = Workbook.getWorkbook(options.xlsName);
        		wb = Workbook.createWorkbook(options.xlsName, w);
+       		newSpreadsheet = false;
        	}
-       	else wb = Workbook.createWorkbook(options.xlsName);
+       	else 
+        {
+       		wb = Workbook.createWorkbook(options.xlsName);
+       		newSpreadsheet = true;
+        }
        	wb.setColourRGB(Colour.SKY_BLUE, 82, 123, 188);
         sheetNum = 0;
         HEADER1_FMT.getFormat().setWrap(true);
@@ -284,8 +290,8 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         	}
         	else 
         	{
-        		//if (!checkRegistration(ws[i])) throw new StdfException("Incompatible spreadsheet");
-        		//testHeaders = getTestHeaders(ws[i]);
+        		if (!checkRegistration(ws[i])) throw new StdfException("Incompatible spreadsheet");
+        		testHeaders = getTestHeaders(ws[i]);
         	}
         }
     }
@@ -414,9 +420,11 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     		if (c.getType() == CellType.LABEL)
     		{
     		    String s = c.getContents();
-    		    if (s.equals("options"))
+    		    Log.msg("s = '" + s + "'");
+    		    if (s.equals("OPTIONS:"))
     		    {
     		    	optRow = row;
+    		    	Log.msg("optRow = " + optRow);
     		    	break;
     		    }
     		}
@@ -467,6 +475,8 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     	int rcol = titleBlock.getFirstDataCol() - 1;
     	int rrow = titleBlock.getTestNameRow();
     	Cell c = ws.getCell(rcol, rrow);
+    	Log.msg("CELL TYPE = " + c.getType());
+    	Log.msg("CELL CONTENTS = " + c.getContents());
     	if (c.getType() == CellType.LABEL)
     	{
     		String text = c.getContents();

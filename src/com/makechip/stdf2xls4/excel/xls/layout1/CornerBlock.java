@@ -42,7 +42,7 @@ public class CornerBlock implements Block
 		this.wafersort = wafersort;
 		this.onePage = onePage;
 		startCol = onePage ? (wafersort ? 1 : 2) : (wafersort ? 2 : 3);
-		devRow = hb.getHeight() + 7;
+		devRow = hb.getHeight() + 8;
 		testRow = hb.getHeight();
 		width = 5 + 3 - startCol;
 	}
@@ -51,7 +51,7 @@ public class CornerBlock implements Block
 	public void addBlock(WritableSheet ws) throws RowsExceededException, WriteException, IOException
 	{
 		int col = startCol;
-		int row = devRow;
+		int row = devRow - 1;
 		if (onePage)
 		{
 			String s = (wafersort) ? LABEL_WAFER : LABEL_STEP;
