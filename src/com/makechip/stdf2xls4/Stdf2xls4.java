@@ -49,7 +49,13 @@ public class Stdf2xls4
 
 	public static void main(String[] args)
 	{
-		CliOptions options = new CliOptions(args);
+		CliOptions options = null;
+		try { options = new CliOptions(args); }
+		catch (Exception e)
+		{
+			Log.msg(e.getMessage());
+			System.exit(1);
+		}
         if (!options.isOptionsValid())
         {
         	Log.msg(options.getMessage());

@@ -20,19 +20,17 @@ public class DataHeader implements Block
 {
 	private final int col;
 	private final int row;
-	private final boolean wrapTestNames;
+	private final boolean noWrapTestNames;
 	private final int precision;
 	private final List<TestHeader> hdrs;
-	private final boolean pinSuffix;
 	
-	public DataHeader(HeaderBlock hb, boolean wrapTestNames, boolean pinSuffix, int precision, List<TestHeader> hdrs)
+	public DataHeader(HeaderBlock hb, boolean noWrapTestNames, int precision, List<TestHeader> hdrs)
 	{
 		col = hb.getWidth();
 		row = hb.getHeight();
-		this.wrapTestNames = wrapTestNames;
+		this.noWrapTestNames = noWrapTestNames;
 		this.precision = precision;
 		this.hdrs = hdrs;
-		this.pinSuffix = pinSuffix;
 	}
 	
 	@Override
@@ -41,29 +39,19 @@ public class DataHeader implements Block
 		int c = col;
 		for (TestHeader hdr : hdrs)
 		{
-			if (!wrapTestNames) ws.setColumnView(c, getCellWidth(hdr.getTestName()));
-			else ws.setColumnView(c, 4 + precision);
-			ws.mergeCells(c, row, c, row+1);
-			if (hdr instanceof ParametricTestHeader)
+			if (noWrapTestNames) 
 			{
-			    if (pinSuffix)
-			    {
-			        String tname = hdr.getTestName(); 	
-			        int li = tname.lastIndexOf('_');
-			        if (li > 0)
-			        {
-			            String testName = tname.substring(0, li);
-			            String ppin = tname.substring(li);
-			            ws.addCell(new Label(c, row, testName, HEADER1_FMT.getFormat()));             
-			            ws.addCell(new Label(c, row+5, ppin, HEADER1_FMT.getFormat()));             
-			        }
-			        else ws.addCell(new Label(c, row, tname, HEADER1_FMT.getFormat()));
-			    }
-			    else ws.addCell(new Label(c, row, hdr.getTestName(), HEADER1_FMT.getFormat()));
+				ws.setColumnView(c, getCellWidth(hdr.testName));
+			    ws.addCell(new Label(c, row, hdr.testName, TEST_NAME_FMT.getFormat()));
 			}
-			else ws.addCell(new Label(c, row, hdr.getTestName(), HEADER1_FMT.getFormat()));
-			ws.addCell(new Number(c, row+2, hdr.getTestNumber(), HEADER1_FMT.getFormat()));
-			ws.mergeCells(col, row+6, col, row+7);
+			else 
+			{
+				ws.setColumnView(c, 8 + precision);
+			    ws.addCell(new Label(c, row, hdr.testName, TEST_NAME_FMT_WRAP.getFormat()));
+			}
+			ws.addCell(new Number(c, row+1, hdr.testNumber, HEADER1_FMT.getFormat()));
+			ws.addCell(new Number(c, row+2, hdr.dupNum, HEADER1_FMT.getFormat()));
+			ws.mergeCells(c, row+6, c, row+7);
 			if (hdr instanceof ParametricTestHeader)
 			{
 			    ParametricTestHeader phdr = (ParametricTestHeader) hdr;	
@@ -71,6 +59,7 @@ public class DataHeader implements Block
 			    else ws.addCell(new Number(c, row+3, phdr.loLimit, HEADER5_FMT.getFormat()));
 			    if (phdr.noHiLimit) ws.addCell(new Label(c, row+4, "", HEADER1_FMT.getFormat()));
 			    else ws.addCell(new Number(c, row+4, phdr.hiLimit, HEADER5_FMT.getFormat()));
+				ws.addCell(new Label(c, row+5, "", HEADER1_FMT.getFormat()));
 				ws.addCell(new Label(c, row+6, phdr.units, HEADER1_FMT.getFormat()));
 			}
 			else if (hdr instanceof MultiParametricTestHeader)

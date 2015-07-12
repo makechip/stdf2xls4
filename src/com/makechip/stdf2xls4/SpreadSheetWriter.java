@@ -25,12 +25,16 @@
 
 package com.makechip.stdf2xls4;
 
+import java.io.IOException;
+
+import com.makechip.stdf2xls4.stdf.StdfException;
+
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
 
 public interface SpreadSheetWriter
 {
-    public void generate() throws RowsExceededException, WriteException;
+    public void generate() throws RowsExceededException, WriteException, IOException, StdfException;
 
 }

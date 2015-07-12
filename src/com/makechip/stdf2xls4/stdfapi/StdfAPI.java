@@ -136,7 +136,7 @@ public final class StdfAPI
 			devList.keySet().stream().forEach(p -> checkLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p), OptFlag_t.NO_LO_LIMIT));
 		    devList.keySet().stream().forEach(p -> checkLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p), OptFlag_t.NO_HI_LIMIT));	
 		}	
-		tdb = new TestRecordDatabase(tiddb, dynamicLimitMap);
+		tdb = new TestRecordDatabase(options, tiddb, dynamicLimitMap);
 	    // now build TestRecord database:
 		devList.keySet().stream().forEach(p -> mapTests(options.sort, p, devList.get(p)));
 	}
@@ -231,12 +231,12 @@ public final class StdfAPI
     	return(tdb.getPageHeaders());
     }
     
-    public Set<TestHeader> getTestHeaders(PageHeader hdr)
+    public List<TestHeader> getTestHeaders(PageHeader hdr)
     {
     	return(tdb.getTestHeaders(hdr));
     }
     
-    public Set<TestHeader> getTestHeaders(PageHeader hdr, DeviceHeader dh)
+    public List<TestHeader> getTestHeaders(PageHeader hdr, DeviceHeader dh)
     {
     	return(tdb.getTestHeaders(hdr, dh));
     }

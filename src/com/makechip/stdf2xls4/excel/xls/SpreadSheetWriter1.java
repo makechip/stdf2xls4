@@ -53,9 +53,15 @@ import com.makechip.stdf2xls4.excel.xls.layout1.HeaderBlock;
 import com.makechip.stdf2xls4.excel.xls.layout1.LegendBlock;
 import com.makechip.stdf2xls4.excel.xls.layout1.TitleBlock;
 import com.makechip.stdf2xls4.stdfapi.HeaderUtil;
+import com.makechip.stdf2xls4.stdfapi.Limit_t;
+import com.makechip.stdf2xls4.stdfapi.MultiParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
+import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.SnOrXy;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
+import com.makechip.stdf2xls4.stdfapi.TestHeader;
+import com.makechip.stdf2xls4.stdf.StdfException;
+import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.util.Log;
 
@@ -87,11 +93,12 @@ import static com.makechip.stdf2xls4.excel.xls.Format_t.*;
      -+------+------+------+------+------+------+------+------+------+------+
    1+n|                    |                           |      |
    1+n|                    |                           |      | 
+   1+n|                    |                           |      | TestNames ->
    1+n|                    |                           |      |
-     -+                    +                           +      + TestNames ->
-      |                    |                           |  C   | 
+     -+                    +                           +      + 
+      |                    |                           |  C   | TestNumbers ->
      -+                    +                           +  o   +
-      |                    |                           |  r   | TestNumbers ->
+      |                    |                           |  r   | Duplicate numbers ->
      -+                    +                           +  n   +
       |  LegendBlock       |       LogoBlock           |  e   | LoLimits ->
      -+                    +                           +  r   +                 DataBlock ---->
@@ -128,7 +135,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
 	
     public static final int MAX_ROWS = 1000000;
     
-    private int colsPerPage;
+    private static final int colsPerPage = 240;
     private WritableWorkbook wb = null;
     private WritableSheet[] ws;
     private int sheetNum = 0;
@@ -142,6 +149,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private int firstDataRow;
     private int firstDataCol;
     private int testColumns;
+    private List<TestHeader> testHeaders;
     private TitleBlock titleBlock;
 
     public SpreadSheetWriter1(CliOptions options, StdfAPI api) throws IOException, BiffException, WriteException
@@ -171,7 +179,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     // 3. Make horizontal header
     // 4. Make vertical header
     // 5. Enter data
-    public void generate() throws RowsExceededException, WriteException
+    public void generate() throws RowsExceededException, WriteException, IOException, StdfException
     {
     	if (options.onePage)
     	{
@@ -182,6 +190,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     	{
     	    for (PageHeader hdr : api.getPageHeaders())
     		{
+    	    	Log.msg("HDR: " + hdr.toString());
     			openSheet(hdr);
     		    writeData(hdr);
     		}
@@ -257,35 +266,39 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         */
     } 
     
-    private void openSheet(PageHeader hdr)
+    private void openSheet(PageHeader hdr) throws RowsExceededException, WriteException, IOException, StdfException
     {
         int numTests = api.getTestHeaders(hdr).size();
         int pages = numTests / colsPerPage;
         if (numTests % colsPerPage != 0) pages++;
-        String waferOrStep = api.wafersort(hdr) ? hdr.get(HeaderUtil.WAFER_ID) : hdr.get(HeaderUtil.STEP);
         ws = new WritableSheet[pages];
-        firstDataRow = getFirstDataRow();
         for (int i=0; i<pages; i++)
         {
         	String name = null;
-        	name = (api.wafersort(hdr) ? "    WAFER " : "    STEP ") + waferOrStep + " Page " + (i+1);
+        	name = getPageName(hdr, i);
         	ws[i] = wb.getSheet(name);
-        	if (ws[i] == null) newSheet(i, name, hdr);
-        	else // count test columns 
+        	if (ws[i] == null) 
         	{
-        		int tnumRow = firstDataRow - 5;
-        		int j = firstDataCol;
-        		int testCols = 0;
-        		while (true)
-        		{
-        			Cell c = ws[i].getCell(j, tnumRow);
-        			if (c.getType() == CellType.EMPTY) break;
-        			testCols++;
-        			j++;
-        		}
-        		if (testCols < colsPerPage) testColumns = testCols;
+        		newSheet(i, name, hdr);
+        		testHeaders = getTestHeaders(hdr, i);
+        	}
+        	else 
+        	{
+        		//if (!checkRegistration(ws[i])) throw new StdfException("Incompatible spreadsheet");
+        		//testHeaders = getTestHeaders(ws[i]);
         	}
         }
+    }
+    
+    private String getWaferOrStepName(PageHeader hdr)
+    {
+    	return(api.wafersort(hdr) ? hdr.get(HeaderUtil.WAFER_ID): hdr.get(HeaderUtil.STEP));
+    }
+    
+    private String getPageName(PageHeader hdr, int pageIndex)
+    {
+        String prefix = api.wafersort(hdr) ? "    WAFER " : "    STEP ";
+        return(prefix + getWaferOrStepName(hdr) + " Page " + (pageIndex + 1));
     }
     
     private int getFirstDataRow()
@@ -293,28 +306,173 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         return(titleBlock.getHeight());
     }
 
-    private void newSheet(int page, String name, PageHeader hdr)
+    private void newSheet(int page, String name, PageHeader hdr) throws RowsExceededException, WriteException, IOException
     {
     	ws[page] = wb.createSheet(name, sheetNum);
-    	HeaderBlock hb = new HeaderBlock(hdr);
-    	//hb.addBlock(ws[page]);
-    	CornerBlock cb = new CornerBlock(api.wafersort(hdr), options.onePage, hb);
-    	//cb.addBlock(ws[page]);
-    	/*
-    	LinkedHashSet<ColIdentifier> m = dataHeader.get(waferOrStep);
-    	List<ColIdentifier> l1 = new ArrayList<ColIdentifier>();
-    	for (ColIdentifier ci : m) l1.add(ci);
-    	List<ColIdentifier> list = new ArrayList<ColIdentifier>();
-    	for (int i=0; i<colsPerPage; i++)
+    	List<TestHeader> list = getTestHeaders(hdr, page);
+    	titleBlock = new TitleBlock(hdr, options.logoFile, getPageName(hdr, page), api.wafersort(hdr), options, list);
+    	titleBlock.addBlock(ws[page]);
+    	CellView c1 = ws[page].getRowView(6);
+    	CellView c2 = ws[page].getRowView(7);
+    	Log.msg("row6 height = " + c1.getSize() + " row7 height = " + c2.getSize());
+    }
+    
+    private List<TestHeader> getTestHeaders(PageHeader hdr, int pageIndex)
+    {
+        List<TestHeader> plist = new ArrayList<>(colsPerPage);
+        List<TestHeader> list = api.getTestHeaders(hdr);
+        int start = colsPerPage * pageIndex;
+        int end = start + colsPerPage;
+        int cols = 0;
+        for (int i=start; i<end && i<list.size(); i++) 
+        {
+        	plist.add(list.get(i));
+        	cols++;
+        }
+        testColumns = cols;
+        return(plist);
+    }
+    
+    private List<TestHeader> getTestHeaders(WritableSheet existingSheet) throws StdfException
+    {
+        List<TestHeader> plist = new ArrayList<>(colsPerPage);
+        int cnt = 0;
+        for (int i=titleBlock.getFirstDataCol(); i<titleBlock.getFirstDataCol()+colsPerPage; i++)
+        {
+        	Cell tnameCell = existingSheet.getCell(i, titleBlock.getTestNameRow());
+        	Cell tnumCell  = existingSheet.getCell(i, titleBlock.getTestNumberRow());
+        	Cell dupCell   = existingSheet.getCell(i, titleBlock.getDupNumRow());
+        	Cell loLimCell = existingSheet.getCell(i, titleBlock.getLoLimitRow());
+        	Cell hiLimCell = existingSheet.getCell(i, titleBlock.getHiLimitRow());
+        	Cell pnameCell = existingSheet.getCell(i, titleBlock.getPinNameRow());
+        	Cell unitsCell = existingSheet.getCell(i, titleBlock.getUnitsRow());
+        	String tname = tnameCell.getContents();
+           	long tnum = (long) ((Number) tnumCell).getValue();
+           	int dnum = (int) ((Number) dupCell).getValue();
+        	if (pnameCell.getType() == CellType.LABEL) 
+        	{
+               	String units = unitsCell.getContents();
+                if (loLimCell.getType() == CellType.EMPTY && hiLimCell.getType() == CellType.EMPTY)
+                {
+                    if (pnameCell.getContents().equals(MultiParametricTestHeader.LL_HDR)) // A LoLimit header
+                    {
+                    	plist.add(new MultiParametricTestHeader(tname, tnum, dnum, units, Limit_t.LO_LIMIT));
+                    }
+                    else if (pnameCell.getContents().equals(MultiParametricTestHeader.HL_HDR)) // A HiLimit header
+                    {
+                    	plist.add(new MultiParametricTestHeader(tname, tnum, dnum, units, Limit_t.HI_LIMIT));
+                    }
+                    else throw new StdfException("Malformed test header: testName = " + tnameCell.getContents());
+                }
+                else // either a ParametricTest with pin, or a MultiParametricTest
+                {
+                   	float lolim = (loLimCell.getType() == CellType.EMPTY) ? StdfRecord.MISSING_FLOAT : (float) ((Number) loLimCell).getValue();
+                   	float hilim = (hiLimCell.getType() == CellType.EMPTY) ? StdfRecord.MISSING_FLOAT : (float) ((Number) hiLimCell).getValue();
+                    String pin = pnameCell.getContents();
+                    plist.add(new MultiParametricTestHeader(tname, tnum, dnum, pin, units, lolim, hilim));
+                }
+        	}
+        	else // no pin, so either a normal Parametric test or Functional or Datalog test
+        	{
+        	    if (loLimCell.getType() != CellType.EMPTY || hiLimCell.getType() != CellType.EMPTY)
+        	    {
+                   	float lolim = (loLimCell.getType() == CellType.EMPTY) ? StdfRecord.MISSING_FLOAT : (float) ((Number) loLimCell).getValue();
+                   	float hilim = (hiLimCell.getType() == CellType.EMPTY) ? StdfRecord.MISSING_FLOAT : (float) ((Number) hiLimCell).getValue();
+                   	String units = unitsCell.getContents();
+                   	plist.add(new ParametricTestHeader(tname, tnum, dnum, units, lolim, hilim));
+        	    }
+        	    else
+        	    {
+        	    	plist.add(new TestHeader(tname, tnum, dnum));
+        	    }
+        	}
+        }
+        return(plist);
+    }
+    
+    private StdfException optionError(boolean oldHas, String opt)
+    {
+    	String e = null;
+    	if (oldHas)
     	{
-    		if ((i+colsPerPage*page) == m.size()) break;
-    		ColIdentifier cid = l1.get(i+colsPerPage*page);
-    		list.add(cid);
+    	    e = "Existing spreadsheet created with " + opt + " option - try adding " + opt + " command-line switch.";	
     	}
-    	TitleBlock.addBlock(ws[page], name, LegendBlock.getWidth() + ((list.size() >= colsPerPage) ? colsPerPage : list.size()));
-    	DataHeader dh = new DataHeader(list, cb, hb, wrapTestNames, hiPrecision);
-    	dh.addBlock(ws[page]);
-    	*/
+    	else
+    	{
+    		e = "Existing spreadsheet not created with " + opt + " option - try removing " + opt + " command-line switch.";
+    	}
+    	return(new StdfException(e));
+    }
+    
+    private boolean checkRegistration(WritableSheet ws) throws StdfException
+    {
+    	// Check for option compatibility:
+    	int optRow = -1;
+    	for (int row=0; row<100; row++)
+    	{
+    		Cell c = ws.getCell(0, row);
+    		if (c.getType() == CellType.LABEL)
+    		{
+    		    String s = c.getContents();
+    		    if (s.equals("options"))
+    		    {
+    		    	optRow = row;
+    		    	break;
+    		    }
+    		}
+    	}
+    	if (optRow < 0) throw new StdfException("Existing spreadsheet is incompatible");
+    	String oldOpts = ws.getCell(3, optRow).getContents();
+    	Log.msg("oldOpts = " + oldOpts);
+    	// -b onePage mismatch = error
+    	if (oldOpts.contains("-b") && !options.onePage) throw optionError(true, "-b");
+    	if (!oldOpts.contains("-b") && options.onePage) throw optionError(false, "-b");
+    	// -v dontSkipSearchFails mismatch = error
+    	if (oldOpts.contains("-v") && !options.dontSkipSearchFails) throw optionError(true, "-v");
+        if (!oldOpts.contains("-v") && options.dontSkipSearchFails) throw optionError(false, "-v");	
+    	// -r rotate mismatch = error
+        if (oldOpts.contains("-r") && !options.rotate) throw optionError(true, "-r");
+        if (!oldOpts.contains("-r") && options.rotate) throw optionError(false, "-r");
+    	// -y dynamicLimits = error
+        if (oldOpts.contains("-y") && !options.rotate) throw optionError(true, "-r");
+        if (!oldOpts.contains("-y") && options.rotate) throw optionError(false, "-r");
+    	// -n noWrapTestNames mismatch = warning
+        if (oldOpts.contains("-n") && !options.noWrapTestNames)
+        {
+        	Log.warning("Existing spreadsheet does not wrap test names - will assume -n option is set.");
+        }
+        if (!oldOpts.contains("-n") && options.noWrapTestNames)
+        {
+        	Log.warning("Existing spreadsheet wraps test names - ignoring -n option.");
+        }
+    	// -p precision mismatch = warning
+        String oldp = oldOpts.substring(oldOpts.lastIndexOf(' ')).trim();
+        if (Character.isDigit(oldp.charAt(0)))
+        {
+        	Integer n = new Integer(oldp);
+        	if (options.precision != n.intValue())
+        	{
+        		Log.warning("Existing spreadsheet uses different precision.");
+        	}
+        }
+    	// -a pinSuffix mismatch = warning
+        if (oldOpts.contains("-a") && !options.pinSuffix)
+        {
+        	Log.warning("Existing spreadsheet uses -a option, while current run does not.");
+        }
+        if (!oldOpts.contains("-a") && options.pinSuffix)
+        {
+            Log.warning("Existing spreadsheet does not use -a option, while current run does.");
+        }
+    	int rcol = titleBlock.getFirstDataCol() - 1;
+    	int rrow = titleBlock.getTestNameRow();
+    	Cell c = ws.getCell(rcol, rrow);
+    	if (c.getType() == CellType.LABEL)
+    	{
+    		String text = c.getContents();
+    		if (text.equals(CornerBlock.LABEL_TEST_NAME)) return(true);
+    	}
+    	return(false);
     }
     
     private void setStatus(WritableSheet wsi, int col, int row) throws RowsExceededException, WriteException

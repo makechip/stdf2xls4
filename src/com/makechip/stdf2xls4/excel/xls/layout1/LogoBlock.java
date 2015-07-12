@@ -1,11 +1,7 @@
 package com.makechip.stdf2xls4.excel.xls.layout1;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import com.makechip.stdf2xls4.excel.Block;
 import com.makechip.stdf2xls4.excel.xls.Format_t;
@@ -21,7 +17,8 @@ class LogoBlock implements Block
 	public static final int WIDTH = 4;
     public static final int HEIGHT = 7;	
     private static final int COL = LegendBlock.WIDTH;
-	private static final double CELL_DEFAULT_HEIGHT = 17;
+	@SuppressWarnings("unused")
+	private static final double CELL_DEFAULT_HEIGHT = 255;
 	@SuppressWarnings("unused")
 	private static final double CELL_DEFAULT_WIDTH = 64;
 	private File logoFile;
@@ -49,11 +46,7 @@ class LogoBlock implements Block
     	}
     	else
     	{
-    		BufferedImage input = ImageIO.read(logoFile);
-    		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    		ImageIO.write(input, "PNG", baos);
-    		double rowHeight = 6.0 + LegendBlock.LEGEND_ROW_HEIGHT / CELL_DEFAULT_HEIGHT;
-    		WritableImage image = new WritableImage(COL, row, 4.0, 6.0 + rowHeight, logoFile);
+    		WritableImage image = new WritableImage(COL, row, 4.0, 6.9, logoFile);
     		ws.addImage(image);
     	}
     }

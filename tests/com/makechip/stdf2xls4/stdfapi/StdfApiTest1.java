@@ -7,8 +7,6 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.junit.Test;
 
 import com.makechip.stdf2xls4.CliOptions;
@@ -57,8 +55,7 @@ public class StdfApiTest1
 		assertEquals(dhdr.swBin, 1);
 		assertEquals(dhdr.temperature, "25c");
 		assertEquals(dhdr.fail, false);
-		Set<TestHeader> th = api.getTestHeaders(phdr, dhdr);
-		List<TestHeader> thl = th.stream().collect(Collectors.toList());
+		List<TestHeader> thl = api.getTestHeaders(phdr, dhdr);
 		TestHeader th1 = thl.get(0);
 		TestResult tr1 = api.getRecord(phdr, dhdr, th1);
 		assertEquals(tr1.pass(), true);
@@ -70,16 +67,16 @@ public class StdfApiTest1
 		assertFalse(tr1.noPassFail());
 		ParametricTestHeader th2 = (ParametricTestHeader) thl.get(1);
 		ParametricTestResult tr2 = (ParametricTestResult) api.getRecord(phdr, dhdr, th2);
-		assertEquals(th2.id.testNumber, 100500L);
-		assertEquals(th2.id.testName, "VOUTA_Continuity");
+		assertEquals(th2.testNumber, 100500L);
+		assertEquals(th2.testName, "VOUTA_Continuity");
 		assertEquals(th2.units, "V");
 		assertEquals(th2.loLimit, -1.300f, 3);
 		assertEquals(th2.hiLimit, -0.400f, 3);
 		assertEquals(tr2.result, -0.8085870742797852f, 9);
 	    ParametricTestHeader thn = (ParametricTestHeader) thl.get(thl.size() - 1);	
 	    ParametricTestResult trn = (ParametricTestResult) api.getRecord(phdr, dhdr, thn);
-	    assertEquals(thn.id.testNumber, 213000);
-	    assertEquals(thn.id.testName, "TAS_TAH_TDS_TDH_D7_CHD_MAX");
+	    assertEquals(thn.testNumber, 213000);
+	    assertEquals(thn.testName, "TAS_TAH_TDS_TDH_D7_CHD_MAX");
 	    assertEquals(thn.units, "V");
 	    assertEquals(thn.loLimit, 3.685f, 3);
 	    assertEquals(thn.hiLimit, 9.375f, 3);

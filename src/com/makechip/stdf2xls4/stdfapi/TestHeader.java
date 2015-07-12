@@ -4,6 +4,33 @@ import com.makechip.stdf2xls4.stdf.TestID;
 
 public class TestHeader
 {
+
+	public final String testName;
+	public final long testNumber;
+	public final int dupNum;
+
+	public TestHeader(TestID id)
+	{
+		this.testName = id.testName;
+		this.testNumber = id.testNumber;
+		this.dupNum = id.dupNum;
+	}
+	
+	public TestHeader(String testName, long testNumber, int dupNum)
+	{
+		this(testName, testNumber, dupNum, "");
+	}
+
+	public TestHeader(String testName, long testNumber, int dupNum, String testNameSuffix)
+	{
+		this.testName = testName + testNameSuffix;
+		this.testNumber = testNumber;
+		this.dupNum = dupNum;
+	}
+	
+	public boolean isLoLimitHeader() { return(false); }
+	public boolean isHiLimitHeader() { return(false); }
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -11,12 +38,9 @@ public class TestHeader
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("TestHeader [");
-		if (id != null)
-		{
-			builder.append("id=");
-			builder.append(id);
-		}
+		builder.append("TestHeader [testName=").append(testName == null ? "" : testName);
+		builder.append(", testNumber=").append(testNumber);
+		builder.append(", dupNum=").append(dupNum);
 		builder.append("]");
 		return builder.toString();
 	}
@@ -29,7 +53,9 @@ public class TestHeader
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + dupNum;
+		result = prime * result + ((testName == null) ? 0 : testName.hashCode());
+		result = prime * result + (int) (testNumber ^ (testNumber >>> 32));
 		return result;
 	}
 
@@ -39,20 +65,18 @@ public class TestHeader
 	@Override
 	public boolean equals(Object obj)
 	{
+		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof TestHeader)) return false;
 		TestHeader other = (TestHeader) obj;
-		return(id == other.id);
-	}
-
-	public final TestID id;
-
-	public TestHeader(TestID id)
-	{
-		this.id = id;
+		if (dupNum != other.dupNum) return false;
+		if (testName == null)
+		{
+			if (other.testName != null) return false;
+		} 
+		else if (!testName.equals(other.testName)) return false;
+		if (testNumber != other.testNumber) return false;
+		return true;
 	}
 	
-	public String getTestName() { return(id.testName); }
-	
-	public long getTestNumber() { return(id.testNumber); }
-
 }

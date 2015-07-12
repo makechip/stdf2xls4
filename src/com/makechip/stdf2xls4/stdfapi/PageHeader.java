@@ -1,8 +1,7 @@
 package com.makechip.stdf2xls4.stdfapi;
 
 import java.util.Map;
-import java.util.stream.Stream;
-
+import java.util.Set;
 import com.makechip.util.Log;
 
 public class PageHeader
@@ -29,9 +28,9 @@ public class PageHeader
 		return(hdrMap.size());
 	}
 	
-	public Stream<String> getNames()
+	public Set<String> getNames()
 	{
-		return(hdrMap.keySet().stream());
+		return(hdrMap.keySet());
 	}
 	
 	@Override

@@ -38,6 +38,7 @@ import static java.util.Arrays.*;
 
 public class CliOptions 
 {
+	private final OptionSet options;
 	private static final String[] X_OPT = { "x", "xls-name", "Specify the spreadsheet filename" };
 	private static final String[] D_OPT = { "d", "dump", "Make ascii dump of STDF file(s) to stdout" };
 	private static final String[] E_OPT = { "e", "dump-test-records", "Make ascii dump of test records" };
@@ -54,11 +55,28 @@ public class CliOptions
 	private static final String[] T_OPT = { "t", "show-duplicates", "Don't suppress duplicates when using timestamped files" }; 
 	private static final String[] H_OPT = { "h", "help", "show this help text" }; 
 	private static final String[] M_OPT = { "m", "sort-by-device", "sort by serial-number or X-Y coordinate" }; 
-	private static final String[] A_OPT = { "a", "pin-suffix", "Assume test names for ParametricTestRecords have the pin name following the last underscore" };
+	private static final String[] A_OPT = { "a", "pin-suffix", "Assume test names for ParametricTestRecords have the pin name following the last '$' character" };
+	private static final String[] L_OPT = { "l", "logo", "Specify a logo file for the spreadsheet" };
+	private OptionSpec<Void>    A;
+	private OptionSpec<Void>    F;
+	private OptionSpec<Void>    D;
+	private OptionSpec<Void>    E;
+	private OptionSpec<Void>    C;
+	private OptionSpec<Void>    N;
+	private OptionSpec<Void>    S;
+	private OptionSpec<Void>    B;
+	private OptionSpec<Void>    T;
+	private OptionSpec<Void>    V;
+	private OptionSpec<Void>    R;
+	private OptionSpec<Void>    Y;
+	private OptionSpec<Void>    G;
+	private OptionSpec<Void>    M;
+	private OptionSpec<Integer> P;
 	public final File xlsName;
+	public final File logoFile;
 	public final boolean dump;
 	public final boolean dumpTests;
-	public final boolean wrapTestNames;
+	public final boolean noWrapTestNames;
 	public final boolean noOverwrite;
 	public final boolean showDuplicates;
 	public final boolean onePage;
@@ -75,36 +93,61 @@ public class CliOptions
 	private boolean success;
 	private StringWriter sout;
 	
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+	    sb.append(options.has(A) ? "-a " : ""); 	
+	    sb.append(options.has(F) ? "-f " : ""); 	
+	    sb.append(options.has(D) ? "-d " : ""); 	
+	    sb.append(options.has(E) ? "-e " : ""); 	
+	    sb.append(options.has(C) ? "-c " : ""); 	
+	    sb.append(options.has(N) ? "-n " : ""); 	
+	    sb.append(options.has(S) ? "-s " : ""); 	
+	    sb.append(options.has(B) ? "-b " : ""); 	
+	    sb.append(options.has(T) ? "-t " : ""); 	
+	    sb.append(options.has(V) ? "-v " : ""); 	
+	    sb.append(options.has(R) ? "-r " : ""); 	
+	    sb.append(options.has(Y) ? "-y " : ""); 	
+	    sb.append(options.has(M) ? "-m " : ""); 	
+	    sb.append(options.has(P) ? "-p " + options.valueOf(P) : "-p 3"); 	
+		return(sb.toString());
+	}
+	
 	public CliOptions(String[] args)
 	{
 	    OptionParser op = new OptionParser();	
 	    sout = new StringWriter();
-	    OptionSpec<Void>    A = op.acceptsAll(asList(A_OPT[0], A_OPT[1]), A_OPT[2]);
-	    OptionSpec<Void>    F = op.acceptsAll(asList(F_OPT[0], F_OPT[1]), F_OPT[2]);
-	    OptionSpec<Void>    D = op.acceptsAll(asList(D_OPT[0], D_OPT[1]), D_OPT[2]); // .requiredUnless("x", "xls-name");
-	    OptionSpec<Void>    E = op.acceptsAll(asList(E_OPT[0], E_OPT[1]), E_OPT[2]); // .requiredUnless("x", "xls-name");
-	    OptionSpec<Void>    C = op.acceptsAll(asList(C_OPT[0], C_OPT[1]), C_OPT[2]);
-	    OptionSpec<Void>    N = op.acceptsAll(asList(N_OPT[0], N_OPT[1]), N_OPT[2]);
-	    OptionSpec<Integer> P = op.acceptsAll(asList(P_OPT[0], P_OPT[1]), P_OPT[2]).withRequiredArg().ofType(int.class);
-	    OptionSpec<Void>    S = op.acceptsAll(asList(S_OPT[0], S_OPT[1]), S_OPT[2]);
-	    OptionSpec<Void>    B = op.acceptsAll(asList(B_OPT[0], B_OPT[1]), B_OPT[2]);
-	    OptionSpec<Void>    T = op.acceptsAll(asList(T_OPT[0], T_OPT[1]), T_OPT[2]);
-	    OptionSpec<Void>    V = op.acceptsAll(asList(V_OPT[0], V_OPT[1]), V_OPT[2]);
-	    OptionSpec<Void>    R = op.acceptsAll(asList(R_OPT[0], R_OPT[1]), R_OPT[2]);
-	    OptionSpec<Void>    Y = op.acceptsAll(asList(Y_OPT[0], Y_OPT[1]), Y_OPT[2]);
-	    OptionSpec<Void>    G = op.acceptsAll(asList(G_OPT[0], G_OPT[1]), G_OPT[2]);
-	    OptionSpec<Void>    M = op.acceptsAll(asList(M_OPT[0], M_OPT[1]), M_OPT[2]);
+	    A = op.acceptsAll(asList(A_OPT[0], A_OPT[1]), A_OPT[2]);
+	    F = op.acceptsAll(asList(F_OPT[0], F_OPT[1]), F_OPT[2]);
+	    D = op.acceptsAll(asList(D_OPT[0], D_OPT[1]), D_OPT[2]); // .requiredUnless("x", "xls-name");
+	    E = op.acceptsAll(asList(E_OPT[0], E_OPT[1]), E_OPT[2]); // .requiredUnless("x", "xls-name");
+	    C = op.acceptsAll(asList(C_OPT[0], C_OPT[1]), C_OPT[2]);
+	    N = op.acceptsAll(asList(N_OPT[0], N_OPT[1]), N_OPT[2]);
+	    S = op.acceptsAll(asList(S_OPT[0], S_OPT[1]), S_OPT[2]);
+	    B = op.acceptsAll(asList(B_OPT[0], B_OPT[1]), B_OPT[2]);
+	    T = op.acceptsAll(asList(T_OPT[0], T_OPT[1]), T_OPT[2]);
+	    V = op.acceptsAll(asList(V_OPT[0], V_OPT[1]), V_OPT[2]);
+	    R = op.acceptsAll(asList(R_OPT[0], R_OPT[1]), R_OPT[2]);
+	    Y = op.acceptsAll(asList(Y_OPT[0], Y_OPT[1]), Y_OPT[2]);
+	    G = op.acceptsAll(asList(G_OPT[0], G_OPT[1]), G_OPT[2]);
+	    M = op.acceptsAll(asList(M_OPT[0], M_OPT[1]), M_OPT[2]);
+	    P = op.acceptsAll(asList(P_OPT[0], P_OPT[1]), P_OPT[2]).withRequiredArg().ofType(int.class);
+	    
 	    OptionSpec<Void>    H = op.acceptsAll(asList(H_OPT[0], H_OPT[1]), H_OPT[2]).forHelp();
+
+	    OptionSpec<File>    L = op.acceptsAll(asList(L_OPT[0], L_OPT[1]), L_OPT[2]).withRequiredArg().ofType(File.class);
 	    OptionSpec<File>    X = op.acceptsAll(asList(X_OPT[0], X_OPT[1]), X_OPT[2]).
 	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1]).withRequiredArg().ofType(File.class);
+
 	    OptionSpec<File> files = op.nonOptions().describedAs("list of STDF files").ofType(File.class);
 	    
-	    OptionSet options = op.parse(args);
+	    options = op.parse(args);
 	    
 	    pinSuffix = options.has(A);
 	    forceHdr = options.has(F); 
 	    sort = options.has(M);
-	    wrapTestNames = !options.has(N);
+	    noWrapTestNames = options.has(N);
 	    noOverwrite = options.has(S);
 	    showDuplicates = options.has(T);
 	    onePage = options.has(B);
@@ -118,6 +161,8 @@ public class CliOptions
 	    xlsName = options.has(X) ? options.valueOf(X) : null;
 	    precision = options.has(P) ? options.valueOf(P) : 3;
 	    stdfFiles = files.values(options);
+	    String defaultFile = System.getenv("STDF2XLS_LOGO_FILE");
+	    logoFile = options.has(L) ? options.valueOf(L) : (defaultFile != null ? new File(defaultFile) : null);
 	    success = true;
 	    
 	    if (options.has(H))

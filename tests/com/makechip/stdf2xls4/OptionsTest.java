@@ -18,7 +18,7 @@ public class OptionsTest
 		assertTrue(options.isOptionsValid());
 		assertEquals(new File("x.xls"), options.xlsName);
 		assertFalse(options.dump);
-		assertTrue(options.wrapTestNames);
+		assertTrue(options.noWrapTestNames);
 		assertFalse(options.noOverwrite);
 		assertFalse(options.showDuplicates);
 		assertFalse(options.onePage);
@@ -38,7 +38,7 @@ public class OptionsTest
 		assertTrue(options.isOptionsValid());
 	    assertEquals(null, options.xlsName);
 	    assertTrue(options.dump);
-	    assertFalse(options.wrapTestNames);
+	    assertFalse(options.noWrapTestNames);
 		assertEquals(5, options.precision);
 	}
 	

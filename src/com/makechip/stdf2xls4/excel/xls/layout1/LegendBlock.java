@@ -12,7 +12,7 @@ import static com.makechip.stdf2xls4.excel.xls.Format_t.*;
 
 public class LegendBlock implements Block
 {
-	public static final int LEGEND_ROW_HEIGHT = 47;
+	public static final int LEGEND_ROW_HEIGHT = 1400;
 	public static final int WIDTH = 3;
 	public static final int HEIGHT = 7;
     private static final int COL = 0;

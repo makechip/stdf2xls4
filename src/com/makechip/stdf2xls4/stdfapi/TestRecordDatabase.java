@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.MultipleResultParametricRecord;
 import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
@@ -25,16 +27,18 @@ import com.makechip.util.Log;
 public class TestRecordDatabase
 {
 	private final TestIdDatabase tdb;
+	private final CliOptions options;
 	private final Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap;
 	private Map<PageHeader, Map<DeviceHeader, Map<TestHeader, TestResult>>> devMap;
 	private Map<PageHeader, Map<TestHeader, Map<DeviceHeader, TestResult>>> testMap;
 
-	public TestRecordDatabase(TestIdDatabase tdb, Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap)
+	public TestRecordDatabase(CliOptions options, TestIdDatabase tdb, Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap)
 	{
 		this.tdb = tdb;
 		this.dynamicLimitMap = dynamicLimitMap;
 		devMap = new HashMap<>();
 		testMap = new HashMap<>();
+		this.options = options;
 	}
 	
 	public void addRecords(boolean sortDevices, PageHeader hdr, DeviceHeader dh, List<TestRecord> list)
@@ -121,7 +125,7 @@ public class TestRecordDatabase
 		{
 			int i = 0;
 			TestHeader hlh = null;
-			if (th.get(i) instanceof LoLimitHeader)
+			if (th.get(i).isLoLimitHeader())
 			{
 				TestHeader h = th.get(i);
 				ParametricRecord pr = ParametricRecord.class.cast(r);
@@ -172,7 +176,7 @@ public class TestRecordDatabase
 			    if (i < th.size())
 			    {
 			        TestHeader h = th.get(i);
-			        if (h instanceof HiLimitHeader) hlh = h;
+			        if (h.isHiLimitHeader()) hlh = h;
 			        else Log.fatal("Program Bug - expected HiLimitHeader, but got " + h.getClass().getSimpleName());
 			    }
 			}
@@ -219,20 +223,22 @@ public class TestRecordDatabase
 		return(m.keySet());
 	}
 	
-	public Set<TestHeader> getTestHeaders(PageHeader hdr)
+	public List<TestHeader> getTestHeaders(PageHeader hdr)
 	{
 		Map<TestHeader, Map<DeviceHeader, TestResult>> m = testMap.get(hdr);
-		if (m == null) return(new LinkedHashSet<TestHeader>());
-		return(m.keySet());
+		if (m == null) return(new ArrayList<TestHeader>());
+		List<TestHeader> list = m.keySet().stream().collect(Collectors.toList());
+		return(list);
 	}
 
-	public Set<TestHeader> getTestHeaders(PageHeader hdr, DeviceHeader dh)
+	public List<TestHeader> getTestHeaders(PageHeader hdr, DeviceHeader dh)
 	{
 		Map<DeviceHeader, Map<TestHeader, TestResult>> m1 = devMap.get(hdr);
-		if (m1 == null) return(new LinkedHashSet<TestHeader>());
+		if (m1 == null) return(new ArrayList<TestHeader>());
 		Map<TestHeader, TestResult> m2 = m1.get(dh);
-		if (m2 == null) return(new LinkedHashSet<TestHeader>());
-		return(m2.keySet());
+		if (m2 == null) return(new ArrayList<TestHeader>());
+		List<TestHeader> list = m2.keySet().stream().collect(Collectors.toList());
+		return(list);
 	}
 
 	public Set<DeviceHeader> getDeviceHeaders(PageHeader hdr, TestHeader id)
@@ -251,16 +257,24 @@ public class TestRecordDatabase
 		{
 		case FTR: list.add(new TestHeader(r.getTestId())); break;
 		case PTR: ParametricTestRecord ptr = ParametricTestRecord.class.cast(r);
-		          if (hasDynamicLimits(hdr, ptr.getTestId())) list.add(new LoLimitHeader(ptr.getTestId()));  
-		          list.add(new ParametricTestHeader(ptr.getTestId(), ptr.scaledUnits, ptr.scaledLoLimit, ptr.scaledHiLimit));
-		          if (hasDynamicLimits(hdr, ptr.getTestId())) list.add(new HiLimitHeader(ptr.getTestId()));
+		          if (hasDynamicLimits(hdr, ptr.getTestId())) list.add(new MultiParametricTestHeader(ptr.getTestId(), ptr.scaledUnits, Limit_t.LO_LIMIT));  
+		          if (options.pinSuffix && ptr.id.testName.indexOf('$') > 0)
+		          {
+		        	  String pin = ptr.id.testName.substring(ptr.id.testName.lastIndexOf('$')+1);
+		        	  list.add(new MultiParametricTestHeader(ptr.id.testName, ptr.id.testNumber, ptr.id.dupNum, pin, ptr.scaledUnits, ptr.scaledLoLimit, ptr.scaledHiLimit));  
+		          }
+		          else
+		          {
+		              list.add(new ParametricTestHeader(ptr.getTestId(), ptr.scaledUnits, ptr.scaledLoLimit, ptr.scaledHiLimit));
+		          }
+		          if (hasDynamicLimits(hdr, ptr.getTestId())) list.add(new MultiParametricTestHeader(ptr.getTestId(), ptr.scaledUnits, Limit_t.HI_LIMIT));
 		          break;
 		case MPR: MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);
-				  if (hasDynamicLimits(hdr, mpr.getTestId())) list.add(new LoLimitHeader(mpr.getTestId()));
+				  if (hasDynamicLimits(hdr, mpr.getTestId())) list.add(new MultiParametricTestHeader(mpr.getTestId(), mpr.scaledUnits, Limit_t.LO_LIMIT));
 				  mpr.getPinNames(). forEach(pin -> { 
 					    	  				  PinTestID pid = TestID.PinTestID.getTestID(tdb, mpr.getTestId(), pin); 
 					    	  				  list.add(new MultiParametricTestHeader(pid, mpr.scaledUnits, mpr.scaledLoLimit, mpr.scaledHiLimit)); });
-				  if (hasDynamicLimits(hdr, mpr.getTestId())) list.add(new HiLimitHeader(mpr.getTestId()));
+				  if (hasDynamicLimits(hdr, mpr.getTestId())) list.add(new MultiParametricTestHeader(mpr.getTestId(), mpr.scaledUnits, Limit_t.HI_LIMIT));
 				  break;
 		case DTR: list.add(new TestHeader(r.getTestId())); break; 
 	    default: throw new RuntimeException("Unknown Test Record type: " + r.type);

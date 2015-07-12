@@ -20,24 +20,23 @@ public class TitleBlock implements Block
 	private final LegendBlock lb;
 	private final LogoBlock logo;
 	private final CornerBlock cb;
-	private final int testWidth;
 	private final DataHeader dh;
+	private final int testWidth;
 	
 	public TitleBlock(PageHeader hdr, 
 			          File logoFile, 
-			          int testWidth, 
 			          String pageTitle, 
 			          boolean wafersort, 
 			          CliOptions options,
 			          List<TestHeader> hdrs)
 	{
-		this.testWidth = testWidth;
-	    hb = new HeaderBlock(hdr);
-	    ptb = new PageTitleBlock(pageTitle, testWidth, hb);
+	    hb = new HeaderBlock(options, hdr);
+	    ptb = new PageTitleBlock(pageTitle, hdrs.size(), hb);
 	    lb = new LegendBlock(hb);
 	    logo = new LogoBlock(logoFile, hb);
 	    cb = new CornerBlock(wafersort, options.onePage, hb);
-	    dh = new DataHeader(hb, options.wrapTestNames, options.pinSuffix, options.precision, hdrs);
+	    dh = new DataHeader(hb, options.noWrapTestNames, options.precision, hdrs);
+	    testWidth = hdrs.size();
 	}
     
 	@Override
@@ -62,10 +61,12 @@ public class TitleBlock implements Block
 	public int getTempCol()        { return(cb.getTempCol());        }
 	public int getTestNameRow()    { return(cb.getTestNameRow());    }
 	public int getTestNumberRow()  { return(cb.getTestNumberRow());  }
+	public int getDupNumRow()      { return(cb.getDupNumRow());      }
 	public int getLoLimitRow()     { return(cb.getLoLimitRow());     }
 	public int getHiLimitRow()     { return(cb.getHiLimitRow());     }
 	public int getPinNameRow()     { return(cb.getPinNameRow());     }
 	public int getUnitsRow()       { return(cb.getUnitsRow());       }
+	public int getOptionsRow()     { return(hb.getHeight() - 1);     }
 
 	@Override
 	public int getWidth()

@@ -63,7 +63,7 @@ public class DataHeader
 		for (TestHeader cid : hdrs)
 		{
 			int width = 0;
-			if (!wrapTestNames) width = cid.getTestName().length();
+			if (!wrapTestNames) width = cid.testName.length();
 			else
 			{
 				if (hiPrecision) width = 13;
@@ -78,7 +78,7 @@ public class DataHeader
 			if (c0 == null)
 			{
 				c0 = r0.createCell(c, Cell_t.STRING.getType());
-				c0.setCellValue(cid.getTestName());
+				c0.setCellValue(cid.testName);
 				if (xssf)
 				{
 					XSSFCellStyle cs0 = (XSSFCellStyle) sw.TEST_NAME_FMT;
@@ -93,7 +93,7 @@ public class DataHeader
 			if (c1 == null)
 			{
 				c1 = r1.createCell(c, Cell_t.STRING.getType());
-				c1.setCellValue(cid.getTestNumber());
+				c1.setCellValue(cid.testNumber);
 				CellStyle cs2 = sw.HEADER1_FMT;
 				cs2.setAlignment(CellStyle.ALIGN_CENTER);
 				c1.setCellStyle(cs2);
