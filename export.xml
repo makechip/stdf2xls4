@@ -9,8 +9,6 @@
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="bin" defaultExcludes="yes" excludes="**/resources/*.std, **/resources/*.stdf, **doc-files/*.png"/>
-            <zipfileset excludes="META-INF/*.SF" src="/usr/share/eclipse/plugins/org.junit_4.11.0.v201303080030/junit.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/usr/share/eclipse/plugins/org.hamcrest.core_1.3.0.v201303031735.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/eric/sw/stdf2xls4/lib/poi-3.12-20150628.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/eric/sw/stdf2xls4/lib/poi-excelant-3.12-20150628.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/eric/sw/stdf2xls4/lib/poi-ooxml-3.12-20150628.jar"/>

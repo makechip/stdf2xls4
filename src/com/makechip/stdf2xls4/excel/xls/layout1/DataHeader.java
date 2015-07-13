@@ -56,9 +56,9 @@ public class DataHeader implements Block
 			{
 			    ParametricTestHeader phdr = (ParametricTestHeader) hdr;	
 			    if (phdr.noLoLimit) ws.addCell(new Label(c, row+3, "", HEADER1_FMT.getFormat()));
-			    else ws.addCell(new Number(c, row+3, phdr.loLimit, HEADER5_FMT.getFormat()));
+			    else ws.addCell(new Number(c, row+3, phdr.loLimit, HEADER5_FMT.getFormat(precision)));
 			    if (phdr.noHiLimit) ws.addCell(new Label(c, row+4, "", HEADER1_FMT.getFormat()));
-			    else ws.addCell(new Number(c, row+4, phdr.hiLimit, HEADER5_FMT.getFormat()));
+			    else ws.addCell(new Number(c, row+4, phdr.hiLimit, HEADER5_FMT.getFormat(precision)));
 				ws.addCell(new Label(c, row+5, "", HEADER1_FMT.getFormat()));
 				ws.addCell(new Label(c, row+6, phdr.units, HEADER1_FMT.getFormat()));
 			}
@@ -66,9 +66,9 @@ public class DataHeader implements Block
 			{
 			    MultiParametricTestHeader mhdr = (MultiParametricTestHeader) hdr;	
 			    if (mhdr.noLoLimit) ws.addCell(new Label(c, row+3, "", HEADER1_FMT.getFormat()));
-			    else ws.addCell(new Number(c, row+3, mhdr.loLimit, HEADER5_FMT.getFormat()));
+			    else ws.addCell(new Number(c, row+3, mhdr.loLimit, HEADER5_FMT.getFormat(precision)));
 			    if (mhdr.noHiLimit) ws.addCell(new Label(c, row+4, "", HEADER1_FMT.getFormat()));
-			    else ws.addCell(new Number(c, row+4, mhdr.hiLimit, HEADER5_FMT.getFormat()));
+			    else ws.addCell(new Number(c, row+4, mhdr.hiLimit, HEADER5_FMT.getFormat(precision)));
 				ws.addCell(new Label(c, row+5, mhdr.pin, HEADER1_FMT.getFormat()));
 				ws.addCell(new Label(c, row+6, mhdr.units, HEADER1_FMT.getFormat()));
 			}

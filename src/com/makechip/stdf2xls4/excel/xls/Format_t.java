@@ -116,7 +116,7 @@ public enum Format_t
         	m = new TIntObjectHashMap<>();
         	map.put(this, m);
         }
-        WritableCellFormat f = m.get(3);
+        WritableCellFormat f = m.get(precision);
         if (f == null)
         {
         	WritableFont wf = font.getFont(fontSize, fgColor);
@@ -126,6 +126,7 @@ public enum Format_t
         	f.setBorder(Border.ALL, borderStyle.style, borderColor.color);
         	f.setVerticalAlignment(vAlign);
         	f.setWrap(wrap);
+        	m.put(precision, f);
         }
         return(f);
     }

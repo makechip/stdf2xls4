@@ -1,6 +1,7 @@
 package com.makechip.stdf2xls4.stdfapi;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -21,7 +22,10 @@ import com.makechip.stdf2xls4.stdf.TestIdDatabase;
 import com.makechip.stdf2xls4.stdf.TestRecord;
 import com.makechip.stdf2xls4.stdf.FunctionalTestRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
+import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
+import com.makechip.stdf2xls4.stdf.enums.ParamFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 import com.makechip.util.Log;
 
 public class TestRecordDatabase
@@ -160,7 +164,37 @@ public class TestRecordDatabase
 				MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);
 			    mpr.getPinNames().forEach(pin -> {
 			    	    int b = a;
-			            TestResult tr = new ParametricTestResult(mpr.testFlags, mpr.getResult(pin));
+			    	    // Need to check limits and set testFlags so that only failing pins are flagged as failures.
+			    	    // Must consider the following:
+			    	    // 1. Is loLimit valid?
+			    	    // 2. is hiLimit valid?
+			    	    // 3. if (result == loLimit) is it a pass?
+			    	    // 4. if (result == hiLimit) is it a pass?
+			    	    boolean fail = false;
+			    	    float rslt = mpr.getResult(pin);
+			    	    if (!mpr.optFlags.contains(OptFlag_t.NO_LO_LIMIT) && !mpr.optFlags.contains(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID))
+			    	    {
+			    	        if (mpr.paramFlags.contains(ParamFlag_t.LO_LIMIT_EQ_PASS)) 
+			    	        {
+			    	        	if (rslt < mpr.loLimit) fail = true;
+			    	        }
+			    	        else
+			    	        {
+			    	        	if (rslt <= mpr.loLimit) fail = true;
+			    	        }
+			    	    }
+			    	    if (!mpr.optFlags.contains(OptFlag_t.NO_HI_LIMIT) && !mpr.optFlags.contains(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID))
+			    	    {
+			    	    	if (mpr.paramFlags.contains(ParamFlag_t.HI_LIMIT_EQ_PASS))
+			    	    	{
+			    	    		if (rslt > mpr.hiLimit) fail = true;
+			    	    	}
+			    	    	else
+			    	    	{
+			    	    		if (rslt >= mpr.hiLimit) fail = true;
+			    	    	}
+			    	    }
+			            TestResult tr = new ParametricTestResult(getTestFlags(mpr.testFlags, fail), mpr.getResult(pin));
 			            m2a.put(th.get(b), tr);
                         Map<DeviceHeader, TestResult> m2b = m1b.get(th.get(b));
                         if (m2b == null) 
@@ -194,6 +228,20 @@ public class TestRecordDatabase
 			    m2b.put(dh, tr);	
 			}
 		}
+	}
+	
+	private Set<TestFlag_t> getTestFlags(Set<TestFlag_t> flags, boolean fail)
+	{
+		Set<TestFlag_t> set = EnumSet.noneOf(TestFlag_t.class);
+		for (TestFlag_t f : flags)
+		{
+			if (!fail)
+			{
+				if (f == TestFlag_t.FAIL) continue;
+			}
+			set.add(f);
+		}
+		return(set);
 	}
 	
 	public TestResult getRecord(PageHeader hdr, DeviceHeader dh, TestHeader id)

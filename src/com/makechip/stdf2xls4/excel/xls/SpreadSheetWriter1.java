@@ -130,7 +130,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
 {
 	private final CliOptions options;
 	private final StdfAPI api;
-    private final boolean newSpreadsheet;
+	private boolean noOverwrite;
     private HeaderBlock hb;	
     private CornerBlock cb;
 	
@@ -162,12 +162,10 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
        	{
        		Workbook w = Workbook.getWorkbook(options.xlsName);
        		wb = Workbook.createWorkbook(options.xlsName, w);
-       		newSpreadsheet = false;
        	}
        	else 
         {
        		wb = Workbook.createWorkbook(options.xlsName);
-       		newSpreadsheet = true;
         }
        	wb.setColourRGB(Colour.SKY_BLUE, 82, 123, 188);
         sheetNum = 0;
@@ -178,6 +176,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         statusView.setSize(16*256);
         unitsView.setSize(8*256);
         hdrView.setSize(14*256);
+        noOverwrite = options.noOverwrite;
     }
 
     // 1. Make logo
@@ -206,44 +205,10 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         
     private void writeData(PageHeader hdr) throws RowsExceededException, WriteException
     {
-        /*	
-    	if (sortByFilename && showDuplicates) noOverWrite = true;
-        List<ResultList2> m1 = sData.get(waferOrStep);
-        StepInfo si = headerInfo.get(waferOrStep);
-        int temp = si.getTemperature();
-        String t = "" + temp + "C";
-        TreeMap<SnOrXy, DeviceHeader> m2 = devHdr.get(waferOrStep);
-        LinkedHashSet<ColIdentifier> hdrs = dataHeader.get(waferOrStep);
-        List<TestID> hdrList = new ArrayList<TestID>();
-        for (ColIdentifier c : hdrs) hdrList.add(c.getTestID());
+    	if (options.sort && options.showDuplicates) noOverwrite = true;
+    	
         for (ResultList2 rl : m1)
         {
-        	SnOrXy sn = rl.getSnOrXy();
-           	Map<TestID, Result> list = rl.getMap();
-           	int pages = 0;
-           	testColumns = colsPerPage;
-           	if (hdrList.size() % colsPerPage == 0) pages = hdrList.size() / colsPerPage;
-           	else pages = 1 + (hdrList.size() / colsPerPage);
-           	DeviceHeader dh = m2.get(sn);
-           	int k = 0;
-           	for (int page=0; page<pages; page++)
-           	{
-               	locateRow(waferOrStep, sn, page); // sets currentRow
-               	if (onePage) ws[page].addCell(new Label(rslt_col-3, currentRow, waferOrStep, DATA_FMT.getFormat()));
-               	ws[page].addCell(new Number(rslt_col-2, currentRow, dh.getHwBin(), DATA_FMT.getFormat()));
-               	ws[page].addCell(new Number(rslt_col-1, currentRow, dh.getSwBin(), DATA_FMT.getFormat()));
-               	if (dh.isPass()) setStatus(ws[page], rslt_col, currentRow, Error_t.PASS);
-               	else setStatus(ws[page], rslt_col, currentRow, Error_t.FAIL);
-               	ws[page].addCell(new Label(temp_col, currentRow, t, DATA_FMT.getFormat()));
-               	if (waferMode)
-               	{
-               	    ws[page].addCell(new Number(x_col, currentRow, sn.getX(), DATA_FMT.getFormat()));
-               	    ws[page].addCell(new Number(y_sn_col, currentRow, sn.getY(), DATA_FMT.getFormat()));
-               	}
-               	else
-               	{
-               	    ws[page].addCell(new Label(x_col, currentRow, sn.getSerialNumber(), DATA_FMT.getFormat()));
-               	}
                	for (int i=0; i<testColumns; i++)
                	{
                    	if (k == hdrList.size()) break;
@@ -267,9 +232,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
                    	}
                    	k++;
                	}
-           	}
-        }
-        */
+       	}
     } 
     
     private void openSheet(PageHeader hdr) throws RowsExceededException, WriteException, IOException, StdfException
