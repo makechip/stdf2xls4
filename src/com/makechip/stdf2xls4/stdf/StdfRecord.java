@@ -410,7 +410,7 @@ public abstract class StdfRecord
 
     /**
      * Extract a variable-length bit-encoded field from the bytes array.
-     * This field can have a maximum length of 65535 bytes.
+     * This field can have a maximum length of 65535 bits.
      * @param numBits The number of bits in this field is returned
      * in this reference variable.
      * @return The array of bytes containing the bit-encoded field.
