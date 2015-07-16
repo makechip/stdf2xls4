@@ -124,10 +124,10 @@ public class PartResultsRecord extends StdfRecord
         partInfoFlags = PartInfoFlag_t.getBits(f);
         numExecs = getU2(0);
         hwBinNumber = getU2(-1);
-        swBinNumber = getU2(-1);
+        swBinNumber = getU2(65535);
         xCoord = getI2((short) -32768);
         yCoord = getI2((short) -32768);
-        testTime = getU4(-1);
+        testTime = getU4(0);
         String pid = getCn();
         partID = (pid.equals("")) ? "" + sn-- : pid;
         partDescription = getCn();

@@ -206,7 +206,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private void writeData(PageHeader hdr) throws RowsExceededException, WriteException
     {
     	if (options.sort && options.showDuplicates) noOverwrite = true;
-    	
+    	/*
         for (ResultList2 rl : m1)
         {
                	for (int i=0; i<testColumns; i++)
@@ -233,6 +233,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
                    	k++;
                	}
        	}
+       	*/
     } 
     
     private void openSheet(PageHeader hdr) throws RowsExceededException, WriteException, IOException, StdfException
