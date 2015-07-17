@@ -26,16 +26,15 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
 
 /**
 *** @author eric
@@ -144,10 +143,10 @@ public class GenericDataRecord extends StdfRecord
 		 * @param numBits The number of bits in this bit field.
 		 * @param value The data payload, normally an array of some type.
 		 */
-		public BitData(PadData p, MutableInt numBits, Object value)
+		public BitData(PadData p, int numBits, Object value)
 		{
 			super(p, value);
-			this.numBits = numBits.n;
+			this.numBits = numBits;
 		}
 
 		/* (non-Javadoc)
@@ -261,63 +260,62 @@ public class GenericDataRecord extends StdfRecord
 		}
 	}
 	
-	private PadData getType()
+	private PadData getType(Cpu_t cpu, DataInputStream is) throws IOException
 	{
 		int type = 0;
 		int cnt = 0;
 		while (type == (short) 0) 
 		{
-			type = getU1((short) -1);
+			type = cpu.getU1(is);
 			if (type != (byte) 0) break;
 			cnt++;
 		}
 		return(new PadData(Data_t.getDataType(type), cnt));
 	}
 	
-	private void getField(List<Data> l, PadData v)
+	private void getField(List<Data> l, PadData v, Cpu_t cpu, DataInputStream is) throws IOException
 	{
-		if (v == null) Log.msg("V IS NULL");
-		if (v.type == null) Log.msg("v.type IS NULL");
         switch (v.type)
         {
-        case U_1: l.add(new Data(v, getU1((short) 0))); break;
-        case U_2: l.add(new Data(v, getU2(0))); break;
-        case U_4: l.add(new Data(v, getU4(0))); break;
-        case I_1: l.add(new Data(v, getI1((byte) 0))); break;
-        case I_2: l.add(new Data(v, getI2((short) 0))); break;
-        case I_4: l.add(new Data(v, getI4(0))); break;
-        case R_4: l.add(new Data(v, getR4(0.0f))); break;
-        case R_8: l.add(new Data(v, getR8(0.0))); break;
-        case C_N: l.add(new Data(v, getCn())); break;
-        case B_N: l.add(new Data(v, getBn())); break;
-        case D_N: MutableInt numBits = new MutableInt(); 
-                  l.add(new BitData(v, numBits, getDn(numBits))); 
-                  break;
-        case N_N: l.add(new Data(v, getNibbles(1))); break;
+        case U1: l.add(new Data(v, cpu.getU1(is))); break;
+        case U2: l.add(new Data(v, cpu.getU2(is))); break;
+        case U4: l.add(new Data(v, cpu.getU4(is))); break;
+        case I1: l.add(new Data(v, cpu.getI1(is))); break;
+        case I2: l.add(new Data(v, cpu.getI2(is))); break;
+        case I4: l.add(new Data(v, cpu.getI4(is))); break;
+        case R4: l.add(new Data(v, cpu.getR4(is))); break;
+        case R8: l.add(new Data(v, cpu.getR8(is))); break;
+        case CN: l.add(new Data(v, cpu.getCN(is))); break;
+        case BN: l.add(new Data(v, cpu.getBN(is))); break;
+        case N1: l.add(new Data(v, cpu.getN1(is))); break;
+        case DN: int numBits = cpu.getU2(is);
+                 l.add(new BitData(v, numBits, cpu.getDN(numBits, is))); 
+                 break;
        	default: throw new RuntimeException("Unknown data type in GenericDataRecord");
         }
 	}
 	
-	private static void setField(Cpu_t cpuType, TByteArrayList l, Data field)
+	private static void setField(Cpu_t cpu, TByteArrayList l, Data field)
 	{
 		IntStream.generate(() -> 0).limit(field.padCnt).forEach(v -> l.add((byte) 0));
 		l.add((byte) field.type.type);
 		switch (field.type)
 		{
-        case U_1: l.add(getU1Bytes((short) field.value)); break;
-        case U_2: l.addAll(cpuType.getU2Bytes((int) field.value)); break;
-        case U_4: l.addAll(cpuType.getU4Bytes((long) field.value)); break;
-        case I_1: l.add(getI1Bytes((byte) field.value)); break;
-        case I_2: l.addAll(cpuType.getI2Bytes((short) field.value)); break;
-        case I_4: l.addAll(cpuType.getI4Bytes((int) field.value)); break;
-        case R_4: l.addAll(cpuType.getR4Bytes((float) field.value)); break;
-        case R_8: l.addAll(cpuType.getR8Bytes((double) field.value)); break;
-        case C_N: l.addAll(getCnBytes((String) field.value)); break;
-        case B_N: l.addAll(getBnBytes((byte[]) field.value)); break;
-        case D_N: BitData bd = (BitData) field; 
-        	      l.addAll(cpuType.getDnBytes(bd.numBits, (byte[]) field.value)); 
+        case U1: l.add(cpu.getU1Bytes((short) field.value)); break;
+        case U2: l.addAll(cpu.getU2Bytes((int) field.value)); break;
+        case U4: l.addAll(cpu.getU4Bytes((long) field.value)); break;
+        case I1: l.add(cpu.getI1Bytes((byte) field.value)); break;
+        case I2: l.addAll(cpu.getI2Bytes((short) field.value)); break;
+        case I4: l.addAll(cpu.getI4Bytes((int) field.value)); break;
+        case R4: l.addAll(cpu.getR4Bytes((float) field.value)); break;
+        case R8: l.addAll(cpu.getR8Bytes((double) field.value)); break;
+        case CN: l.addAll(cpu.getCNBytes((String) field.value)); break;
+        case BN: l.addAll(cpu.getBNBytes((byte[]) field.value)); break;
+        case N1: byte[] b = (byte[]) field.value;
+        	     l.addAll(cpu.getN1Bytes(b[0], b[1])); break;
+        case DN: BitData bd = (BitData) field; 
+        	      l.addAll(cpu.getDNBytes(bd.numBits, (byte[]) field.value)); 
         	      break;
-        case N_N: l.addAll(getNibbleBytes((byte[]) field.value)); break;
        	default: throw new RuntimeException("Unknown data type in GenericDataRecord");
 		}
 	}
@@ -329,12 +327,16 @@ public class GenericDataRecord extends StdfRecord
      * @param dvd This CTOR sets the CPU type in the DefaultValueDatabase.
 	 * @param data
 	 */
-    public GenericDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public GenericDataRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.GDR, dvd.getCpuType(), data);
+        super();
         List<Data> l = new ArrayList<Data>();
-        int fields = getU2(0);
-        Stream.generate(() -> getType()).limit(fields).forEach(v -> getField(l, v));
+        int fields = cpu.getU2(is);
+        for (int i=0; i<fields; i++)
+        {
+            PadData v = getType(cpu, is);
+            getField(l, v, cpu, is);
+        }
         list = Collections.unmodifiableList(l);
     }
     
@@ -344,28 +346,26 @@ public class GenericDataRecord extends StdfRecord
      * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
      * @param list A list of Data fields.
      */
-    public GenericDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, List<Data> list)
+    public GenericDataRecord(List<Data> list)
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), list));
+    	this.list = Collections.unmodifiableList(list);
     }
 
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, list);	
+		final TByteArrayList l1 = new TByteArrayList();
+		list.stream().forEach(p -> setField(cpu, l1, p));
+		byte[] b = l1.toArray();
+		TByteArrayList l2 = getHeaderBytes(cpu, Record_t.GDR, b.length);
+		l2.addAll(b);
+        return(l2.toArray());
 	}
+    
 	
-	private static byte[] toBytes(Cpu_t cpuType, List<Data> list)
-	{
-	    TByteArrayList l = new TByteArrayList();
-	    l.addAll(cpuType.getU2Bytes(list.size())); 
-	    list.stream().forEach(d -> setField(cpuType, l, d));
-	    return(l.toArray());
-	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -408,6 +408,6 @@ public class GenericDataRecord extends StdfRecord
 		if (!super.equals(obj)) return false;
 		return true;
 	}
-    
+
     
 }

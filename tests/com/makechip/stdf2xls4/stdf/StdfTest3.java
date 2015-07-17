@@ -17,6 +17,8 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
+import com.makechip.stdf2xls4.stdfapi.DefaultValueDatabase;
+import com.makechip.stdf2xls4.stdfapi.TestIdDatabase;
 import com.makechip.util.Log;
 
 /**
@@ -65,8 +67,8 @@ public class StdfTest3
 			new byte[] { (byte) 0, (byte) 1, (byte) 2, (byte) 3 }, 32, new byte[] { (byte) 3, (byte) 2, (byte) 1, (byte) 0 },
 			"vecName", "timeSetName", "vecOpCode", "label", "alarmName", "progTxt", "rsltTxt", (short) 5,  24,
 			new byte[] { (byte) 6, (byte) 7, (byte) 8 }));
-		GenericDataRecord.Data d1 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_4, 0), new Integer(33));
-		GenericDataRecord.Data d2 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R_8, 0), new Double(44.0));
+		GenericDataRecord.Data d1 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I4, 0), new Integer(33));
+		GenericDataRecord.Data d2 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R8, 0), new Double(44.0));
 		List<GenericDataRecord.Data> lgd = new ArrayList<GenericDataRecord.Data>(); 
 		lgd.add(d1);
 		lgd.add(d2);
@@ -96,13 +98,13 @@ public class StdfTest3
 			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc"));
 		stdf.add(new EndProgramSectionRecord(tdb, dvd));
 		stdf.add(new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 0));
-		GenericDataRecord.Data d3 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U_1, 0), new Short((short)33));
-		GenericDataRecord.Data d4 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U_2, 0), new Integer(33));
-		GenericDataRecord.Data d5 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U_4, 0), new Long(33L));
-		GenericDataRecord.Data d6 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_1, 0), new Byte((byte) 33));
-		GenericDataRecord.Data d7 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_2, 0), new Short((short) 33));
-		GenericDataRecord.Data d8 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R_4, 0), new Float(33.0f));
-		GenericDataRecord.Data d9 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.C_N, 0), "string");
+		GenericDataRecord.Data d3 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U1, 0), new Short((short)33));
+		GenericDataRecord.Data d4 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U2, 0), new Integer(33));
+		GenericDataRecord.Data d5 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U4, 0), new Long(33L));
+		GenericDataRecord.Data d6 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I1, 0), new Byte((byte) 33));
+		GenericDataRecord.Data d7 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I2, 0), new Short((short) 33));
+		GenericDataRecord.Data d8 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R4, 0), new Float(33.0f));
+		GenericDataRecord.Data d9 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.CN, 0), "string");
 		List<GenericDataRecord.Data> lgd2 = new ArrayList<GenericDataRecord.Data>(); 
 		lgd2.add(d3);
 		lgd2.add(d4);
@@ -598,11 +600,11 @@ public class StdfTest3
 		List<GenericDataRecord.Data> l = gdr.list; 
 		GenericDataRecord.Data d = l.get(0);
 		assertEquals("Data [type=I_4, value=33, padCnt=0]", d.toString());
-		GenericDataRecord.PadData p1 = new GenericDataRecord.PadData(Data_t.I_4, 0);
-		GenericDataRecord.PadData p2 = new GenericDataRecord.PadData(Data_t.I_4, 0);
-		GenericDataRecord.PadData p3 = new GenericDataRecord.PadData(Data_t.I_4, 1);
+		GenericDataRecord.PadData p1 = new GenericDataRecord.PadData(Data_t.I4, 0);
+		GenericDataRecord.PadData p2 = new GenericDataRecord.PadData(Data_t.I4, 0);
+		GenericDataRecord.PadData p3 = new GenericDataRecord.PadData(Data_t.I4, 1);
 		GenericDataRecord.PadData p4 = new GenericDataRecord.PadData(null, 1);
-		GenericDataRecord.PadData p5 = new GenericDataRecord.PadData(Data_t.I_2, 0);
+		GenericDataRecord.PadData p5 = new GenericDataRecord.PadData(Data_t.I2, 0);
 		assertEquals("PadData [type=I_4, padCnt=0]", p1.toString());
 		assertTrue(p4.equals(p4));
 		assertFalse(p1.equals(p5));
@@ -635,10 +637,10 @@ public class StdfTest3
 		assertFalse(d1.equals(null));
 		assertFalse(d1.equals("A"));
 		assertFalse(d3.equals(d4));
-		assertEquals(Data_t.I_4, d.type);
+		assertEquals(Data_t.I4, d.type);
 		assertEquals(33, d.value);
 		d = l.get(1);
-		assertEquals(Data_t.R_8, d.type);
+		assertEquals(Data_t.R8, d.type);
 		assertEquals(44.0, d.value);
 		StdfRecord.MutableInt m1 = new StdfRecord.MutableInt();
 		m1.n = 5;
@@ -659,37 +661,37 @@ public class StdfTest3
 		GenericDataRecord gdr1 = (GenericDataRecord) r;
 		l = gdr1.list; 
 		GenericDataRecord.Data d0 = l.get(0);
-		assertEquals(Data_t.U_1, d0.type);
+		assertEquals(Data_t.U1, d0.type);
 		assertEquals((short) 33, d0.value);
 		assertEquals(0, d0.padCnt);
 		
 		GenericDataRecord.Data x1 = l.get(1);
-		assertEquals(Data_t.U_2, x1.type);
+		assertEquals(Data_t.U2, x1.type);
 		assertEquals((int) 33, x1.value);
 		assertEquals(0, x1.padCnt);
 		
 		GenericDataRecord.Data x2 = l.get(2);
-		assertEquals(Data_t.U_4, x2.type);
+		assertEquals(Data_t.U4, x2.type);
 		assertEquals(33L, x2.value);
 		assertEquals(0, x2.padCnt);
 		
 		GenericDataRecord.Data x3 = l.get(3);
-		assertEquals(Data_t.I_1, x3.type);
+		assertEquals(Data_t.I1, x3.type);
 		assertEquals((byte) 33, x3.value);
 		assertEquals(0, x3.padCnt);
 		
 		GenericDataRecord.Data x4 = l.get(4);
-		assertEquals(Data_t.I_2, x4.type);
+		assertEquals(Data_t.I2, x4.type);
 		assertEquals((short) 33, x4.value);
 		assertEquals(0, x4.padCnt);
 		
 		GenericDataRecord.Data x5 = l.get(5);
-		assertEquals(Data_t.R_4, x5.type);
+		assertEquals(Data_t.R4, x5.type);
 		assertEquals(33.0f, x5.value);
 		assertEquals(0, x5.padCnt);
 		
 		GenericDataRecord.Data x6 = l.get(6);
-		assertEquals(Data_t.C_N, x6.type);
+		assertEquals(Data_t.CN, x6.type);
 		assertEquals("string", x6.value);
 		assertEquals(0, x6.padCnt);
 		assertFalse(gdr.equals(gdr1));
@@ -1697,7 +1699,7 @@ public class StdfTest3
 		assertEquals("testName", dtr.id.testName);
 		assertEquals("fA", dtr.units);
 		assertEquals(30.0f, dtr.value);
-		assertEquals(Data_t.R_4, dtr.valueType);
+		assertEquals(Data_t.R4, dtr.valueType);
 		assertEquals((short) 1, dtr.siteNumber);
 		assertEquals((short) 3, dtr.headNumber);
 		assertTrue(dtr.equals(dtr));
@@ -1719,11 +1721,11 @@ public class StdfTest3
 		DatalogTestRecord dtr6 = new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : 1.1.1");
 		DatalogTestRecord dtr7 = new DatalogTestRecord(tdb, dvd, "TEXT_DATA : testName : XXX");
 		assertEquals(30, dtr5.value);
-		assertEquals(Data_t.I_4, dtr5.valueType);
+		assertEquals(Data_t.I4, dtr5.valueType);
 		assertEquals("1.1.1", dtr6.value);
-		assertEquals(Data_t.C_N, dtr6.valueType);
+		assertEquals(Data_t.CN, dtr6.valueType);
 		assertEquals("XXX", dtr7.value);
-		assertEquals(Data_t.C_N, dtr7.valueType);
+		assertEquals(Data_t.CN, dtr7.valueType);
 	}	
 
 	@Test

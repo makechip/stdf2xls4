@@ -24,6 +24,10 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
@@ -43,19 +47,21 @@ public class EndProgramSectionRecord extends StdfRecord
      * record, the array should have a length of zero because the EndProgramSectionRecord
      * has no data fields.
      */
-    public EndProgramSectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public EndProgramSectionRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.EPS, dvd.getCpuType(), data);
+        super();
     }
     
     /**
      * Constructor for initializing this record with field values.
      * @param tdb The TestIdDatabase is needed because this CTOR calls the above CTOR.
      * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public EndProgramSectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd)
+    public EndProgramSectionRecord(Cpu_t cpu) throws IOException, StdfException
     {
-    	this(tdb, dvd, new byte[0]);
+    	this(cpu, 0, null);
     }
 
 	/* (non-Javadoc)
@@ -73,9 +79,9 @@ public class EndProgramSectionRecord extends StdfRecord
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = new byte[0];	
+		return(getHeaderBytes(cpu, Record_t.EPS, 0).toArray());
 	}
     
 }

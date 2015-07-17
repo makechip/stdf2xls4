@@ -25,8 +25,13 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.StringTokenizer;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -49,30 +54,44 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
  */
 public class DatalogTestRecord extends TestRecord
 {
-	private final String text;
-	public final TestID id;
-	public final String units;
+	public final String testName;
 	public final Object value;
+	public final String units;
+	public final Long testNumber;
 	public final Data_t valueType;
-	public final short siteNumber;
-	public final short headNumber;
+	public final Short siteNumber;
+	public final Short headNumber;
 	
     
     /**
-     * Constructor for initializing this record with binary stream data.
-     * @param tdb The TestIdDatabase  is not used by this record, but is
-     * required so STDF records have consistent constructor signatures.
-     * @param dvd The DefaultValueDatabase is used to get the CPU type.
-     * @param data The binary stream data for this record.  The array should
-     * not contain the first four bytes of the record.
+     * This CTOR is a dummy CTOR that should not be used.  It is included so that
+     * the initializer is available to the Record_t.DTRX enum.  It is never actually used.
      */
-    public DatalogTestRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public DatalogTestRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.DTR, dvd.getCpuType(), data);
-        text = getCn();
+        super();
+        testName = null;
+        value = null;
+        units = null;
+        testNumber = null;
+        valueType = null;
+        siteNumber = null;
+        headNumber = null;
+    }
+    
+    /**
+     * Constructor for initializing this record with field values.
+     * @param tdb The TestIdDatabase is needed because this CTOR calls the above CTOR.
+     * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
+     * @param text This field holds the TEXT_DAT field. It must not be null. The
+     * maximum length of this String is 255 characters.
+     */
+    public DatalogTestRecord(String text)
+    {
+    	super();
         StringTokenizer st = new StringTokenizer(text, ":");
         st.nextToken(); // burn TEXT_DATA
-        String tname = st.nextToken();
+        testName = st.nextToken();
         String valueUnitsOpt = st.nextToken();
         String tnum = "0";
         short sn = (short) 0;
@@ -97,8 +116,7 @@ public class DatalogTestRecord extends TestRecord
         }
         siteNumber = sn;
         headNumber = hn;
-        Long tn = new Long(tnum.trim());
-        id = TestID.createTestID(tdb, tn, tname.trim());
+        testNumber = new Long(tnum.trim());
         StringTokenizer st2 = new StringTokenizer(valueUnitsOpt, "\" \t()"); 
         String v = st2.nextToken();
         if (st2.hasMoreTokens()) units = st2.nextToken(); else units = "";
@@ -110,46 +128,48 @@ public class DatalogTestRecord extends TestRecord
             if (cnt == 1L) // it's a float
             {
                 value = new Float(v);	
-                type = Data_t.R_4;
+                type = Data_t.R4;
             }
             else if (cnt == 0L) // it's an int
             {
                 value = new Integer(v);	
-                type = Data_t.I_4;
+                type = Data_t.I4;
             }
             else // it's a String
             {
                 value = v;	
-                type = Data_t.C_N;
+                type = Data_t.CN;
             }
         }
         else // it's a String
         {
             value = v;	
-            type = Data_t.C_N;
+            type = Data_t.CN;
         }
         valueType = type;
-    }
-    
-    /**
-     * Constructor for initializing this record with field values.
-     * @param tdb The TestIdDatabase is needed because this CTOR calls the above CTOR.
-     * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
-     * @param text This field holds the TEXT_DAT field. It must not be null. The
-     * maximum length of this String is 255 characters.
-     */
-    public DatalogTestRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, String text)
-    {
-    	this(tdb, dvd, getCnBytes(text));
     }
     
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
+
+    // TEXT_DATA : test_name : value [(units)] [ : test_number [ : site_number [ : head_number ]]]<br>
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		bytes = getCnBytes(text);
+		StringBuilder sb = new StringBuilder("TEXT_DATA : ");
+	    sb.append(testName);
+	    sb.append(" : ");
+	    sb.append(value.toString());
+	    if (units != null) sb.append(" ").append(units);
+	    if (testNumber != null) sb.append(" : ").append(testNumber.toString());
+	    if (siteNumber != null) sb.append(" : ").append(siteNumber.toString());
+	    if (headNumber != null) sb.append(" : ").append(headNumber.toString());
+	    String text = sb.toString();
+	    byte[] b = cpu.getCNBytes(text);
+	    TByteArrayList l = getHeaderBytes(cpu, Record_t.DTR, b.length);
+	    l.addAll(b);
+		return(l.toArray());
 	}
 
 	/* (non-Javadoc)
@@ -159,8 +179,48 @@ public class DatalogTestRecord extends TestRecord
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("DatalogTestRecord [text=");
-		builder.append(text);
+		builder.append("DatalogTestRecord [");
+		if (testName != null)
+		{
+			builder.append("testName=");
+			builder.append(testName);
+			builder.append(", ");
+		}
+		if (value != null)
+		{
+			builder.append("value=");
+			builder.append(value);
+			builder.append(", ");
+		}
+		if (units != null)
+		{
+			builder.append("units=");
+			builder.append(units);
+			builder.append(", ");
+		}
+		if (testNumber != null)
+		{
+			builder.append("testNumber=");
+			builder.append(testNumber);
+			builder.append(", ");
+		}
+		if (valueType != null)
+		{
+			builder.append("valueType=");
+			builder.append(valueType);
+			builder.append(", ");
+		}
+		if (siteNumber != null)
+		{
+			builder.append("siteNumber=");
+			builder.append(siteNumber);
+			builder.append(", ");
+		}
+		if (headNumber != null)
+		{
+			builder.append("headNumber=");
+			builder.append(headNumber);
+		}
 		builder.append("]");
 		return builder.toString();
 	}
@@ -172,8 +232,14 @@ public class DatalogTestRecord extends TestRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + text.hashCode();
+		int result = 1;
+		result = prime * result + ((headNumber == null) ? 0 : headNumber.hashCode());
+		result = prime * result + ((siteNumber == null) ? 0 : siteNumber.hashCode());
+		result = prime * result + ((testName == null) ? 0 : testName.hashCode());
+		result = prime * result + ((testNumber == null) ? 0 : testNumber.hashCode());
+		result = prime * result + ((units == null) ? 0 : units.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		result = prime * result + ((valueType == null) ? 0 : valueType.hashCode());
 		return result;
 	}
 
@@ -184,20 +250,37 @@ public class DatalogTestRecord extends TestRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof DatalogTestRecord)) return false;
 		DatalogTestRecord other = (DatalogTestRecord) obj;
-		if (!text.equals(other.text)) return false;
-		if (!super.equals(obj)) return false;
+		if (headNumber == null)
+		{
+			if (other.headNumber != null) return false;
+		} 
+		else if (!headNumber.equals(other.headNumber)) return false;
+		if (siteNumber == null)
+		{
+			if (other.siteNumber != null) return false;
+		} else if (!siteNumber.equals(other.siteNumber)) return false;
+		if (testName == null)
+		{
+			if (other.testName != null) return false;
+		} else if (!testName.equals(other.testName)) return false;
+		if (testNumber == null)
+		{
+			if (other.testNumber != null) return false;
+		} else if (!testNumber.equals(other.testNumber)) return false;
+		if (units == null)
+		{
+			if (other.units != null) return false;
+		} else if (!units.equals(other.units)) return false;
+		if (value == null)
+		{
+			if (other.value != null) return false;
+		} else if (!value.equals(other.value)) return false;
+		if (valueType != other.valueType) return false;
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getTestId()
-	 */
-	@Override
-	public TestID getTestId()
-	{
-		return(id);
-	}
 
 }

@@ -42,51 +42,55 @@ public enum Data_t
 	/**
 	 * Unsigned byte.
 	 */
-    U_1(1, 1),
+    U1(1, 1),
     /**
      * Unsigned short.
      */
-    U_2(2, 2),
+    U2(2, 2),
     /**
      * Unsigned integer.
      */
-    U_4(3, 4),
+    U4(3, 4),
     /**
      * Signed byte.
      */
-    I_1(4, 1),
+    I1(4, 1),
     /**
      * Signed short.
      */
-    I_2(5, 2),
+    I2(5, 2),
     /**
      * Signed integer.
      */
-    I_4(6, 4),
+    I4(6, 4),
     /**
      * float.
      */
-    R_4(7, 4),
+    R4(7, 4),
     /**
      * double.
      */
-    R_8(8, 8),
+    R8(8, 8),
     /**
      * String.
      */
-    C_N(10, 1),
+    CN(10, -1),
     /**
      * Variable length bit field - up to 8 * 255 bits
      */
-    B_N(11, 1),
+    BN(11, -1),
     /**
      * Variable length bit field - up to 8 * 65535 bits
      */
-    D_N(12, 1),
+    DN(12, -1),
     /**
      * Fixed length Field of nibbles
      */
-    N_N(13, 1);
+    N1(13, 1),
+    /**
+     * 
+     */
+    VN(14, -1);
 
     /**
      * The numeric representation of the data type.

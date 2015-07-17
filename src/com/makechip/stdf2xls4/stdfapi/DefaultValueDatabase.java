@@ -1,4 +1,4 @@
-package com.makechip.stdf2xls4.stdf;
+package com.makechip.stdf2xls4.stdfapi;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
@@ -14,7 +14,7 @@ import java.util.Set;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
-import com.makechip.stdf2xls4.stdf.TestID;
+import com.makechip.stdf2xls4.stdf.StdfRecord;
 
 public final class DefaultValueDatabase
 {

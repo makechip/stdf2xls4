@@ -25,6 +25,10 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
@@ -55,7 +59,7 @@ public class HardwareBinRecord extends StdfRecord
     /**
      * This is the HBIN_PF field of the HardwareBinRecord.
      */
-    public final char pf;
+    public final Character pf;
     /**
      * This is the HBIN_NAM field of the HardwareBinRecord.
      */
@@ -70,61 +74,72 @@ public class HardwareBinRecord extends StdfRecord
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public HardwareBinRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public HardwareBinRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.HBR, dvd.getCpuType(), data);
-        headNumber = getU1((short) 0);
-        siteNumber = getU1((short) 0);
-        hwBin = getU2(-1);
-        binCnt = getU4(0);
-        pf = getFixedLengthString(1).charAt(0);
-        binName = getCn();
+        super();
+        headNumber = cpu.getU1(is);
+        siteNumber = cpu.getU1(is);
+        hwBin = cpu.getU2(is);
+        binCnt = cpu.getU4(is);
+        if (recLen > 8) pf = (char) cpu.getI1(is); else pf = null;
+        if (recLen > 9) binName = cpu.getCN(is); else binName = null;
     }
     
     /**
      * This constructor is used to generate binary Stream data.  It can be used to convert
      * the field values back into binary stream data.
-     * @param tdb The TestIdDatabase. This value is not used, but is needed so that
-     * this constructor can call the previous constructor to avoid code duplication.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type.
+     * @param cpu         The CPU type.
      * @param headNumber  The HEAD_NUM field.
      * @param siteNumber  The SITE_NUM field.
      * @param hwBin       The HBIN_NUM field.
      * @param binCnt      The HBIN_CNT field.
      * @param pf          The HBIN_PF field.
      * @param binName     The HBIN_NAM field.
+     * @throws StdfException 
+     * @throws IOException 
      */
     public HardwareBinRecord(
-    	TestIdDatabase tdb,
-    	DefaultValueDatabase dvd,
+    	Cpu_t cpu,
     	short headNumber, 
     	short siteNumber, 
     	int hwBin, 
     	long binCnt, 
-    	char pf, 
-    	String binName)
+    	Character pf, 
+    	String binName) throws IOException, StdfException
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, hwBin, binCnt, pf, binName));
+    	this(cpu, 
+    		 getRecLen(pf, binName),
+    		 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteNumber, hwBin, binCnt, pf, binName))));
     }
     
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		bytes = toBytes(cpuType, headNumber, siteNumber, hwBin, binCnt, pf, binName);
+		byte[] b = toBytes(cpu, headNumber, siteNumber, hwBin, binCnt, pf, binName);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.HBR, b.length);
+		return(l.toArray());
+	}
+
+	private static int getRecLen(Character pf, String binName)
+	{
+		int l = 8;
+		if (pf != null) l++;
+		if (binName != null) l += 1 + binName.length();
+		return(l);
 	}
 	
-	private static byte[] toBytes(Cpu_t cpuType, short headNumber, short siteNumber, int hwBin, long binCnt, char pf, String binName)
+	private static byte[] toBytes(Cpu_t cpu, short headNumber, short siteNumber, int hwBin, long binCnt, Character pf, String binName)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteNumber));
-		l.addAll(cpuType.getU2Bytes(hwBin));
-		l.addAll(cpuType.getU4Bytes(binCnt));
-		l.addAll(getFixedLengthStringBytes("" + pf));
-		l.addAll(getCnBytes(binName));
+		l.addAll(cpu.getU1Bytes(headNumber));
+		l.addAll(cpu.getU1Bytes(siteNumber));
+		l.addAll(cpu.getU2Bytes(hwBin));
+		l.addAll(cpu.getU4Bytes(binCnt));
+		if (pf != null) l.add((byte) pf.charValue()); else return(l.toArray());
+		if (binName != null) l.addAll(cpu.getCNBytes(binName));
 		return(l.toArray());
 	}
 

@@ -26,6 +26,10 @@
 package com.makechip.stdf2xls4.stdf;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
@@ -54,12 +58,14 @@ public class AuditTrailRecord extends StdfRecord
      *  @param dvd The DefaultValueDatabase is used to access the CPU type.
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public AuditTrailRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.ATR, dvd.getCpuType(), data);
-        date = getU4(0);
-        cmdLine = getCn();
+        super();
+        date = cpu.getU4(is);
+        cmdLine = cpu.getCN(is);
     }
     
     /**
@@ -71,10 +77,12 @@ public class AuditTrailRecord extends StdfRecord
      * @param date The MOD_TIM value expressed as milliseconds from January 1, 1970, 00:00:00 GMT.
      * @param cmdLine The CMD_LINE value that holds the command line of the program that adds this record.
      *        Note: cmdLine may NOT be null.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, final long date, final String cmdLine)
+    public AuditTrailRecord(Cpu_t cpu, final long date, final String cmdLine) throws IOException, StdfException
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), date, cmdLine));
+    	this(cpu, 0, new DataInputStream(new ByteArrayInputStream(toBytes(cpu, date, cmdLine))));
     }
     
 	/* (non-Javadoc)
@@ -89,16 +97,19 @@ public class AuditTrailRecord extends StdfRecord
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		bytes = toBytes(cpuType, date, cmdLine);
+		byte[] a = toBytes(cpu, date, cmdLine);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.ATR, a.length);
+		l.addAll(a);
+		return(l.toArray());
 	}
 	
-	private static byte[] toBytes(Cpu_t cpuType, long date, String cmdLine)
+	private static byte[] toBytes(Cpu_t cpu, long date, String cmdLine)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(cpuType.getU4Bytes(date));
-		l.addAll(getCnBytes(cmdLine));
+		l.addAll(cpu.getU4Bytes(date));
+		l.addAll(cpu.getCNBytes(cmdLine));
 		return(l.toArray());
 	}
 

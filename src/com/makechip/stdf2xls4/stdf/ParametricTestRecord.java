@@ -27,6 +27,9 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -34,6 +37,8 @@ import java.util.Set;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+
+import static com.makechip.stdf2xls4.stdf.enums.Data_t.*;
 import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 /**
  *  This class holds the fields of a Parametric Test Record.
@@ -42,94 +47,66 @@ import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 public class ParametricTestRecord extends ParametricRecord
 {
 	/**
-	 *  This is the RESULT field
+	 *  This is the RESULT field.
 	 */
-    public final float result; 
+    public final Float result; 
     /**
-     *  This is the ALARM_ID field
+     * This is the TEST_TXT field.
+     */
+    public final String testName;
+    /**
+     *  This is the ALARM_ID field.
      */
     public final String alarmName;
     /**
-     *  This is the OPT_FLAG field
+     *  This is the OPT_FLAG field.
      */
     public final Set<OptFlag_t> optFlags; 
     /**
-     *  This is the RES_SCAL field
+     *  This is the RES_SCAL field.
      */
-    public final byte resScal;
+    public final Byte resScal;
     /**
-     *  This is the LLM_SCAL field
+     *  This is the LLM_SCAL field.
      */
-    public final byte llmScal;
+    private final Byte llmScal;
     /**
-     *  This is the HLM_SCAL field
+     *  This is the HLM_SCAL field.
      */
-    public final byte hlmScal; 
+    private final Byte hlmScal; 
     /**
-     *  This is the LO_LIMIT field
+     *  This is the LO_LIMIT field.
      */
-    public final float loLimit; 
+    private final Float loLimit; 
     /**
-     *  This is the HI_LIMIT field
+     *  This is the HI_LIMIT field.
      */
-    public final float hiLimit;
+    private final Float hiLimit;
     /**
-     *  This is the UNITS field
+     *  This is the UNITS field.
      */
     public final String units;
     /**
-     *  This is the C_RESFMT field
+     *  This is the C_RESFMT field.
      */
     public final String resFmt;
     /**
-     *  This is the C_LLMFMT field
+     *  This is the C_LLMFMT field.
      */
     public final String llmFmt;
     /**
-     *  This is the C_HLMFMT field
+     *  This is the C_HLMFMT field.
      */
     public final String hlmFmt;
     /**
-     *  This is the LO_SPEC field
+     *  This is the LO_SPEC field.
      */
-    public final float loSpec;
+    public final Float loSpec;
     /**
-     *  This is the HI_SPEC field
+     *  This is the HI_SPEC field.
      */
-    public final float hiSpec;
-    /**
-     *  This field holds the TEST_NUM and TEST_TXT fields. 
-     */
-    public final TestID id;
-	/**
-	 *  This field holds a normalized LO_LIMIT such that
-	 *  the value in conjunction with the scaledUnits
-	 *  does not need to use scientific notation. It
-	 *  is not part of the STDF specification
-	 */
-    public final float scaledLoLimit;
-	/**
-	 *  This field holds a normalized HI_LIMIT such that
-	 *  the value in conjunction with the scaledUnits
-	 *  does not need to use scientific notation. It
-	 *  is not part of the STDF specification
-	 */
-    public final float scaledHiLimit;
-	/**
-	 *  This field holds a normalized value of the UNITS
-	 *  field.  It should be used with the scaledLoLimit,
-	 *  the scaledHiLimit, and the scaledResults.  This is
-	 *  not part of the STDF specification.
-	 */
-    public final String scaledUnits;
-    /**
-     *  This field holds a normalized value of the RESULT
-     *  field.  It should be used with the scaledLoLimit, the
-     *  scaledHiLimit, and the scaledUnits. This is not part
-     *  of the STDF specification.
-     */
-    public final float scaledResult;
-    
+    public final Float hiSpec;
+
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
      *  @param tdb The TestIdDatabase.  This parameter is used for tracking the Test ID.
@@ -137,67 +114,101 @@ public class ParametricTestRecord extends ParametricRecord
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public ParametricTestRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public ParametricTestRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-    	super(Record_t.PTR, dvd.getCpuType(), data);
-    	long testNumber = dvd.getCpuType().getU4(data[0], data[1], data[2], data[3]);
-        result = getR4(MISSING_FLOAT);
-        String testName = getCn(); 
-        id = TestID.createTestID(tdb, testNumber, testName); 
-        alarmName = getCn();
-        byte oflags = getByte();
-        if (oflags != MISSING_BYTE)
+    	super(cpu, recLen, is);
+    	int l = 8;
+    	if (l < recLen)
+    	{
+            result = cpu.getR4(is);
+            l += R4.numBytes;
+    	}
+    	else result = null;
+    	if (l < recLen)
+    	{
+            testName = cpu.getCN(is); 
+            l += 1 + testName.length();
+    	}
+    	else testName = null;
+        if (l < recLen)
         {
-        	optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(oflags));
-        	if (dvd.optDefaults.get(id) == null) dvd.optDefaults.put(id, optFlags);
+            alarmName = cpu.getCN(is);
+            l += 1 + alarmName.length();
         }
-        else
+        else alarmName = null;
+        if (l < recLen)
         {
-        	optFlags = dvd.optDefaults.get(id);
+            optFlags = Collections.unmodifiableSet(OptFlag_t.getBits(cpu.getI1(is)));
+            l++;
         }
-        resScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.resScalDefaults);
-        llmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.llmScalDefaults);
-        hlmScal = setByte(MISSING_BYTE, getI1(MISSING_BYTE), id, dvd.hlmScalDefaults);
-        if (optFlags != null && optFlags.contains(OptFlag_t.NO_LO_LIMIT))
+        else optFlags = null;
+        if (l < recLen)
         {
-        	loLimit = MISSING_FLOAT;
-        	getR4(MISSING_FLOAT);
+        	resScal = cpu.getI1(is);
+        	l++;
         }
-        else loLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.loLimDefaults);
-        if (optFlags != null && optFlags.contains(OptFlag_t.NO_HI_LIMIT))
+        else resScal = null;
+        if (l < recLen)
         {
-        	hiLimit = MISSING_FLOAT;
-        	getR4(MISSING_FLOAT);
+        	llmScal = cpu.getI1(is);
+        	l++;
         }
-        else hiLimit = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.hiLimDefaults);
-        units = setString(MISSING_STRING, getCn(), id , dvd.unitDefaults);
-        
-        // scale limits and units here:
-        if (dvd.scaledLoLimits.get(id) == MISSING_FLOAT)
+        else llmScal = null;
+        if (l < recLen)
         {
-            scaledLoLimit = scaleValue(loLimit, findScale(dvd, id));	
-            dvd.scaledLoLimits.put(id, scaledLoLimit);
+            hlmScal = cpu.getI1(is);
+            l++;
         }
-        else scaledLoLimit = dvd.scaledLoLimits.get(id);
-        if (dvd.scaledHiLimits.get(id) == MISSING_FLOAT)
+        else hlmScal = null;
+        if (l < recLen)
         {
-        	scaledHiLimit = scaleValue(hiLimit, findScale(dvd, id));
-        	dvd.scaledHiLimits.put(id, scaledHiLimit);
+        	loLimit = cpu.getR4(is);
+        	l += R4.numBytes;
         }
-        else scaledHiLimit = dvd.scaledHiLimits.get(id);
-        if (dvd.scaledUnits.get(id) == null)
+        else loLimit = null;
+        if (l < recLen)
         {
-        	scaledUnits = scaleUnits(units, findScale(dvd, id));
-        	dvd.scaledUnits.put(id, scaledUnits);
+        	hiLimit = cpu.getR4(is);
+        	l += R4.numBytes;
         }
-        else scaledUnits = dvd.scaledUnits.get(id);
-        scaledResult = scaleValue(result, findScale(dvd, id));
-        
-        resFmt = setString(MISSING_STRING, getCn(), id , dvd.resFmtDefaults);
-        llmFmt = setString(MISSING_STRING, getCn(), id , dvd.llmFmtDefaults);
-        hlmFmt = setString(MISSING_STRING, getCn(), id , dvd.hlmFmtDefaults);
-        loSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.loSpecDefaults);
-        hiSpec = setFloat(MISSING_FLOAT, getR4(MISSING_FLOAT), id, dvd.hiSpecDefaults);
+        else hiLimit = null;
+        if (l < recLen)
+        {
+        	units = cpu.getCN(is);
+        	l += 1 + units.length();
+        }
+        else units = null;
+        if (l < recLen)
+        {
+        	resFmt = cpu.getCN(is);
+        	l += 1 + resFmt.length();
+        }
+        else resFmt = null;
+        if (l < recLen)
+        {
+        	llmFmt = cpu.getCN(is);
+        	l += 1 + llmFmt.length();
+        }
+        else llmFmt = null;
+        if (l < recLen)
+        {
+        	hlmFmt = cpu.getCN(is);
+        	l += 1 + hlmFmt.length();
+        }
+        else hlmFmt = null;
+        if (l < recLen)
+        {
+        	loSpec = cpu.getR4(is);
+        	l += R4.numBytes;
+        }
+        else loSpec = null;
+        if (l < recLen)
+        {
+        	hiSpec = cpu.getR4(is);
+        	l += R4.numBytes;
+        }
+        else hiSpec = null;
+        if (l != recLen) throw new StdfException("Record length error in PTR record: testNumber = " + testNumber);
     }
     
     /**
@@ -224,10 +235,11 @@ public class ParametricTestRecord extends ParametricRecord
      * @param hlmFmt     The C_HLMFMT field.
      * @param loSpec     The LO_SPEC field.
      * @param hiSpec     The HI_SPEC field.
+     * @throws StdfException 
+     * @throws IOException 
      */
     public ParametricTestRecord(
-            final TestIdDatabase tdb,
-            final DefaultValueDatabase dvd,
+    		final Cpu_t cpu,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
@@ -247,93 +259,156 @@ public class ParametricTestRecord extends ParametricRecord
     	    final String llmFmt,
     	    final String hlmFmt,
     	    final float loSpec,
-    	    final float hiSpec)
+    	    final float hiSpec) throws IOException, StdfException
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), testNumber, headNumber, siteNumber, testFlags, 
-    		 paramFlags, result, testName, alarmName, optFlags, resScal, llmScal, hlmScal, 
-    		 loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec));
+    	this(cpu, 
+    		 getRecLen(result, testName, alarmName, optFlags, resScal, llmScal, hlmScal, 
+    		 loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec),
+    		 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, testNumber, headNumber, 
+    		 siteNumber, testFlags, paramFlags, result, testName, alarmName, optFlags, resScal, 
+    		 llmScal, hlmScal, loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec))));
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
-    @Override
-    protected void toBytes()
-    {
-    	bytes = toBytes(
-            cpuType,
-            id.testNumber,
-            headNumber,
-            siteNumber,
-            (byte) testFlags.stream().mapToInt(b -> b.bit).sum(),
-            (byte) paramFlags.stream().mapToInt(b -> b.bit).sum(),
-    	    result, 
-    	    id.testName,
-    	    alarmName,
-    	    optFlags, 
-    	    resScal, // if RES_SCAL_INVALID set, then use default res_scal
-    	    llmScal,
-    	    hlmScal, 
-    	    loLimit, 
-    	    hiLimit,
-    	    units,
-    	    resFmt,
-    	    llmFmt,
-    	    hlmFmt,
-    	    loSpec,
-    	    hiSpec);
-    }
-    
+	@Override
+	public byte[] getBytes(Cpu_t cpu)
+	{
+        byte tf = (byte) testFlags.stream().mapToInt(b -> b.bit).sum();
+        byte pf = (byte) paramFlags.stream().mapToInt(b -> b.bit).sum();
+    	byte[] b = toBytes(cpu, testNumber, headNumber, siteNumber, tf, pf,
+    		               result, testName, alarmName, optFlags, resScal, llmScal, hlmScal, 
+    		               loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec);
+    	TByteArrayList l = getHeaderBytes(cpu, Record_t.PTR, b.length);
+    	l.addAll(b);
+    	return(l.toArray());
+	}
+	
     private static byte[] toBytes(
-            final Cpu_t cType,
+            final Cpu_t cpu,
             final long tNumber,
             final short hNumber,
             final short sNumber,
             final byte tFlags,
             final byte pFlags,
-    	    final float rslt, 
+    	    final Float rslt, 
     	    final String tName,
     	    final String aName,
     	    final Set<OptFlag_t> oFlags, 
-    	    final byte rScal, // if RES_SCAL_INVALID set, then use default res_scal
-    	    final byte lScal,
-    	    final byte hScal, 
-    	    final float lLimit, 
-    	    final float hLimit,
+    	    final Byte rScal, 
+    	    final Byte lScal,
+    	    final Byte hScal, 
+    	    final Float lLimit, 
+    	    final Float hLimit,
     	    final String uts,
     	    final String rFmt,
     	    final String lFmt,
     	    final String hFmt,
-    	    final float lSpec,
-    	    final float hSpec)
+    	    final Float lSpec,
+    	    final Float hSpec)
     {
         TByteArrayList list = new TByteArrayList();
-        list.addAll(cType.getU4Bytes(tNumber));
-        list.addAll(getU1Bytes(hNumber));
-        list.addAll(getU1Bytes(sNumber));
+        list.addAll(cpu.getU4Bytes(tNumber));
+        list.addAll(cpu.getU1Bytes(hNumber));
+        list.addAll(cpu.getU1Bytes(sNumber));
         list.add(tFlags);
         list.add(pFlags);
-        list.addAll(cType.getR4Bytes((float) rslt));
-        list.addAll(getCnBytes(tName));
-        list.addAll(getCnBytes(aName));
-        if (oFlags != null)
+        if (rslt != null) 
         {
-        	list.add((byte) oFlags.stream().mapToInt(b -> b.bit).sum());
-            list.addAll(getI1Bytes(rScal));
-            list.addAll(getI1Bytes(lScal));
-            list.addAll(getI1Bytes(hScal));
-            list.addAll(cType.getR4Bytes(lLimit));
-            list.addAll(cType.getR4Bytes(hLimit));
-            list.addAll(getCnBytes(uts));
-            list.addAll(getCnBytes(rFmt));
-            list.addAll(getCnBytes(lFmt));
-            list.addAll(getCnBytes(hFmt));
-            list.addAll(cType.getR4Bytes(lSpec));
-            list.addAll(cType.getR4Bytes(hSpec));
+          list.addAll(cpu.getR4Bytes(rslt));
+          if (tName != null) 
+          {
+        	list.addAll(cpu.getCNBytes(tName));
+            if (aName != null)
+            {
+              list.addAll(cpu.getCNBytes(aName));
+              if (oFlags != null)
+              {
+            	list.add((byte) oFlags.stream().mapToInt(b -> b.bit).sum());
+                if (rScal != null)
+                {
+                  list.addAll(cpu.getI1Bytes(rScal));
+                  if (lScal != null)
+                  {
+                	list.addAll(cpu.getI1Bytes(lScal));
+                    if (hScal != null)
+                    {
+                      list.addAll(cpu.getI1Bytes(hScal));
+                      if (lLimit != null)
+                      {
+                    	list.addAll(cpu.getR4Bytes(lLimit));
+                        if (hLimit != null)
+                        {
+                          list.addAll(cpu.getR4Bytes(hLimit));
+                          if (uts != null)
+                          {
+                        	list.addAll(cpu.getCNBytes(uts));
+                            if (rFmt != null)
+                            {
+                              list.addAll(cpu.getCNBytes(rFmt));
+                              if (lFmt != null)
+                              {
+                            	list.addAll(cpu.getCNBytes(lFmt));
+                                if (hFmt != null)
+                                {
+                                  list.addAll(cpu.getCNBytes(hFmt));
+                                  if (lSpec != null)
+                                  {
+                                	list.addAll(cpu.getR4Bytes(lSpec));
+                                    if (hSpec != null)
+                                    {
+                                      list.addAll(cpu.getR4Bytes(hSpec));
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
         return(list.toArray());
     }
     	    
+    private static int getRecLen(
+    	    final Float rslt, 
+    	    final String tName,
+    	    final String aName,
+    	    final Set<OptFlag_t> oFlags, 
+    	    final Byte rScal, // if RES_SCAL_INVALID set, then use default res_scal
+    	    final Byte lScal,
+    	    final Byte hScal, 
+    	    final Float lLimit, 
+    	    final Float hLimit,
+    	    final String uts,
+    	    final String rFmt,
+    	    final String lFmt,
+    	    final String hFmt,
+    	    final Float lSpec,
+    	    final Float hSpec)
+    {
+    	int l = 0;
+        if (rslt != null) l += U4.numBytes; else return(l);	
+        if (tName != null) l += 1 + tName.length(); else return(l);
+        if (aName != null) l += 1 + aName.length(); else return(l);
+        if (oFlags != null) l++; else return(l);
+        if (rScal != null) l++; else return(l);
+        if (lScal != null) l++; else return(l);
+        if (hScal != null) l++; else return(l);
+        if (lLimit != null) l += R4.numBytes; else return(l);
+        if (hLimit != null) l += R4.numBytes; else return(l);
+        if (uts != null) l += 1 + uts.length(); else return(l);
+        if (rFmt != null) l += 1 + rFmt.length(); else return(l);
+        if (lFmt != null) l += 1 + lFmt.length(); else return(l);
+        if (hFmt != null) l += 1 + hFmt.length(); else return(l);
+        if (lSpec != null) l += R4.numBytes; else return(l);
+        if (hSpec != null) l += R4.numBytes;
+    	return(l);
+    }
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getAlarmName()
 	 */
@@ -356,7 +431,7 @@ public class ParametricTestRecord extends ParametricRecord
 	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getResScal()
 	 */
 	@Override
-	public byte getResScal()
+	public Byte getResScal()
 	{
 		return resScal;
 	}
@@ -365,9 +440,9 @@ public class ParametricTestRecord extends ParametricRecord
 	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getLlmScal()
 	 */
 	@Override
-	public byte getLlmScal()
+	public Byte getLlmScal()
 	{
-		if (optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(MISSING_BYTE);
+		if (optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(null);
 		return llmScal;
 	}
 
@@ -375,9 +450,9 @@ public class ParametricTestRecord extends ParametricRecord
 	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getHlmScal()
 	 */
 	@Override
-	public byte getHlmScal()
+	public Byte getHlmScal()
 	{
-		if (optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(MISSING_BYTE);
+		if (optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(null);
 		return hlmScal;
 	}
 
@@ -385,9 +460,9 @@ public class ParametricTestRecord extends ParametricRecord
 	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getLoLimit()
 	 */
 	@Override
-	public float getLoLimit()
+	public Float getLoLimit()
 	{
-		if (optFlags.contains(NO_LO_LIMIT) || optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(MISSING_FLOAT);
+		if (optFlags.contains(NO_LO_LIMIT) || optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(null);
 		return loLimit;
 	}
 
@@ -395,9 +470,9 @@ public class ParametricTestRecord extends ParametricRecord
 	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getHiLimit()
 	 */
 	@Override
-	public float getHiLimit()
+	public Float getHiLimit()
 	{
-		if (optFlags.contains(NO_HI_LIMIT) || optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(MISSING_FLOAT);
+		if (optFlags.contains(NO_HI_LIMIT) || optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(null);
 		return hiLimit;
 	}
 
@@ -417,29 +492,27 @@ public class ParametricTestRecord extends ParametricRecord
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("ParametricTestRecord [result=").append(result);
-		builder.append(", alarmName=").append(alarmName);
-		builder.append(", id=").append(id);
-		builder.append(", optFlags=").append(optFlags);
-		builder.append(", resScal=").append(resScal);
-		builder.append(", llmScal=").append(llmScal);
-		builder.append(", hlmScal=").append(hlmScal);
-		builder.append(", loLimit=").append(loLimit);
-		builder.append(", hiLimit=").append(hiLimit);
-		builder.append(", units=").append(units);
-		builder.append(", resFmt=").append(resFmt);
-		builder.append(", llmFmt=").append(llmFmt);
-		builder.append(", hlmFmt=").append(hlmFmt);
-		builder.append(", loSpec=").append(loSpec);
-		builder.append(", hiSpec=").append(hiSpec);
-		builder.append(", scaledLoLimit=").append(scaledLoLimit);
-		builder.append(", scaledHiLimit=").append(scaledHiLimit);
-		builder.append(", scaledUnits=").append(scaledUnits);
-		builder.append(", scaledResult=").append(scaledResult);
-		builder.append(", testFlags=").append(testFlags);
-		builder.append(", paramFlags=").append(paramFlags);
+		builder.append("ParametricTestRecord [");
+		builder.append("testNumber=").append(testNumber);
 		builder.append(", headNumber=").append(headNumber);
 		builder.append(", siteNumber=").append(siteNumber);
+		builder.append(", testFlags=").append(testFlags);
+		builder.append(", paramFlags=").append(paramFlags);
+		if (result != null) builder.append(", result=").append(result);
+		if (testName != null) builder.append(", testName=").append(testName);
+		if (alarmName != null) builder.append(", alarmName=").append(alarmName);
+		if (optFlags != null) builder.append(", optFlags=").append(optFlags);
+		if (resScal != null) builder.append(", resScal=").append(resScal);
+		if (llmScal != null) builder.append(", llmScal=").append(llmScal);
+		if (hlmScal != null) builder.append(", hlmScal=").append(hlmScal);
+		if (loLimit != null) builder.append(", loLimit=").append(loLimit);
+		if (hiLimit != null) builder.append(", hiLimit=").append(hiLimit);
+		if (units != null) builder.append(", units=").append(units);
+		if (resFmt != null) builder.append(", resFmt=").append(resFmt);
+		if (llmFmt != null) builder.append(", llmFmt=").append(llmFmt);
+		if (hlmFmt != null) builder.append(", hlmFmt=").append(hlmFmt);
+		if (loSpec != null) builder.append(", loSpec=").append(loSpec);
+		if (hiSpec != null) builder.append(", hiSpec=").append(hiSpec);
 		builder.append("]");
 		return builder.toString();
 	}
@@ -452,25 +525,21 @@ public class ParametricTestRecord extends ParametricRecord
 	{
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + alarmName.hashCode();
-		result = prime * result + Float.floatToIntBits(hiLimit);
-		result = prime * result + Float.floatToIntBits(hiSpec);
-		result = prime * result + hlmFmt.hashCode();
-		result = prime * result + hlmScal;
-		result = prime * result + id.hashCode();
-		result = prime * result + llmFmt.hashCode();
-		result = prime * result + llmScal;
-		result = prime * result + Float.floatToIntBits(loLimit);
-		result = prime * result + Float.floatToIntBits(loSpec);
-		result = prime * result + optFlags.hashCode();
-		result = prime * result + resFmt.hashCode();
-		result = prime * result + resScal;
-		result = prime * result + Float.floatToIntBits(this.result);
-		result = prime * result + Float.floatToIntBits(scaledHiLimit);
-		result = prime * result + Float.floatToIntBits(scaledLoLimit);
-		result = prime * result + Float.floatToIntBits(scaledResult);
-		result = prime * result + scaledUnits.hashCode();
-		result = prime * result + units.hashCode();
+		result = prime * result + ((alarmName == null) ? 0 : alarmName.hashCode());
+		result = prime * result + ((hiLimit == null) ? 0 : hiLimit.hashCode());
+		result = prime * result + ((hiSpec == null) ? 0 : hiSpec.hashCode());
+		result = prime * result + ((hlmFmt == null) ? 0 : hlmFmt.hashCode());
+		result = prime * result + ((hlmScal == null) ? 0 : hlmScal.hashCode());
+		result = prime * result + ((llmFmt == null) ? 0 : llmFmt.hashCode());
+		result = prime * result + ((llmScal == null) ? 0 : llmScal.hashCode());
+		result = prime * result + ((loLimit == null) ? 0 : loLimit.hashCode());
+		result = prime * result + ((loSpec == null) ? 0 : loSpec.hashCode());
+		result = prime * result + ((optFlags == null) ? 0 : optFlags.hashCode());
+		result = prime * result + ((resFmt == null) ? 0 : resFmt.hashCode());
+		result = prime * result + ((resScal == null) ? 0 : resScal.hashCode());
+		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
+		result = prime * result + ((testName == null) ? 0 : testName.hashCode());
+		result = prime * result + ((units == null) ? 0 : units.hashCode());
 		return result;
 	}
 
@@ -481,36 +550,87 @@ public class ParametricTestRecord extends ParametricRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (!super.equals(obj)) return false;
 		if (!(obj instanceof ParametricTestRecord)) return false;
 		ParametricTestRecord other = (ParametricTestRecord) obj;
-		if (!alarmName.equals(other.alarmName)) return false;
-		if (Float.floatToIntBits(hiLimit) != Float .floatToIntBits(other.hiLimit)) return false;
-		if (Float.floatToIntBits(hiSpec) != Float.floatToIntBits(other.hiSpec)) return false;
-		if (!hlmFmt.equals(other.hlmFmt)) return false;
-		if (hlmScal != other.hlmScal) return false;
-		if (id != other.id) return false;
-		if (!llmFmt.equals(other.llmFmt)) return false;
-		if (llmScal != other.llmScal) return false;
-		if (Float.floatToIntBits(loLimit) != Float .floatToIntBits(other.loLimit)) return false;
-		if (Float.floatToIntBits(loSpec) != Float.floatToIntBits(other.loSpec)) return false;
-		if (!optFlags.equals(other.optFlags)) return false;
-		if (!resFmt.equals(other.resFmt)) return false;
-		if (resScal != other.resScal) return false;
-		if (Float.floatToIntBits(result) != Float.floatToIntBits(other.result)) return false;
-		if (!units.equals(other.units)) return false;
-		if (!super.equals(obj)) return false;
+		if (alarmName == null)
+		{
+			if (other.alarmName != null) return false;
+		} 
+		else if (!alarmName.equals(other.alarmName)) return false;
+		if (hiLimit == null)
+		{
+			if (other.hiLimit != null) return false;
+		} 
+		else if (!hiLimit.equals(other.hiLimit)) return false;
+		if (hiSpec == null)
+		{
+			if (other.hiSpec != null) return false;
+		} 
+		else if (!hiSpec.equals(other.hiSpec)) return false;
+		if (hlmFmt == null)
+		{
+			if (other.hlmFmt != null) return false;
+		} 
+		else if (!hlmFmt.equals(other.hlmFmt)) return false;
+		if (hlmScal == null)
+		{
+			if (other.hlmScal != null) return false;
+		} 
+		else if (!hlmScal.equals(other.hlmScal)) return false;
+		if (llmFmt == null)
+		{
+			if (other.llmFmt != null) return false;
+		} 
+		else if (!llmFmt.equals(other.llmFmt)) return false;
+		if (llmScal == null)
+		{
+			if (other.llmScal != null) return false;
+		} 
+		else if (!llmScal.equals(other.llmScal)) return false;
+		if (loLimit == null)
+		{
+			if (other.loLimit != null) return false;
+		} 
+		else if (!loLimit.equals(other.loLimit)) return false;
+		if (loSpec == null)
+		{
+			if (other.loSpec != null) return false;
+		} 
+		else if (!loSpec.equals(other.loSpec)) return false;
+		if (optFlags == null)
+		{
+			if (other.optFlags != null) return false;
+		} 
+		else if (!optFlags.equals(other.optFlags)) return false;
+		if (resFmt == null)
+		{
+			if (other.resFmt != null) return false;
+		} 
+		else if (!resFmt.equals(other.resFmt)) return false;
+		if (resScal == null)
+		{
+			if (other.resScal != null) return false;
+		} 
+		else if (!resScal.equals(other.resScal)) return false;
+		if (result == null)
+		{
+			if (other.result != null) return false;
+		} 
+		else if (!result.equals(other.result)) return false;
+		if (testName == null)
+		{
+			if (other.testName != null) return false;
+		} 
+		else if (!testName.equals(other.testName)) return false;
+		if (units == null)
+		{
+			if (other.units != null) return false;
+		} 
+		else if (!units.equals(other.units)) return false;
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getTestId()
-	 */
-	@Override
-	public TestID getTestId()
-	{
-		return(id);
-	}
-	
 
 
 }

@@ -25,6 +25,10 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
@@ -39,7 +43,7 @@ public class FileAttributesRecord extends StdfRecord
 	/**
 	 * This field holds the STDF_VER value from a FileAttributesRecord.
 	 */
-    public final byte stdfVersion;
+    public final short stdfVersion;
     /**
      * This field holds the CPU_TYPE value from a FileAttributesRecord.
      */
@@ -53,12 +57,12 @@ public class FileAttributesRecord extends StdfRecord
      * @param data The binary stream data for this record.  The array should
      * not contain the first four bytes of the record. 
      */
-    public FileAttributesRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public FileAttributesRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.FAR, Cpu_t.getCpuType(data[0]), data);
-        cpuType = Cpu_t.getCpuType(data[0]);
-        dvd.setCpuType(cpuType);
-        stdfVersion = (byte) (data[1] & 0xFF);
+        super();
+        short c = cpu.getU1(is);
+        cpuType = Cpu_t.getCpuType((byte) c);
+        stdfVersion = cpu.getU1(is);
     }
     
     /**
@@ -67,10 +71,12 @@ public class FileAttributesRecord extends StdfRecord
      * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
      * @param stdfVersion This value should always be 4.
      * @param cpuType The CPU type.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public FileAttributesRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, int stdfVersion, Cpu_t cpuType)
+    public FileAttributesRecord(Cpu_t cpu, int stdfVersion) throws IOException, StdfException
     {
-    	this(tdb, dvd, toBytes(cpuType, (byte) stdfVersion));
+    	this(cpu, 0, new DataInputStream(new ByteArrayInputStream(toBytes(cpu, stdfVersion))));
     }
     
 	/* (non-Javadoc)
@@ -92,19 +98,23 @@ public class FileAttributesRecord extends StdfRecord
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		bytes = toBytes(cpuType, stdfVersion);
+		byte[] b = toBytes(cpu, stdfVersion);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.FAR, b.length);
+		l.addAll(b);
+		return(l.toArray());
 	}
+
 	
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
-	private static byte[] toBytes(Cpu_t cpuType, byte stdfVersion)
+	private static byte[] toBytes(Cpu_t cpu, int stdfVersion)
 	{
 		TByteArrayList l = new TByteArrayList();
-        l.add(cpuType.type);
-        l.add(stdfVersion);
+        l.add(cpu.type);
+        l.add((byte) stdfVersion);
         return(l.toArray());
 	}
 

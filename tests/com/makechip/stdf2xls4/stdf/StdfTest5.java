@@ -11,6 +11,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdfapi.DefaultValueDatabase;
+import com.makechip.stdf2xls4.stdfapi.TestID;
+import com.makechip.stdf2xls4.stdfapi.TestIdDatabase;
 import com.makechip.util.Log;
 
 /**

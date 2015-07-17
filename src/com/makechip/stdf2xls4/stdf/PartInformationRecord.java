@@ -25,8 +25,13 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 import gnu.trove.list.array.TByteArrayList;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 
@@ -45,48 +50,32 @@ public class PartInformationRecord extends StdfRecord
      */
     public final short siteNumber;
     
-    /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase.  This parameter is not used.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
-     */
-    public PartInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public PartInformationRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.PIR, dvd.getCpuType(), data);
-        headNumber = getU1((short) -1);
-        siteNumber = getU1((short) -1);
+        super();
+        headNumber = cpu.getU1(is);
+        siteNumber = cpu.getU1(is);
     }
     
-    /**
-     * 
-     * This constructor is used to make a ParametricTestRecord with field values.
-     * @param tdb The TestIdDatabase is needed to get the TestID.
-     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
-     * @param headNumber The HEAD_NUM field.
-     * @param siteNumber The SITE_NUM field.
-     */
-    public PartInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, short headNumber, short siteNumber)
+    public PartInformationRecord(Cpu_t cpu, short headNumber, short siteNumber) throws IOException, StdfException
     {
-        this(tdb, dvd, toBytes(headNumber, siteNumber));
+        this(cpu, 2, new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteNumber))));
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
-	@Override
-	protected void toBytes()
-	{
-	    bytes = toBytes(headNumber, siteNumber);	
-	}
-	
-	private static byte[] toBytes(short headNumber, short siteNumber)
+	private static byte[] toBytes(Cpu_t cpu, short headNumber, short siteNumber)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteNumber));
+		l.addAll(cpu.getU1Bytes(headNumber));
+		l.addAll(cpu.getU1Bytes(siteNumber));
 		return(l.toArray());
+	}
+
+	@Override
+	public byte[] getBytes(Cpu_t cpu)
+	{
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.PIR, 2);
+	    l.addAll(toBytes(cpu, headNumber, siteNumber));
+	    return(l.toArray());
 	}
 
 	/* (non-Javadoc)

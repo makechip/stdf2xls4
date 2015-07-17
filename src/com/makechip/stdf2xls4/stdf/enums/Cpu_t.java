@@ -25,6 +25,9 @@
 
 package com.makechip.stdf2xls4.stdf.enums;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+
 /**
  *  This enum represents the CPU_TYPE values used in the File Attributes Record.
  *  It determines the byte order used in converting bytes to various number types.
@@ -67,6 +70,31 @@ public enum Cpu_t
     }
     
     /**
+     * This converts a byte to an (unsigned) short.
+     * @param _0 A single byte value.
+     * @return A short value that is greater that or equal to 0, and less than 256.
+     */
+    public short getU1(byte _0)
+    {
+    	int s = 0xFF & _0;
+    	return((short) s);
+    }
+    
+    public short getU1(DataInputStream is) throws IOException
+    {
+    	int s = 0xFF & is.readByte();
+    	return((short) s);
+    }
+    
+    public byte[] getU1Bytes(short v)
+    {
+    	byte[] b = new byte[1];
+    	b[0] = 0;
+    	b[0] |= v;
+    	return(b);
+    }
+    
+    /**
      * This method converts two bytes to an unsigned short value
      * according to this CPU type.  Note that since java does not
      * support unsigned types, the type returned is actually a positive int.
@@ -84,84 +112,13 @@ public enum Cpu_t
     	return((_0 & 0xFF) + ((_1 & 0xFF) << 8));
     }
    
-    /**
-     * This method converts four bytes to an unsigned integer value
-     * according to this CPU type.  Note that since java does not
-     * support unsigned types, the type returned is actually a positive long.
-     * @param _0 The byte occurring first in the stream.
-     * @param _1 The byte occurring second in the stream.
-     * @param _2 The byte occurring third in the stream.
-     * @param _3 The byte occurring fourth in the stream.
-     * @return The 32-bit unsigned value represented by the
-     * four byte arguments and this Cpu_t.
-     */
-    public long getU4(byte _0, byte _1, byte _2, byte _3)
-    {
-        if (this == SUN)
-        {
-        	return((_3 & 0xFFL) + ((_2 & 0xFFL) << 8) + ((_1 & 0xFFL) << 16) + ((_0 & 0xFFL) << 24));
-        }
-        return((_0 & 0xFFL) + ((_1 & 0xFFL) << 8) + ((_2 & 0xFFL) << 16) + ((_3 & 0xFFL) << 24));
-    }
-    
-    /**
-     * This method converts two bytes to a signed short value
-     * according to this CPU type. 
-     * @param _0 The byte occurring first in the stream.
-     * @param _1 The byte occurring second in the stream.
-     * @return the 16-bit signed value represented by the two 
-     * byte arguments and this Cpu_t.
-     */
-    public short getI2(byte _0, byte _1)
-    {
-        if (this == SUN) return((short) ((_1 & 0xFF) + ((_0 & 0xFF) << 8)));
-        return((short) ((_0 & 0xFF) + ((_1 & 0xFF) << 8)));
-    }
-    
-    /**
-     * This method converts four bytes to a signed integer value
-     * according to this CPU type. 
-     * @param _0 The byte occurring first in the stream.
-     * @param _1 The byte occurring second in the stream.
-     * @param _2 The byte occurring third in the stream.
-     * @param _3 The byte occurring fourth in the stream.
-     * @return The 32-bit signed value represented by the four
-     * byte arguments and this Cpu_t.
-     */
-    public int getI4(byte _0, byte _1, byte _2, byte _3)
-    {
-        if (this == SUN)
-        {
-        	return((_3 & 0xFF) + ((_2 & 0xFF) << 8) + ((_1 & 0xFF) << 16) + ((_0 & 0xFF) << 24));
-        }
-        return((_0 & 0xFF) + ((_1 & 0xFF) << 8) + ((_2 & 0xFF) << 16) + ((_3 & 0xFF) << 24));
-    }
-    
-    /**
-     * This method converts eight bytes to a signed long value
-     * according to this CPU type.
-     * @param _0 The byte occurring first in the stream.
-     * @param _1 The byte occurring second in the stream.
-     * @param _2 The byte occurring third in the stream.
-     * @param _3 The byte occurring fourth in the stream.
-     * @param _4 The byte occurring fifth in the stream.
-     * @param _5 The byte occurring sixth in the stream.
-     * @param _6 The byte occurring seventh in the stream.
-     * @param _7 The byte occurring eighth in the stream.
-     * @return The 64-bit signed value represented by the
-     * eight byte arguments and this Cpu_t.
-     */
-    public long getLong(byte _0, byte _1, byte _2, byte _3, byte _4, byte _5, byte _6, byte _7)
-    {
-        if (this == SUN) 
-        {
-        	return((_7 & 0xFFL) + ((_6 & 0xFFL) << 8) + ((_5 & 0xFFL) << 16) + ((_4 & 0xFFL) << 24) +
-                   ((_3 & 0xFFL) << 32) + ((_2 & 0xFFL) << 40) + ((_1 & 0xFFL) << 48) + ((_0 & 0xFFL) << 56));
-        }
-        return((_0 & 0xFFL) + ((_1 & 0xFFL) << 8) + ((_2 & 0xFFL) << 16) + ((_3 & 0xFFL) << 24) +
-               ((_4 & 0xFFL) << 32) + ((_5 & 0xFFL) << 40) + ((_6 & 0xFFL) << 48) + ((_7 & 0xFFL) << 56));
-    }
-    
+	public int getU2(DataInputStream is) throws IOException
+	{
+		byte b0 = is.readByte();
+		byte b1 = is.readByte();
+		return(getU2(b0, b1));
+	}
+
     /**
      * This method converts an unsigned short value (represented 
      * with a java int type) to a two byte array.
@@ -184,6 +141,35 @@ public enum Cpu_t
     	    b[0] = (byte) (value & 0xFF);
     	}
     	return(b);
+    }
+    
+    /**
+     * This method converts four bytes to an unsigned integer value
+     * according to this CPU type.  Note that since java does not
+     * support unsigned types, the type returned is actually a positive long.
+     * @param _0 The byte occurring first in the stream.
+     * @param _1 The byte occurring second in the stream.
+     * @param _2 The byte occurring third in the stream.
+     * @param _3 The byte occurring fourth in the stream.
+     * @return The 32-bit unsigned value represented by the
+     * four byte arguments and this Cpu_t.
+     */
+    public long getU4(byte _0, byte _1, byte _2, byte _3)
+    {
+        if (this == SUN)
+        {
+        	return((_3 & 0xFFL) + ((_2 & 0xFFL) << 8) + ((_1 & 0xFFL) << 16) + ((_0 & 0xFFL) << 24));
+        }
+        return((_0 & 0xFFL) + ((_1 & 0xFFL) << 8) + ((_2 & 0xFFL) << 16) + ((_3 & 0xFFL) << 24));
+    }
+    
+    public long getU4(DataInputStream is) throws IOException
+    {
+    	byte b0 = is.readByte();
+    	byte b1 = is.readByte();
+    	byte b2 = is.readByte();
+    	byte b3 = is.readByte();
+    	return(getU4(b0, b1, b2, b3));
     }
     
     /**
@@ -215,6 +201,49 @@ public enum Cpu_t
     }
    
     /**
+     * This is an identity method - it returns the argument.
+     * @param _0 A single byte.
+     * @return Returns the argument _0.
+     */
+    public byte getI1(byte _0)
+    {
+    	return(_0);
+    }
+    
+    public byte getI1(DataInputStream is) throws IOException
+    {
+    	return(is.readByte());
+    }
+    
+    public byte[] getI1Bytes(byte i1)
+    {
+    	byte[] b = new byte[1];
+    	b[0] = i1;
+    	return(b);
+    }
+    
+    /**
+     * This method converts two bytes to a signed short value
+     * according to this CPU type. 
+     * @param _0 The byte occurring first in the stream.
+     * @param _1 The byte occurring second in the stream.
+     * @return the 16-bit signed value represented by the two 
+     * byte arguments and this Cpu_t.
+     */
+    public short getI2(byte _0, byte _1)
+    {
+        if (this == SUN) return((short) ((_1 & 0xFF) + ((_0 & 0xFF) << 8)));
+        return((short) ((_0 & 0xFF) + ((_1 & 0xFF) << 8)));
+    }
+    
+    public short getI2(DataInputStream is) throws IOException
+    {
+    	byte b0 = is.readByte();
+    	byte b1 = is.readByte();
+    	return(getI2(b0, b1));
+    }
+    
+    /**
      * This method converts a signed short value to a two-byte array.
      * @param value A 16-bit signed integer value.
      * @return Two bytes in correct stream order.
@@ -235,6 +264,34 @@ public enum Cpu_t
     	return(b);
     }
    
+    /**
+     * This method converts four bytes to a signed integer value
+     * according to this CPU type. 
+     * @param _0 The byte occurring first in the stream.
+     * @param _1 The byte occurring second in the stream.
+     * @param _2 The byte occurring third in the stream.
+     * @param _3 The byte occurring fourth in the stream.
+     * @return The 32-bit signed value represented by the four
+     * byte arguments and this Cpu_t.
+     */
+    public int getI4(byte _0, byte _1, byte _2, byte _3)
+    {
+        if (this == SUN)
+        {
+        	return((_3 & 0xFF) + ((_2 & 0xFF) << 8) + ((_1 & 0xFF) << 16) + ((_0 & 0xFF) << 24));
+        }
+        return((_0 & 0xFF) + ((_1 & 0xFF) << 8) + ((_2 & 0xFF) << 16) + ((_3 & 0xFF) << 24));
+    }
+    
+    public int getI4(DataInputStream is) throws IOException
+    {
+    	byte b0 = is.readByte();
+    	byte b1 = is.readByte();
+    	byte b2 = is.readByte();
+    	byte b3 = is.readByte();
+    	return(getI4(b0, b1, b2, b3));
+    }
+    
     /**
      * This method converts a sighed integer value to a four-byte array.
      * @param value A 32-bit signed integer value.
@@ -261,6 +318,46 @@ public enum Cpu_t
     }
     
     /**
+     * This method converts eight bytes to a signed long value
+     * according to this CPU type.
+     * @param _0 The byte occurring first in the stream.
+     * @param _1 The byte occurring second in the stream.
+     * @param _2 The byte occurring third in the stream.
+     * @param _3 The byte occurring fourth in the stream.
+     * @param _4 The byte occurring fifth in the stream.
+     * @param _5 The byte occurring sixth in the stream.
+     * @param _6 The byte occurring seventh in the stream.
+     * @param _7 The byte occurring eighth in the stream.
+     * @return The 64-bit signed value represented by the
+     * eight byte arguments and this Cpu_t.
+     */
+    public long getLong(byte _0, byte _1, byte _2, byte _3, byte _4, byte _5, byte _6, byte _7)
+    {
+        if (this == SUN) 
+        {
+        	return((_7 & 0xFFL) + ((_6 & 0xFFL) << 8) + ((_5 & 0xFFL) << 16) + ((_4 & 0xFFL) << 24) +
+                   ((_3 & 0xFFL) << 32) + ((_2 & 0xFFL) << 40) + ((_1 & 0xFFL) << 48) + ((_0 & 0xFFL) << 56));
+        }
+        return((_0 & 0xFFL) + ((_1 & 0xFFL) << 8) + ((_2 & 0xFFL) << 16) + ((_3 & 0xFFL) << 24) +
+               ((_4 & 0xFFL) << 32) + ((_5 & 0xFFL) << 40) + ((_6 & 0xFFL) << 48) + ((_7 & 0xFFL) << 56));
+    }
+
+    public float getR4(byte _0, byte _1, byte _2, byte _3)
+    {
+    	int l = getI4(_0, _1, _2, _3);
+    	return(Float.intBitsToFloat(l));
+    }
+    
+    public float getR4(DataInputStream is) throws IOException
+    {
+        byte b0 = is.readByte();
+        byte b1 = is.readByte();
+        byte b2 = is.readByte();
+        byte b3 = is.readByte();
+        return(getR4(b0, b1, b2, b3));
+    }
+
+    /**
      * This method converts a float value to a four-byte array.
      * @param val A float value.
      * @return Four bytes in correct stream order.  
@@ -273,7 +370,32 @@ public enum Cpu_t
     	return(b);
     }
     
-   /**
+    public double getR8(byte _0, byte _1, byte _2, byte _3, byte _4, byte _5, byte _6, byte _7)
+    {
+    	long l = getLong(_0, _1, _2, _3, _4, _5, _6, _7);
+    	return(Double.longBitsToDouble(l));
+    }
+    
+    /**
+     * Extract an eight-byte double value from the bytes array.
+     * @param defaultValue The value to return if the end
+     * of the bytes array has already been reached.
+     * @return An eight-byte double value.
+     */
+    public double getR8(DataInputStream is) throws IOException
+    {
+        byte b0 = is.readByte();
+        byte b1 = is.readByte();
+        byte b2 = is.readByte();
+        byte b3 = is.readByte();
+        byte b4 = is.readByte();
+        byte b5 = is.readByte();
+        byte b6 = is.readByte();
+        byte b7 = is.readByte();
+        return(getR8(b0, b1, b2, b3, b4, b5, b6, b7));
+    }
+    
+    /**
     * This method converts a double value to an eight-byte array.
      * @param val A double value.
      * @return Eight bytes in correct stream order.
@@ -315,7 +437,7 @@ public enum Cpu_t
      * @return Basically the dn byte array pre-pended with two
      * bytes containing the bit count.
      */
-    public byte[] getDnBytes(int numBits, byte[] dn)
+    public byte[] getDNBytes(int numBits, byte[] dn)
     {
     	byte[] n = getU2Bytes(numBits);
     	byte[] b = new byte[dn.length + 2];
@@ -325,4 +447,63 @@ public enum Cpu_t
     	return(b);
     }
     
+    public byte[] getDN(int numBits, DataInputStream is) throws IOException
+    {
+    	int length = (numBits % 8 == 0) ? numBits / 8 : 1 + numBits / 8;
+    	byte[] b = new byte[length];
+    	is.readFully(b);
+    	return(b);
+    }
+    
+    public String getCN(DataInputStream is) throws IOException
+    {
+        int l = 0xFF & is.readByte();
+        if (l == 0) return("");
+        byte[] b = new byte[l];
+        is.readFully(b);
+        return(new String(b));
+    }
+    
+    public byte[] getCNBytes(String s)
+    {
+    	byte[] b = new byte[s.length()+1];
+    	b[0] = 0;
+    	b[0] |= s.length();
+    	for (int i=0; i<s.length(); i++) b[i+1] = (byte) s.charAt(i);
+    	return(b);
+    }
+    
+    public byte[] getBN(DataInputStream is) throws IOException
+    {
+    	int l = 0xFF & is.readByte();
+    	byte[] b = new byte[l];
+    	is.readFully(b);
+    	return(b);
+    }
+   
+    public byte[] getBNBytes(byte[] bytes)
+    {
+    	byte[] b = new byte[1 + bytes.length];
+    	b[0] = 0;
+    	b[0] |= bytes.length;
+    	for (int i=0; i<bytes.length; i++) b[i+1] = bytes[i];
+    	return(b);
+    }
+    
+    public byte[] getN1(DataInputStream is) throws IOException
+    {
+    	byte[] b = new byte[2];
+    	byte n = is.readByte();
+    	b[0] = (byte) (0x0F & n);
+    	b[1] = (byte) ((0xF0 & n) >> 4);
+    	return(b);
+    }
+    
+    public byte[] getN1Bytes(byte b0, byte b1)
+    {
+        byte[] b = new byte[1];
+        b[0] = (byte) (b0 & 0x0F);
+        b[1] |= (byte) ((b1 & 0x0F) << 4);
+        return(b);
+    }
 }

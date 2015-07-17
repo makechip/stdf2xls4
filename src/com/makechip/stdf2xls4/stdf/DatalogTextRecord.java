@@ -25,6 +25,13 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
@@ -68,10 +75,10 @@ public class DatalogTextRecord extends StdfRecord
      * @param data The binary stream data for this record.  The array should
      * not contain the first four bytes of the record.
      */
-    public DatalogTextRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public DatalogTextRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.DTR, dvd.getCpuType(), data);
-        text = getCn();
+        super();
+        text = cpu.getCN(is);
     }
     
     /**
@@ -80,19 +87,24 @@ public class DatalogTextRecord extends StdfRecord
      * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
      * @param text This field holds the TEXT_DAT field. It must not be null. The
      * maximum length of this String is 255 characters.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public DatalogTextRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, String text)
+    public DatalogTextRecord(Cpu_t cpu, String text) throws IOException, StdfException
     {
-    	this(tdb, dvd, getCnBytes(text));
+    	this(cpu, 0, new DataInputStream(new ByteArrayInputStream(cpu.getCNBytes(text))));
     }
     
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		bytes = getCnBytes(text);
+		byte[] b = cpu.getCNBytes(text);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.DTR, b.length);
+		l.addAll(b);
+		return(l.toArray());
 	}
 
 	/* (non-Javadoc)

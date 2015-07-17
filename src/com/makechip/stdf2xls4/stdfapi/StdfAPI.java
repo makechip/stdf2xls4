@@ -21,8 +21,6 @@ import com.makechip.stdf2xls4.stdf.PartResultsRecord;
 import com.makechip.stdf2xls4.stdf.StdfException;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
-import com.makechip.stdf2xls4.stdf.TestID;
-import com.makechip.stdf2xls4.stdf.TestIdDatabase;
 import com.makechip.stdf2xls4.stdf.TestRecord;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;

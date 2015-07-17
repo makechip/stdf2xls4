@@ -25,6 +25,13 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
@@ -46,10 +53,11 @@ public class BeginProgramSectionRecord extends StdfRecord
      * @param data Binary stream data.  This array should not contain
      * the first four bytes of the record.
      */
-    public BeginProgramSectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public BeginProgramSectionRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.BPS, dvd.getCpuType(), data);
-        seqName = getCn();
+        super();
+        if (recLen > 0) seqName = cpu.getCN(is);
+        else seqName = null;
     }
     
     /**
@@ -57,12 +65,23 @@ public class BeginProgramSectionRecord extends StdfRecord
      * @param tdb The TestIdDatabase is needed because this CTOR calls the above CTOR.
      * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
      * @param seqName The SEQ_NAME field. (Must not be null).
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public BeginProgramSectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, String seqName)
+    public BeginProgramSectionRecord(Cpu_t cpu, String seqName) throws IOException, StdfException
     {
-    	this(tdb, dvd, getCnBytes(seqName));
+    	this(cpu, 0, new DataInputStream(new ByteArrayInputStream(cpu.getCNBytes(seqName))));
     }
     
+	@Override
+	public byte[] getBytes(Cpu_t cpu)
+	{
+		byte[] b = cpu.getCNBytes(seqName);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.BPS, b.length);
+		l.addAll(b);
+		return(l.toArray());
+	}
+
     /* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -74,15 +93,6 @@ public class BeginProgramSectionRecord extends StdfRecord
 		builder.append(seqName);
 		builder.append("]");
 		return builder.toString();
-	}
-
-    /* (non-Javadoc)
-	 * @see com.makechip.strf2xls4.stdf.StdfRecord#toBytes()
-	 */
-	@Override
-	protected void toBytes()
-	{
-	    bytes = getCnBytes(seqName);	
 	}
 
 	/* (non-Javadoc)

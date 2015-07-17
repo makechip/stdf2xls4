@@ -35,6 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.stdf2xls4.stdfapi.DefaultValueDatabase;
+import com.makechip.stdf2xls4.stdfapi.TestIdDatabase;
 import com.makechip.util.Log;
 
 /**
@@ -125,7 +127,7 @@ public class StdfReader
     * @throws StdfException
     */
    public StdfReader read() throws IOException, StdfException
-    {
+   {
         try (DataInputStream rdr = new DataInputStream(new BufferedInputStream(new FileInputStream(filename), 1000000)))
         {
         	byte[] far = new byte[6];

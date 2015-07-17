@@ -14,6 +14,8 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
+import com.makechip.stdf2xls4.stdfapi.DefaultValueDatabase;
+import com.makechip.stdf2xls4.stdfapi.TestIdDatabase;
 
 /**
  * @author eric
@@ -61,8 +63,8 @@ public class StdfTest4
 			new byte[] { (byte) 0, (byte) 1, (byte) 2, (byte) 3 }, 32, new byte[] { (byte) 3, (byte) 2, (byte) 1, (byte) 0 },
 			"vecName", "timeSetName", "vecOpCode", "label", "alarmName", "progTxt", "rsltTxt", (short) 5,  24,
 			new byte[] { (byte) 6, (byte) 7, (byte) 8 }));
-		GenericDataRecord.Data d1 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_4, 0), new Integer(33));
-		GenericDataRecord.Data d2 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R_8, 0), new Double(44.0));
+		GenericDataRecord.Data d1 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I4, 0), new Integer(33));
+		GenericDataRecord.Data d2 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R8, 0), new Double(44.0));
 		List<GenericDataRecord.Data> lgd = new ArrayList<GenericDataRecord.Data>(); 
 		lgd.add(d1);
 		lgd.add(d2);
@@ -92,13 +94,13 @@ public class StdfTest4
 			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc"));
 		stdf.add(new EndProgramSectionRecord(tdb, dvd));
 		stdf.add(new FunctionalTestRecord(tdb, dvd, 3, (short) 2, (short) 1, (byte) 0));
-		GenericDataRecord.Data d3 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U_1, 0), new Short((short)33));
-		GenericDataRecord.Data d4 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U_2, 0), new Integer(33));
-		GenericDataRecord.Data d5 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U_4, 0), new Long(33L));
-		GenericDataRecord.Data d6 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_1, 0), new Byte((byte) 33));
-		GenericDataRecord.Data d7 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_2, 0), new Short((short) 33));
-		GenericDataRecord.Data d8 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R_4, 0), new Float(33.0f));
-		GenericDataRecord.Data d9 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.C_N, 0), "string");
+		GenericDataRecord.Data d3 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U1, 0), new Short((short)33));
+		GenericDataRecord.Data d4 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U2, 0), new Integer(33));
+		GenericDataRecord.Data d5 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U4, 0), new Long(33L));
+		GenericDataRecord.Data d6 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I1, 0), new Byte((byte) 33));
+		GenericDataRecord.Data d7 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I2, 0), new Short((short) 33));
+		GenericDataRecord.Data d8 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R4, 0), new Float(33.0f));
+		GenericDataRecord.Data d9 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.CN, 0), "string");
 		List<GenericDataRecord.Data> lgd2 = new ArrayList<GenericDataRecord.Data>(); 
 		lgd2.add(d3);
 		lgd2.add(d4);

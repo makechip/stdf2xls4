@@ -27,9 +27,13 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 
@@ -47,45 +51,73 @@ public class PinListRecord extends StdfRecord
     private final String[] pgmChal;
     private final String[] rtnChal;
     
-    /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase is not used for this record.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
-     */
-    public PinListRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public PinListRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.PLR, dvd.getCpuType(), data);
-        int k = getU2(0);
+        super();
+        int k = cpu.getU2(is);
+        int l = 2;
         pinIndex = new int[k];
-        Arrays.setAll(pinIndex, p -> getU2(-1));
-        mode = new int[k];
-        Arrays.setAll(mode, p -> getU2(0));
-        radix = new int[k];
-        Arrays.setAll(radix, p -> getU1((short) 0));
-        pgmChar = new String[k];
-        Arrays.setAll(pgmChar, p -> getCn());
-        rtnChar = new String[k];
-        Arrays.setAll(rtnChar, p -> getCn());
-        pgmChal = new String[k];
-        Arrays.setAll(pgmChal, p -> getCn());
-        rtnChal = new String[k];
-        Arrays.setAll(rtnChal, p -> getCn());
-        
+        for (int i=0; i<k; i++) pinIndex[i] = cpu.getU2(is);
+        l += Data_t.U2.numBytes * pinIndex.length;
+        if (l < recLen && k > 0)
+        {
+            mode = new int[k];
+            for (int i=0; i<k; i++) mode[i] = cpu.getU2(is);
+            l += Data_t.U2.numBytes * mode.length;
+        }
+        else mode = null;
+        if (l < recLen && k > 0)
+        {
+            radix = new int[k];
+            for (int i=0; i<k; i++) radix[i] = cpu.getU2(is);
+            l += Data_t.U2.numBytes * radix.length;
+        }
+        else radix = null;
+        if (l < recLen && k > 0)
+        {
+            pgmChar = new String[k];
+            for (int i=0; i<k; i++)
+            {
+            	pgmChar[i] = cpu.getCN(is);
+            	l += 1 + pgmChar[i].length();
+            }
+        }
+        else pgmChar = null;
+        if (l < recLen && k > 0)
+        {
+            rtnChar = new String[k];
+            for (int i=0; i<k; i++)
+            {
+            	rtnChar[i] = cpu.getCN(is);
+            	l += 1 + rtnChar[i].length();
+            }
+        }
+        else rtnChar = null;
+        if (l < recLen && k > 0)
+        {
+            pgmChal = new String[k];
+            for (int i=0; i<k; i++)
+            {
+            	pgmChal[i] = cpu.getCN(is);
+            	l += 1 + pgmChal[i].length();
+            }
+        }
+        else pgmChal = null;
+        if (l < recLen && k > 0)
+        {
+            rtnChal = new String[k];
+            for (int i=0; i<k; i++)
+            {
+            	rtnChal[i] = cpu.getCN(is);
+            	l += 1 + rtnChal[i].length();
+            }
+        }
+        else rtnChal = null;
+        if (l != recLen) throw new StdfException("Record length error in PinListRecord."); 
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
-	@Override
-	protected void toBytes()
-	{
-		bytes = toBytes(cpuType, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal);
-	}
-	
 	private static byte[] toBytes(
-		Cpu_t cpuType,
+		Cpu_t cpu,
 	    int[] pinIndex,
 	    int[] mode,
 	    int[] radix,
@@ -95,32 +127,18 @@ public class PinListRecord extends StdfRecord
 	    String[] rtnChal)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(cpuType.getU2Bytes(pinIndex.length));
-		Arrays.stream(pinIndex).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
-		Arrays.stream(mode).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
-		Arrays.stream(radix).forEach(p -> l.addAll(getU1Bytes((short) p)));
-		Arrays.stream(pgmChar).forEach(p -> l.addAll(getCnBytes(p)));
-		Arrays.stream(rtnChar).forEach(p -> l.addAll(getCnBytes(p)));
-		Arrays.stream(pgmChal).forEach(p -> l.addAll(getCnBytes(p)));
-		Arrays.stream(rtnChal).forEach(p -> l.addAll(getCnBytes(p)));
+		l.addAll(cpu.getU2Bytes(pinIndex.length));
+		Arrays.stream(pinIndex).forEach(p -> l.addAll(cpu.getU2Bytes(p)));
+		Arrays.stream(mode).forEach(p -> l.addAll(cpu.getU2Bytes(p)));
+		Arrays.stream(radix).forEach(p -> l.addAll(cpu.getU1Bytes((short) p)));
+		Arrays.stream(pgmChar).forEach(p -> l.addAll(cpu.getCNBytes(p)));
+		Arrays.stream(rtnChar).forEach(p -> l.addAll(cpu.getCNBytes(p)));
+		Arrays.stream(pgmChal).forEach(p -> l.addAll(cpu.getCNBytes(p)));
+		Arrays.stream(rtnChal).forEach(p -> l.addAll(cpu.getCNBytes(p)));
 		return(l.toArray());
 	}
 	
-	/**
-     * This constructor is used to make a PinGroupRecord with field values. 
-     * @param tdb The TestIdDatabase is not used for this record.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-	 * @param pinIndex The GRP_INDX field.
-	 * @param mode     The GRP_MODE field.
-	 * @param radix    The GRP_RADX field.
-	 * @param pgmChar  The PGM_CHAR field.
-	 * @param rtnChar  The RTN_CHAR field.
-	 * @param pgmChal  The PGM_CHAL field.
-	 * @param rtnChal  The RTN_CHAL field.
-	 */
-	public PinListRecord(
-		TestIdDatabase tdb,
-		DefaultValueDatabase dvd,
+	private static int getRecLen(
 	    int[] pinIndex,
 	    int[] mode,
 	    int[] radix,
@@ -129,7 +147,73 @@ public class PinListRecord extends StdfRecord
 	    String[] pgmChal,
 	    String[] rtnChal)
 	{
-		this(tdb, dvd, toBytes(dvd.getCpuType(), pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal));
+	    int l = Data_t.U2.numBytes;
+	    l += Data_t.U2.numBytes * pinIndex.length;
+	    if (mode != null)
+	    {
+	    	l += Data_t.U2.numBytes * mode.length;
+	    	if (radix != null)
+	    	{
+	    		l += Data_t.U2.numBytes * radix.length;
+	    		if (pgmChar != null)
+	    		{
+	    			l += pgmChar.length;
+	    			for (int i=0; i<pgmChar.length; i++) l += pgmChar[i].length();
+	    			if (rtnChar != null)
+	    			{
+	    			    l += rtnChar.length;
+	    			    for (int i=0; i<rtnChar.length; i++) l += rtnChar[i].length();
+	    			    if (pgmChal != null)
+	    			    {
+	    			        l += pgmChal.length;
+	    			        for (int i=0; i<pgmChal.length; i++) l += pgmChal[i].length();
+	    			        if (rtnChal != null)
+	    			        {
+	    			            l += rtnChal.length;
+	    			            for (int i=0; i<rtnChal.length; i++) l += rtnChal[i].length();
+	    			        }	
+	    			    }
+	    			}
+	    		}
+	    	}
+	    }
+	    return(l);
+	}
+	
+	@Override
+	public byte[] getBytes(Cpu_t cpu)
+	{
+		byte[] b = toBytes(cpu, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.PLR, b.length);
+		l.addAll(b);
+		return(l.toArray());
+	}
+
+	/**
+     * This constructor is used to make a PinGroupRecord with field values. 
+     * @param cpu      The cpu type.
+	 * @param pinIndex The GRP_INDX field.
+	 * @param mode     The GRP_MODE field.
+	 * @param radix    The GRP_RADX field.
+	 * @param pgmChar  The PGM_CHAR field.
+	 * @param rtnChar  The RTN_CHAR field.
+	 * @param pgmChal  The PGM_CHAL field.
+	 * @param rtnChal  The RTN_CHAL field.
+	 * @throws StdfException 
+	 * @throws IOException 
+	 */
+	public PinListRecord(
+		Cpu_t cpu,
+	    int[] pinIndex,
+	    int[] mode,
+	    int[] radix,
+	    String[] pgmChar,
+	    String[] rtnChar,
+	    String[] pgmChal,
+	    String[] rtnChal) throws IOException, StdfException
+	{
+		this(cpu, getRecLen(pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal),
+			new DataInputStream(new ByteArrayInputStream(toBytes(cpu, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal))));
 	}
 
 
@@ -203,13 +287,32 @@ public class PinListRecord extends StdfRecord
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("PinListRecord [pinIndex="); builder.append(Arrays.toString(pinIndex));
-		builder.append(", mode=").append(Arrays.toString(mode));
-		builder.append(", radix=").append(Arrays.toString(radix));
-		builder.append(", pgmChar=").append(Arrays.toString(pgmChar));
-		builder.append(", rtnChar=").append(Arrays.toString(rtnChar));
-		builder.append(", pgmChal=").append(Arrays.toString(pgmChal));
-		builder.append(", rtnChal=").append(Arrays.toString(rtnChal));
+		builder.append("PinListRecord [");
+		builder.append("pinIndex=").append(Arrays.toString(pinIndex));
+		if (mode != null)
+		{
+			builder.append(", mode=").append(Arrays.toString(mode));
+		}
+		if (radix != null)
+		{
+			builder.append(", radix=").append(Arrays.toString(radix));
+		}
+		if (pgmChar != null)
+		{
+			builder.append(", pgmChar=").append(Arrays.toString(pgmChar));
+		}
+		if (rtnChar != null)
+		{
+			builder.append(", rtnChar=").append(Arrays.toString(rtnChar));
+		}
+		if (pgmChal != null)
+		{
+			builder.append(", pgmChal=").append(Arrays.toString(pgmChal));
+		}
+		if (rtnChal != null)
+		{
+			builder.append(", rtnChal=").append(Arrays.toString(rtnChal));
+		}
 		builder.append("]");
 		return builder.toString();
 	}
@@ -221,7 +324,7 @@ public class PinListRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 1;
 		result = prime * result + Arrays.hashCode(mode);
 		result = prime * result + Arrays.hashCode(pgmChal);
 		result = prime * result + Arrays.hashCode(pgmChar);
@@ -239,6 +342,7 @@ public class PinListRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof PinListRecord)) return false;
 		PinListRecord other = (PinListRecord) obj;
 		if (!Arrays.equals(mode, other.mode)) return false;
@@ -248,8 +352,8 @@ public class PinListRecord extends StdfRecord
 		if (!Arrays.equals(radix, other.radix)) return false;
 		if (!Arrays.equals(rtnChal, other.rtnChal)) return false;
 		if (!Arrays.equals(rtnChar, other.rtnChar)) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
+
 
 }

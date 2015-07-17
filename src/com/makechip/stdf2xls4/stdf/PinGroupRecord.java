@@ -26,9 +26,13 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 
@@ -48,57 +52,74 @@ public class PinGroupRecord extends StdfRecord
     public final String groupName;
     private final int[] pmrIdx;
     
-    /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase is not used for this record.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
-     */
-    public PinGroupRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public PinGroupRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.PGR, dvd.getCpuType(), data);
-        groupIndex = getU2(-1);
-        groupName = getCn();
-        int k = getU2(0);
-        pmrIdx = new int[k];
-        for (int i=0; i<k; i++) pmrIdx[i] = getU2(-1);
+        super();
+        groupIndex = cpu.getU2(is);
+        groupName = cpu.getCN(is);
+        int l = 2 + 1 + groupName.length();
+        int k = cpu.getU2(is);
+        l += Data_t.U2.numBytes;
+        if (l < recLen && k > 0)
+        {
+            pmrIdx = new int[k];
+            for (int i=0; i<k; i++) 
+            {
+            	pmrIdx[i] = cpu.getU2(is);
+            	l += Data_t.U2.numBytes;
+            }
+        }
+        else pmrIdx = null;
+        if (l != recLen) throw new StdfException("Record length error in PinGroupRecord.");
     }
     
     /**
      * This constructor is used to make a PinGroupRecord with field values. 
-     * @param tdb The TestIdDatabase is not used for this record.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     * @param cpu The cpu type.
      * @param groupIndex This is the GRP_INDX field.
      * @param groupName This is the GRP_NAM field.
      * @param pmrIdx This is the PMR_INDX field.
+     * @throws StdfException 
+     * @throws IOException 
      */
     public PinGroupRecord(
-    	TestIdDatabase tdb, 
-    	DefaultValueDatabase dvd,
+        Cpu_t cpu,
     	int groupIndex, 
     	String groupName, 
-    	int[] pmrIdx)
+    	int[] pmrIdx) throws IOException, StdfException
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), groupIndex, groupName, pmrIdx));
+    	this(cpu, getRecLen(groupName, pmrIdx),
+    		 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, groupIndex, groupName, pmrIdx))));
     }
 
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, groupIndex, groupName, pmrIdx);	
+		byte[] b = toBytes(cpu, groupIndex, groupName, pmrIdx);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.PGR, b.length);
+		l.addAll(b);
+		return(l.toArray());
 	}
 	
-	private static byte[] toBytes(Cpu_t cpuType, int groupIndex, String groupName, int[] pmrIdx)
+	private static int getRecLen(String groupName, int[] pmrIdx)
+	{
+		int l = 2;
+		l += 1 + groupName.length();
+		if (pmrIdx != null) l += Data_t.U2.numBytes * pmrIdx.length;
+		return(l);
+	}
+
+	private static byte[] toBytes(Cpu_t cpu, int groupIndex, String groupName, int[] pmrIdx)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(cpuType.getU2Bytes(groupIndex));
-		l.addAll(getCnBytes(groupName));
-		l.addAll(cpuType.getU2Bytes(pmrIdx.length));
-		Arrays.stream(pmrIdx).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
+		l.addAll(cpu.getU2Bytes(groupIndex));
+		l.addAll(cpu.getCNBytes(groupName));
+		if (pmrIdx != null) l.addAll(cpu.getU2Bytes(pmrIdx.length));
+		else l.addAll(cpu.getU2Bytes(0));
+		if (pmrIdx != null)
+		{
+		    Arrays.stream(pmrIdx).forEach(p -> l.addAll(cpu.getU2Bytes(p)));
+		}
 		return(l.toArray());
 	}
     
@@ -119,9 +140,9 @@ public class PinGroupRecord extends StdfRecord
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("PinGroupRecord [groupIndex="); builder.append(groupIndex);
-		builder.append(", ").append("groupName=").append(groupName);
-		builder.append(", ").append("pmrIdx=").append(Arrays.toString(pmrIdx));
+		builder.append("PinGroupRecord [groupIndex=").append(groupIndex);
+		builder.append(", groupName=").append(groupName);
+		if (pmrIdx != null) builder.append(", pmrIdx=").append(Arrays.toString(pmrIdx));
 		builder.append("]");
 		return builder.toString();
 	}
@@ -133,9 +154,10 @@ public class PinGroupRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 1;
 		result = prime * result + groupIndex;
-		result = prime * result + groupName.hashCode();
+		result = prime * result
+				+ ((groupName == null) ? 0 : groupName.hashCode());
 		result = prime * result + Arrays.hashCode(pmrIdx);
 		return result;
 	}
@@ -147,12 +169,12 @@ public class PinGroupRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof PinGroupRecord)) return false;
 		PinGroupRecord other = (PinGroupRecord) obj;
 		if (groupIndex != other.groupIndex) return false;
 		if (!groupName.equals(other.groupName)) return false;
 		if (!Arrays.equals(pmrIdx, other.pmrIdx)) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

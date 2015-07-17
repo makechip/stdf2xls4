@@ -33,6 +33,8 @@ import java.util.Set;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestOptFlag_t;
+import com.makechip.stdf2xls4.stdfapi.DefaultValueDatabase;
+import com.makechip.stdf2xls4.stdfapi.TestIdDatabase;
 
 /**
  *  This class holds the fields for a Test Synopsis Record.

@@ -47,7 +47,7 @@ import com.makechip.stdf2xls4.stdfapi.DeviceResult;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
 import com.makechip.stdf2xls4.stdfapi.SnOrXy;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
-import com.makechip.stdf2xls4.stdf.TestID;
+import com.makechip.stdf2xls4.stdfapi.TestID;
 
 import static com.makechip.stdf2xls4.excel.xlsx.FontName_t.ARIAL;
 import static com.makechip.stdf2xls4.excel.xlsx.FontName_t.COURIER;

@@ -26,10 +26,15 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -39,8 +44,6 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
  */
 public class PartResultsRecord extends StdfRecord
 {
-	private static int sn = -1;
-    
 	/**
 	 *  This is the HEAD_NUM field.
 	 */
@@ -64,19 +67,19 @@ public class PartResultsRecord extends StdfRecord
     /**
      *  This is the SOFT_BIN field.
      */
-    public final int swBinNumber;
+    public final Integer swBinNumber;
     /**
      *  This is the X_COORD field.
      */
-    public final short xCoord;
+    public final Short xCoord;
     /**
      *  This is the Y_COORD field.
      */
-    public final short yCoord;
+    public final Short yCoord;
     /**
      *  This is the TEST_T field.
      */
-    public final long testTime;
+    public final Long testTime;
     /**
      *  This is the PART_ID field.
      */
@@ -106,40 +109,64 @@ public class PartResultsRecord extends StdfRecord
      */
     public boolean noPassFailIndication() { return(partInfoFlags.contains(PartInfoFlag_t.NO_PASS_FAIL_INDICATION)); }
     
-    /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase is cleared whenever this record is encountered.
-     *  This is so that duplicate TestIDs can be tracked, and be uniquified for each device.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
-     */
-   public PartResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public PartResultsRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
-        super(Record_t.PRR, dvd.getCpuType(), data);
-        tdb.clearIdDups();
-        headNumber = getU1((short) -1);
-        siteNumber = getU1((short) -1);
-        byte f = getI1((byte) 0);
-        partInfoFlags = PartInfoFlag_t.getBits(f);
-        numExecs = getU2(0);
-        hwBinNumber = getU2(-1);
-        swBinNumber = getU2(65535);
-        xCoord = getI2((short) -32768);
-        yCoord = getI2((short) -32768);
-        testTime = getU4(0);
-        String pid = getCn();
-        partID = (pid.equals("")) ? "" + sn-- : pid;
-        partDescription = getCn();
-        repair = getBn();
+        super();
+        headNumber = cpu.getU1(is);
+        siteNumber = cpu.getU1(is);
+        partInfoFlags = Collections.unmodifiableSet(PartInfoFlag_t.getBits(cpu.getI1(is)));
+        numExecs = cpu.getU2(is);
+        hwBinNumber = cpu.getU2(is);
+        int l = 7;
+        if (l < recLen)
+        {
+            swBinNumber = cpu.getU2(is);
+            l += Data_t.U2.numBytes;
+        }
+        else swBinNumber = null;
+        if (l < recLen)
+        {
+            xCoord = cpu.getI2(is);
+            l += Data_t.I2.numBytes;
+        }
+        else xCoord = null;
+        if (l < recLen)
+        {
+            yCoord = cpu.getI2(is);
+            l += Data_t.I2.numBytes;
+        }
+        else yCoord = null;
+        if (l < recLen)
+        {
+            testTime = cpu.getU4(is);
+            l += Data_t.U4.numBytes;
+        }
+        else testTime = null;
+        if (l < recLen)
+        {
+            partID = cpu.getCN(is);
+            l += 1 + partID.length();
+        }
+        else partID = null;
+        if (l < recLen)
+        {
+            partDescription = cpu.getCN(is);
+            l += 1 + partDescription.length();
+        }
+        else partDescription = null;
+        if (l < recLen)
+        {
+            repair = cpu.getBN(is);
+            l += 1 + repair.length;
+        }
+        else repair = null;
+        if (l != recLen) throw new StdfException("Error in record length for PartResultsRecord.");
     }
     
     /**
      * 
      * This constructor is used to make a ParametricTestRecord with field values.
-     *  @param tdb The TestIdDatabase is cleared whenever this record is encountered.
-     *  This is so that duplicate TestIDs can be tracked, and be uniquified for each device.
-     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+     * @param cpu The cpu type.
      * @param headNumber This is the HEAD_NUM field.
      * @param siteNumber This is the SITE_NUM field.
      * @param partInfoFlags This is the PART_FLG field.
@@ -152,68 +179,104 @@ public class PartResultsRecord extends StdfRecord
      * @param partID This is the PART_ID field.
      * @param partDescription This is the PART_TXT field.
      * @param repair This is the PART_FIX field.
+     * @throws StdfException 
+     * @throws IOException 
      */
     public PartResultsRecord(
-        TestIdDatabase tdb,
-        DefaultValueDatabase dvd,
+        Cpu_t cpu,
     	short headNumber,
     	short siteNumber,
     	byte partInfoFlags,
     	int numExecs,
     	int hwBinNumber,
-    	int swBinNumber,
-    	short xCoord,
-    	short yCoord,
-    	long testTime,
+    	Integer swBinNumber,
+    	Short xCoord,
+    	Short yCoord,
+    	Long testTime,
     	String partID,
     	String partDescription,
-    	byte[] repair)
+    	byte[] repair) throws IOException, StdfException
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, partInfoFlags,
-    		                   numExecs, hwBinNumber, swBinNumber, xCoord, yCoord, testTime,
-    		                   partID, partDescription, repair));
+    	this(cpu, 
+    		 getRecLen(swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair),
+    		 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteNumber, partInfoFlags, numExecs, 
+    				             hwBinNumber, swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair))));
     }
 
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, headNumber, siteNumber, 
-	    	            (byte) partInfoFlags.stream().mapToInt(p -> p.bit).sum(),
-	    	            numExecs, hwBinNumber, swBinNumber, xCoord, yCoord, testTime,
-	    	            partID, partDescription, repair);
+		byte pif = (byte) partInfoFlags.stream().mapToInt(p -> p.bit).sum();
+		byte[] b = toBytes(cpu, headNumber, siteNumber, pif, numExecs, hwBinNumber, 
+				           swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.PRR, b.length);
+		l.addAll(b);
+		return(l.toArray());
+	}
+   
+	private static int getRecLen(Integer swBinNumber, Short xCoord, Short yCoord, Long testTime, 
+			                     String partID, String partDescription, byte[] repair)
+	{
+		int l = 7;
+		if (swBinNumber != null) l += Data_t.U2.numBytes; else return(l);
+		if (xCoord != null) l += Data_t.I2.numBytes; else return(l);
+		if (yCoord != null) l += Data_t.I2.numBytes; else return(l);
+		if (testTime != null) l += Data_t.U4.numBytes; else return(l);
+		if (partID != null) l += 1 + partID.length(); else return(l);
+		if (partDescription != null) l += 1 + partDescription.length(); else return(l);
+		if (repair != null) l += 1 + repair.length;
+		return(l);
 	}
 	
 	private static byte[] toBytes(
-        Cpu_t cpuType,
+        Cpu_t cpu,
     	short headNumber,
     	short siteNumber,
     	byte partInfoFlags,
     	int numExecs,
     	int hwBinNumber,
-    	int swBinNumber,
-    	short xCoord,
-    	short yCoord,
-    	long testTime,
+    	Integer swBinNumber,
+    	Short xCoord,
+    	Short yCoord,
+    	Long testTime,
     	String partID,
     	String partDescription,
     	byte[] repair)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteNumber));
+		l.addAll(cpu.getU1Bytes(headNumber));
+		l.addAll(cpu.getU1Bytes(siteNumber));
 		l.add(partInfoFlags);
-		l.addAll(cpuType.getU2Bytes(numExecs));
-		l.addAll(cpuType.getU2Bytes(hwBinNumber));
-		l.addAll(cpuType.getU2Bytes(swBinNumber));
-		l.addAll(cpuType.getI2Bytes(xCoord));
-		l.addAll(cpuType.getI2Bytes(yCoord));
-		l.addAll(cpuType.getU4Bytes(testTime));
-		l.addAll(getCnBytes(partID));
-		l.addAll(getCnBytes(partDescription));
-		l.addAll(getBnBytes(repair));
+		l.addAll(cpu.getU2Bytes(numExecs));
+		l.addAll(cpu.getU2Bytes(hwBinNumber));
+		if (swBinNumber != null)
+		{
+		  l.addAll(cpu.getU2Bytes(swBinNumber));
+		  if (xCoord != null)
+		  {
+		    l.addAll(cpu.getI2Bytes(xCoord));
+		    if (yCoord != null)
+		    {
+		      l.addAll(cpu.getI2Bytes(yCoord));
+		      if (testTime != null)
+		      {
+		        l.addAll(cpu.getU4Bytes(testTime));
+		        if (partID != null)
+		        {
+		          l.addAll(cpu.getCNBytes(partID));
+		          if (partDescription != null)
+		          {
+		            l.addAll(cpu.getCNBytes(partDescription));
+		            if (repair != null)
+		            {
+		              l.addAll(cpu.getBNBytes(repair));
+		            }
+		          }
+		        }
+		      }
+		    }
+		  }
+		}	
 		return(l.toArray());
 	}
 
@@ -294,5 +357,4 @@ public class PartResultsRecord extends StdfRecord
 		if (!super.equals(obj)) return false;
 		return true;
 	}
-    
 }

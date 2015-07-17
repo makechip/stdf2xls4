@@ -25,6 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf.enums;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.EnumSet;
 
 import com.makechip.stdf2xls4.stdf.*;
@@ -68,7 +70,10 @@ public enum Record_t
     private FuncIf ctor;
     
     @FunctionalInterface
-    private interface FuncIf { StdfRecord getRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] bytes); }
+    private interface FuncIf 
+    { 
+    	StdfRecord getRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException;
+    }
 
     /**
     **/
@@ -87,9 +92,9 @@ public enum Record_t
         return(r);
     }
 
-    public StdfRecord getInstance(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] bytes)
+    public StdfRecord getInstance(Cpu_t cpu, int recLen, DataInputStream is)
     {
-    	return(ctor.getRecord(tdb, dvd, bytes));
+    	return(ctor.getRecord(cpu, recLen, is));
     }
 
 }
