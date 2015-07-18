@@ -182,5 +182,18 @@ public class StdfReader
      * @return The list of STDF records loaded by one of the read() methods.
      */
     public List<StdfRecord> getRecords() { return(records); }
+    
+    public static void main(String[] args)
+    {
+    	if (args.length != 1)
+    	{
+    		Log.msg("usage: (old version) java com.makechip.stdf2xls4.stdf.StdfReader <stdfFile>");
+    		System.exit(1);
+    	}
+    	TestIdDatabase tdb = new TestIdDatabase();
+    	StdfReader rdr = new StdfReader(tdb, new File(args[0]));
+    	try { rdr.read(); } catch (Exception e) { Log.msg(e.getMessage()); }
+    	rdr.getRecords().stream().forEach(r -> Log.msg(r.toString()));
+    }
 
 }
