@@ -92,7 +92,7 @@ public enum Record_t
         return(r);
     }
 
-    public StdfRecord getInstance(Cpu_t cpu, int recLen, DataInputStream is)
+    public StdfRecord getInstance(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
     	return(ctor.getRecord(cpu, recLen, is));
     }

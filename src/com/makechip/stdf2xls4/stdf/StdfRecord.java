@@ -2,8 +2,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.io.IOException;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -33,12 +31,6 @@ public abstract class StdfRecord
 	
 	/**
 	 * The constructor for an STDF record.
-	 * @param type  The record type.
-	 * @param cpuType The cpuType.
-	 * @param bytes The byte data for the record being built. This array
-	 * must *not* include the REC_LEN, REC_TYP, and REC_SUB byte fields.
-	 * @throws IOException 
-	 * @throws StdfException 
 	 */
 	protected StdfRecord()
 	{

@@ -50,19 +50,19 @@ public class FileAttributesRecord extends StdfRecord
     public final Cpu_t cpuType;
     
     /**
-     * Constructor for initializing this record with binary stream data.
-     * @param tdb The TestIdDatabase  is not used by this record, but is
-     * required so STDF records have consistent constructor signatures.
-     * @param dvd This CTOR sets the CPU type in the DefaultValueDatabase.
-     * @param data The binary stream data for this record.  The array should
-     * not contain the first four bytes of the record. 
+     * CTOR for a FileAttributesRecord.
+     * @param cpu  The CPU type.  For this record only, cpu may be null.
+     * @param recLen
+     * @param is
+     * @throws IOException
+     * @throws StdfException
      */
     public FileAttributesRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
         super();
-        short c = cpu.getU1(is);
+        short c = (short) (0xFF & is.readByte());
         cpuType = Cpu_t.getCpuType((byte) c);
-        stdfVersion = cpu.getU1(is);
+        stdfVersion = (short) (0xFF & is.readByte());
     }
     
     /**
