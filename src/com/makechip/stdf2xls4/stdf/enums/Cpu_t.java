@@ -28,6 +28,8 @@ package com.makechip.stdf2xls4.stdf.enums;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.makechip.util.Log;
+
 /**
  *  This enum represents the CPU_TYPE values used in the File Attributes Record.
  *  It determines the byte order used in converting bytes to various number types.
@@ -458,6 +460,7 @@ public enum Cpu_t
     public String getCN(DataInputStream is) throws IOException
     {
         int l = 0xFF & is.readByte();
+        //Log.msg("CN length = " + l);
         if (l == 0) return("");
         byte[] b = new byte[l];
         is.readFully(b);

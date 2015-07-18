@@ -25,13 +25,16 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.util.Log;
 
 /**
  *  This class reads an STDF file, and produces the list of STDF records
@@ -79,5 +82,26 @@ public class StdfReader
      * @return The list of STDF records loaded by one of the read() methods.
      */
     public List<StdfRecord> getRecords() { return(records); }
+    
+    public static void main(String[] args)
+    {
+    	if (args.length != 1)
+    	{
+    		Log.msg("Usage: java com.makechip.stdf2xls4.stdf.StdfReader <stdfFile>");
+    		System.exit(1);
+    	}
+    	try (DataInputStream is = new DataInputStream(new BufferedInputStream(new FileInputStream(args[0]))))
+    	{
+            StdfReader rdr = new StdfReader();
+            rdr.read(is);
+            rdr.getRecords().stream().forEach(r -> Log.msg(r.toString()));
+    	} 
+    	catch (Exception e)
+		{
+    		Log.msg(e.getMessage());
+			e.printStackTrace();
+		} 
+
+    }
 
 }

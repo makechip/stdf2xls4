@@ -55,7 +55,7 @@ public class SoftwareBinRecord extends StdfRecord
     /**
      *  This is the SBIN_CNT field.
      */
-    public final int count;
+    public final long count;
     /**
      *  This is the SBIN_PF field.
      */
@@ -71,7 +71,7 @@ public class SoftwareBinRecord extends StdfRecord
         headNumber = cpu.getU1(is);
         siteNumber = cpu.getU1(is);
         swBinNumber = cpu.getU2(is);
-        count = cpu.getU2(is);
+        count = cpu.getU4(is);
         int l = 8;
         if (l < recLen)
         {
@@ -85,7 +85,7 @@ public class SoftwareBinRecord extends StdfRecord
             l += 1 + binName.length();
         }
         else binName = null;
-        if (l != recLen) throw new StdfException("Record length error in SoftwareBinRecord");
+        if (l != recLen) throw new StdfException("Record length error in SoftwareBinRecord l = " + l + " recLen = " + recLen + " binName = " + binName);
     }
 
 	@Override
@@ -102,7 +102,7 @@ public class SoftwareBinRecord extends StdfRecord
 		short headNumber, 
 		short siteNumber, 
 		int swBinNumber, 
-		int count, 
+		long count, 
 		Character pf, 
 		String binName)
 	{
@@ -110,7 +110,7 @@ public class SoftwareBinRecord extends StdfRecord
 		l.addAll(cpu.getU1Bytes(headNumber));
 		l.addAll(cpu.getU1Bytes(siteNumber));
 		l.addAll(cpu.getU2Bytes(swBinNumber));
-		l.addAll(cpu.getU2Bytes(count));
+		l.addAll(cpu.getU4Bytes(count));
 		if (pf != null)
 		{
 			l.addAll(cpu.getI1Bytes((byte) pf.charValue()));
@@ -148,7 +148,7 @@ public class SoftwareBinRecord extends StdfRecord
 			short headNumber, 
 			short siteNumber, 
 			int swBinNumber, 
-			int count, 
+			long count, 
 			char pf, 
 			String binName) throws IOException, StdfException
 	{
@@ -182,7 +182,7 @@ public class SoftwareBinRecord extends StdfRecord
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((binName == null) ? 0 : binName.hashCode());
-		result = prime * result + count;
+		result = prime * result + (int) (count ^ (count >>> 32));
 		result = prime * result + headNumber;
 		result = prime * result + ((pf == null) ? 0 : pf.hashCode());
 		result = prime * result + siteNumber;
