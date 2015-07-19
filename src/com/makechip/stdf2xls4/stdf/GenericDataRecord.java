@@ -31,7 +31,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream;
+//import java.util.stream.IntStream;
+
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -260,7 +261,7 @@ public class GenericDataRecord extends StdfRecord
 		}
 	}
 	
-	private PadData getType(Cpu_t cpu, DataInputStream is) throws IOException
+	private static PadData getType(Cpu_t cpu, DataInputStream is) throws IOException
 	{
 		int type = 0;
 		int cnt = 0;
@@ -295,9 +296,11 @@ public class GenericDataRecord extends StdfRecord
         }
 	}
 	
+	/**
 	private static void setField(Cpu_t cpu, TByteArrayList l, Data field)
 	{
 		IntStream.generate(() -> 0).limit(field.padCnt).forEach(v -> l.add((byte) 0));
+		Log.msg("GDR TYPE = " + field.type.type);
 		l.add((byte) field.type.type);
 		switch (field.type)
 		{
@@ -312,13 +315,14 @@ public class GenericDataRecord extends StdfRecord
         case CN: l.addAll(cpu.getCNBytes((String) field.value)); break;
         case BN: l.addAll(cpu.getBNBytes((byte[]) field.value)); break;
         case N1: byte[] b = (byte[]) field.value;
-        	     l.addAll(cpu.getN1Bytes(b[0], b[1])); break;
+        	     l.add(cpu.getN1Byte(b[0], b[1])); break;
         case DN: BitData bd = (BitData) field; 
         	      l.addAll(cpu.getDNBytes(bd.numBits, (byte[]) field.value)); 
         	      break;
        	default: throw new RuntimeException("Unknown data type in GenericDataRecord");
 		}
 	}
+	**/
 	
 	/**
      * Constructor for initializing this record with binary stream data.
@@ -357,28 +361,40 @@ public class GenericDataRecord extends StdfRecord
 	@Override
 	public byte[] getBytes(Cpu_t cpu)
 	{
-		final TByteArrayList l1 = new TByteArrayList();
-		list.stream().forEach(p -> setField(cpu, l1, p));
-		byte[] b = l1.toArray();
+		byte[] b = toBytes(cpu, list);
 		TByteArrayList l2 = getHeaderBytes(cpu, Record_t.GDR, b.length);
 		l2.addAll(b);
         return(l2.toArray());
 	}
-    
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
+	private static byte[] toBytes(Cpu_t cpu, List<Data> list)
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("GenericDataRecord [list=");
-		builder.append(list);
-		builder.append("]");
-		return builder.toString();
+	    TByteArrayList l = new TByteArrayList();	
+	    l.addAll(cpu.getU2Bytes(list.size()));
+	    for (Data d : list)
+	    {
+	    	for (int i=0; i<d.padCnt; i++) l.addAll(cpu.getU1Bytes((short) 0));
+	    	l.addAll(cpu.getU1Bytes(d.type.type));
+	    	switch (d.type)
+	    	{
+	    	case U1: l.addAll(cpu.getU1Bytes((short) d.value)); break;
+	    	case U2: l.addAll(cpu.getU2Bytes((int) d.value)); break;
+	    	case U4: l.addAll(cpu.getU4Bytes((long) d.value)); break;
+	    	case I1: l.addAll(cpu.getI1Bytes((byte) d.value)); break;
+	    	case I2: l.addAll(cpu.getI2Bytes((short) d.value)); break;
+	    	case I4: l.addAll(cpu.getI4Bytes((int) d.value)); break;
+	    	case R4: l.addAll(cpu.getR4Bytes((float) d.value)); break;
+	    	case R8: l.addAll(cpu.getR8Bytes((double) d.value)); break;
+	    	case CN: l.addAll(cpu.getCNBytes(d.value.toString())); break;
+	    	case BN: l.addAll(cpu.getBNBytes((byte[]) d.value)); break;
+	    	case DN: l.addAll(cpu.getDNBytes(((BitData) d).numBits, (byte[]) d.value)); break;
+	    	case N1: l.add(cpu.getN1Byte(((byte[])d.value)[0], ((byte[])d.value)[1])); break;
+	    	default: throw new RuntimeException("GDR ERROR: unsupported data type: " + d.type);
+	    	}
+	    }
+	    return(l.toArray());
 	}
-
+    
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */

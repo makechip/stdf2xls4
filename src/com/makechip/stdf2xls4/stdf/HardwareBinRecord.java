@@ -81,8 +81,20 @@ public class HardwareBinRecord extends StdfRecord
         siteNumber = cpu.getU1(is);
         hwBin = cpu.getU2(is);
         binCnt = cpu.getU4(is);
-        if (recLen > 8) pf = (char) cpu.getI1(is); else pf = null;
-        if (recLen > 9) binName = cpu.getCN(is); else binName = null;
+        int l = 8;
+        if (recLen > 8) 
+        {
+        	pf = (char) cpu.getI1(is); 
+        	l++;
+        }
+        else pf = null;
+        if (recLen > 9) 
+        {
+        	binName = cpu.getCN(is);
+        	l += 1 + binName.length();
+        }
+        else binName = null;
+        if (l != recLen) throw new StdfException("Record length error in HardwareBinRecord: l = " + l + " recLen = " + recLen);
     }
     
     /**
@@ -120,6 +132,7 @@ public class HardwareBinRecord extends StdfRecord
 	{
 		byte[] b = toBytes(cpu, headNumber, siteNumber, hwBin, binCnt, pf, binName);
 		TByteArrayList l = getHeaderBytes(cpu, Record_t.HBR, b.length);
+		l.addAll(b);
 		return(l.toArray());
 	}
 
@@ -144,30 +157,13 @@ public class HardwareBinRecord extends StdfRecord
 	}
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("HardwareBinRecord [headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", hwBin=").append(hwBin);
-		builder.append(", binCnt=").append(binCnt);
-		builder.append(", pf=").append(pf);
-		builder.append(", binName=").append(binName);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 157;
 		result = prime * result + (int) (binCnt ^ (binCnt >>> 32));
 		result = prime * result + binName.hashCode();
 		result = prime * result + headNumber;
@@ -184,6 +180,7 @@ public class HardwareBinRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof HardwareBinRecord)) return false;
 		HardwareBinRecord other = (HardwareBinRecord) obj;
 		if (binCnt != other.binCnt) return false;
@@ -192,7 +189,6 @@ public class HardwareBinRecord extends StdfRecord
 		if (hwBin != other.hwBin) return false;
 		if (pf != other.pf) return false;
 		if (siteNumber != other.siteNumber) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

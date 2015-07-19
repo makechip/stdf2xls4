@@ -209,24 +209,6 @@ public class PartCountRecord extends StdfRecord
 	}
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("PartCountRecord [headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", partsTested=").append(partsTested);
-		if (partsReTested != null) builder.append(", partsReTested=").append(partsReTested);
-		if (aborts != null) builder.append(", aborts=").append(aborts);
-		if (good != null) builder.append(", good=").append(good);
-		if (functional != null) builder.append(", functional=").append(functional);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

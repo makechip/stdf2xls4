@@ -550,59 +550,6 @@ public class MasterInformationRecord extends StdfRecord
 	}
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("MasterInformationRecord [jobDate=").append(jobDate);
-		builder.append(", testDate=").append(testDate);
-		builder.append(", stationNumber=").append(stationNumber);
-		builder.append(", testModeCode=").append(testModeCode);
-		builder.append(", lotRetestCode=").append(lotRetestCode);
-		builder.append(", dataProtectionCode=").append(dataProtectionCode);
-		builder.append(", burnInTime=").append(burnInTime);
-		builder.append(", cmdModeCode=").append(cmdModeCode);
-		builder.append(", lotID=").append(lotID);
-		builder.append(", partType=").append(partType);
-		builder.append(", nodeName=").append(nodeName);
-		builder.append(", testerType=").append(testerType);
-		builder.append(", jobName=").append(jobName);
-		if (jobRevisionNumber != null)
-		{
-			builder.append(", jobRevisionNumber=");
-			builder.append(jobRevisionNumber);
-		}
-		if (sublotID != null) builder.append(", sublotID=").append(sublotID);
-		if (operatorName != null) builder.append(", operatorName=").append(operatorName);
-		if (execSoftware != null) builder.append(", execSoftware=").append(execSoftware);
-		if (execSoftwareVersion != null) builder.append(", execSoftwareVersion=").append(execSoftwareVersion);
-		if (stepCode != null) builder.append(", stepCode=").append(stepCode);
-		if (temperature != null) builder.append(", temperature=").append(temperature);
-		if (userText != null) builder.append(", userText=").append(userText);
-		if (auxDataFile != null) builder.append(", auxDataFile=").append(auxDataFile);
-		if (packageType != null) builder.append(", packageType=").append(packageType);
-		if (familyID != null) builder.append(", familyID=").append(familyID);
-		if (dateCode != null) builder.append(", dateCode=").append(dateCode);
-		if (facilityID != null) builder.append(", facilityID=").append(facilityID);
-		if (floorID != null) builder.append(", floorID=").append(floorID);
-		if (fabID != null) builder.append(", fabID=").append(fabID);
-		if (frequency != null) builder.append(", frequency=").append(frequency);
-		if (specName != null) builder.append(", specName=").append(specName);
-		if (specVersion != null) builder.append(", specVersion=").append(specVersion);
-		if (flowID != null) builder.append(", flowID=").append(flowID);
-		if (setupID != null) builder.append(", setupID=").append(setupID);
-		if (designRevision != null) builder.append(", designRevision=").append(designRevision);
-		if (engLotID != null) builder.append(", engLotID=").append(engLotID);
-		if (romCodeID != null) builder.append(", romCodeID=").append(romCodeID);
-		if (testerSerialNumber != null) builder.append(", testerSerialNumber=").append(testerSerialNumber);
-		if (supervisorID != null) builder.append(", supervisorID=").append(supervisorID);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

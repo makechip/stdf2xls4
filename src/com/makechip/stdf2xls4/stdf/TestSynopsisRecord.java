@@ -322,33 +322,6 @@ public class TestSynopsisRecord extends StdfRecord
 	}
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("TestSynopsisRecord [headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", testType=").append(testType);
-		builder.append(", testNumber=").append(testNumber);
-		if (numExecs != null) builder.append(", numExecs=").append(numExecs);
-		if (numFailures != null) builder.append(", numFailures=").append(numFailures);
-		if (numAlarms != null) builder.append(", numAlarms=").append(numAlarms);
-		if (testName != null) builder.append(", testName=").append(testName);
-		if (sequencerName != null) builder.append(", sequencerName=").append(sequencerName);
-		if (testLabel != null) builder.append(", testLabel=").append(testLabel);
-		if (optFlags != null) builder.append(", optFlags=").append(optFlags);
-		if (testTime != null) builder.append(", testTime=").append(testTime);
-		if (testMin != null) builder.append(", testMin=").append(testMin);
-		if (testMax != null) builder.append(", testMax=").append(testMax);
-		if (testSum != null) builder.append(", testSum=").append(testSum);
-		if (testSumSquares != null) builder.append(", testSumSquares=").append(testSumSquares);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

@@ -80,21 +80,6 @@ public class FileAttributesRecord extends StdfRecord
     }
     
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("FileAttributesRecord [stdfVersion=");
-		builder.append(stdfVersion);
-		builder.append(", cpuType=");
-		builder.append(cpuType);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
@@ -125,7 +110,7 @@ public class FileAttributesRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 97;
 		result = prime * result + cpuType.hashCode();
 		result = prime * result + stdfVersion;
 		return result;
@@ -142,7 +127,6 @@ public class FileAttributesRecord extends StdfRecord
 		FileAttributesRecord other = (FileAttributesRecord) obj;
 		if (cpuType != other.cpuType) return false;
 		if (stdfVersion != other.stdfVersion) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

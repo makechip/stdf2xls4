@@ -127,21 +127,6 @@ public class WaferInformationRecord extends StdfRecord
 	}
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("WaferInformationRecord [headNumber=").append(headNumber);
-		builder.append(", siteGroupNumber=").append(siteGroupNumber);
-		builder.append(", startDate=").append(startDate);
-		if (waferID != null) builder.append(", waferID=").append(waferID);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

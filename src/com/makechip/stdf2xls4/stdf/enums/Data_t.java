@@ -96,7 +96,7 @@ public enum Data_t
      * The numeric representation of the data type.
      * (This is used in the GenericDataRecord)
      */
-    public final int type;
+    public final byte type;
     /**
      * The number of bytes used by the data type, or 1 if a variable length field.
      */
@@ -104,7 +104,7 @@ public enum Data_t
 
     private Data_t(int type, int numBytes)
     {
-    	this.type = type;
+    	this.type = (byte) type;
         this.numBytes = numBytes;
     }
 

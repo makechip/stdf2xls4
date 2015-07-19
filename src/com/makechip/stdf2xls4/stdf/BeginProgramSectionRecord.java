@@ -70,7 +70,7 @@ public class BeginProgramSectionRecord extends StdfRecord
      */
     public BeginProgramSectionRecord(Cpu_t cpu, String seqName) throws IOException, StdfException
     {
-    	this(cpu, 0, new DataInputStream(new ByteArrayInputStream(cpu.getCNBytes(seqName))));
+    	this(cpu, getRecLen(seqName), new DataInputStream(new ByteArrayInputStream(cpu.getCNBytes(seqName))));
     }
     
 	@Override
@@ -81,18 +81,10 @@ public class BeginProgramSectionRecord extends StdfRecord
 		l.addAll(b);
 		return(l.toArray());
 	}
-
-    /* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
+	
+	private static int getRecLen(String seqName)
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("BeginProgramSectionRecord [seqName=");
-		builder.append(seqName);
-		builder.append("]");
-		return builder.toString();
+		return(1 + seqName.length());
 	}
 
 	/* (non-Javadoc)
@@ -102,7 +94,7 @@ public class BeginProgramSectionRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 107;
 		result = prime * result + seqName.hashCode();
 		return result;
 	}
@@ -117,7 +109,6 @@ public class BeginProgramSectionRecord extends StdfRecord
 		if (!(obj instanceof BeginProgramSectionRecord)) return false;
 		BeginProgramSectionRecord other = (BeginProgramSectionRecord) obj;
 		if (!seqName.equals(other.seqName)) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

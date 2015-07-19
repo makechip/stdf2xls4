@@ -232,64 +232,6 @@ public class WaferConfigurationRecord extends StdfRecord
     }
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("WaferConfigurationRecord [");
-		boolean first = true;
-		if (waferSize != null)
-		{
-			builder.append("waferSize=").append(waferSize);
-			first = false;
-		}
-		if (dieHeight != null)
-		{
-			if (first) { builder.append("dieHeight=").append(dieHeight); first = false; }
-			else builder.append(", dieHeight=").append(dieHeight);
-		}
-		if (dieWidth != null)
-		{
-			if (first) { builder.append("dieWidth=").append(dieWidth); first = false; }
-			else builder.append("dieWidth=").append(dieWidth);
-		}
-		if (units != null)
-		{
-			if (first) { builder.append("units=").append(units); first = false; }
-			else builder.append("units=").append(units);
-		}
-		if (flatOrient != null)
-		{
-			if (first) { builder.append("flatOrient=").append(flatOrient); first = false; }
-			else builder.append("flatOrient=").append(flatOrient);
-		}
-		if (centerX != null)
-		{
-			if (first) { builder.append("centerX=").append(centerX); first = false; }
-			else builder.append("centerX=").append(centerX);
-		}
-		if (centerY != null)
-		{
-			if (first) { builder.append("centerY=").append(centerY); first = false; }
-			else builder.append("centerY=").append(centerY);
-		}
-		if (posX != null)
-		{
-			if (first) { builder.append("posX=").append(posX); first = false; }
-			else builder.append("posX=").append(posX);
-		}
-		if (posY != null)
-		{
-			if (first) builder.append("posY=").append(posY);
-			else builder.append(", posY=").append(posY);
-		}
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

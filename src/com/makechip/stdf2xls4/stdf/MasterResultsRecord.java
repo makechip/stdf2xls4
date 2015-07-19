@@ -145,28 +145,13 @@ public class MasterResultsRecord extends StdfRecord
     }
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("MasterResultsRecord [finishDate=").append(getFinishDate());
-		builder.append(", dispCode=").append(dispCode);
-		builder.append(", lotDesc=").append(lotDesc);
-		builder.append(", execDesc=").append(execDesc);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 19;
 		result = prime * result + dispCode.hashCode();
 		result = prime * result + execDesc.hashCode();
 		result = prime * result + (int) (finishDate ^ (finishDate >>> 32));
@@ -181,13 +166,13 @@ public class MasterResultsRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof MasterResultsRecord)) return false;
 		MasterResultsRecord other = (MasterResultsRecord) obj;
 		if (!dispCode.equals(other.dispCode)) return false;
 		if (!execDesc.equals(other.execDesc)) return false;
 		if (finishDate != other.finishDate) return false;
 		if (!lotDesc.equals(other.lotDesc)) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

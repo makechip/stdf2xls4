@@ -147,11 +147,11 @@ public class FunctionalTestRecord extends TestRecord
     public FunctionalTestRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
     {
         super();
-        int l = 0;
-        testNumber = cpu.getU4(is); l += U4.numBytes;
-        headNumber = cpu.getU1(is); l += 1;
-        siteNumber = cpu.getU1(is); l += 1;
-        EnumSet<TestFlag_t> s = TestFlag_t.getBits(cpu.getI1(is)); l++;
+        int l = 7;
+        testNumber = cpu.getU4(is); 
+        headNumber = cpu.getU1(is); 
+        siteNumber = cpu.getU1(is); 
+        EnumSet<TestFlag_t> s = TestFlag_t.getBits(cpu.getI1(is));
         testFlags = Collections.unmodifiableSet(s);
         if (l >= recLen) optFlags =  null; 
         else
@@ -223,14 +223,17 @@ public class FunctionalTestRecord extends TestRecord
             }
         }
         else rtnIndex = null;
-        if (j > 0)
+        if (j > 0) // j is the number of nibbles
         {
             TByteArrayList list = new TByteArrayList();
             for (int i=0; i<j; i++)
             {
             	byte[] b = cpu.getN1(is);
-            	list.addAll(b);
             	l++;
+            	list.add(b[0]);
+            	i++;
+            	if (i >= j) break;
+            	list.add(b[1]);
             }
             rtnState = list.toArray();
         }
@@ -251,8 +254,11 @@ public class FunctionalTestRecord extends TestRecord
             for (int i=0; i<k; i++)
             {
             	byte[] b = cpu.getN1(is);
-                list.addAll(b);
                 l++;
+                list.add(b[0]);
+                i++;
+                if (i >= k) break;
+                list.add(b[1]);
             }
             pgmState = list.toArray();
         }
@@ -327,7 +333,7 @@ public class FunctionalTestRecord extends TestRecord
         	numEnCompBits = cpu.getU2(is);
         	l += U2.numBytes;
         	enComps = cpu.getDN(numEnCompBits, is);
-        	l += failPin.length;
+        	l += enComps.length;
         }
         if (l != recLen) throw new StdfException("FTR record length incorrect - recLen = " + recLen + " actual = " + l); 
     }
@@ -447,7 +453,7 @@ public class FunctionalTestRecord extends TestRecord
         final byte[] rtnState,
         final int[] pgmIndex,
         final byte[] pgmState,
-        final int numFailPinBits,
+        final Integer numFailPinBits,
         final byte[] failPin,
         final String vecName,
         final String timeSetName,
@@ -457,7 +463,7 @@ public class FunctionalTestRecord extends TestRecord
         final String progTxt,
         final String rsltTxt,
         final Short patGenNum,
-        final int numEnCompBits,
+        final Integer numEnCompBits,
         final byte[] enComps)
     {
         TByteArrayList list = new TByteArrayList();
@@ -488,13 +494,29 @@ public class FunctionalTestRecord extends TestRecord
         for (int i=0; i<rtnIndex.length; i++) list.addAll(cpu.getU2Bytes(rtnIndex[i]));
         if (rtnState != null) 
         {
-        	for (int i=0; i<rtnIndex.length; i+=2) list.add(cpu.getN1Bytes(rtnState[i], rtnState[i+1]));
+        	for (int i=0; i<rtnState.length; i++) 
+        	{
+        		byte b0 = rtnState[i];
+        		i++;
+        		byte b1 = 0;
+        		if (i < rtnState.length) b1 = rtnState[i];
+        		list.add(cpu.getN1Byte(b0, b1));
+        	}
         }
         else return(list.toArray());
         for (int i=0; i<pgmIndex.length; i++) list.addAll(cpu.getU2Bytes(pgmIndex[i]));
-        if (pgmState != null) for (int i=0; i<pgmIndex.length; i+=2) list.addAll(cpu.getN1Bytes(pgmState[i], pgmState[i+1]));
+        if (pgmState != null) 
+        {
+        	for (int i=0; i<pgmState.length; i++) 
+        	{
+        		byte b0 = pgmState[i];
+        		i++;
+        		byte b1 = 0;
+        		if (i < pgmState.length) b1 = pgmState[i];
+        		list.add(cpu.getN1Byte(b0, b1));
+        	}
+        }
         else return(list.toArray());
-        if (failPin != null) list.addAll(cpu.getU2Bytes(numFailPinBits));
         if (failPin != null) list.addAll(cpu.getDNBytes(numFailPinBits, failPin));
         else return(list.toArray());
         if (vecName != null) list.addAll(cpu.getCNBytes(vecName));
@@ -513,7 +535,6 @@ public class FunctionalTestRecord extends TestRecord
         else return(list.toArray());
         if (patGenNum != null) list.addAll(cpu.getU1Bytes(patGenNum));
         else return(list.toArray());
-        if (enComps != null) list.addAll(cpu.getU2Bytes(numEnCompBits));
         if (enComps != null) list.addAll(cpu.getDNBytes(numEnCompBits, enComps));
         return(list.toArray());
     }
@@ -535,7 +556,7 @@ public class FunctionalTestRecord extends TestRecord
         final byte[] rtnState,
         final int[] pgmIndex,
         final byte[] pgmState,
-        final int numFailPinBits,
+        final Integer numFailPinBits,
         final byte[] failPin,
         final String vecName,
         final String timeSetName,
@@ -545,7 +566,7 @@ public class FunctionalTestRecord extends TestRecord
         final String progTxt,
         final String rsltTxt,
         final Short patGenNum,
-        final int numEnCompBits,
+        final Integer numEnCompBits,
         final byte[] enComps)
     {
     	int l = U4.numBytes + U1.numBytes + U1.numBytes + 1;
@@ -558,9 +579,9 @@ public class FunctionalTestRecord extends TestRecord
         if (yFailAddr != null) l += I4.numBytes; else return(l);
         if (vecOffset != null) l += I2.numBytes; else return(l);
         if (rtnIndex != null) l += U2.numBytes * (1 + rtnIndex.length); else return(l);
-        if (rtnState != null) l += U2.numBytes + (rtnState.length / 2); else return(l);
+        if (rtnState != null) l += ((rtnState.length+1) / 2); else return(l);
         if (pgmIndex != null) l += U2.numBytes * (1 + pgmIndex.length); else return(l);
-        if (pgmState != null) l += U2.numBytes + (pgmState.length / 2); else return(l);
+        if (pgmState != null) l += ((pgmState.length+1) / 2); else return(l);
         if (failPin != null) l += U2.numBytes + failPin.length; else return(l);
         if (vecName != null) l += 1 + vecName.length(); else return(l);
         if (timeSetName != null) l += 1 + timeSetName.length(); else return(l);
@@ -614,80 +635,59 @@ public class FunctionalTestRecord extends TestRecord
      * Get the array of PMR indexes. 
      * @return A copy of the PMR index (RTN_INDX) array.
      */
-    public int[] getRtnIndex() { return(Arrays.copyOf(rtnIndex, rtnIndex.length)); }
+    public int[] getRtnIndex() 
+    { 
+    	if (rtnIndex == null) return(null);
+    	return(Arrays.copyOf(rtnIndex, rtnIndex.length)); 
+    }
     /**
      * Get the array of returned states.
      * @return A copy of the RTN_STAT array. Note that each element in the array contains
      * only one nibble.
      */
-    public byte[] getRtnState() { return(Arrays.copyOf(rtnState, rtnState.length)); }
+    public byte[] getRtnState() 
+    { 
+    	if (rtnState == null) return(null);
+    	return(Arrays.copyOf(rtnState, rtnState.length)); 
+    }
     /**
      * Get the array of programmed state indexes.
      * @return A copy of the PGM_INDX array.
      */
-    public int[] getPgmIndex() { return(Arrays.copyOf(pgmIndex, pgmIndex.length)); }
+    public int[] getPgmIndex() 
+    { 
+        if (pgmIndex == null) return(null);
+    	return(Arrays.copyOf(pgmIndex, pgmIndex.length)); 
+    }
     /**
      * Get the array of programmed state indexes. 
      * @return A copy of the PGM_STAT array.
      */
-    public byte[] getPgmState() { return(Arrays.copyOf(pgmState, pgmState.length)); }
+    public byte[] getPgmState() 
+    { 
+    	if (pgmState == null) return(null);
+    	return(Arrays.copyOf(pgmState, pgmState.length)); 
+    }
     /**
      * Get the failing pin bit-field. 
      * @return A copy of the failPin (FAIL_PIN) array. Note that each array element
      * contains only one nibble.
      */
-    public byte[] getFailPin() { return(Arrays.copyOf(failPin, failPin.length)); }
+    public byte[] getFailPin() 
+    { 
+    	if (failPin == null) return(null);
+    	return(Arrays.copyOf(failPin, failPin.length)); 
+    }
     /**
      * Get the bit map of enabled comparators. Note: use the numEnCompBits to
      * determine the exace number of bits in this field.
      * @return A copy of the enComps (SPIN_MAP) array.
      */
-    public byte[] getEnComps() { return(Arrays.copyOf(enComps, enComps.length)); }
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("FunctionalTestRecord [testNumber=").append(testNumber);
-		builder.append(", headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", testFlags=").append(testFlags);
-		if (optFlags != null) builder.append(", optFlags=").append(optFlags);
-		if (cycleCount != null) builder.append(", cycleCount=").append(cycleCount);
-		if (relVaddr != null) builder.append(", relVaddr=").append(relVaddr);
-		if (rptCnt != null) builder.append(", rptCnt=").append(rptCnt);
-		if (numFail != null) builder.append(", numFail=").append(numFail);
-		if (xFailAddr != null) builder.append(", xFailAddr=").append(xFailAddr);
-		if (yFailAddr != null) builder.append(", yFailAddr=").append(yFailAddr);
-		if (vecOffset != null) builder.append(", vecOffset=").append(vecOffset);
-		if (vecName != null) builder.append(", vecName=").append(vecName);
-		if (timeSetName != null) builder.append(", timeSetName=").append(timeSetName);
-		if (vecOpCode != null) builder.append(", vecOpCode=").append(vecOpCode);
-		if (testName != null) builder.append(", testName=").append(testName);
-		if (alarmName != null) builder.append(", alarmName=").append(alarmName);
-		if (progTxt != null) builder.append(", progTxt=").append(progTxt);
-		if (rsltTxt != null) builder.append(", rsltTxt=").append(rsltTxt);
-		if (patGenNum != null) builder.append(", patGenNum=").append(patGenNum);
-		if (rtnIndex != null) builder.append(", rtnIndex=").append(Arrays.toString(rtnIndex));
-		if (rtnState != null) builder.append(", rtnState=").append(Arrays.toString(rtnState));
-		if (pgmIndex != null) builder.append(", pgmIndex=").append(Arrays.toString(pgmIndex));
-		if (pgmState != null) builder.append(", pgmState=").append(Arrays.toString(pgmState));
-		if (failPin != null)
-		{
-		    builder.append(", numFailPinBits=").append(numFailPinBits);
-			builder.append(", failPin=").append(Arrays.toString(failPin));
-		}
-		if (enComps != null)
-		{
-		    builder.append(", numEnCompBits=").append(numEnCompBits);
-			builder.append(", enComps=").append(Arrays.toString(enComps));
-		}
-		builder.append("]");
-		return builder.toString();
-	}
+    public byte[] getEnComps() 
+    { 
+    	if (enComps == null) return(null);
+    	return(Arrays.copyOf(enComps, enComps.length)); 
+    }
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

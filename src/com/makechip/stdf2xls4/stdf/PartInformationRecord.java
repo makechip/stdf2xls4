@@ -79,26 +79,13 @@ public class PartInformationRecord extends StdfRecord
 	}
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("PartInformationRecord [headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 37;
 		result = prime * result + headNumber;
 		result = prime * result + siteNumber;
 		return result;
@@ -111,11 +98,11 @@ public class PartInformationRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof PartInformationRecord)) return false;
 		PartInformationRecord other = (PartInformationRecord) obj;
 		if (headNumber != other.headNumber) return false;
 		if (siteNumber != other.siteNumber) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

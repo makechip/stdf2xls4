@@ -173,59 +173,6 @@ public class DatalogTestRecord extends TestRecord
 	}
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("DatalogTestRecord [");
-		if (testName != null)
-		{
-			builder.append("testName=");
-			builder.append(testName);
-			builder.append(", ");
-		}
-		if (value != null)
-		{
-			builder.append("value=");
-			builder.append(value);
-			builder.append(", ");
-		}
-		if (units != null)
-		{
-			builder.append("units=");
-			builder.append(units);
-			builder.append(", ");
-		}
-		if (testNumber != null)
-		{
-			builder.append("testNumber=");
-			builder.append(testNumber);
-			builder.append(", ");
-		}
-		if (valueType != null)
-		{
-			builder.append("valueType=");
-			builder.append(valueType);
-			builder.append(", ");
-		}
-		if (siteNumber != null)
-		{
-			builder.append("siteNumber=");
-			builder.append(siteNumber);
-			builder.append(", ");
-		}
-		if (headNumber != null)
-		{
-			builder.append("headNumber=");
-			builder.append(headNumber);
-		}
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

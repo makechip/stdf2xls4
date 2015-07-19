@@ -285,31 +285,6 @@ public class WaferResultsRecord extends StdfRecord
     }
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("WaferResultsRecord [headNumber=").append(headNumber);
-		builder.append(", siteGroupNumber=").append(siteGroupNumber);
-		builder.append(", finishDate=").append(finishDate);
-		builder.append(", partCount=").append(partCount);
-		if (retestCount != null) builder.append(", retestCount=").append(retestCount);
-		if (abortCount != null) builder.append(", abortCount=").append(abortCount);
-		if (passCount != null) builder.append(", passCount=").append(passCount);
-		if (functionalCount != null) builder.append(", functionalCount=").append(functionalCount);
-		if (waferID != null) builder.append(", waferID=").append(waferID);
-		if (fabWaferID != null) builder.append(", fabWaferID=").append(fabWaferID);
-		if (waferFrameID != null) builder.append(", waferFrameID=").append(waferFrameID);
-		if (waferMaskID != null) builder.append(", waferMaskID=").append(waferMaskID);
-		if (userWaferDesc != null) builder.append(", userWaferDesc=").append(userWaferDesc);
-		if (execWaferDesc != null) builder.append(", execWaferDesc=").append(execWaferDesc);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

@@ -108,26 +108,13 @@ public class DatalogTextRecord extends StdfRecord
 	}
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("DatalogTextRecord [text=");
-		builder.append(text);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 119;
 		result = prime * result + text.hashCode();
 		return result;
 	}
@@ -139,8 +126,8 @@ public class DatalogTextRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
-		if (!super.equals(obj)) return false;
 		DatalogTextRecord other = (DatalogTextRecord) obj;
+		if (obj == null) return(false);
 		if (!text.equals(other.text)) return false;
 		if (!(obj instanceof DatalogTextRecord)) return false;
 		return true;

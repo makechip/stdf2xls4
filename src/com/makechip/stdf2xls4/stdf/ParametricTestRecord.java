@@ -245,21 +245,21 @@ public class ParametricTestRecord extends ParametricRecord
             final short siteNumber,
             final byte testFlags,
             final byte paramFlags,
-    	    final float result, 
+    	    final Float result, 
     	    final String testName,
     	    final String alarmName,
     	    final EnumSet<OptFlag_t> optFlags, 
-    	    final byte resScal, // if RES_SCAL_INVALID set, then use default res_scal
-    	    final byte llmScal,
-    	    final byte hlmScal, 
-    	    final float loLimit, 
-    	    final float hiLimit,
+    	    final Byte resScal, // if RES_SCAL_INVALID set, then use default res_scal
+    	    final Byte llmScal,
+    	    final Byte hlmScal, 
+    	    final Float loLimit, 
+    	    final Float hiLimit,
     	    final String units,
     	    final String resFmt,
     	    final String llmFmt,
     	    final String hlmFmt,
-    	    final float loSpec,
-    	    final float hiSpec) throws IOException, StdfException
+    	    final Float loSpec,
+    	    final Float hiSpec) throws IOException, StdfException
     {
     	this(cpu, 
     		 getRecLen(result, testName, alarmName, optFlags, resScal, llmScal, hlmScal, 
@@ -391,7 +391,7 @@ public class ParametricTestRecord extends ParametricRecord
     	    final Float lSpec,
     	    final Float hSpec)
     {
-    	int l = 0;
+    	int l = 8;
         if (rslt != null) l += U4.numBytes; else return(l);	
         if (tName != null) l += 1 + tName.length(); else return(l);
         if (aName != null) l += 1 + aName.length(); else return(l);
@@ -483,38 +483,6 @@ public class ParametricTestRecord extends ParametricRecord
 	public String getUnits()
 	{
 		return units;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("ParametricTestRecord [");
-		builder.append("testNumber=").append(testNumber);
-		builder.append(", headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", testFlags=").append(testFlags);
-		builder.append(", paramFlags=").append(paramFlags);
-		if (result != null) builder.append(", result=").append(result);
-		if (testName != null) builder.append(", testName=").append(testName);
-		if (alarmName != null) builder.append(", alarmName=").append(alarmName);
-		if (optFlags != null) builder.append(", optFlags=").append(optFlags);
-		if (resScal != null) builder.append(", resScal=").append(resScal);
-		if (llmScal != null) builder.append(", llmScal=").append(llmScal);
-		if (hlmScal != null) builder.append(", hlmScal=").append(hlmScal);
-		if (loLimit != null) builder.append(", loLimit=").append(loLimit);
-		if (hiLimit != null) builder.append(", hiLimit=").append(hiLimit);
-		if (units != null) builder.append(", units=").append(units);
-		if (resFmt != null) builder.append(", resFmt=").append(resFmt);
-		if (llmFmt != null) builder.append(", llmFmt=").append(llmFmt);
-		if (hlmFmt != null) builder.append(", hlmFmt=").append(hlmFmt);
-		if (loSpec != null) builder.append(", loSpec=").append(loSpec);
-		if (hiSpec != null) builder.append(", hiSpec=").append(hiSpec);
-		builder.append("]");
-		return builder.toString();
 	}
 
 	/* (non-Javadoc)

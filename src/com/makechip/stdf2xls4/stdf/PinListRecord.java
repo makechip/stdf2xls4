@@ -69,8 +69,8 @@ public class PinListRecord extends StdfRecord
         if (l < recLen && k > 0)
         {
             radix = new int[k];
-            for (int i=0; i<k; i++) radix[i] = cpu.getU2(is);
-            l += Data_t.U2.numBytes * radix.length;
+            for (int i=0; i<k; i++) radix[i] = cpu.getU1(is);
+            l += Data_t.U1.numBytes * radix.length;
         }
         else radix = null;
         if (l < recLen && k > 0)
@@ -154,7 +154,7 @@ public class PinListRecord extends StdfRecord
 	    	l += Data_t.U2.numBytes * mode.length;
 	    	if (radix != null)
 	    	{
-	    		l += Data_t.U2.numBytes * radix.length;
+	    		l += Data_t.U1.numBytes * radix.length;
 	    		if (pgmChar != null)
 	    		{
 	    			l += pgmChar.length;
@@ -279,43 +279,6 @@ public class PinListRecord extends StdfRecord
     {
         return(Arrays.copyOf(rtnChal, rtnChal.length));
     }
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("PinListRecord [");
-		builder.append("pinIndex=").append(Arrays.toString(pinIndex));
-		if (mode != null)
-		{
-			builder.append(", mode=").append(Arrays.toString(mode));
-		}
-		if (radix != null)
-		{
-			builder.append(", radix=").append(Arrays.toString(radix));
-		}
-		if (pgmChar != null)
-		{
-			builder.append(", pgmChar=").append(Arrays.toString(pgmChar));
-		}
-		if (rtnChar != null)
-		{
-			builder.append(", rtnChar=").append(Arrays.toString(rtnChar));
-		}
-		if (pgmChal != null)
-		{
-			builder.append(", pgmChal=").append(Arrays.toString(pgmChal));
-		}
-		if (rtnChal != null)
-		{
-			builder.append(", rtnChal=").append(Arrays.toString(rtnChal));
-		}
-		builder.append("]");
-		return builder.toString();
-	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

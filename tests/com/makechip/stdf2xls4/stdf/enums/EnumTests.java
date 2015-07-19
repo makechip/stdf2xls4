@@ -115,7 +115,7 @@ public class EnumTests {
 		assertEquals(Data_t.CN.numBytes, 1);
 		assertEquals(Data_t.BN.numBytes, 1);
 		assertEquals(Data_t.DN.numBytes, 1);
-		assertEquals(Data_t.N_N.numBytes, 1);
+		assertEquals(Data_t.N1.numBytes, 1);
 	}
 	
 	@Test

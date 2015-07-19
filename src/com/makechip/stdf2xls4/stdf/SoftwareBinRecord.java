@@ -157,23 +157,6 @@ public class SoftwareBinRecord extends StdfRecord
 	}
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("SoftwareBinRecord [headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", swBinNumber=").append(swBinNumber);
-		builder.append(", count=").append(count);
-		if (pf != null) builder.append(", pf=").append(pf);
-		if (binName != null) builder.append(", binName=").append(binName);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

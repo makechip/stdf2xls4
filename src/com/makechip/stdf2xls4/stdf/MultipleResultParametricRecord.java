@@ -38,7 +38,6 @@ import java.util.Set;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-
 import static com.makechip.stdf2xls4.stdf.enums.Data_t.*;
 import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 /**
@@ -141,14 +140,17 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         }
         if (l < recLen)
         {
-            rtnState = new byte[2 * j];
-            for (int i=0; i<rtnState.length; i+=2)
+        	TByteArrayList list = new TByteArrayList();
+            for (int i=0; i<j; i++) // j is the number of nibbles.
             {
-            	byte[] b = cpu.getN1(is);
-            	rtnState[i] = b[0];
-            	rtnState[i+1] = b[1];
+            	byte[] b = cpu.getN1(is);  // this gets two nibbles at a time.
             	l++;
+            	list.add(b[0]);
+            	i++;
+            	if (i >= j) break;
+            	list.add(b[1]);
             }
+            rtnState = list.toArray();
         }
         else rtnState = null;
         if (l < recLen)
@@ -273,7 +275,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
             l += R4.numBytes;
         }
         else hiSpec = null;
-        if (l != recLen) throw new StdfException("Record length error in MPR record: testNumber = " + testNumber);
+        if (l != recLen) throw new StdfException("Record length error in MPR record: testNumber = " + testNumber + " l = " + l + " recLen = " + recLen);
     }
     
     /**
@@ -368,7 +370,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     	    final Float hSpec)
     {
     	int l = 8;
-    	if (rtnState != null) l += U2.numBytes + rtnState.length / 2; else return(l);
+    	if (rtnState != null) l += U2.numBytes + (rtnState.length+1) / 2; else return(l);
         if (results != null) l += U2.numBytes + U4.numBytes * results.length; else return(l);	
         if (tName != null) l += 1 + tName.length(); else return(l);
         if (aName != null) l += 1 + aName.length(); else return(l);
@@ -447,7 +449,14 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         	list.addAll(cpu.getU2Bytes(rslts.length));
             if (rState != null)
             {
-              for (int i=0; i<rState.length; i+=2) list.addAll(cpu.getN1Bytes(rState[i], rState[i+1]));
+              for (int i=0; i<rState.length; i+=2) 
+              {
+            	  byte b0 = rState[i];
+            	  i++;
+            	  byte b1 = 0;
+            	  if (i <rState.length) b1 = rState[i];
+            	  list.add(cpu.getN1Byte(b0, b1));
+              }
               if (rslts != null)
               {
                 for (int i=0; i<rslts.length; i++) list.addAll(cpu.getR4Bytes(rslts[i]));
@@ -622,43 +631,6 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	public String getUnits()
 	{
 		return units;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("MultipleResultParametricRecord [");
-		builder.append("testNumber=").append(testNumber);
-		builder.append(", headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", testFlags=").append(testFlags);
-		builder.append(", paramFlags=").append(paramFlags);
-		if (testName != null) builder.append(", testName=").append(testName);
-		if (alarmName != null) builder.append(", alarmName=").append(alarmName);
-		if (optFlags != null) builder.append(", optFlags=").append(optFlags);
-		if (resScal != null) builder.append(", resScal=").append(resScal);
-		if (llmScal != null) builder.append(", llmScal=").append(llmScal);
-		if (hlmScal != null) builder.append(", hlmScal=").append(hlmScal);
-		if (loLimit != null) builder.append(", loLimit=").append(loLimit);
-		if (hiLimit != null) builder.append(", hiLimit=").append(hiLimit);
-		if (startIn != null) builder.append(", startIn=").append(startIn);
-		if (incrIn != null) builder.append(", incrIn=").append(incrIn);
-		if (units != null) builder.append(", units=").append(units);
-		if (unitsIn != null) builder.append(", unitsIn=").append(unitsIn);
-		if (resFmt != null) builder.append(", resFmt=").append(resFmt);
-		if (llmFmt != null) builder.append(", llmFmt=").append(llmFmt);
-		if (hlmFmt != null) builder.append(", hlmFmt=").append(hlmFmt);
-		if (loSpec != null) builder.append(", loSpec=").append(loSpec);
-		if (hiSpec != null) builder.append(", hiSpec=").append(hiSpec);
-		if (rtnState != null) builder.append(", rtnState=").append(Arrays.toString(rtnState));
-		if (rtnIndex != null) builder.append(", rtnIndex=").append(Arrays.toString(rtnIndex));
-		if (results != null) builder.append(", results=").append(Arrays.toString(results));
-		builder.append("]");
-		return builder.toString();
 	}
 
 	/* (non-Javadoc)

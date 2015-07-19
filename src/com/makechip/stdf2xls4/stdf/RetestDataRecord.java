@@ -109,23 +109,6 @@ public class RetestDataRecord extends StdfRecord
     }
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("RetestDataRecord [");
-		if (retestBins != null)
-		{
-			builder.append("retestBins=");
-			builder.append(Arrays.toString(retestBins));
-		}
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

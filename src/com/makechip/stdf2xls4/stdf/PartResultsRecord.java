@@ -280,29 +280,6 @@ public class PartResultsRecord extends StdfRecord
 		return(l.toArray());
 	}
 
-    /* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("PartResultsRecord [headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", partInfoFlags=").append(partInfoFlags);
-		builder.append(", numExecs=").append(numExecs);
-		builder.append(", hwBinNumber=").append(hwBinNumber);
-		builder.append(", swBinNumber=").append(swBinNumber);
-		builder.append(", xCoord=").append(xCoord);
-		builder.append(", yCoord=").append(yCoord);
-		builder.append(", testTime=").append(testTime);
-		builder.append(", partID=").append(partID);
-		builder.append(", partDescription=").append(partDescription);
-		builder.append(", repair=").append(Arrays.toString(repair));
-		builder.append("]");
-		return builder.toString();
-	}
-
     /**
      * Get the PART_FIX field.
      * @return A deep copy of the repair array.
@@ -318,7 +295,7 @@ public class PartResultsRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 31;
 		result = prime * result + headNumber;
 		result = prime * result + hwBinNumber;
 		result = prime * result + numExecs;
@@ -340,6 +317,7 @@ public class PartResultsRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof PartResultsRecord)) return false;
 		PartResultsRecord other = (PartResultsRecord) obj;
 		if (headNumber != other.headNumber) return false;
@@ -354,7 +332,6 @@ public class PartResultsRecord extends StdfRecord
 		if (testTime != other.testTime) return false;
 		if (xCoord != other.xCoord) return false;
 		if (yCoord != other.yCoord) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 }

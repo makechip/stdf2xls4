@@ -443,5 +443,131 @@ public class SiteDescriptionRecord extends StdfRecord
         return Arrays.copyOf(siteNumbers, siteNumbers.length);
     }
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((contactorID == null) ? 0 : contactorID.hashCode());
+		result = prime * result + ((contactorType == null) ? 0 : contactorType.hashCode());
+		result = prime * result + ((dibBoardID == null) ? 0 : dibBoardID.hashCode());
+		result = prime * result + ((dibBoardType == null) ? 0 : dibBoardType.hashCode());
+		result = prime * result + ((equipID == null) ? 0 : equipID.hashCode());
+		result = prime * result + ((equipType == null) ? 0 : equipType.hashCode());
+		result = prime * result + ((handlerID == null) ? 0 : handlerID.hashCode());
+		result = prime * result + ((handlerType == null) ? 0 : handlerType.hashCode());
+		result = prime * result + headNumber;
+		result = prime * result + ((ifaceCableID == null) ? 0 : ifaceCableID.hashCode());
+		result = prime * result + ((ifaceCableType == null) ? 0 : ifaceCableType.hashCode());
+		result = prime * result + ((laserID == null) ? 0 : laserID.hashCode());
+		result = prime * result + ((laserType == null) ? 0 : laserType.hashCode());
+		result = prime * result + ((loadBoardID == null) ? 0 : loadBoardID.hashCode());
+		result = prime * result + ((loadBoardType == null) ? 0 : loadBoardType.hashCode());
+		result = prime * result + ((probeCardID == null) ? 0 : probeCardID.hashCode());
+		result = prime * result + ((probeCardType == null) ? 0 : probeCardType.hashCode());
+		result = prime * result + siteGroupNumber;
+		result = prime * result + Arrays.hashCode(siteNumbers);
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (!(obj instanceof SiteDescriptionRecord)) return false;
+		SiteDescriptionRecord other = (SiteDescriptionRecord) obj;
+		if (contactorID == null)
+		{
+			if (other.contactorID != null) return false;
+		} 
+		else if (!contactorID.equals(other.contactorID)) return false;
+		if (contactorType == null)
+		{
+			if (other.contactorType != null) return false;
+		} 
+		else if (!contactorType.equals(other.contactorType)) return false;
+		if (dibBoardID == null)
+		{
+			if (other.dibBoardID != null) return false;
+		} 
+		else if (!dibBoardID.equals(other.dibBoardID)) return false;
+		if (dibBoardType == null)
+		{
+			if (other.dibBoardType != null) return false;
+		} 
+		else if (!dibBoardType.equals(other.dibBoardType)) return false;
+		if (equipID == null)
+		{
+			if (other.equipID != null) return false;
+		} 
+		else if (!equipID.equals(other.equipID)) return false;
+		if (equipType == null)
+		{
+			if (other.equipType != null) return false;
+		} 
+		else if (!equipType.equals(other.equipType)) return false;
+		if (handlerID == null)
+		{
+			if (other.handlerID != null) return false;
+		} 
+		else if (!handlerID.equals(other.handlerID)) return false;
+		if (handlerType == null)
+		{
+			if (other.handlerType != null) return false;
+		} 
+		else if (!handlerType.equals(other.handlerType)) return false;
+		if (headNumber != other.headNumber) return false;
+		if (ifaceCableID == null)
+		{
+			if (other.ifaceCableID != null) return false;
+		} 
+		else if (!ifaceCableID.equals(other.ifaceCableID)) return false;
+		if (ifaceCableType == null)
+		{
+			if (other.ifaceCableType != null) return false;
+		} 
+		else if (!ifaceCableType.equals(other.ifaceCableType)) return false;
+		if (laserID == null)
+		{
+			if (other.laserID != null) return false;
+		} 
+		else if (!laserID.equals(other.laserID)) return false;
+		if (laserType == null)
+		{
+			if (other.laserType != null) return false;
+		} 
+		else if (!laserType.equals(other.laserType)) return false;
+		if (loadBoardID == null)
+		{
+			if (other.loadBoardID != null) return false;
+		} 
+		else if (!loadBoardID.equals(other.loadBoardID)) return false;
+		if (loadBoardType == null)
+		{
+			if (other.loadBoardType != null) return false;
+		} 
+		else if (!loadBoardType.equals(other.loadBoardType)) return false;
+		if (probeCardID == null)
+		{
+			if (other.probeCardID != null) return false;
+		} 
+		else if (!probeCardID.equals(other.probeCardID)) return false;
+		if (probeCardType == null)
+		{
+			if (other.probeCardType != null) return false;
+		} 
+		else if (!probeCardType.equals(other.probeCardType)) return false;
+		if (siteGroupNumber != other.siteGroupNumber) return false;
+		if (!Arrays.equals(siteNumbers, other.siteNumbers)) return false;
+		return true;
+	}
+
 
 }

@@ -65,23 +65,27 @@ public class EndProgramSectionRecord extends StdfRecord
     }
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("EndProgramSectionRecord []");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
 	public byte[] getBytes(Cpu_t cpu)
 	{
 		return(getHeaderBytes(cpu, Record_t.EPS, 0).toArray());
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if (o == this) return true;
+		if (o == null) return false;
+		if (o instanceof EndProgramSectionRecord) return true;
+		return false;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return(19733321);
 	}
     
 }

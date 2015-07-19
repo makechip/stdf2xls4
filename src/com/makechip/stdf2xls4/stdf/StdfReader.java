@@ -25,16 +25,16 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import java.io.BufferedInputStream;
+//import java.io.BufferedInputStream;
 import java.io.DataInputStream;
-import java.io.FileInputStream;
+//import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-import com.makechip.util.Log;
+//import com.makechip.util.Log;
 
 /**
  *  This class reads an STDF file, and produces the list of STDF records
@@ -65,13 +65,18 @@ public class StdfReader
 		   short rtype = cpu.getU1(is);
 		   short subType = cpu.getU1(is);
 		   Record_t type = Record_t.getRecordType(rtype, subType);
+		   //byte[] b = new byte[recLen];
+		   //is.readFully(b);
 		   if (type == Record_t.FAR)
 		   {
 			   FileAttributesRecord far = (FileAttributesRecord) type.getInstance(null, recLen, is);
 			   cpu = far.cpuType;
 			   records.add(far);
 		   }
-		   else records.add(type.getInstance(cpu, recLen, is));
+		   else 
+		   {
+			   records.add(type.getInstance(cpu, recLen, is));
+		   }
 	   }                
         return(this);
     }
@@ -83,6 +88,7 @@ public class StdfReader
      */
     public List<StdfRecord> getRecords() { return(records); }
     
+    /*
     public static void main(String[] args)
     {
     	if (args.length != 1)
@@ -101,7 +107,7 @@ public class StdfReader
     		Log.msg(e.getMessage());
 			e.printStackTrace();
 		} 
-
     }
+    */
 
 }

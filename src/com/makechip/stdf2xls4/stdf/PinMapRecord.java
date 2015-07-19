@@ -209,7 +209,7 @@ public class PinMapRecord extends StdfRecord
     		                     Short headNumber, 
     		                     Short siteNumber)
     {
-    	int l = 0;
+    	int l = 2;
         if (channelType != null)
         {
         	l += Data_t.U2.numBytes;
@@ -233,24 +233,6 @@ public class PinMapRecord extends StdfRecord
         }
     	return(l);
     }
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("PinMapRecord [pmrIdx=").append(pmrIdx);
-		if (channelType != null) builder.append(", channelType=").append(channelType);
-		if (channelName != null) builder.append(", channelName=").append(channelName);
-		if (physicalPinName != null) builder.append(", physicalPinName=").append(physicalPinName);
-		if (logicalPinName != null) builder.append(", logicalPinName=").append(logicalPinName);
-		if (headNumber != null) builder.append(", headNumber=").append(headNumber);
-		if (siteNumber != null) builder.append(", siteNumber=").append(siteNumber);
-		builder.append("]");
-		return builder.toString();
-	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

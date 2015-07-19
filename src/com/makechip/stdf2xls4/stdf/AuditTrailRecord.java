@@ -86,14 +86,6 @@ public class AuditTrailRecord extends StdfRecord
     }
     
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "AuditTrailRecord [date=" + date + ", cmdLine=" + cmdLine + "]";
-	}
-
-	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
@@ -120,7 +112,7 @@ public class AuditTrailRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 101;
 		result = prime * result + cmdLine.hashCode();
 		result = prime * result + (int) (date ^ (date >>> 32));
 		return result;
@@ -137,7 +129,6 @@ public class AuditTrailRecord extends StdfRecord
 		AuditTrailRecord other = (AuditTrailRecord) obj;
 		if (!cmdLine.equals(other.cmdLine)) return false;
 		if (date != other.date) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

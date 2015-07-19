@@ -70,7 +70,7 @@ public class PinGroupRecord extends StdfRecord
             }
         }
         else pmrIdx = null;
-        if (l != recLen) throw new StdfException("Record length error in PinGroupRecord.");
+        if (l != recLen) throw new StdfException("Record length error in PinGroupRecord: l = " + l + " recLen = " + recLen + ".");
     }
     
     /**
@@ -105,6 +105,7 @@ public class PinGroupRecord extends StdfRecord
 	{
 		int l = 2;
 		l += 1 + groupName.length();
+		l += Data_t.U2.numBytes;
 		if (pmrIdx != null) l += Data_t.U2.numBytes * pmrIdx.length;
 		return(l);
 	}
@@ -132,20 +133,6 @@ public class PinGroupRecord extends StdfRecord
     {
         return Arrays.copyOf(pmrIdx, pmrIdx.length);
     }
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("PinGroupRecord [groupIndex=").append(groupIndex);
-		builder.append(", groupName=").append(groupName);
-		if (pmrIdx != null) builder.append(", pmrIdx=").append(Arrays.toString(pmrIdx));
-		builder.append("]");
-		return builder.toString();
-	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
