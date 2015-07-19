@@ -25,16 +25,10 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Arrays;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-
 
 /**
  *  This class holds the fields for a Pin Group Record.
@@ -52,7 +46,7 @@ public class PinGroupRecord extends StdfRecord
     public final String groupName;
     private final int[] pmrIdx;
     
-    public PinGroupRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public PinGroupRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         groupIndex = cpu.getU2(is);
@@ -70,7 +64,7 @@ public class PinGroupRecord extends StdfRecord
             }
         }
         else pmrIdx = null;
-        if (l != recLen) throw new StdfException("Record length error in PinGroupRecord: l = " + l + " recLen = " + recLen + ".");
+        if (l != recLen) throw new RuntimeException("Record length error in PinGroupRecord: l = " + l + " recLen = " + recLen + ".");
     }
     
     /**
@@ -86,10 +80,10 @@ public class PinGroupRecord extends StdfRecord
         Cpu_t cpu,
     	int groupIndex, 
     	String groupName, 
-    	int[] pmrIdx) throws IOException, StdfException
+    	int[] pmrIdx)
     {
     	this(cpu, getRecLen(groupName, pmrIdx),
-    		 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, groupIndex, groupName, pmrIdx))));
+    		 new ByteInputStream(toBytes(cpu, groupIndex, groupName, pmrIdx)));
     }
 
 	@Override

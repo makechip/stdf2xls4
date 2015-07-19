@@ -56,7 +56,7 @@ public class StdfReader
     * @throws IOException
     * @throws StdfException
     */
-   public StdfReader read(DataInputStream is) throws IOException, StdfException
+   public StdfReader read(DataInputStream is) throws IOException
    {
 	   Cpu_t cpu = Cpu_t.PC; // assume this for the first record. The FAR does not need this.
 	   while (is.available() >= 2)
@@ -65,17 +65,18 @@ public class StdfReader
 		   short rtype = cpu.getU1(is);
 		   short subType = cpu.getU1(is);
 		   Record_t type = Record_t.getRecordType(rtype, subType);
-		   //byte[] b = new byte[recLen];
-		   //is.readFully(b);
+		   byte[] b = new byte[recLen];
+		   is.readFully(b);
+		   ByteInputStream bis = new ByteInputStream(b);
 		   if (type == Record_t.FAR)
 		   {
-			   FileAttributesRecord far = (FileAttributesRecord) type.getInstance(null, recLen, is);
+			   FileAttributesRecord far = (FileAttributesRecord) type.getInstance(null, recLen, bis);
 			   cpu = far.cpuType;
 			   records.add(far);
 		   }
 		   else 
 		   {
-			   records.add(type.getInstance(cpu, recLen, is));
+			   records.add(type.getInstance(cpu, recLen, bis));
 		   }
 	   }                
         return(this);

@@ -26,12 +26,7 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Arrays;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -51,7 +46,7 @@ public class PinListRecord extends StdfRecord
     private final String[] pgmChal;
     private final String[] rtnChal;
     
-    public PinListRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public PinListRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         int k = cpu.getU2(is);
@@ -113,7 +108,7 @@ public class PinListRecord extends StdfRecord
             }
         }
         else rtnChal = null;
-        if (l != recLen) throw new StdfException("Record length error in PinListRecord."); 
+        if (l != recLen) throw new RuntimeException("Record length error in PinListRecord."); 
     }
     
 	private static byte[] toBytes(
@@ -210,10 +205,10 @@ public class PinListRecord extends StdfRecord
 	    String[] pgmChar,
 	    String[] rtnChar,
 	    String[] pgmChal,
-	    String[] rtnChal) throws IOException, StdfException
+	    String[] rtnChal)
 	{
 		this(cpu, getRecLen(pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal),
-			new DataInputStream(new ByteArrayInputStream(toBytes(cpu, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal))));
+			new ByteInputStream(toBytes(cpu, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal)));
 	}
 
 

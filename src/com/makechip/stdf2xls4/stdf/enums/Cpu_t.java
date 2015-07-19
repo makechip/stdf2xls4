@@ -28,6 +28,8 @@ package com.makechip.stdf2xls4.stdf.enums;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.makechip.stdf2xls4.stdf.ByteInputStream;
+
 
 /**
  *  This enum represents the CPU_TYPE values used in the File Attributes Record.
@@ -81,6 +83,12 @@ public enum Cpu_t
     	return((short) s);
     }
     
+    public short getU1(ByteInputStream is)
+    {
+    	int s = 0xFF & is.readByte();
+    	return((short) s);
+    }
+    
     public short getU1(DataInputStream is) throws IOException
     {
     	int s = 0xFF & is.readByte();
@@ -113,6 +121,13 @@ public enum Cpu_t
     	return((_0 & 0xFF) + ((_1 & 0xFF) << 8));
     }
    
+	public int getU2(ByteInputStream is)
+	{
+		byte b0 = is.readByte();
+		byte b1 = is.readByte();
+		return(getU2(b0, b1));
+	}
+
 	public int getU2(DataInputStream is) throws IOException
 	{
 		byte b0 = is.readByte();
@@ -164,7 +179,7 @@ public enum Cpu_t
         return((_0 & 0xFFL) + ((_1 & 0xFFL) << 8) + ((_2 & 0xFFL) << 16) + ((_3 & 0xFFL) << 24));
     }
     
-    public long getU4(DataInputStream is) throws IOException
+    public long getU4(ByteInputStream is)
     {
     	byte b0 = is.readByte();
     	byte b1 = is.readByte();
@@ -211,7 +226,7 @@ public enum Cpu_t
     	return(_0);
     }
     
-    public byte getI1(DataInputStream is) throws IOException
+    public byte getI1(ByteInputStream is)
     {
     	return(is.readByte());
     }
@@ -237,7 +252,7 @@ public enum Cpu_t
         return((short) ((_0 & 0xFF) + ((_1 & 0xFF) << 8)));
     }
     
-    public short getI2(DataInputStream is) throws IOException
+    public short getI2(ByteInputStream is)
     {
     	byte b0 = is.readByte();
     	byte b1 = is.readByte();
@@ -284,7 +299,7 @@ public enum Cpu_t
         return((_0 & 0xFF) + ((_1 & 0xFF) << 8) + ((_2 & 0xFF) << 16) + ((_3 & 0xFF) << 24));
     }
     
-    public int getI4(DataInputStream is) throws IOException
+    public int getI4(ByteInputStream is)
     {
     	byte b0 = is.readByte();
     	byte b1 = is.readByte();
@@ -349,7 +364,7 @@ public enum Cpu_t
     	return(Float.intBitsToFloat(l));
     }
     
-    public float getR4(DataInputStream is) throws IOException
+    public float getR4(ByteInputStream is)
     {
         byte b0 = is.readByte();
         byte b1 = is.readByte();
@@ -383,7 +398,7 @@ public enum Cpu_t
      * of the bytes array has already been reached.
      * @return An eight-byte double value.
      */
-    public double getR8(DataInputStream is) throws IOException
+    public double getR8(ByteInputStream is)
     {
         byte b0 = is.readByte();
         byte b1 = is.readByte();
@@ -448,7 +463,7 @@ public enum Cpu_t
     	return(b);
     }
     
-    public byte[] getDN(int numBits, DataInputStream is) throws IOException
+    public byte[] getDN(int numBits, ByteInputStream is)
     {
     	int length = (numBits % 8 == 0) ? numBits / 8 : 1 + numBits / 8;
     	byte[] b = new byte[length];
@@ -456,7 +471,7 @@ public enum Cpu_t
     	return(b);
     }
     
-    public String getCN(DataInputStream is) throws IOException
+    public String getCN(ByteInputStream is)
     {
         int l = 0xFF & is.readByte();
         if (l == 0) return("");
@@ -474,7 +489,7 @@ public enum Cpu_t
     	return(b);
     }
     
-    public byte[] getBN(DataInputStream is) throws IOException
+    public byte[] getBN(ByteInputStream is)
     {
     	int l = 0xFF & is.readByte();
     	byte[] b = new byte[l];
@@ -491,7 +506,7 @@ public enum Cpu_t
     	return(b);
     }
     
-    public byte[] getN1(DataInputStream is) throws IOException
+    public byte[] getN1(ByteInputStream is)
     {
     	byte[] b = new byte[2];
     	byte n = is.readByte();

@@ -25,10 +25,6 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
@@ -109,7 +105,7 @@ public class PartResultsRecord extends StdfRecord
      */
     public boolean noPassFailIndication() { return(partInfoFlags.contains(PartInfoFlag_t.NO_PASS_FAIL_INDICATION)); }
     
-    public PartResultsRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public PartResultsRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -160,7 +156,7 @@ public class PartResultsRecord extends StdfRecord
             l += 1 + repair.length;
         }
         else repair = null;
-        if (l != recLen) throw new StdfException("Error in record length for PartResultsRecord.");
+        if (l != recLen) throw new RuntimeException("Error in record length for PartResultsRecord.");
     }
     
     /**
@@ -195,12 +191,12 @@ public class PartResultsRecord extends StdfRecord
     	Long testTime,
     	String partID,
     	String partDescription,
-    	byte[] repair) throws IOException, StdfException
+    	byte[] repair)
     {
     	this(cpu, 
     		 getRecLen(swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair),
-    		 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteNumber, partInfoFlags, numExecs, 
-    				             hwBinNumber, swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair))));
+    		 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, partInfoFlags, numExecs, 
+    		     hwBinNumber, swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair)));
     }
 
 	@Override

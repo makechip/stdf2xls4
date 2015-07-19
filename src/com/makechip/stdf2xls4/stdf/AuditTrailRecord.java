@@ -26,10 +26,6 @@
 package com.makechip.stdf2xls4.stdf;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
@@ -61,7 +57,7 @@ public class AuditTrailRecord extends StdfRecord
      * @throws StdfException 
      * @throws IOException 
      */
-    public AuditTrailRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public AuditTrailRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         date = cpu.getU4(is);
@@ -80,9 +76,9 @@ public class AuditTrailRecord extends StdfRecord
      * @throws StdfException 
      * @throws IOException 
      */
-    public AuditTrailRecord(Cpu_t cpu, final long date, final String cmdLine) throws IOException, StdfException
+    public AuditTrailRecord(Cpu_t cpu, final long date, final String cmdLine)
     {
-    	this(cpu, 0, new DataInputStream(new ByteArrayInputStream(toBytes(cpu, date, cmdLine))));
+    	this(cpu, 0, new ByteInputStream(toBytes(cpu, date, cmdLine)));
     }
     
 	/* (non-Javadoc)

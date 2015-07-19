@@ -25,12 +25,7 @@
 package com.makechip.stdf2xls4.stdf;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -279,19 +274,19 @@ public class MasterInformationRecord extends StdfRecord
         String engLotID,
         String romCodeID,
         String testerSerialNumber,
-        String supervisorID) throws IOException, StdfException
+        String supervisorID)
     {
     	this(cpu, 
     		 getRecLen(lotID, partType, nodeName, testerType, jobName, jobRevisionNumber, sublotID, operatorName, 
     				   execSoftware, execSoftwareVersion, stepCode, temperature, userText, auxDataFile, packageType, 
     				   familyID, dateCode, facilityID, floorID, fabID, frequency, specName, specVersion, 
 		               flowID, setupID, designRevision, engLotID, romCodeID, testerSerialNumber, supervisorID),
-    		 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, jobDate, testDate, stationNumber, 
+    		           new ByteInputStream(toBytes(cpu, jobDate, testDate, stationNumber, 
     				             testModeCode, lotRetestCode, dataProtectionCode, burnInTime, cmdModeCode, lotID, 
     			                 partType, nodeName, testerType, jobName, jobRevisionNumber, sublotID, operatorName, 
     			                 execSoftware, execSoftwareVersion, stepCode, temperature, userText, auxDataFile, 
     			                 packageType, familyID, dateCode, facilityID, floorID, fabID, frequency, specName, 
-    			                 specVersion, flowID, setupID, designRevision, engLotID, romCodeID, testerSerialNumber, supervisorID))));
+    			                 specVersion, flowID, setupID, designRevision, engLotID, romCodeID, testerSerialNumber, supervisorID)));
     }
     
     /**
@@ -303,7 +298,7 @@ public class MasterInformationRecord extends StdfRecord
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public MasterInformationRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public MasterInformationRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         jobDate = cpu.getU4(is);
@@ -370,10 +365,10 @@ public class MasterInformationRecord extends StdfRecord
         l = updateL(l, testerSerialNumber);
         supervisorID = getCN(cpu, recLen, l, is);
         l = updateL(l, supervisorID);
-        if (l != recLen) throw new StdfException("Record length error in MasterInformationRecord.");
+        if (l != recLen) throw new RuntimeException("Record length error in MasterInformationRecord.");
     }
     
-    private static String getCN(Cpu_t cpu, int recLen, int l, DataInputStream is) throws IOException
+    private static String getCN(Cpu_t cpu, int recLen, int l, ByteInputStream is)
     {
     	String s = null;
     	if (l < recLen) s = cpu.getCN(is);	

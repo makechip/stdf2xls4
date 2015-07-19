@@ -25,12 +25,7 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -79,7 +74,7 @@ public class PinMapRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public PinMapRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public PinMapRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         pmrIdx = cpu.getU2(is);
@@ -120,7 +115,7 @@ public class PinMapRecord extends StdfRecord
             l++;
         }
         else siteNumber = null;
-        if (l != recLen) throw new StdfException("Record length error in PinMapRecord.");
+        if (l != recLen) throw new RuntimeException("Record length error in PinMapRecord.");
     }
     
     /**
@@ -145,12 +140,12 @@ public class PinMapRecord extends StdfRecord
         String physicalPinName,
         String logicalPinName,
         Short headNumber,
-        Short siteNumber) throws IOException, StdfException
+        Short siteNumber)
     {
     	this(cpu, 
     		 getRecLen(channelType, channelName, physicalPinName, logicalPinName, headNumber, siteNumber),
-    		 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, pmrIdx, channelType, channelName, 
-    				                                      physicalPinName, logicalPinName, headNumber, siteNumber))));
+    		 new ByteInputStream(toBytes(cpu, pmrIdx, channelType, channelName, 
+    				             physicalPinName, logicalPinName, headNumber, siteNumber)));
     }
     
 	@Override

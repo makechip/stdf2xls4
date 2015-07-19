@@ -26,8 +26,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -261,7 +259,7 @@ public class GenericDataRecord extends StdfRecord
 		}
 	}
 	
-	private static PadData getType(Cpu_t cpu, DataInputStream is) throws IOException
+	private static PadData getType(Cpu_t cpu, ByteInputStream is)
 	{
 		int type = 0;
 		int cnt = 0;
@@ -274,7 +272,7 @@ public class GenericDataRecord extends StdfRecord
 		return(new PadData(Data_t.getDataType(type), cnt));
 	}
 	
-	private void getField(List<Data> l, PadData v, Cpu_t cpu, DataInputStream is) throws IOException
+	private void getField(List<Data> l, PadData v, Cpu_t cpu, ByteInputStream is)
 	{
         switch (v.type)
         {
@@ -331,7 +329,7 @@ public class GenericDataRecord extends StdfRecord
      * @param dvd This CTOR sets the CPU type in the DefaultValueDatabase.
 	 * @param data
 	 */
-    public GenericDataRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public GenericDataRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         List<Data> l = new ArrayList<Data>();

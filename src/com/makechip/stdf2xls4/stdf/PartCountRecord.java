@@ -25,12 +25,7 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -79,7 +74,7 @@ public class PartCountRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public PartCountRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public PartCountRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -110,7 +105,7 @@ public class PartCountRecord extends StdfRecord
         	l += Data_t.U4.numBytes;
         }
         else functional = null;
-        if (l != recLen) throw new StdfException("Record length error in PartCountRecord");
+        if (l != recLen) throw new RuntimeException("Record length error in PartCountRecord");
     }
     
     /**
@@ -135,12 +130,11 @@ public class PartCountRecord extends StdfRecord
     		Long partsReTested,
     		Long aborts,
     		Long good,
-    		Long functional) throws IOException, StdfException
+    		Long functional)
     {
     	this(cpu, 
     		getRecLen(partsReTested, aborts, good, functional),
-    		new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteNumber, partsTested, 
-    				                                             partsReTested, aborts, good, functional))));
+    		new ByteInputStream(toBytes(cpu, headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional)));
     }
     
 	@Override

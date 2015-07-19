@@ -25,12 +25,7 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -98,7 +93,7 @@ public class WaferResultsRecord extends StdfRecord
      */
     public final String execWaferDesc;
     
-    public WaferResultsRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public WaferResultsRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -166,7 +161,7 @@ public class WaferResultsRecord extends StdfRecord
             l += 1 + execWaferDesc.length();
         }
         else execWaferDesc = null;
-        if (l != recLen) throw new StdfException("Record length error in WaferResultsRecord.");
+        if (l != recLen) throw new RuntimeException("Record length error in WaferResultsRecord.");
     }
     
 	@Override
@@ -274,14 +269,14 @@ public class WaferResultsRecord extends StdfRecord
         String waferFrameID,
         String waferMaskID,
         String userWaferDesc,
-        String execWaferDesc) throws IOException, StdfException
+        String execWaferDesc)
     {
 		this(cpu, 
 			 getRecLen(retestCount, abortCount, passCount, functionalCount, waferID, 
 					   fabWaferID, waferFrameID, waferMaskID, userWaferDesc, execWaferDesc),
-			 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteGroupNumber, 
+			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, 
 					 finishDate, partCount, retestCount, abortCount, passCount, functionalCount, 
-					 waferID, fabWaferID, waferFrameID, waferMaskID, userWaferDesc, execWaferDesc))));
+					 waferID, fabWaferID, waferFrameID, waferMaskID, userWaferDesc, execWaferDesc)));
     }
 
 	/* (non-Javadoc)

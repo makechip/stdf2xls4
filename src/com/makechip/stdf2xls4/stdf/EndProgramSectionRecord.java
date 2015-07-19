@@ -24,9 +24,6 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -47,7 +44,7 @@ public class EndProgramSectionRecord extends StdfRecord
      * record, the array should have a length of zero because the EndProgramSectionRecord
      * has no data fields.
      */
-    public EndProgramSectionRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public EndProgramSectionRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
     }
@@ -59,7 +56,7 @@ public class EndProgramSectionRecord extends StdfRecord
      * @throws StdfException 
      * @throws IOException 
      */
-    public EndProgramSectionRecord(Cpu_t cpu) throws IOException, StdfException
+    public EndProgramSectionRecord(Cpu_t cpu)
     {
     	this(cpu, 0, null);
     }

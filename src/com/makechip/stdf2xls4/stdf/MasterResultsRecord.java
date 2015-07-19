@@ -26,11 +26,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Date;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -61,7 +57,7 @@ public class MasterResultsRecord extends StdfRecord
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
      */
-   public MasterResultsRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+   public MasterResultsRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         finishDate = cpu.getU4(is);
@@ -80,7 +76,7 @@ public class MasterResultsRecord extends StdfRecord
             l += 1 + execDesc.length();
         }
         else execDesc = null;
-        if (l != recLen) throw new StdfException("Record length error in MasterResultsRecord.");
+        if (l != recLen) throw new RuntimeException("Record length error in MasterResultsRecord.");
     }
     
    /**
@@ -100,10 +96,10 @@ public class MasterResultsRecord extends StdfRecord
     	long finishDate, 
     	Character dispCode, 
     	String lotDesc, 
-    	String execDesc) throws IOException, StdfException
+    	String execDesc)
     {
     	this(cpu, getRecLen(dispCode, lotDesc, execDesc),
-    	     new DataInputStream(new ByteArrayInputStream(toBytes(cpu, finishDate, dispCode, lotDesc, execDesc))));
+    	     new ByteInputStream(toBytes(cpu, finishDate, dispCode, lotDesc, execDesc)));
     }
     
 	@Override

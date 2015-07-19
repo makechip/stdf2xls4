@@ -27,10 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.StringTokenizer;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -67,7 +64,7 @@ public class DatalogTestRecord extends TestRecord
      * This CTOR is a dummy CTOR that should not be used.  It is included so that
      * the initializer is available to the Record_t.DTRX enum.  It is never actually used.
      */
-    public DatalogTestRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public DatalogTestRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         testName = null;

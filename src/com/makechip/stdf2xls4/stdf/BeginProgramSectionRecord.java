@@ -27,10 +27,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -53,7 +49,7 @@ public class BeginProgramSectionRecord extends StdfRecord
      * @param data Binary stream data.  This array should not contain
      * the first four bytes of the record.
      */
-    public BeginProgramSectionRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public BeginProgramSectionRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         if (recLen > 0) seqName = cpu.getCN(is);
@@ -68,9 +64,9 @@ public class BeginProgramSectionRecord extends StdfRecord
      * @throws StdfException 
      * @throws IOException 
      */
-    public BeginProgramSectionRecord(Cpu_t cpu, String seqName) throws IOException, StdfException
+    public BeginProgramSectionRecord(Cpu_t cpu, String seqName)
     {
-    	this(cpu, getRecLen(seqName), new DataInputStream(new ByteArrayInputStream(cpu.getCNBytes(seqName))));
+    	this(cpu, getRecLen(seqName), new ByteInputStream(cpu.getCNBytes(seqName)));
     }
     
 	@Override

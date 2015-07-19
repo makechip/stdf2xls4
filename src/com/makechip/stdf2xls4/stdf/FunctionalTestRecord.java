@@ -26,9 +26,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -144,7 +141,7 @@ public class FunctionalTestRecord extends TestRecord
      * @param data Binary stream data.  This array should not contain
      * the first four bytes of the record.
      */
-    public FunctionalTestRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public FunctionalTestRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         int l = 7;
@@ -335,7 +332,7 @@ public class FunctionalTestRecord extends TestRecord
         	enComps = cpu.getDN(numEnCompBits, is);
         	l += enComps.length;
         }
-        if (l != recLen) throw new StdfException("FTR record length incorrect - recLen = " + recLen + " actual = " + l); 
+        if (l != recLen) throw new RuntimeException("FTR record length incorrect - recLen = " + recLen + " actual = " + l); 
     }
     
     /**
@@ -402,17 +399,17 @@ public class FunctionalTestRecord extends TestRecord
         final String rsltTxt,
         final Short patGenNum,
         final Integer numEnCompBits,
-        final byte[] enComps) throws IOException, StdfException
+        final byte[] enComps)
     {
     	this(cpu, 
     		 getRecLen(testNumber, headNumber, siteNumber, testFlags, 
     		 optFlags, cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
     		 vecOffset, rtnIndex, rtnState, pgmIndex, pgmState, numFailPinBits, failPin, vecName, timeSetName, vecOpCode, 
     		 testName, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, enComps),
-    		 new  DataInputStream(new ByteArrayInputStream(toBytes(cpu, testNumber, headNumber, siteNumber, testFlags, 
+    		 new ByteInputStream(toBytes(cpu, testNumber, headNumber, siteNumber, testFlags, 
     		 optFlags, cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
     		 vecOffset, rtnIndex, rtnState, pgmIndex, pgmState, numFailPinBits, failPin, vecName, timeSetName, vecOpCode, 
-    		 testName, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, enComps))));
+    		 testName, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, enComps)));
     }
     
     

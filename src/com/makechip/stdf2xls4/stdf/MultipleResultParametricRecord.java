@@ -26,15 +26,10 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -122,7 +117,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
      */
-    public MultipleResultParametricRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public MultipleResultParametricRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super(cpu, recLen, is);
         int l = 8;
@@ -275,7 +270,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
             l += R4.numBytes;
         }
         else hiSpec = null;
-        if (l != recLen) throw new StdfException("Record length error in MPR record: testNumber = " + testNumber + " l = " + l + " recLen = " + recLen);
+        if (l != recLen) throw new RuntimeException("Record length error in MPR record: testNumber = " + testNumber + " l = " + l + " recLen = " + recLen);
     }
     
     /**
@@ -335,16 +330,16 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     	    final String llmFmt,
     	    final String hlmFmt,
     	    final Float loSpec,
-    	    final Float hiSpec) throws IOException, StdfException
+    	    final Float hiSpec)
     {
     	this(cpu,
     		 getRecLen(rtnState, results, testName, alarmName, optFlags, resScal, 
     				   llmScal, hlmScal, loLimit, hiLimit, startIn, incrIn, rtnIndex, 
     		           units, unitsIn, resFmt, llmFmt, hlmFmt, loSpec, hiSpec),
-    		 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, testNumber, headNumber, siteNumber, testFlags, 
+    		 new ByteInputStream(toBytes(cpu, testNumber, headNumber, siteNumber, testFlags, 
     		         paramFlags, rtnState, results, testName, alarmName, optFlags, 
     		         resScal, llmScal, hlmScal, loLimit, hiLimit, startIn, incrIn, rtnIndex, 
-    		         units, unitsIn, resFmt, llmFmt, hlmFmt, loSpec, hiSpec))));
+    		         units, unitsIn, resFmt, llmFmt, hlmFmt, loSpec, hiSpec)));
     }
     
     private static int getRecLen(

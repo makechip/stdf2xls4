@@ -26,12 +26,7 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Arrays;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -52,7 +47,7 @@ public class RetestDataRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public RetestDataRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public RetestDataRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         int k = cpu.getU2(is);
@@ -71,9 +66,9 @@ public class RetestDataRecord extends StdfRecord
      * @throws StdfException 
      * @throws IOException 
      */
-    public RetestDataRecord(Cpu_t cpu, int[] retestBins) throws IOException, StdfException
+    public RetestDataRecord(Cpu_t cpu, int[] retestBins)
     {
-    	this(cpu, getRecLen(retestBins), new DataInputStream(new ByteArrayInputStream(toBytes(cpu, retestBins))));
+    	this(cpu, getRecLen(retestBins), new ByteInputStream(toBytes(cpu, retestBins)));
     }
 
 	@Override

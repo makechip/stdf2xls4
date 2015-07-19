@@ -27,17 +27,12 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
-
 import static com.makechip.stdf2xls4.stdf.enums.Data_t.*;
 import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 /**
@@ -114,7 +109,7 @@ public class ParametricTestRecord extends ParametricRecord
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public ParametricTestRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public ParametricTestRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
     	super(cpu, recLen, is);
     	int l = 8;
@@ -208,7 +203,7 @@ public class ParametricTestRecord extends ParametricRecord
         	l += R4.numBytes;
         }
         else hiSpec = null;
-        if (l != recLen) throw new StdfException("Record length error in PTR record: testNumber = " + testNumber);
+        if (l != recLen) throw new RuntimeException("Record length error in PTR record: testNumber = " + testNumber);
     }
     
     /**
@@ -259,14 +254,14 @@ public class ParametricTestRecord extends ParametricRecord
     	    final String llmFmt,
     	    final String hlmFmt,
     	    final Float loSpec,
-    	    final Float hiSpec) throws IOException, StdfException
+    	    final Float hiSpec)
     {
     	this(cpu, 
     		 getRecLen(result, testName, alarmName, optFlags, resScal, llmScal, hlmScal, 
     		 loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec),
-    		 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, testNumber, headNumber, 
+    		 new ByteInputStream(toBytes(cpu, testNumber, headNumber, 
     		 siteNumber, testFlags, paramFlags, result, testName, alarmName, optFlags, resScal, 
-    		 llmScal, hlmScal, loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec))));
+    		 llmScal, hlmScal, loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec)));
     }
     
 	@Override

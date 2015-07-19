@@ -24,11 +24,8 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.ParamFlag_t;
@@ -69,7 +66,7 @@ public abstract class ParametricRecord extends TestRecord
 	 * @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
 	 */
-	protected ParametricRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+	protected ParametricRecord(Cpu_t cpu, int recLen, ByteInputStream is)
 	{
 		super();
 		testNumber = cpu.getU4(is); // skip over test number;

@@ -26,12 +26,7 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Arrays;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -117,7 +112,7 @@ public class SiteDescriptionRecord extends StdfRecord
     
     private final short[] siteNumbers;
     
-    public SiteDescriptionRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public SiteDescriptionRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -229,7 +224,7 @@ public class SiteDescriptionRecord extends StdfRecord
             l += 1 + equipID.length();
         }
         else equipID = null;
-        if (l != recLen) throw new StdfException("Record length error in SiteDescriptionRecord.");
+        if (l != recLen) throw new RuntimeException("Record length error in SiteDescriptionRecord.");
     }
     
 	@Override
@@ -383,18 +378,17 @@ public class SiteDescriptionRecord extends StdfRecord
 		String laserType,
 		String laserID,
 		String equipType,
-		String equipID
-		) throws IOException, StdfException
+		String equipID)
 	{
 		this(cpu, 
 			 getRecLen(siteNumbers, handlerType,
 		             handlerID, probeCardType, probeCardID, loadBoardType, loadBoardID,
 		             dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, contactorType,
 		             contactorID, laserType, laserID, equipType, equipID),
-			 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteGroupNumber, 
+			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, 
 					 siteNumbers, handlerType, handlerID, probeCardType, probeCardID, loadBoardType, 
 					 loadBoardID, dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, 
-					 contactorType, contactorID, laserType, laserID, equipType, equipID))));
+					 contactorType, contactorID, laserType, laserID, equipType, equipID)));
 	}
 
 	private static int getRecLen(short[] siteNumbers, 

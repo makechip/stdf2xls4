@@ -25,12 +25,7 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -50,16 +45,16 @@ public class PartInformationRecord extends StdfRecord
      */
     public final short siteNumber;
     
-    public PartInformationRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public PartInformationRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
         siteNumber = cpu.getU1(is);
     }
     
-    public PartInformationRecord(Cpu_t cpu, short headNumber, short siteNumber) throws IOException, StdfException
+    public PartInformationRecord(Cpu_t cpu, short headNumber, short siteNumber)
     {
-        this(cpu, 2, new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteNumber))));
+        this(cpu, 2, new ByteInputStream(toBytes(cpu, headNumber, siteNumber)));
     }
     
 	private static byte[] toBytes(Cpu_t cpu, short headNumber, short siteNumber)

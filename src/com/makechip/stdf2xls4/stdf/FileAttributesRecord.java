@@ -25,12 +25,7 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -57,7 +52,7 @@ public class FileAttributesRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public FileAttributesRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public FileAttributesRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         short c = (short) (0xFF & is.readByte());
@@ -74,9 +69,9 @@ public class FileAttributesRecord extends StdfRecord
      * @throws StdfException 
      * @throws IOException 
      */
-    public FileAttributesRecord(Cpu_t cpu, int stdfVersion) throws IOException, StdfException
+    public FileAttributesRecord(Cpu_t cpu, int stdfVersion)
     {
-    	this(cpu, 0, new DataInputStream(new ByteArrayInputStream(toBytes(cpu, stdfVersion))));
+    	this(cpu, 0, new ByteInputStream(toBytes(cpu, stdfVersion)));
     }
     
 	/* (non-Javadoc)

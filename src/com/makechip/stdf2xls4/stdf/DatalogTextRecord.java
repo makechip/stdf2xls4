@@ -27,10 +27,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -75,7 +71,7 @@ public class DatalogTextRecord extends StdfRecord
      * @param data The binary stream data for this record.  The array should
      * not contain the first four bytes of the record.
      */
-    public DatalogTextRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public DatalogTextRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         text = cpu.getCN(is);
@@ -90,9 +86,9 @@ public class DatalogTextRecord extends StdfRecord
      * @throws StdfException 
      * @throws IOException 
      */
-    public DatalogTextRecord(Cpu_t cpu, String text) throws IOException, StdfException
+    public DatalogTextRecord(Cpu_t cpu, String text)
     {
-    	this(cpu, 0, new DataInputStream(new ByteArrayInputStream(cpu.getCNBytes(text))));
+    	this(cpu, 0, new ByteInputStream(cpu.getCNBytes(text)));
     }
     
 	/* (non-Javadoc)

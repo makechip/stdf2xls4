@@ -25,12 +25,7 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -58,7 +53,7 @@ public class WaferInformationRecord extends StdfRecord
      */
     public final String waferID;
     
-   public WaferInformationRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+   public WaferInformationRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -71,7 +66,7 @@ public class WaferInformationRecord extends StdfRecord
             l += 1 + waferID.length();
         }
         else waferID = null;
-        if (l != recLen) throw new StdfException("Record length error in WaferInformationRecord.");
+        if (l != recLen) throw new RuntimeException("Record length error in WaferInformationRecord.");
     }
     
 	@Override
@@ -120,10 +115,10 @@ public class WaferInformationRecord extends StdfRecord
 		short headNumber,
 		short siteGroupNumber,
 		long startDate,
-		String waferID) throws IOException, StdfException
+		String waferID)
 	{
 		this(cpu, getRecLen(waferID),
-			 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteGroupNumber, startDate, waferID))));
+			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, startDate, waferID)));
 	}
 
 	/* (non-Javadoc)

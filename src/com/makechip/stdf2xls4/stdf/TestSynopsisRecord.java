@@ -25,14 +25,9 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -109,7 +104,7 @@ public class TestSynopsisRecord extends StdfRecord
      */
     public Float testSumSquares;
     
-   public TestSynopsisRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+   public TestSynopsisRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -189,7 +184,7 @@ public class TestSynopsisRecord extends StdfRecord
             l += Data_t.R4.numBytes;
         }
         else testSumSquares = null;
-        if (l != recLen) throw new StdfException("Record length error in TestSynopsisRecord.");
+        if (l != recLen) throw new RuntimeException("Record length error in TestSynopsisRecord.");
     }
     
 	@Override
@@ -312,13 +307,13 @@ public class TestSynopsisRecord extends StdfRecord
 	    float testMin,
 	    float testMax,
 	    float testSum,
-	    float testSumSquares) throws IOException, StdfException
+	    float testSumSquares)
 	{
 		this(cpu, getRecLen(numExecs, numFailures, numAlarms, testName, sequencerName, testLabel, 
 	    	                optFlags, testTime, testMin, testMax, testSum, testSumSquares),
-			 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteNumber, testType, 
+			 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, testType, 
 					        testNumber, numExecs, numFailures, numAlarms, testName, sequencerName, 
-					        testLabel, optFlags, testTime, testMin, testMax, testSum, testSumSquares))));
+					        testLabel, optFlags, testTime, testMin, testMax, testSum, testSumSquares)));
 	}
 
 	/* (non-Javadoc)

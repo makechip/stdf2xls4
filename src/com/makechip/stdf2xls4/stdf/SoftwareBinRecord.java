@@ -25,12 +25,7 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -65,7 +60,7 @@ public class SoftwareBinRecord extends StdfRecord
      */
     public final String binName;
     
-    public SoftwareBinRecord(Cpu_t cpu, int recLen, DataInputStream is) throws IOException, StdfException
+    public SoftwareBinRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -85,7 +80,7 @@ public class SoftwareBinRecord extends StdfRecord
             l += 1 + binName.length();
         }
         else binName = null;
-        if (l != recLen) throw new StdfException("Record length error in SoftwareBinRecord l = " + l + " recLen = " + recLen + " binName = " + binName);
+        if (l != recLen) throw new RuntimeException("Record length error in SoftwareBinRecord l = " + l + " recLen = " + recLen + " binName = " + binName);
     }
 
 	@Override
@@ -150,10 +145,10 @@ public class SoftwareBinRecord extends StdfRecord
 			int swBinNumber, 
 			long count, 
 			char pf, 
-			String binName) throws IOException, StdfException
+			String binName)
 	{
 		this(cpu, getRecLen(pf, binName),
-			 new DataInputStream(new ByteArrayInputStream(toBytes(cpu, headNumber, siteNumber, swBinNumber, count, pf, binName))));
+			 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, swBinNumber, count, pf, binName)));
 	}
 
 	/* (non-Javadoc)
