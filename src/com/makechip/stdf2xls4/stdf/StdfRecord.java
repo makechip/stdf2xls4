@@ -1,8 +1,6 @@
 package com.makechip.stdf2xls4.stdf;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-
 import gnu.trove.list.array.TByteArrayList;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
@@ -79,18 +77,9 @@ public abstract class StdfRecord
 	    	{
 	    		f.setAccessible(true);
 	    		Object o = f.get(this);
-	    		if (o != null && o.getClass().isArray())
-	    		{
-	    			String arrayContents = null;
-	    			if (f.getType() == byte[].class) arrayContents = Arrays.toString((byte[]) o);
-	    			else if (f.getType() == short[].class) arrayContents = Arrays.toString((short[]) o);
-	    			else if (f.getType() == int[].class) arrayContents = Arrays.toString((int[]) o);
-	    			else if (f.getType() == float[].class) arrayContents = Arrays.toString((float[]) o);
-	    			else if (f.getType() == boolean[].class) arrayContents = Arrays.toString((boolean[]) o);
-	    			else arrayContents = Arrays.toString((Object[]) o);
-	    			sb.append("    ").append(f.getName()).append(" = ").append(arrayContents).append(Log.eol);
-	    		}
-	    		else sb.append("    ").append(f.getName()).append(" = ").append((o == null) ? "null" : o.toString()).append(Log.eol);
+	    		String name = f.getName();
+	    		String obj = (o == null) ? "null" : o.toString();
+	    		sb.append("    ").append(name).append(" = ").append(obj).append(Log.eol);
 	    	}
 	    }
 	    catch (Exception e)
@@ -101,5 +90,12 @@ public abstract class StdfRecord
 	    sb.append(Log.eol);
 	    return(sb.toString());
 	}
+   	protected static void addNibbles(Cpu_t cpu, int[] array, TByteArrayList list, int index, int len)
+   	{
+   		byte b0 = (byte) array[2 * index];
+   		byte b1 = (byte) (((index < len) || ((index % 2) == 0)) ? array[2*index+1] : 0);
+   		list.add(cpu.getN1Byte(b0, b1));
+   	}
+   	
 
 }

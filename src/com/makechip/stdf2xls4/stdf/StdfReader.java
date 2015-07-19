@@ -25,8 +25,8 @@
 
 package com.makechip.stdf2xls4.stdf;
 
-//import java.io.BufferedInputStream;
 import java.io.DataInputStream;
+import java.io.FileInputStream;
 //import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,6 +35,7 @@ import java.util.List;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 //import com.makechip.util.Log;
+import com.makechip.util.Log;
 
 /**
  *  This class reads an STDF file, and produces the list of STDF records
@@ -56,28 +57,22 @@ public class StdfReader
     * @throws IOException
     * @throws StdfException
     */
-   public StdfReader read(DataInputStream is) throws IOException
+   public StdfReader read(ByteInputStream is)
    {
 	   Cpu_t cpu = Cpu_t.PC; // assume this for the first record. The FAR does not need this.
 	   while (is.available() >= 2)
 	   {
 		   int recLen = cpu.getU2(is);	
 		   short rtype = cpu.getU1(is);
-		   short subType = cpu.getU1(is);
-		   Record_t type = Record_t.getRecordType(rtype, subType);
-		   byte[] b = new byte[recLen];
-		   is.readFully(b);
-		   ByteInputStream bis = new ByteInputStream(b);
+		   short stype = cpu.getU1(is);
+		   Record_t type = Record_t.getRecordType(rtype, stype);
+		   StdfRecord r = type.getInstance(cpu,  recLen, is);
 		   if (type == Record_t.FAR)
 		   {
-			   FileAttributesRecord far = (FileAttributesRecord) type.getInstance(null, recLen, bis);
+			   FileAttributesRecord far = (FileAttributesRecord) r;
 			   cpu = far.cpuType;
-			   records.add(far);
 		   }
-		   else 
-		   {
-			   records.add(type.getInstance(cpu, recLen, bis));
-		   }
+		   records.add(r);
 	   }                
         return(this);
     }
@@ -89,7 +84,6 @@ public class StdfReader
      */
     public List<StdfRecord> getRecords() { return(records); }
     
-    /*
     public static void main(String[] args)
     {
     	if (args.length != 1)
@@ -97,10 +91,12 @@ public class StdfReader
     		Log.msg("Usage: java com.makechip.stdf2xls4.stdf.StdfReader <stdfFile>");
     		System.exit(1);
     	}
-    	try (DataInputStream is = new DataInputStream(new BufferedInputStream(new FileInputStream(args[0]))))
+    	try (DataInputStream is = new DataInputStream(new FileInputStream(args[0])))
     	{
             StdfReader rdr = new StdfReader();
-            rdr.read(is);
+            byte[] b = new byte[is.available()];
+            is.readFully(b);
+            rdr.read(new ByteInputStream(b));
             rdr.getRecords().stream().forEach(r -> Log.msg(r.toString()));
     	} 
     	catch (Exception e)
@@ -109,6 +105,5 @@ public class StdfReader
 			e.printStackTrace();
 		} 
     }
-    */
 
 }

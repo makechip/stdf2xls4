@@ -26,16 +26,16 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
-
 import static com.makechip.stdf2xls4.stdf.enums.Data_t.*;
 /**
  *  This class holds the fields for an STDF FunctionalTestRecord.
@@ -124,14 +124,14 @@ public class FunctionalTestRecord extends TestRecord
 	 */
     public final Short patGenNum;
 
-    private final int[] rtnIndex;
-    private final int numFailPinBits;
-    private final byte[] rtnState;
-    private final int[] pgmIndex;
-    private final byte[] pgmState;
-    private final byte[] failPin;
-    private final int numEnCompBits;
-    private final byte[] enComps;
+    public final IntList rtnIndex; // int
+    public final int numFailPinBits;
+    public final IntList rtnState; // byte
+    public final IntList pgmIndex; // int
+    public final IntList pgmState;  // byte
+    public final IntList failPin; // byte
+    public final int numEnCompBits;
+    public final IntList enComps; // byte
     
     /**
      * Constructor to create an FTR record from the binary data stream.
@@ -198,79 +198,45 @@ public class FunctionalTestRecord extends TestRecord
         	vecOffset = cpu.getI2(is); 
         	l += I2.numBytes;
         }
-        int j = 0;
-        if (l < recLen) 
-        {
-        	j = cpu.getU2(is); 
-        	l += U2.numBytes;
-        }
-        int k = 0;
-        if (l < recLen) 
-        {
-        	k = cpu.getU2(is); 
-        	l += U2.numBytes;
-        }
+        final int j = (l < recLen) ? cpu.getU2(is) : 0;
+        if (l < recLen) l += U2.numBytes;
+        final int k = (l < recLen) ? cpu.getU2(is) : 0;
+        if (l < recLen) l += U2.numBytes;
         if (j > 0)
         {
-            rtnIndex = new int[j];
-            for (int i=0; i<j; i++) 
-            {
-            	rtnIndex[i] = cpu.getU2(is);
-            	l += U2.numBytes;
-            }
+            rtnIndex = new IntList(Data_t.U2, cpu, j, is);
+            l += rtnIndex.size() * U2.numBytes;
         }
         else rtnIndex = null;
-        if (j > 0) // j is the number of nibbles
+        if (j > 0 && l < recLen) // j is the number of nibbles
         {
-            TByteArrayList list = new TByteArrayList();
-            for (int i=0; i<j; i++)
-            {
-            	byte[] b = cpu.getN1(is);
-            	l++;
-            	list.add(b[0]);
-            	i++;
-            	if (i >= j) break;
-            	list.add(b[1]);
-            }
-            rtnState = list.toArray();
+            rtnState = new IntList(Data_t.N1, cpu, j, is);
+            l += (j+1)/2;
         }
         else rtnState = null;
         if (k > 0)
         {
-            pgmIndex = new int[k];
-            for (int i=0; i<k; i++) 
-            {
-            	pgmIndex[i] = cpu.getU2(is);
-            	l += U2.numBytes;
-            }
+            pgmIndex = new IntList(Data_t.U2, cpu, j, is);
+            l += pgmIndex.size() * U2.numBytes;
         }
         else pgmIndex = null;
-        if (k > 0)
+        if (k > 0 && l < recLen)
         {
-            TByteArrayList list = new TByteArrayList();
-            for (int i=0; i<k; i++)
-            {
-            	byte[] b = cpu.getN1(is);
-                l++;
-                list.add(b[0]);
-                i++;
-                if (i >= k) break;
-                list.add(b[1]);
-            }
-            pgmState = list.toArray();
+            pgmState = new IntList(Data_t.N1, cpu, j, is);
+            l += (k+1)/2;
         }
         else pgmState = null;
-        if (l >= recLen)
-        {
-        	failPin = null;
-        	numFailPinBits = 0;
-        }
-        else
+        if (l < recLen)
         {
         	numFailPinBits = cpu.getU2(is);
         	l += U2.numBytes;
-        	failPin = cpu.getDN(numFailPinBits, is);
-        	l += failPin.length;
+        	failPin = new IntList(cpu.getDN(numFailPinBits, is));
+        	l += failPin.size();
+        }
+        else
+        {
+        	failPin = null;
+        	numFailPinBits = 0;
         }
         if (l < recLen)
         {
@@ -320,17 +286,17 @@ public class FunctionalTestRecord extends TestRecord
         	l++;
         }
         else patGenNum = null;
-        if (l >= recLen)
-        {
-        	enComps = null;
-        	numEnCompBits = 0;
-        }
-        else
+        if (l < recLen)
         {
         	numEnCompBits = cpu.getU2(is);
         	l += U2.numBytes;
-        	enComps = cpu.getDN(numEnCompBits, is);
-        	l += enComps.length;
+        	enComps = new IntList(cpu.getDN(numEnCompBits, is));
+        	l += enComps.size();
+        }
+        else
+        {
+        	enComps = null;
+        	numEnCompBits = 0;
         }
         if (l != recLen) throw new RuntimeException("FTR record length incorrect - recLen = " + recLen + " actual = " + l); 
     }
@@ -385,11 +351,11 @@ public class FunctionalTestRecord extends TestRecord
         final Integer yFailAddr,
         final Short vecOffset,
         final int[] rtnIndex,
-        final byte[] rtnState,
+        final int[] rtnState,
         final int[] pgmIndex,
-        final byte[] pgmState,
+        final int[] pgmState,
         final Integer numFailPinBits,
-        final byte[] failPin,
+        final int[] failPin,
         final String vecName,
         final String timeSetName,
         final String vecOpCode,
@@ -399,7 +365,7 @@ public class FunctionalTestRecord extends TestRecord
         final String rsltTxt,
         final Short patGenNum,
         final Integer numEnCompBits,
-        final byte[] enComps)
+        final int[] enComps)
     {
     	this(cpu, 
     		 getRecLen(testNumber, headNumber, siteNumber, testFlags, 
@@ -423,10 +389,16 @@ public class FunctionalTestRecord extends TestRecord
 			byte o = (byte) optFlags.stream().mapToInt(b -> b.bit).sum();
 			oflags = new Byte(o);
 		}
-    	byte[] b = toBytes(cpu, testNumber, headNumber, siteNumber, tflags, oflags, cycleCount, 
-    			           relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, vecOffset, rtnIndex, 
-    			           rtnState, pgmIndex, pgmState, numFailPinBits, failPin, vecName, timeSetName, vecOpCode, 
-    		               testName, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, enComps);
+		int[] ri = (rtnIndex == null) ? null : rtnIndex.getArray();
+		int[] rs = (rtnState == null) ? null : rtnState.getArray();
+		int[] pi = (pgmIndex == null) ? null : pgmIndex.getArray();
+		int[] ps = (pgmState == null) ? null : pgmState.getArray();
+		int[] fp = (failPin == null) ? null : failPin.getArray();
+		int[] ec = (enComps == null) ? null : enComps.getArray();
+    	byte[] b = toBytes(cpu, testNumber, headNumber, siteNumber, tflags, oflags, 
+    			           cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
+    			           vecOffset, ri, rs, pi, ps, numFailPinBits, fp, vecName, timeSetName, 
+    			           vecOpCode, testName, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, ec);
     	TByteArrayList l = getHeaderBytes(cpu, Record_t.FTR, b.length);
     	l.addAll(b);
 		return(l.toArray());
@@ -447,11 +419,11 @@ public class FunctionalTestRecord extends TestRecord
         final Integer yFailAddr,
         final Short vecOffset,
         final int[] rtnIndex,
-        final byte[] rtnState,
+        final int[] rtnState,
         final int[] pgmIndex,
-        final byte[] pgmState,
+        final int[] pgmState,
         final Integer numFailPinBits,
-        final byte[] failPin,
+        final int[] failPin,
         final String vecName,
         final String timeSetName,
         final String vecOpCode,
@@ -461,7 +433,7 @@ public class FunctionalTestRecord extends TestRecord
         final String rsltTxt,
         final Short patGenNum,
         final Integer numEnCompBits,
-        final byte[] enComps)
+        final int[] enComps)
     {
         TByteArrayList list = new TByteArrayList();
         list.addAll(cpu.getU4Bytes(testNumber));
@@ -488,30 +460,18 @@ public class FunctionalTestRecord extends TestRecord
         else return(list.toArray());
         if (pgmIndex != null) list.addAll(cpu.getU2Bytes(pgmIndex.length));
         else return(list.toArray());
-        for (int i=0; i<rtnIndex.length; i++) list.addAll(cpu.getU2Bytes(rtnIndex[i]));
+        IntStream.range(0, rtnIndex.length).forEach(p -> list.addAll(cpu.getU2Bytes(rtnIndex[p])));
         if (rtnState != null) 
         {
-        	for (int i=0; i<rtnState.length; i++) 
-        	{
-        		byte b0 = rtnState[i];
-        		i++;
-        		byte b1 = 0;
-        		if (i < rtnState.length) b1 = rtnState[i];
-        		list.add(cpu.getN1Byte(b0, b1));
-        	}
+        	final int len = (rtnState.length + 1) / 2;
+        	IntStream.range(0, len).forEach(p -> StdfRecord.addNibbles(cpu, rtnState, list, p, len));
         }
         else return(list.toArray());
-        for (int i=0; i<pgmIndex.length; i++) list.addAll(cpu.getU2Bytes(pgmIndex[i]));
+        IntStream.range(0,  pgmIndex.length).forEach(p -> list.addAll(cpu.getU2Bytes(pgmIndex[p])));
         if (pgmState != null) 
         {
-        	for (int i=0; i<pgmState.length; i++) 
-        	{
-        		byte b0 = pgmState[i];
-        		i++;
-        		byte b1 = 0;
-        		if (i < pgmState.length) b1 = pgmState[i];
-        		list.add(cpu.getN1Byte(b0, b1));
-        	}
+        	final int len = (pgmState.length + 1) / 2;
+        	IntStream.range(0, len).forEach(p -> StdfRecord.addNibbles(cpu, pgmState, list, p, len));
         }
         else return(list.toArray());
         if (failPin != null) list.addAll(cpu.getDNBytes(numFailPinBits, failPin));
@@ -550,11 +510,11 @@ public class FunctionalTestRecord extends TestRecord
         final Integer yFailAddr,
         final Short vecOffset,
         final int[] rtnIndex,
-        final byte[] rtnState,
+        final int[] rtnState,
         final int[] pgmIndex,
-        final byte[] pgmState,
+        final int[] pgmState,
         final Integer numFailPinBits,
-        final byte[] failPin,
+        final int[] failPin,
         final String vecName,
         final String timeSetName,
         final String vecOpCode,
@@ -564,7 +524,7 @@ public class FunctionalTestRecord extends TestRecord
         final String rsltTxt,
         final Short patGenNum,
         final Integer numEnCompBits,
-        final byte[] enComps)
+        final int[] enComps)
     {
     	int l = U4.numBytes + U1.numBytes + U1.numBytes + 1;
         if (optFlags != null) l++; else return(l);
@@ -628,64 +588,6 @@ public class FunctionalTestRecord extends TestRecord
      */
     public boolean fail() { return(testFlags.contains(TestFlag_t.FAIL)); }
     
-    /**
-     * Get the array of PMR indexes. 
-     * @return A copy of the PMR index (RTN_INDX) array.
-     */
-    public int[] getRtnIndex() 
-    { 
-    	if (rtnIndex == null) return(null);
-    	return(Arrays.copyOf(rtnIndex, rtnIndex.length)); 
-    }
-    /**
-     * Get the array of returned states.
-     * @return A copy of the RTN_STAT array. Note that each element in the array contains
-     * only one nibble.
-     */
-    public byte[] getRtnState() 
-    { 
-    	if (rtnState == null) return(null);
-    	return(Arrays.copyOf(rtnState, rtnState.length)); 
-    }
-    /**
-     * Get the array of programmed state indexes.
-     * @return A copy of the PGM_INDX array.
-     */
-    public int[] getPgmIndex() 
-    { 
-        if (pgmIndex == null) return(null);
-    	return(Arrays.copyOf(pgmIndex, pgmIndex.length)); 
-    }
-    /**
-     * Get the array of programmed state indexes. 
-     * @return A copy of the PGM_STAT array.
-     */
-    public byte[] getPgmState() 
-    { 
-    	if (pgmState == null) return(null);
-    	return(Arrays.copyOf(pgmState, pgmState.length)); 
-    }
-    /**
-     * Get the failing pin bit-field. 
-     * @return A copy of the failPin (FAIL_PIN) array. Note that each array element
-     * contains only one nibble.
-     */
-    public byte[] getFailPin() 
-    { 
-    	if (failPin == null) return(null);
-    	return(Arrays.copyOf(failPin, failPin.length)); 
-    }
-    /**
-     * Get the bit map of enabled comparators. Note: use the numEnCompBits to
-     * determine the exace number of bits in this field.
-     * @return A copy of the enComps (SPIN_MAP) array.
-     */
-    public byte[] getEnComps() 
-    { 
-    	if (enComps == null) return(null);
-    	return(Arrays.copyOf(enComps, enComps.length)); 
-    }
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -696,28 +598,22 @@ public class FunctionalTestRecord extends TestRecord
 		int result = 1;
 		result = prime * result + ((alarmName == null) ? 0 : alarmName.hashCode());
 		result = prime * result + ((cycleCount == null) ? 0 : cycleCount.hashCode());
-		if (enComps != null)
-		{
-		    result = prime * result + numEnCompBits;
-		    result = prime * result + Arrays.hashCode(enComps);
-		}
-		if (failPin != null)
-		{
-		    result = prime * result + numFailPinBits;
-		    result = prime * result + Arrays.hashCode(failPin);
-		}
+		result = prime * result + ((enComps == null) ? 0 : enComps.hashCode());
+		result = prime * result + ((failPin == null) ? 0 : failPin.hashCode());
 		result = prime * result + headNumber;
+		result = prime * result + numEnCompBits;
 		result = prime * result + ((numFail == null) ? 0 : numFail.hashCode());
+		result = prime * result + numFailPinBits;
 		result = prime * result + ((optFlags == null) ? 0 : optFlags.hashCode());
 		result = prime * result + ((patGenNum == null) ? 0 : patGenNum.hashCode());
-		if (pgmIndex != null) result = prime * result + Arrays.hashCode(pgmIndex);
-		if (pgmState != null) result = prime * result + Arrays.hashCode(pgmState);
+		result = prime * result + ((pgmIndex == null) ? 0 : pgmIndex.hashCode());
+		result = prime * result + ((pgmState == null) ? 0 : pgmState.hashCode());
 		result = prime * result + ((progTxt == null) ? 0 : progTxt.hashCode());
 		result = prime * result + ((relVaddr == null) ? 0 : relVaddr.hashCode());
 		result = prime * result + ((rptCnt == null) ? 0 : rptCnt.hashCode());
 		result = prime * result + ((rsltTxt == null) ? 0 : rsltTxt.hashCode());
-		if (rtnIndex != null) result = prime * result + Arrays.hashCode(rtnIndex);
-		if (rtnState != null) result = prime * result + Arrays.hashCode(rtnState);
+		result = prime * result + ((rtnIndex == null) ? 0 : rtnIndex.hashCode());
+		result = prime * result + ((rtnState == null) ? 0 : rtnState.hashCode());
 		result = prime * result + siteNumber;
 		result = prime * result + ((testFlags == null) ? 0 : testFlags.hashCode());
 		result = prime * result + ((testName == null) ? 0 : testName.hashCode());
@@ -751,8 +647,16 @@ public class FunctionalTestRecord extends TestRecord
 			if (other.cycleCount != null) return false;
 		} 
 		else if (!cycleCount.equals(other.cycleCount)) return false;
-		if (!Arrays.equals(enComps, other.enComps)) return false;
-		if (!Arrays.equals(failPin, other.failPin)) return false;
+		if (enComps == null)
+		{
+			if (other.enComps != null) return false;
+		} 
+		else if (!enComps.equals(other.enComps)) return false;
+		if (failPin == null)
+		{
+			if (other.failPin != null) return false;
+		} 
+		else if (!failPin.equals(other.failPin)) return false;
 		if (headNumber != other.headNumber) return false;
 		if (numEnCompBits != other.numEnCompBits) return false;
 		if (numFail == null)
@@ -771,8 +675,16 @@ public class FunctionalTestRecord extends TestRecord
 			if (other.patGenNum != null) return false;
 		} 
 		else if (!patGenNum.equals(other.patGenNum)) return false;
-		if (!Arrays.equals(pgmIndex, other.pgmIndex)) return false;
-		if (!Arrays.equals(pgmState, other.pgmState)) return false;
+		if (pgmIndex == null)
+		{
+			if (other.pgmIndex != null) return false;
+		} 
+		else if (!pgmIndex.equals(other.pgmIndex)) return false;
+		if (pgmState == null)
+		{
+			if (other.pgmState != null) return false;
+		} 
+		else if (!pgmState.equals(other.pgmState)) return false;
 		if (progTxt == null)
 		{
 			if (other.progTxt != null) return false;
@@ -793,8 +705,16 @@ public class FunctionalTestRecord extends TestRecord
 			if (other.rsltTxt != null) return false;
 		} 
 		else if (!rsltTxt.equals(other.rsltTxt)) return false;
-		if (!Arrays.equals(rtnIndex, other.rtnIndex)) return false;
-		if (!Arrays.equals(rtnState, other.rtnState)) return false;
+		if (rtnIndex == null)
+		{
+			if (other.rtnIndex != null) return false;
+		} 
+		else if (!rtnIndex.equals(other.rtnIndex)) return false;
+		if (rtnState == null)
+		{
+			if (other.rtnState != null) return false;
+		} 
+		else if (!rtnState.equals(other.rtnState)) return false;
 		if (siteNumber != other.siteNumber) return false;
 		if (testFlags == null)
 		{

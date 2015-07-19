@@ -37,7 +37,7 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
  */
 public class RetestDataRecord extends StdfRecord
 {
-    private final int[] retestBins;
+    public final IntList retestBins;
     
     /**
      * 
@@ -51,11 +51,7 @@ public class RetestDataRecord extends StdfRecord
     {
         super();
         int k = cpu.getU2(is);
-        if (k > 0)
-        {
-            retestBins = new int[k];
-            for (int i=0; i<k; i++) retestBins[i] = cpu.getU2(is);
-        }
+        if (k > 0) retestBins = new IntList(Data_t.U2, cpu, k, is);
         else retestBins = null;
     }
     
@@ -74,7 +70,8 @@ public class RetestDataRecord extends StdfRecord
 	@Override
 	public byte[] getBytes(Cpu_t cpu)
 	{
-		byte[] b = toBytes(cpu, retestBins);
+		int[] r = (retestBins == null) ? null : retestBins.getArray();
+		byte[] b = toBytes(cpu, r);
 		TByteArrayList l = getHeaderBytes(cpu, Record_t.RDR, b.length);
 		l.addAll(b);
 		return(l.toArray());
@@ -94,15 +91,6 @@ public class RetestDataRecord extends StdfRecord
 	    return(l.toArray());
 	}
     
-    /**
-     *  This method returns the RTST_BIN field.
-     * @return the retestBins A deep copy of the RTST_BIN array.
-     */
-    public int[] getRetestBins()
-    {
-        return Arrays.copyOf(retestBins, retestBins.length);
-    }
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -111,7 +99,7 @@ public class RetestDataRecord extends StdfRecord
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Arrays.hashCode(retestBins);
+		result = prime * result + ((retestBins == null) ? 0 : retestBins.hashCode());
 		return result;
 	}
 
@@ -125,8 +113,11 @@ public class RetestDataRecord extends StdfRecord
 		if (obj == null) return false;
 		if (!(obj instanceof RetestDataRecord)) return false;
 		RetestDataRecord other = (RetestDataRecord) obj;
-		if (!Arrays.equals(retestBins, other.retestBins)) return false;
-		return true;
+		if (retestBins == null)
+		{
+			if (other.retestBins != null) return(false);
+		}
+		return(retestBins.equals(other.retestBins));
 	}
 
     

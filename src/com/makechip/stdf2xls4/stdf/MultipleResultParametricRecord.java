@@ -26,11 +26,15 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.IntStream;
+
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import static com.makechip.stdf2xls4.stdf.enums.Data_t.*;
@@ -110,9 +114,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	 */
     public final Float hiSpec;
 
-    private final byte[] rtnState;
-    private final int[] rtnIndex;
-    private final float[] results;
+    public final IntList rtnState; // byte
+    public final IntList rtnIndex;  // int
+    public final FloatList results; // float
     
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
@@ -121,41 +125,20 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     {
         super(cpu, recLen, is);
         int l = 8;
-        int j = 0;
-        int k = 0;
+        final int j = (l < recLen) ? cpu.getU2(is) : 0;
+        l += U2.numBytes;
+        final int k = (l < recLen) ? cpu.getU2(is) : 0;
+        l += U2.numBytes;
         if (l < recLen)
         {
-        	j = cpu.getU2(is);
-        	l += U2.numBytes;
-        }
-        if (l < recLen)
-        {
-        	k = cpu.getU2(is); 
-        	l += U2.numBytes;
-        }
-        if (l < recLen)
-        {
-        	TByteArrayList list = new TByteArrayList();
-            for (int i=0; i<j; i++) // j is the number of nibbles.
-            {
-            	byte[] b = cpu.getN1(is);  // this gets two nibbles at a time.
-            	l++;
-            	list.add(b[0]);
-            	i++;
-            	if (i >= j) break;
-            	list.add(b[1]);
-            }
-            rtnState = list.toArray();
+        	rtnState = new IntList(Data_t.N1, cpu, j, is);
+        	l += (j + 1) / 2;
         }
         else rtnState = null;
         if (l < recLen)
         {
-            results =  new float[k];
-            for (int i=0; i<k; i++)
-            {
-            	results[i] = cpu.getR4(is);
-            	l += R4.numBytes;
-            }
+            results = new FloatList(cpu, k, is);
+            l += R4.numBytes * results.size();
         }
         else results = null;
         if (l < recLen)
@@ -220,12 +203,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         else incrIn = null;
         if (j > 0 && l < recLen)
         {
-            rtnIndex = new int[j];
-            for (int i=0; i<j; i++)
-            {
-                rtnIndex[i] = cpu.getU2(is);
-                l += U2.numBytes;
-            }
+            rtnIndex = new IntList(Data_t.U2, cpu, j, is);
+            l += U2.numBytes * rtnIndex.size();
         }
         else rtnIndex = null;
         if (l < recLen)
@@ -311,7 +290,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
             final short siteNumber,
             final byte testFlags,
             final byte paramFlags,
-            final byte[] rtnState,
+            final int[] rtnState,
             final float[] results,
     	    final String testName,
     	    final String alarmName,
@@ -343,7 +322,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     }
     
     private static int getRecLen(
-    		byte[] rtnState,
+    		int[] rtnState,
     		float[] results,
     	    final String tName,
     	    final String aName,
@@ -394,8 +373,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		byte tf = (byte) testFlags.stream().mapToInt(p -> p.bit).sum();
 		byte pf = (byte) paramFlags.stream().mapToInt(p -> p.bit).sum();
     	byte[] b = toBytes(cpu, testNumber, headNumber, siteNumber, tf, 
-    		               pf, rtnState, results, testName, alarmName, optFlags, 
-    		               resScal, llmScal, hlmScal, loLimit, hiLimit, startIn, incrIn, rtnIndex, 
+    		               pf, rtnState.getArray(), results.getArray(), testName, alarmName, optFlags, 
+    		               resScal, llmScal, hlmScal, loLimit, hiLimit, startIn, incrIn, rtnIndex.getArray(), 
     		               units, unitsIn, resFmt, llmFmt, hlmFmt, loSpec, hiSpec);
     	TByteArrayList l = getHeaderBytes(cpu, Record_t.MPR, b.length);
     	l.addAll(b);
@@ -409,7 +388,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
             final short sNumber,
             final byte tFlags,
             final byte pFlags,
-            final byte[] rState,
+            final int[] rState,
             final float[] rslts,
     	    final String tName,
     	    final String aName,
@@ -444,14 +423,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         	list.addAll(cpu.getU2Bytes(rslts.length));
             if (rState != null)
             {
-              for (int i=0; i<rState.length; i+=2) 
-              {
-            	  byte b0 = rState[i];
-            	  i++;
-            	  byte b1 = 0;
-            	  if (i <rState.length) b1 = rState[i];
-            	  list.add(cpu.getN1Byte(b0, b1));
-              }
+              final int len = (rState.length + 1) / 2;
+              IntStream.range(0, len).forEach(p -> StdfRecord.addNibbles(cpu, rState, list, p, len));
               if (rslts != null)
               {
                 for (int i=0; i<rslts.length; i++) list.addAll(cpu.getR4Bytes(rslts[i]));
@@ -533,24 +506,6 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         }
         return(list.toArray());
     }
-    
-    /**
-     * Get a copy of the RTN_STAT array.
-     * @return A deep copy of the RTN_STAT array.
-     */
-    public final byte[] getRtnState() { return(Arrays.copyOf(rtnState, rtnState.length)); }
-    
-    /**
-     * Get a copy of the RTN_RSLT array.
-     * @return A deep copy of the RTN_RSLT array.
-     */
-    public final float[] getResults() { return(Arrays.copyOf(results, results.length)); }
-    
-    /**
-     * Get a copy of the array of PMR indexes.
-     * @return A deep copy of the RTN_INDX array.
-     */
-    public final int[] getRtnIndex() { return(Arrays.copyOf(rtnIndex, rtnIndex.length)); }
     
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.ParametricRecord#getAlarmName()
@@ -649,9 +604,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		result = prime * result + ((optFlags == null) ? 0 : optFlags.hashCode());
 		result = prime * result + ((resFmt == null) ? 0 : resFmt.hashCode());
 		result = prime * result + ((resScal == null) ? 0 : resScal.hashCode());
-		result = prime * result + ((results == null) ? 0 : Arrays.hashCode(results));
-		result = prime * result + ((rtnIndex == null) ? 0 : Arrays.hashCode(rtnIndex));
-		result = prime * result + ((rtnState == null) ? 0 : Arrays.hashCode(rtnState));
+		result = prime * result + ((results == null) ? 0 : results.hashCode());
+		result = prime * result + ((rtnIndex == null) ? 0 : rtnIndex.hashCode());
+		result = prime * result + ((rtnState == null) ? 0 : rtnState.hashCode());
 		result = prime * result + ((startIn == null) ? 0 : startIn.hashCode());
 		result = prime * result + ((testName == null) ? 0 : testName.hashCode());
 		result = prime * result + ((units == null) ? 0 : units.hashCode());
@@ -733,9 +688,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 			if (other.resScal != null) return false;
 		} 
 		else if (!resScal.equals(other.resScal)) return false;
-		if (!Arrays.equals(results, other.results)) return false;
-		if (!Arrays.equals(rtnIndex, other.rtnIndex)) return false;
-		if (!Arrays.equals(rtnState, other.rtnState)) return false;
+		if (!results.equals(other.results)) return false;
+		if (!rtnIndex.equals(other.rtnIndex)) return false;
+		if (!rtnState.equals(other.rtnState)) return false;
 		if (startIn == null)
 		{
 			if (other.startIn != null) return false;

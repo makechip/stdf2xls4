@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
-import com.makechip.util.Log;
 
 /**
  *  This class is used to generate STDF files.
@@ -108,15 +107,12 @@ public class StdfWriter
      */
     public void write(DataOutputStream os) throws IOException
     {
-    	Log.msg("records.size() = " + records.size());
-    	int cnt = 0;
     	for (StdfRecord r : records) 
     	{ 
     		byte[] b = r.getBytes(cpu);
     		os.write(b);
     	}
     	os.close();
-    	Log.msg("Records written = " + cnt);
     }
 
 	/* (non-Javadoc)

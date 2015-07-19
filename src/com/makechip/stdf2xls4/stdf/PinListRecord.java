@@ -26,7 +26,13 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.IntStream;
+
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -38,74 +44,63 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
  */
 public class PinListRecord extends StdfRecord
 {
-    private final int[] pinIndex;
-    private final int[] mode;
-    private final int[] radix;
-    private final String[] pgmChar;
-    private final String[] rtnChar;
-    private final String[] pgmChal;
-    private final String[] rtnChal;
+    public final IntList pinIndex;
+    public final IntList mode;
+    public final IntList radix;
+    public final List<String> pgmChar;
+    public final List<String> rtnChar;
+    public final List<String> pgmChal;
+    public final List<String> rtnChal;
     
     public PinListRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
-        int k = cpu.getU2(is);
+        final int k = cpu.getU2(is);
         int l = 2;
-        pinIndex = new int[k];
-        for (int i=0; i<k; i++) pinIndex[i] = cpu.getU2(is);
-        l += Data_t.U2.numBytes * pinIndex.length;
+        pinIndex = new IntList(Data_t.U2, cpu, k, is);
+        l += Data_t.U2.numBytes * pinIndex.size();
         if (l < recLen && k > 0)
         {
-            mode = new int[k];
-            for (int i=0; i<k; i++) mode[i] = cpu.getU2(is);
-            l += Data_t.U2.numBytes * mode.length;
+            mode = new IntList(Data_t.U2, cpu, k, is);
+            l += Data_t.U2.numBytes * mode.size();
         }
         else mode = null;
         if (l < recLen && k > 0)
         {
-            radix = new int[k];
-            for (int i=0; i<k; i++) radix[i] = cpu.getU1(is);
-            l += Data_t.U1.numBytes * radix.length;
+            radix = new IntList(Data_t.U1, cpu, k, is);
+            l += Data_t.U1.numBytes * radix.size();
         }
         else radix = null;
         if (l < recLen && k > 0)
         {
-            pgmChar = new String[k];
-            for (int i=0; i<k; i++)
-            {
-            	pgmChar[i] = cpu.getCN(is);
-            	l += 1 + pgmChar[i].length();
-            }
+            List<String> p = new ArrayList<>(k);
+            IntStream.range(0, k).forEach(i -> p.add(cpu.getCN(is)));
+            l += p.size() + p.stream().mapToInt(s -> s.length()).sum();
+            pgmChar = Collections.unmodifiableList(p);
         }
         else pgmChar = null;
         if (l < recLen && k > 0)
         {
-            rtnChar = new String[k];
-            for (int i=0; i<k; i++)
-            {
-            	rtnChar[i] = cpu.getCN(is);
-            	l += 1 + rtnChar[i].length();
-            }
+            List<String> p = new ArrayList<>(k);
+            IntStream.range(0, k).forEach(i -> p.add(cpu.getCN(is)));
+            l += p.size() + p.stream().mapToInt(s -> s.length()).sum();
+            rtnChar = Collections.unmodifiableList(p);
         }
         else rtnChar = null;
         if (l < recLen && k > 0)
         {
-            pgmChal = new String[k];
-            for (int i=0; i<k; i++)
-            {
-            	pgmChal[i] = cpu.getCN(is);
-            	l += 1 + pgmChal[i].length();
-            }
+            List<String> p = new ArrayList<>(k);
+            IntStream.range(0, k).forEach(i -> p.add(cpu.getCN(is)));
+            l += p.size() + p.stream().mapToInt(s -> s.length()).sum();
+            pgmChal = Collections.unmodifiableList(p);
         }
         else pgmChal = null;
         if (l < recLen && k > 0)
         {
-            rtnChal = new String[k];
-            for (int i=0; i<k; i++)
-            {
-            	rtnChal[i] = cpu.getCN(is);
-            	l += 1 + rtnChal[i].length();
-            }
+            List<String> p = new ArrayList<>(k);
+            IntStream.range(0, k).forEach(i -> p.add(cpu.getCN(is)));
+            l += p.size() + p.stream().mapToInt(s -> s.length()).sum();
+            rtnChal = Collections.unmodifiableList(p);
         }
         else rtnChal = null;
         if (l != recLen) throw new RuntimeException("Record length error in PinListRecord."); 
@@ -178,7 +173,14 @@ public class PinListRecord extends StdfRecord
 	@Override
 	public byte[] getBytes(Cpu_t cpu)
 	{
-		byte[] b = toBytes(cpu, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal);
+		int[] p = (pinIndex == null) ? null : pinIndex.getArray();
+		int[] m = (mode == null) ? null : mode.getArray();
+		int[] r = (radix == null) ? null : radix.getArray();
+		String[] pr = (pgmChar == null) ? null : pgmChar.toArray(new String[pgmChar.size()]);
+		String[] rr = (rtnChar == null) ? null : rtnChar.toArray(new String[rtnChar.size()]);
+		String[] pl = (pgmChal == null) ? null : pgmChal.toArray(new String[pgmChal.size()]);
+		String[] rl = (rtnChal == null) ? null : rtnChal.toArray(new String[rtnChal.size()]);
+		byte[] b = toBytes(cpu, p, m, r, pr, rr, pl, rl);
 		TByteArrayList l = getHeaderBytes(cpu, Record_t.PLR, b.length);
 		l.addAll(b);
 		return(l.toArray());
@@ -211,70 +213,6 @@ public class PinListRecord extends StdfRecord
 			new ByteInputStream(toBytes(cpu, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal)));
 	}
 
-
-    /**
-     * Get the GRP_INDX field.
-     * @return A deep copy of the GRP_INDX field.
-     */
-    public int[] getPinIndex()
-    {
-        return(Arrays.copyOf(pinIndex, pinIndex.length));
-    }
-
-    /**
-     * Get the GRP_MODE field.
-     * @return A deep copy of the GRP_MODE field.
-     */
-    public int[] getMode()
-    {
-        return(Arrays.copyOf(mode, mode.length));
-    }
-
-    /**
-     * Get the GRP_RADX field.
-     * @return A deep copy of the GRP_RADX field.
-     */
-    public int[] getRadix()
-    {
-        return(Arrays.copyOf(radix, radix.length));
-    }
-
-    /**
-     * Get the PGM_CHAR field.
-     * @return A deep copy of the PGM_CHAR field.
-     */
-    public String[] getPgmChar()
-    {
-        return(Arrays.copyOf(pgmChar, pgmChar.length));
-    }
-
-    /**
-     * Get the RTN_CHAR field.
-     * @return A deep copy of the RTN_CHAR field.
-     */
-    public String[] getRtnChar()
-    {
-        return(Arrays.copyOf(rtnChar, rtnChar.length));
-    }
-
-    /**
-     * Get the PGM_CHAL field.
-     * @return A deep copy of the PGM_CHAL field.
-     */
-    public String[] getPgmChal()
-    {
-        return(Arrays.copyOf(pgmChal, pgmChal.length));
-    }
-
-    /**
-     * Get the RTN_CHAL field.
-     * @return A deep copy of the RTN_CHAL field.
-     */
-    public String[] getRtnChal()
-    {
-        return(Arrays.copyOf(rtnChal, rtnChal.length));
-    }
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -283,13 +221,13 @@ public class PinListRecord extends StdfRecord
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Arrays.hashCode(mode);
-		result = prime * result + Arrays.hashCode(pgmChal);
-		result = prime * result + Arrays.hashCode(pgmChar);
-		result = prime * result + Arrays.hashCode(pinIndex);
-		result = prime * result + Arrays.hashCode(radix);
-		result = prime * result + Arrays.hashCode(rtnChal);
-		result = prime * result + Arrays.hashCode(rtnChar);
+		result = prime * result + ((mode == null) ? 0 : mode.hashCode());
+		result = prime * result + ((pgmChal == null) ? 0 : pgmChal.hashCode());
+		result = prime * result + ((pgmChar == null) ? 0 : pgmChar.hashCode());
+		result = prime * result + ((pinIndex == null) ? 0 : pinIndex.hashCode());
+		result = prime * result + ((radix == null) ? 0 : radix.hashCode());
+		result = prime * result + ((rtnChal == null) ? 0 : rtnChal.hashCode());
+		result = prime * result + ((rtnChar == null) ? 0 : rtnChar.hashCode());
 		return result;
 	}
 
@@ -303,15 +241,40 @@ public class PinListRecord extends StdfRecord
 		if (obj == null) return false;
 		if (!(obj instanceof PinListRecord)) return false;
 		PinListRecord other = (PinListRecord) obj;
-		if (!Arrays.equals(mode, other.mode)) return false;
-		if (!Arrays.equals(pgmChal, other.pgmChal)) return false;
-		if (!Arrays.equals(pgmChar, other.pgmChar)) return false;
-		if (!Arrays.equals(pinIndex, other.pinIndex)) return false;
-		if (!Arrays.equals(radix, other.radix)) return false;
-		if (!Arrays.equals(rtnChal, other.rtnChal)) return false;
-		if (!Arrays.equals(rtnChar, other.rtnChar)) return false;
+		if (mode == null)
+		{
+			if (other.mode != null) return false;
+		} 
+		else if (!mode.equals(other.mode)) return false;
+		if (pgmChal == null)
+		{
+			if (other.pgmChal != null) return false;
+		} 
+		else if (!pgmChal.equals(other.pgmChal)) return false;
+		if (pgmChar == null)
+		{
+			if (other.pgmChar != null) return false;
+		} 
+		else if (!pgmChar.equals(other.pgmChar)) return false;
+		if (!pinIndex.equals(other.pinIndex)) return false;
+		if (radix == null)
+		{
+			if (other.radix != null) return false;
+		} 
+		else if (!radix.equals(other.radix)) return false;
+		if (rtnChal == null)
+		{
+			if (other.rtnChal != null) return false;
+		} 
+		else if (!rtnChal.equals(other.rtnChal)) return false;
+		if (rtnChar == null)
+		{
+			if (other.rtnChar != null) return false;
+		} 
+		else if (!rtnChar.equals(other.rtnChar)) return false;
 		return true;
 	}
+
 
 
 }

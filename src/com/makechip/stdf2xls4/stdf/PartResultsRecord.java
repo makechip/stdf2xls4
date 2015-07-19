@@ -25,7 +25,6 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
@@ -87,7 +86,7 @@ public class PartResultsRecord extends StdfRecord
     /**
      *  This is the PART_FIX field.
      */
-    private final byte[] repair;
+    public final IntList repair;
     
     /**
      * Tests if bit 2 of the PART_FLG field is set.
@@ -152,8 +151,8 @@ public class PartResultsRecord extends StdfRecord
         else partDescription = null;
         if (l < recLen)
         {
-            repair = cpu.getBN(is);
-            l += 1 + repair.length;
+            repair = new IntList(cpu.getBN(is));
+            l += 1 + repair.size();
         }
         else repair = null;
         if (l != recLen) throw new RuntimeException("Error in record length for PartResultsRecord.");
@@ -191,7 +190,7 @@ public class PartResultsRecord extends StdfRecord
     	Long testTime,
     	String partID,
     	String partDescription,
-    	byte[] repair)
+    	int[] repair)
     {
     	this(cpu, 
     		 getRecLen(swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair),
@@ -203,15 +202,16 @@ public class PartResultsRecord extends StdfRecord
 	public byte[] getBytes(Cpu_t cpu)
 	{
 		byte pif = (byte) partInfoFlags.stream().mapToInt(p -> p.bit).sum();
+		int[] r = (repair == null) ? null : repair.getArray();
 		byte[] b = toBytes(cpu, headNumber, siteNumber, pif, numExecs, hwBinNumber, 
-				           swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair);
+				           swBinNumber, xCoord, yCoord, testTime, partID, partDescription, r);
 		TByteArrayList l = getHeaderBytes(cpu, Record_t.PRR, b.length);
 		l.addAll(b);
 		return(l.toArray());
 	}
    
 	private static int getRecLen(Integer swBinNumber, Short xCoord, Short yCoord, Long testTime, 
-			                     String partID, String partDescription, byte[] repair)
+			                     String partID, String partDescription, int[] repair)
 	{
 		int l = 7;
 		if (swBinNumber != null) l += Data_t.U2.numBytes; else return(l);
@@ -237,7 +237,7 @@ public class PartResultsRecord extends StdfRecord
     	Long testTime,
     	String partID,
     	String partDescription,
-    	byte[] repair)
+    	int[] repair)
 	{
 		TByteArrayList l = new TByteArrayList();
 		l.addAll(cpu.getU1Bytes(headNumber));
@@ -276,14 +276,6 @@ public class PartResultsRecord extends StdfRecord
 		return(l.toArray());
 	}
 
-    /**
-     * Get the PART_FIX field.
-     * @return A deep copy of the repair array.
-     */
-    public byte[] getRepair()
-    {
-        return Arrays.copyOf(repair, repair.length);
-    }
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -298,7 +290,7 @@ public class PartResultsRecord extends StdfRecord
 		result = prime * result + partDescription.hashCode();
 		result = prime * result + partID.hashCode();
 		result = prime * result + partInfoFlags.hashCode();
-		result = prime * result + Arrays.hashCode(repair);
+		result = prime * result + ((repair == null) ? 0 : repair.hashCode());
 		result = prime * result + siteNumber;
 		result = prime * result + swBinNumber;
 		result = prime * result + (int) (testTime ^ (testTime >>> 32));
@@ -322,7 +314,11 @@ public class PartResultsRecord extends StdfRecord
 		if (!partDescription.equals(other.partDescription)) return false;
 		if (!partID.equals(other.partID)) return false;
 		if (!partInfoFlags.equals(other.partInfoFlags)) return false;
-		if (!Arrays.equals(repair, other.repair)) return false;
+		if (repair == null)
+		{
+			if (other.repair != null) return(false);
+		}
+		else if (!repair.equals(other.repair)) return false;
 		if (siteNumber != other.siteNumber) return false;
 		if (swBinNumber != other.swBinNumber) return false;
 		if (testTime != other.testTime) return false;

@@ -2,8 +2,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,7 +48,7 @@ public class StdfTest1
 			"supervisorID");
 		RetestDataRecord srdr = new RetestDataRecord(cpu, new int[] { 1, 2, 3, 4 });
 		List<SiteDescriptionRecord> sdrs = new ArrayList<SiteDescriptionRecord>();
-		sdrs.add(new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 },
+		sdrs.add(new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 },
 			"handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID",
 			"dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID",
 			"laserType", "laserID", "equipType", "equipID"));
@@ -63,10 +61,10 @@ public class StdfTest1
 		stdf.add(new DatalogTextRecord(cpu, "datalogTextRecord"));
 		stdf.add(new FunctionalTestRecord(cpu, 3, (short) 2, (short) 1, (byte) 0,
 			(byte) 0, 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
-			new byte[] { (byte) 0x03, (byte) 0x0C, (byte) 1, (byte) 0x08 }, new int[] { 3, 4, 5, 6 },
-			new byte[] { (byte) 0x0C, (byte) 0x03, (byte) 0x08, (byte) 1 }, 32, new byte[] { (byte) 3, (byte) 2, (byte) 1, (byte) 0 },
+			new int[] { 0x03, 0x0C, 1, 0x08 }, new int[] { 3, 4, 5, 6 },
+			new int[] { 0x0C, 0x03, 0x08, 1 }, 32, new int[] { 3, 2, 1, 0 },
 			"vecName", "timeSetName", "vecOpCode", "label", "alarmName", "progTxt", "rsltTxt", (short) 5,  24,
-			new byte[] { (byte) 6, (byte) 7, (byte) 8 }));
+			new int[] { 6, 7, 8 }));
 		GenericDataRecord.Data d1 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I4, 0), new Integer(33));
 		GenericDataRecord.Data d2 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R8, 0), new Double(44.0));
 		List<GenericDataRecord.Data> lgd = new ArrayList<GenericDataRecord.Data>(); 
@@ -76,7 +74,7 @@ public class StdfTest1
 		stdf.add(new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
 		stdf.add(new MasterResultsRecord(cpu, 1000L, 'C', "lotDesc", "execDesc"));
 		stdf.add(new MultipleResultParametricRecord(cpu, 22L, (short) 1, (short) 0, (byte) 0,
-			(byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+			(byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
 		stdf.add(new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, (byte) 0,
@@ -85,7 +83,7 @@ public class StdfTest1
 		stdf.add(new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
 		stdf.add(new PartInformationRecord(cpu, (short) 1, (short) 0));
 		stdf.add(new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 }));
+			10L, "partID", "partDescription", new int[] { 0, 1, 2 }));
 		stdf.add(new PinGroupRecord(cpu, 1, "group1", new int[] { 1, 2, }));
 		stdf.add(new PinListRecord(cpu, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
 			new String[] { "a", "b" }, new String[] { "c", "d" }, new String[] { "e", "f" }, new String[] { "g", "h" }));
@@ -126,13 +124,8 @@ public class StdfTest1
 		catch (Exception e) { Log.msg(e.getMessage()); }
 		rdr = new StdfReader();
 		byte[] b = stdf.getBytes();
-		Log.msg("b.length = " + b.length + " b[2] = " + b[2] + " b[3] = " + b[3]);
-		try (DataInputStream is = new DataInputStream(new ByteArrayInputStream(stdf.getBytes())))
-		{
-		    rdr.read(is);
-		}
+		rdr.read(new ByteInputStream(b));
 		list = rdr.getRecords();
-		Log.msg("list.size(); = " + list.size());
         //Files.delete(p);
 	}
 	
@@ -490,7 +483,7 @@ public class StdfTest1
 		StdfRecord r = list.get(3);
 		assertTrue(r instanceof RetestDataRecord);
 		RetestDataRecord rdr = (RetestDataRecord) r;
-		int[] bins = rdr.getRetestBins();
+		int[] bins = rdr.retestBins.getArray();
 		assertEquals(1, bins[0]);
 		assertEquals(2, bins[1]);
 		assertEquals(3, bins[2]);
@@ -520,7 +513,7 @@ public class StdfTest1
 		SiteDescriptionRecord sdr = (SiteDescriptionRecord) r;
 		assertEquals(1, sdr.headNumber);
 		assertEquals(2, sdr.siteGroupNumber);
-		assertEquals(0, sdr.getSiteNumbers()[0]);
+		assertEquals(0, sdr.siteNumbers.get(0));
 		assertEquals("handlerType", sdr.handlerType);
 		assertEquals("handlerID", sdr.handlerID);
 		assertEquals("probeCardType", sdr.probeCardType);
@@ -537,26 +530,26 @@ public class StdfTest1
 		assertEquals("laserID", sdr.laserID);
 		assertEquals("equipType", sdr.equipType);
 		assertEquals("equipID", sdr.equipID);
-		SiteDescriptionRecord sdr1 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr2 = new SiteDescriptionRecord(cpu, (short) 0, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr3 = new SiteDescriptionRecord(cpu, (short) 1, (short) 0, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr4 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 1 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr5 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "xandlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr6 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "xandlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr7 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "xrobeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr8 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "xrobeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr9 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "xoadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdra = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "xoadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrb = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "xibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrc = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "xibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrd = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "xfaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdre = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "xfaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrf = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "xontactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrg = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "xontactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrh = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "xaserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdri = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "xaserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrj = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "xquipType", "equipID");
-		SiteDescriptionRecord sdrk = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new short[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "xquipID");
+		SiteDescriptionRecord sdr1 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr2 = new SiteDescriptionRecord(cpu, (short) 0, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr3 = new SiteDescriptionRecord(cpu, (short) 1, (short) 0, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr4 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 1 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr5 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "xandlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr6 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "xandlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr7 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "xrobeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr8 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "xrobeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdr9 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "xoadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdra = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "xoadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrb = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "xibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrc = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "xibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrd = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "xfaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdre = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "xfaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrf = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "xontactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrg = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "xontactorID", "laserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrh = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "xaserType", "laserID", "equipType", "equipID");
+		SiteDescriptionRecord sdri = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "xaserID", "equipType", "equipID");
+		SiteDescriptionRecord sdrj = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "xquipType", "equipID");
+		SiteDescriptionRecord sdrk = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "xquipID");
 		assertTrue(sdr.equals(sdr));
 		assertTrue(sdr.equals(sdr1));
 		assertEquals(sdr.hashCode(), sdr1.hashCode());
@@ -744,26 +737,26 @@ public class StdfTest1
 		assertEquals(4, ftr.xFailAddr.intValue());
 		assertEquals(5, ftr.yFailAddr.intValue());
 		assertEquals(6, ftr.vecOffset.intValue());
-		assertEquals(1, ftr.getRtnIndex()[0]);
-		assertEquals(2, ftr.getRtnIndex()[1]);
-		assertEquals(3, ftr.getRtnIndex()[2]);
-		assertEquals(4, ftr.getRtnIndex()[3]);
-		assertEquals(3, ftr.getRtnState()[0]);
-		assertEquals(12, ftr.getRtnState()[1]);
-		assertEquals(1, ftr.getRtnState()[2]);
-		assertEquals(8, ftr.getRtnState()[3]);
-		assertEquals(3, ftr.getPgmIndex()[0]);
-		assertEquals(4, ftr.getPgmIndex()[1]);
-		assertEquals(5, ftr.getPgmIndex()[2]);
-		assertEquals(6, ftr.getPgmIndex()[3]);
-		assertEquals(12, ftr.getPgmState()[0]);
-		assertEquals(3, ftr.getPgmState()[1]);
-		assertEquals(8, ftr.getPgmState()[2]);
-		assertEquals(1, ftr.getPgmState()[3]);
-		assertEquals(3, ftr.getFailPin()[0]);
-		assertEquals(2, ftr.getFailPin()[1]);
-		assertEquals(1, ftr.getFailPin()[2]);
-		assertEquals(0, ftr.getFailPin()[3]);
+		assertEquals(1, ftr.rtnIndex.get(0));
+		assertEquals(2, ftr.rtnIndex.get(1));
+		assertEquals(3, ftr.rtnIndex.get(2));
+		assertEquals(4, ftr.rtnIndex.get(3));
+		assertEquals(3, ftr.rtnState.get(0));
+		assertEquals(12, ftr.rtnState.get(1));
+		assertEquals(1, ftr.rtnState.get(2));
+		assertEquals(8, ftr.rtnState.get(3));
+		assertEquals(3, ftr.pgmIndex.get(0));
+		assertEquals(4, ftr.pgmIndex.get(1));
+		assertEquals(5, ftr.pgmIndex.get(2));
+		assertEquals(6, ftr.pgmIndex.get(3));
+		assertEquals(12, ftr.pgmState.get(0));
+		assertEquals(3, ftr.pgmState.get(1));
+		assertEquals(8, ftr.pgmState.get(2));
+		assertEquals(1, ftr.pgmState.get(3));
+		assertEquals(3, ftr.failPin.get(0));
+		assertEquals(2, ftr.failPin.get(1));
+		assertEquals(1, ftr.failPin.get(2));
+		assertEquals(0, ftr.failPin.get(3));
 		assertEquals("vecName", ftr.vecName);
 		assertEquals("timeSetName", ftr.timeSetName);
 		assertEquals("vecOpCode", ftr.vecOpCode);
@@ -772,9 +765,9 @@ public class StdfTest1
 		assertEquals("progTxt", ftr.progTxt);
 		assertEquals("rsltTxt", ftr.rsltTxt);
 		assertEquals(5, ftr.patGenNum.byteValue());
-		assertEquals(6, ftr.getEnComps()[0]);
-		assertEquals(7, ftr.getEnComps()[1]);
-		assertEquals(8, ftr.getEnComps()[2]);
+		assertEquals(6, ftr.enComps.get(0));
+		assertEquals(7, ftr.enComps.get(1));
+		assertEquals(8, ftr.enComps.get(2));
 	}
 	
 	//GenericDataRecord.Data d1 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I_4, 0), new Integer(33));
@@ -964,12 +957,12 @@ public class StdfTest1
 	    assertEquals(0, mpr.siteNumber);
 	    assertEquals(0, mpr.testFlags.size());
 	    assertEquals(0, mpr.paramFlags.size());
-	    assertEquals(1, mpr.getRtnState()[0]);
-	    assertEquals(2, mpr.getRtnState()[1]);
-	    assertEquals(1.0, mpr.getResults()[0], 5);
-	    assertEquals(2.0, mpr.getResults()[1], 5);
-	    assertEquals(3.0, mpr.getResults()[2], 5);
-	    assertEquals(4.0, mpr.getResults()[3], 5);
+	    assertEquals(1, mpr.rtnState.get(0));
+	    assertEquals(2, mpr.rtnState.get(1));
+	    assertEquals(1.0, mpr.results.get(0), 5);
+	    assertEquals(2.0, mpr.results.get(1), 5);
+	    assertEquals(3.0, mpr.results.get(2), 5);
+	    assertEquals(4.0, mpr.results.get(3), 5);
 	    assertEquals("text", mpr.testName);
 	    assertEquals("alarmName", mpr.alarmName);
 	    assertEquals(0, mpr.optFlags.size());
@@ -980,8 +973,8 @@ public class StdfTest1
 	    assertEquals(3.0f, mpr.getHiLimit().floatValue(), 5);
 	    assertEquals(0.0f, mpr.startIn.floatValue(), 5);
 	    assertEquals(0.0f, mpr.incrIn, 5);
-	    assertEquals(0, mpr.getRtnIndex()[0]);
-	    assertEquals(1, mpr.getRtnIndex()[1]);
+	    assertEquals(0, mpr.rtnIndex.get(0));
+	    assertEquals(1, mpr.rtnIndex.get(1));
 	    assertEquals("units", mpr.units);
 	    assertEquals("unitsIn", mpr.unitsIn);
 	    assertEquals("resFmt", mpr.resFmt);
@@ -991,107 +984,107 @@ public class StdfTest1
 	    assertEquals(4.0f, mpr.hiSpec, 5);
 
 		MultipleResultParametricRecord mpr1 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr2 = new MultipleResultParametricRecord(cpu, 23L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr3 = new MultipleResultParametricRecord(cpu, 22L, (short) 2, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr4 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 1, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 1, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr5 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 1, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 1, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr6 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 1, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 1, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr7 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 2, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 2, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr8 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.3f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.3f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr9 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"xext", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr10 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "xlarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr11 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.NO_LO_LIMIT), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr12 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr13 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 2, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr14 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 3, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr15 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 2.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr16 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 4.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr17 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			1.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr18 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 2.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr19 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, //
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 1, 2 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr20 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "xnits", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr21 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "xnitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr22 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "xesFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr23 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "xlmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr24 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "xlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr25 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 4.0f, 4.0f);
 		MultipleResultParametricRecord mpr26 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 5.0f);
 		assertTrue(mpr.equals(mpr));
@@ -1132,15 +1125,15 @@ public class StdfTest1
 		assertEquals(3.0f, mpr.getHiLimit(), 3);
 		assertEquals("units", mpr.getUnits());
 		MultipleResultParametricRecord mpr41 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.NO_HI_LIMIT), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr51 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		MultipleResultParametricRecord mpr61 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
-				(short) 0, (byte) 0, (byte) 0, new byte[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
+				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
 		assertEquals(null, mpr11.getLoLimit());
@@ -1389,35 +1382,35 @@ public class StdfTest1
 		assertEquals(10L, ptr.testTime.longValue());
 		assertEquals("partID", ptr.partID);
 		assertEquals("partDescription", ptr.partDescription);
-		assertEquals(0, ptr.getRepair()[0]);
-		assertEquals(1, ptr.getRepair()[1]);
-		assertEquals(2, ptr.getRepair()[2]);
+		assertEquals(0, ptr.repair.get(0));
+		assertEquals(1, ptr.repair.get(1));
+		assertEquals(2, ptr.repair.get(2));
 		PartResultsRecord ptr1 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptr2 = new PartResultsRecord(cpu, (short) 0, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptr3 = new PartResultsRecord(cpu, (short) 1, (short) 1, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptr4 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 1, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptr5 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 2, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptr6 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 3, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptr7 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 4, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptr8 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 0, (short) 2,
-			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptr9 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 1,
-			                                          10L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptra = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          11L, "partID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          11L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptrb = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "xartID", "partDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "xartID", "partDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptrc = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "xartDescription", new byte[] { (byte) 0, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "xartDescription", new int[] { 0, (byte) 1, 2 });
 		PartResultsRecord ptrd = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new byte[] { (byte) 1, (byte) 1, (byte) 2 });
+			                                          10L, "partID", "partDescription", new int[] { 1, (byte) 1, 2 });
 		assertTrue(ptr.equals(ptr));
 		assertTrue(ptr.equals(ptr1));
 		assertEquals(ptr.hashCode(), ptr1.hashCode());
@@ -1450,7 +1443,7 @@ public class StdfTest1
 		assertFalse(ptr1.equals(ptrc));
 		assertFalse(ptr1.equals(ptrd));
 		PartResultsRecord ptre = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 28, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "", "partDescription", new byte[] { (byte) 1, (byte) 1, (byte) 2 });
+			                                          10L, "", "partDescription", new int[] { 1, 1, 2 });
 		assertFalse(ptr.abnormalEOT());
 		assertFalse(ptr.failed());
 		assertFalse(ptr.noPassFailIndication());
@@ -1467,7 +1460,7 @@ public class StdfTest1
 		PinGroupRecord pgr = (PinGroupRecord) r;
 		assertEquals(pgr.groupIndex, 1);
 		assertEquals(pgr.groupName, "group1");
-		int[] idx = pgr.getPmrIdx();
+		int[] idx = pgr.pmrIdx.getArray();
 		assertEquals(idx.length, 2);
 		assertEquals(idx[0], 1);
 		assertEquals(idx[1], 2);
@@ -1498,20 +1491,20 @@ public class StdfTest1
 		StdfRecord r = list.get(21);
 		assertTrue(r instanceof PinListRecord);
 		PinListRecord ptr = (PinListRecord) r;
-	    assertEquals(1, ptr.getPinIndex()[0]);
-	    assertEquals(2, ptr.getPinIndex()[1]);
-	    assertEquals(3, ptr.getMode()[0]);
-	    assertEquals(4, ptr.getMode()[1]);
-	    assertEquals(2, ptr.getRadix()[0]);
-	    assertEquals(2, ptr.getRadix()[1]);
-	    assertEquals("a", ptr.getPgmChar()[0]);
-	    assertEquals("b", ptr.getPgmChar()[1]);
-	    assertEquals("c", ptr.getRtnChar()[0]);
-	    assertEquals("d", ptr.getRtnChar()[1]);
-	    assertEquals("e", ptr.getPgmChal()[0]);
-	    assertEquals("f", ptr.getPgmChal()[1]);
-	    assertEquals("g", ptr.getRtnChal()[0]);
-	    assertEquals("h", ptr.getRtnChal()[1]);
+	    assertEquals(1, ptr.pinIndex.get(0));
+	    assertEquals(2, ptr.pinIndex.get(1));
+	    assertEquals(3, ptr.mode.get(0));
+	    assertEquals(4, ptr.mode.get(1));
+	    assertEquals(2, ptr.radix.get(0));
+	    assertEquals(2, ptr.radix.get(1));
+	    assertEquals("a", ptr.pgmChar.get(0));
+	    assertEquals("b", ptr.pgmChar.get(1));
+	    assertEquals("c", ptr.rtnChar.get(0));
+	    assertEquals("d", ptr.rtnChar.get(1));
+	    assertEquals("e", ptr.pgmChal.get(0));
+	    assertEquals("f", ptr.pgmChal.get(1));
+	    assertEquals("g", ptr.rtnChal.get(0));
+	    assertEquals("h", ptr.rtnChal.get(1));
 		PinListRecord ptr1 = new PinListRecord(cpu, new int[] { 1, 2 }, new int[] { 3, 4 }, 
 				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
 				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
@@ -1912,11 +1905,11 @@ public class StdfTest1
 		assertEquals(null, ftr.xFailAddr);
 		assertEquals(null, ftr.yFailAddr);
 		assertEquals(null, ftr.vecOffset);
-		assertTrue(null == ftr.getRtnIndex());
-		assertEquals(null, ftr.getRtnState());
-		assertEquals(null, ftr.getPgmIndex());
-		assertEquals(null, ftr.getPgmState());
-		assertEquals(null, ftr.getFailPin());
+		assertEquals(null, ftr.rtnIndex);
+		assertEquals(null, ftr.rtnState);
+		assertEquals(null, ftr.pgmIndex);
+		assertEquals(null, ftr.pgmState);
+		assertEquals(null, ftr.failPin);
 		assertEquals(null, ftr.vecName);
 		assertEquals(null, ftr.timeSetName);
 		assertEquals(null, ftr.vecOpCode);
@@ -1925,7 +1918,7 @@ public class StdfTest1
 		assertEquals(null, ftr.progTxt);
 		assertEquals(null, ftr.rsltTxt);
 		assertEquals(null, ftr.patGenNum);
-		assertEquals(null, ftr.getEnComps());
+		assertEquals(null, ftr.enComps);
 		FunctionalTestRecord ftr0 = new FunctionalTestRecord(cpu, 3L, (short) 2, (short) 1, (byte) 0, null, null, null, null,
 				                                             null, null, null, null, null, null, null, null, null, null,
 				                                             null, null, null, null, null, null, null, null, null, null);

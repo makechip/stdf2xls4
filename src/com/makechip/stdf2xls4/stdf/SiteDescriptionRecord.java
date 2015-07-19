@@ -26,8 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-import java.util.Arrays;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 
@@ -110,24 +110,17 @@ public class SiteDescriptionRecord extends StdfRecord
      */
     public final String equipID;
     
-    private final short[] siteNumbers;
+    public final IntList siteNumbers; // short
     
     public SiteDescriptionRecord(Cpu_t cpu, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
         siteGroupNumber = cpu.getU1(is);
-        short k = cpu.getU1(is);
+        final int k = cpu.getU1(is);
         int l = 3;
-       	siteNumbers = new short[k];
-        if (k != 0)
-        {
-        	for (int i=0; i<k; i++)
-        	{
-        		siteNumbers[i] = cpu.getU1(is);
-        		l++;
-        	}
-        }
+       	siteNumbers = new IntList(Data_t.U1, cpu, k, is);
+       	l += k;
         if (l < recLen)
         {
             handlerType = cpu.getCN(is);
@@ -230,7 +223,7 @@ public class SiteDescriptionRecord extends StdfRecord
 	@Override
 	public byte[] getBytes(Cpu_t cpu)
 	{
-		byte[] b = toBytes(cpu, headNumber, siteGroupNumber, siteNumbers, handlerType, 
+		byte[] b = toBytes(cpu, headNumber, siteGroupNumber, siteNumbers.getArray(), handlerType, 
 				           handlerID, probeCardType, probeCardID, loadBoardType, 
 					       loadBoardID, dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, 
 					       contactorType, contactorID, laserType, laserID, equipType, equipID);
@@ -243,7 +236,7 @@ public class SiteDescriptionRecord extends StdfRecord
 		Cpu_t cpu,
 		short headNumber,
 		short siteGroupNumber,
-		short[] siteNumbers,
+		int[] siteNumbers,
 		String handlerType,
 		String handlerID,
 		String probeCardType,
@@ -265,7 +258,7 @@ public class SiteDescriptionRecord extends StdfRecord
 		l.addAll(cpu.getU1Bytes(headNumber));
 		l.addAll(cpu.getU1Bytes(siteGroupNumber));
 		l.addAll(cpu.getU1Bytes((short) siteNumbers.length));
-		for (int i=0; i<siteNumbers.length; i++) l.addAll(cpu.getU1Bytes(siteNumbers[i]));
+		for (int i=0; i<siteNumbers.length; i++) l.addAll(cpu.getU1Bytes((short) siteNumbers[i]));
 		if (handlerType != null)
 		{
 		  l.addAll(cpu.getCNBytes(handlerType));
@@ -362,7 +355,7 @@ public class SiteDescriptionRecord extends StdfRecord
 		Cpu_t cpu,
 		short headNumber,
 		short siteGroupNumber,
-		short[] siteNumbers,
+		int[] siteNumbers,
 		String handlerType,
 		String handlerID,
 		String probeCardType,
@@ -391,7 +384,7 @@ public class SiteDescriptionRecord extends StdfRecord
 					 contactorType, contactorID, laserType, laserID, equipType, equipID)));
 	}
 
-	private static int getRecLen(short[] siteNumbers, 
+	private static int getRecLen(int[] siteNumbers, 
 			                     String handlerType,
 		                         String handlerID, 
 		                         String probeCardType, 
@@ -428,14 +421,6 @@ public class SiteDescriptionRecord extends StdfRecord
         if (equipID != null) l += 1 + equipID.length();
 		return(l);
     }
-	/**
-	 * This method gets the SITE_NUM field.
-	 * @return A deep copy of the SITE_NUM array.
-	 */
-    public short[] getSiteNumbers()
-    {
-        return Arrays.copyOf(siteNumbers, siteNumbers.length);
-    }
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -463,7 +448,7 @@ public class SiteDescriptionRecord extends StdfRecord
 		result = prime * result + ((probeCardID == null) ? 0 : probeCardID.hashCode());
 		result = prime * result + ((probeCardType == null) ? 0 : probeCardType.hashCode());
 		result = prime * result + siteGroupNumber;
-		result = prime * result + Arrays.hashCode(siteNumbers);
+		result = prime * result + siteNumbers.hashCode();
 		return result;
 	}
 
@@ -559,8 +544,7 @@ public class SiteDescriptionRecord extends StdfRecord
 		} 
 		else if (!probeCardType.equals(other.probeCardType)) return false;
 		if (siteGroupNumber != other.siteGroupNumber) return false;
-		if (!Arrays.equals(siteNumbers, other.siteNumbers)) return false;
-		return true;
+		return(siteNumbers.equals(other.siteNumbers));
 	}
 
 

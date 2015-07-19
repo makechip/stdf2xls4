@@ -27,6 +27,7 @@ package com.makechip.stdf2xls4.stdf.enums;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.stream.IntStream;
 
 import com.makechip.stdf2xls4.stdf.ByteInputStream;
 
@@ -459,7 +460,25 @@ public enum Cpu_t
     	byte[] b = new byte[dn.length + 2];
     	b[0] = n[0];
     	b[1] = n[1];
-    	for (int i=2; i<dn.length+2; i++) b[i] = dn[i-2];
+    	IntStream.range(2, dn.length+2).forEach(p -> b[p] = dn[p-2]);
+    	return(b);
+    }
+    
+    /**
+     * This method is used to convert a bit field represented
+     * as an array of bytes in stream order for the STDF Dn data type.
+     * @param numBits  The number of bits in this bit field.
+     * @param dn The array of bytes containing the bits of this bit field.
+     * @return Basically the dn byte array pre-pended with two
+     * bytes containing the bit count.
+     */
+    public byte[] getDNBytes(int numBits, int[] dn)
+    {
+    	byte[] n = getU2Bytes(numBits);
+    	byte[] b = new byte[dn.length + 2];
+    	b[0] = n[0];
+    	b[1] = n[1];
+    	IntStream.range(2, dn.length+2).forEach(p -> b[p] = (byte) dn[p-2]);
     	return(b);
     }
     
@@ -485,7 +504,7 @@ public enum Cpu_t
     	byte[] b = new byte[s.length()+1];
     	b[0] = 0;
     	b[0] |= s.length();
-    	for (int i=0; i<s.length(); i++) b[i+1] = (byte) s.charAt(i);
+    	IntStream.range(0, s.length()).forEach(p -> b[p+1] = (byte) s.charAt(p));
     	return(b);
     }
     
@@ -502,7 +521,16 @@ public enum Cpu_t
     	byte[] b = new byte[1 + bytes.length];
     	b[0] = 0;
     	b[0] |= bytes.length;
-    	for (int i=0; i<bytes.length; i++) b[i+1] = bytes[i];
+    	IntStream.range(0, bytes.length).forEach(p -> b[p+1] = bytes[p]);
+    	return(b);
+    }
+    
+    public byte[] getBNBytes(int[] bytes)
+    {
+    	byte[] b = new byte[1 + bytes.length];
+    	b[0] = 0;
+    	b[0] |= bytes.length;
+    	IntStream.range(0, bytes.length).forEach(p -> b[p+1] = (byte) bytes[p]);
     	return(b);
     }
     
