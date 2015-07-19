@@ -1,7 +1,5 @@
 package com.makechip.stdf2xls4.stdfapi;
 
-import com.makechip.stdf2xls4.stdf.StdfRecord;
-
 public class ParametricTestHeader extends TestHeader
 {
 	public final String units;
@@ -10,19 +8,19 @@ public class ParametricTestHeader extends TestHeader
 	public final boolean noLoLimit;
 	public final boolean noHiLimit;
 
-	public ParametricTestHeader(TestID id, String units, float loLimit, float hiLimit)
+	public ParametricTestHeader(TestID id, String units, Float loLimit, Float hiLimit)
 	{
         this(id.testName, id.testNumber, id.dupNum, units, loLimit, hiLimit);	
 	}
 	
-	public ParametricTestHeader(String testName, long testNumber, int dupNum, String units, float loLimit, float hiLimit)
+	public ParametricTestHeader(String testName, long testNumber, int dupNum, String units, Float loLimit, Float hiLimit)
 	{
 		super(testName, testNumber, dupNum);
 		this.units = units;
 		this.loLimit = loLimit;
 		this.hiLimit = hiLimit;
-		this.noLoLimit = loLimit == StdfRecord.MISSING_FLOAT;
-		this.noHiLimit = hiLimit == StdfRecord.MISSING_FLOAT;
+		this.noLoLimit = loLimit == null;
+		this.noHiLimit = hiLimit == null;
 	}
 
 	/* (non-Javadoc)

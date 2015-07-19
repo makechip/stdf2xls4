@@ -1,6 +1,5 @@
 package com.makechip.stdf2xls4.stdfapi;
 
-import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdfapi.TestID.PinTestID;
 
 public class MultiParametricTestHeader extends ParametricTestHeader
@@ -9,12 +8,12 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 	public static final String HL_HDR = "HiLimit";
 	public final String pin;
 
-	public MultiParametricTestHeader(PinTestID id, String units, float loLimit, float hiLimit)
+	public MultiParametricTestHeader(PinTestID id, String units, Float loLimit, Float hiLimit)
 	{
 		this(id.testName, id.testNumber, id.dupNum, ((PinTestID) id).pin, units, loLimit, hiLimit);
 	}
 	
-	public MultiParametricTestHeader(String tname, long tnum, int dupNum, String pin, String units, float loLimit, float hiLimit)
+	public MultiParametricTestHeader(String tname, long tnum, int dupNum, String pin, String units, Float loLimit, Float hiLimit)
 	{
 	    super(tname, tnum, dupNum, units, loLimit, hiLimit);	
 	    this.pin = pin;
@@ -22,7 +21,7 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 	
 	public MultiParametricTestHeader(String tname, long tnum, int dupNum, String units, Limit_t limit)
 	{
-	    this(tname, tnum, dupNum, limit.name, units, StdfRecord.MISSING_FLOAT, StdfRecord.MISSING_FLOAT);	
+	    this(tname, tnum, dupNum, limit.name, units, null, null);	
 	}
 	
 	public MultiParametricTestHeader(TestID id, String units, Limit_t limit)
