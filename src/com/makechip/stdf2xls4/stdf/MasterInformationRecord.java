@@ -276,7 +276,7 @@ public class MasterInformationRecord extends StdfRecord
         String testerSerialNumber,
         String supervisorID)
     {
-    	this(cpu, 
+    	this(cpu, null,
     		 getRecLen(lotID, partType, nodeName, testerType, jobName, jobRevisionNumber, sublotID, operatorName, 
     				   execSoftware, execSoftwareVersion, stepCode, temperature, userText, auxDataFile, packageType, 
     				   familyID, dateCode, facilityID, floorID, fabID, frequency, specName, specVersion, 
@@ -294,11 +294,10 @@ public class MasterInformationRecord extends StdfRecord
      *  @param tdb The TestIdDatabase.  This value is not used by the MasterInformationRecord.
      *         It is provided so that all StdfRecord classes have the same argument signatures,
      *         so that function references can be used to refer to the constructors of StdfRecords.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public MasterInformationRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public MasterInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         jobDate = cpu.getU4(is);

@@ -45,11 +45,10 @@ public class BeginProgramSectionRecord extends StdfRecord
      * Constructor to create a BPS record from the binary data stream.
      * @param tdb This parameter is not used; it is provided in order to
      * keep a consistent constructor signature for all StdfRecords.
-     * @param dvd The DefaultValueDatabase is used to get the CPU type.
      * @param data Binary stream data.  This array should not contain
      * the first four bytes of the record.
      */
-    public BeginProgramSectionRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public BeginProgramSectionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         if (recLen > 0) seqName = cpu.getCN(is);
@@ -66,7 +65,7 @@ public class BeginProgramSectionRecord extends StdfRecord
      */
     public BeginProgramSectionRecord(Cpu_t cpu, String seqName)
     {
-    	this(cpu, getRecLen(seqName), new ByteInputStream(cpu.getCNBytes(seqName)));
+    	this(cpu, null, getRecLen(seqName), new ByteInputStream(cpu.getCNBytes(seqName)));
     }
     
 	@Override

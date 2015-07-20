@@ -16,14 +16,16 @@ import com.makechip.stdf2xls4.stdf.MultipleResultParametricRecord;
 import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
+import com.makechip.stdf2xls4.stdf.TestID;
+import com.makechip.stdf2xls4.stdf.TestIdDatabase;
 import com.makechip.stdf2xls4.stdf.TestRecord;
 import com.makechip.stdf2xls4.stdf.FunctionalTestRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
+import com.makechip.stdf2xls4.stdf.TestID.PinTestID;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.ParamFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
-import com.makechip.stdf2xls4.stdfapi.TestID.PinTestID;
 import com.makechip.util.Log;
 
 public class TestRecordDatabase

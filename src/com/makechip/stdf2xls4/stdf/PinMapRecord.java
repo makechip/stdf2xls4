@@ -74,7 +74,7 @@ public class PinMapRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public PinMapRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public PinMapRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         pmrIdx = cpu.getU2(is);
@@ -142,7 +142,7 @@ public class PinMapRecord extends StdfRecord
         Short headNumber,
         Short siteNumber)
     {
-    	this(cpu, 
+    	this(cpu, null,
     		 getRecLen(channelType, channelName, physicalPinName, logicalPinName, headNumber, siteNumber),
     		 new ByteInputStream(toBytes(cpu, pmrIdx, channelType, channelName, 
     				             physicalPinName, logicalPinName, headNumber, siteNumber)));

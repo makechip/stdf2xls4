@@ -51,13 +51,12 @@ public class AuditTrailRecord extends StdfRecord
      *  @param tdb The TestIdDatabase.  This value is not used by the AuditTrailRecord.
      *         It is provided so that all StdfRecord classes have the same argument signatures,
      *         so that function references can be used to refer to the constructors of StdfRecords.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      * @throws StdfException 
      * @throws IOException 
      */
-    public AuditTrailRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public AuditTrailRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         date = cpu.getU4(is);
@@ -69,7 +68,6 @@ public class AuditTrailRecord extends StdfRecord
      * the field values back into binary stream data.
      * @param tdb The TestIdDatabase. This value is not used, but is needed so that
      * this constructor can call the previous constructor to avoid code duplication.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type.
      * @param date The MOD_TIM value expressed as milliseconds from January 1, 1970, 00:00:00 GMT.
      * @param cmdLine The CMD_LINE value that holds the command line of the program that adds this record.
      *        Note: cmdLine may NOT be null.
@@ -78,7 +76,7 @@ public class AuditTrailRecord extends StdfRecord
      */
     public AuditTrailRecord(Cpu_t cpu, final long date, final String cmdLine)
     {
-    	this(cpu, 0, new ByteInputStream(toBytes(cpu, date, cmdLine)));
+    	this(cpu, null, 0, new ByteInputStream(toBytes(cpu, date, cmdLine)));
     }
     
 	/* (non-Javadoc)

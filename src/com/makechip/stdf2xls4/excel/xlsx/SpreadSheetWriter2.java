@@ -44,11 +44,11 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.SpreadSheetWriter;
 import com.makechip.stdf2xls4.excel.xlsx.layout2.TitleBlock;
+import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdfapi.DeviceResult;
 import com.makechip.stdf2xls4.stdfapi.SnOrXy;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
-import com.makechip.stdf2xls4.stdfapi.TestID;
 
 import static com.makechip.stdf2xls4.excel.xlsx.FontName_t.ARIAL;
 import static com.makechip.stdf2xls4.excel.xlsx.FontName_t.COURIER;

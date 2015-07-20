@@ -74,7 +74,7 @@ public class WaferConfigurationRecord extends StdfRecord
      */
     public final Character posY;
     
-    public WaferConfigurationRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public WaferConfigurationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         int l = 0;
@@ -222,7 +222,7 @@ public class WaferConfigurationRecord extends StdfRecord
         Character posX,
         Character posY)
     {
-		this(cpu, getRecLen(waferSize, dieHeight, dieWidth, units, flatOrient, centerX, centerY, posX, posY),
+		this(cpu, null, getRecLen(waferSize, dieHeight, dieWidth, units, flatOrient, centerX, centerY, posX, posY),
 			 new ByteInputStream(toBytes(cpu, waferSize, dieHeight, dieWidth, units, 
 				                 flatOrient, centerX, centerY, posX, posY)));
     }

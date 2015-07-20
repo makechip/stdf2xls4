@@ -143,6 +143,8 @@ public abstract class ParametricRecord extends TestRecord
 	{
 		return(!getOptFlags().contains(OptFlag_t.NO_HI_LIMIT) && !getOptFlags().contains(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID));
 	}
+	
+	public abstract TestID getTestID();
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

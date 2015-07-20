@@ -36,6 +36,7 @@ import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
+
 import static com.makechip.stdf2xls4.stdf.enums.Data_t.*;
 /**
  *  This class holds the fields for an STDF FunctionalTestRecord.
@@ -123,7 +124,13 @@ public class FunctionalTestRecord extends TestRecord
 	 *  This is the PATG_NUM field.
 	 */
     public final Short patGenNum;
-
+    /**
+     *  The test ID. Not a standard STDF field.
+     *  Combines the test name, test number, and
+     *  potentially a duplicate number to uniquely identify
+     *  this test.
+     */
+    public final TestID id;
     public final IntList rtnIndex; // int
     public final int numFailPinBits;
     public final IntList rtnState; // byte
@@ -141,7 +148,7 @@ public class FunctionalTestRecord extends TestRecord
      * @param data Binary stream data.  This array should not contain
      * the first four bytes of the record.
      */
-    public FunctionalTestRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public FunctionalTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         int l = 7;
@@ -259,9 +266,14 @@ public class FunctionalTestRecord extends TestRecord
         if (l < recLen)
         {
         	testName = cpu.getCN(is);
+        	id = TestID.createTestID(tdb, testNumber, testName);
         	l += testName.length() + 1;
         }
-        else testName = null;
+        else 
+        {
+        	id = null;
+        	testName = null;
+        }
         if (l < recLen)
         {
         	alarmName = cpu.getCN(is);
@@ -304,7 +316,6 @@ public class FunctionalTestRecord extends TestRecord
     /**
      * This constructor is used to generate a FunctionalTestRecord with field values.
      * @param tdb TestIdDatabase is for generating the TestID.
-     * @param dvd The DefaultValueDatabase is for Supplying the CPU type and default values.
      * @param testNumber The TEST_NUM field.
      * @param headNumber The HEAD_NUM field.
      * @param siteNumber The SITE_NUM field.
@@ -338,6 +349,7 @@ public class FunctionalTestRecord extends TestRecord
      */
      public FunctionalTestRecord(
         final Cpu_t cpu,
+        final TestIdDatabase tdb,
         final long testNumber,
         final short headNumber,
         final short siteNumber,
@@ -367,7 +379,7 @@ public class FunctionalTestRecord extends TestRecord
         final Integer numEnCompBits,
         final int[] enComps)
     {
-    	this(cpu, 
+    	this(cpu, tdb,
     		 getRecLen(testNumber, headNumber, siteNumber, testFlags, 
     		 optFlags, cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
     		 vecOffset, rtnIndex, rtnState, pgmIndex, pgmState, numFailPinBits, failPin, vecName, timeSetName, vecOpCode, 
@@ -758,6 +770,30 @@ public class FunctionalTestRecord extends TestRecord
 		} 
 		else if (!yFailAddr.equals(other.yFailAddr)) return false;
 		return true;
+	}
+
+	@Override
+	public long getTestNumber()
+	{
+		return(testNumber);
+	}
+
+	@Override
+	public String getTestName()
+	{
+		return(testName);
+	}
+
+	@Override
+	public Set<TestFlag_t> getTestFlags()
+	{
+		return(testFlags);
+	}
+
+	@Override
+	public TestID getTestID()
+	{
+		return(id);
 	}
 
 

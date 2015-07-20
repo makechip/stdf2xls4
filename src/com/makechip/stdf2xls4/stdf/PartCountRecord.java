@@ -74,7 +74,7 @@ public class PartCountRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public PartCountRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public PartCountRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -132,7 +132,7 @@ public class PartCountRecord extends StdfRecord
     		Long good,
     		Long functional)
     {
-    	this(cpu, 
+    	this(cpu, null,
     		getRecLen(partsReTested, aborts, good, functional),
     		new ByteInputStream(toBytes(cpu, headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional)));
     }

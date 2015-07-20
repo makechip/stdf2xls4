@@ -60,9 +60,9 @@ import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.SnOrXy;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
-import com.makechip.stdf2xls4.stdfapi.TestID;
 import com.makechip.stdf2xls4.stdf.StdfException;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
+import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.util.Log;
 
 import static com.makechip.stdf2xls4.excel.xls.Format_t.*;

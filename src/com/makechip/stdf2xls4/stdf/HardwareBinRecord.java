@@ -65,11 +65,10 @@ public class HardwareBinRecord extends StdfRecord
      *  @param tdb The TestIdDatabase.  This value is not used by the HardwareBinRecord.
      *         It is provided so that all StdfRecord classes have the same argument signatures,
      *         so that function references can be used to refer to the constructors of StdfRecords.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public HardwareBinRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public HardwareBinRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -114,8 +113,7 @@ public class HardwareBinRecord extends StdfRecord
     	Character pf, 
     	String binName)
     {
-    	this(cpu, 
-    		 getRecLen(pf, binName),
+    	this(cpu, null, getRecLen(pf, binName),
     		 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, hwBin, binCnt, pf, binName)));
     }
     

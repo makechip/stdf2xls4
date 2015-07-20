@@ -53,7 +53,7 @@ public class WaferInformationRecord extends StdfRecord
      */
     public final String waferID;
     
-   public WaferInformationRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+   public WaferInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -117,7 +117,7 @@ public class WaferInformationRecord extends StdfRecord
 		long startDate,
 		String waferID)
 	{
-		this(cpu, getRecLen(waferID),
+		this(cpu, null, getRecLen(waferID),
 			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, startDate, waferID)));
 	}
 

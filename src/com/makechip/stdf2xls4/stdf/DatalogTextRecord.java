@@ -61,17 +61,18 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
  */
 public class DatalogTextRecord extends StdfRecord
 {
+    public static final String TEXT_DATA          = "TEXT_DATA";
+    public static final String SERIAL_MARKER      = "S/N";
     public final String text;
     
     /**
      * Constructor for initializing this record with binary stream data.
      * @param tdb The TestIdDatabase  is not used by this record, but is
      * required so STDF records have consistent constructor signatures.
-     * @param dvd The DefaultValueDatabase is used to get the CPU type.
      * @param data The binary stream data for this record.  The array should
      * not contain the first four bytes of the record.
      */
-    public DatalogTextRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public DatalogTextRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         text = cpu.getCN(is);
@@ -88,7 +89,7 @@ public class DatalogTextRecord extends StdfRecord
      */
     public DatalogTextRecord(Cpu_t cpu, String text)
     {
-    	this(cpu, 0, new ByteInputStream(cpu.getCNBytes(text)));
+    	this(cpu, null, 0, new ByteInputStream(cpu.getCNBytes(text)));
     }
     
 	/* (non-Javadoc)

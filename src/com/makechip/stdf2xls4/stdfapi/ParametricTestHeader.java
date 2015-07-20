@@ -1,5 +1,7 @@
 package com.makechip.stdf2xls4.stdfapi;
 
+import com.makechip.stdf2xls4.stdf.TestID;
+
 public class ParametricTestHeader extends TestHeader
 {
 	public final String units;

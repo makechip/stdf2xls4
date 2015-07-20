@@ -57,7 +57,7 @@ public class MasterResultsRecord extends StdfRecord
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
      */
-   public MasterResultsRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+   public MasterResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         finishDate = cpu.getU4(is);
@@ -83,7 +83,6 @@ public class MasterResultsRecord extends StdfRecord
     * This constructor is used to generate binary stream data from the field values.
     * @param tdb The TestIdDatabase. This value is not used, but is needed so that
      * this constructor can call the previous constructor to avoid code duplication.
-    * @param dvd The DefaultValueDatabase is used to access the CPU type.
     * @param finishDate The FINISH_T field.
     * @param dispCode The DISP_COD field.
     * @param lotDesc The LOT_DESC field.
@@ -98,7 +97,7 @@ public class MasterResultsRecord extends StdfRecord
     	String lotDesc, 
     	String execDesc)
     {
-    	this(cpu, getRecLen(dispCode, lotDesc, execDesc),
+    	this(cpu, null, getRecLen(dispCode, lotDesc, execDesc),
     	     new ByteInputStream(toBytes(cpu, finishDate, dispCode, lotDesc, execDesc)));
     }
     

@@ -93,7 +93,7 @@ public class WaferResultsRecord extends StdfRecord
      */
     public final String execWaferDesc;
     
-    public WaferResultsRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public WaferResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -271,7 +271,7 @@ public class WaferResultsRecord extends StdfRecord
         String userWaferDesc,
         String execWaferDesc)
     {
-		this(cpu, 
+		this(cpu, null,
 			 getRecLen(retestCount, abortCount, passCount, functionalCount, waferID, 
 					   fabWaferID, waferFrameID, waferMaskID, userWaferDesc, execWaferDesc),
 			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, 

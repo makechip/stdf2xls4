@@ -104,7 +104,7 @@ public class TestSynopsisRecord extends StdfRecord
      */
     public Float testSumSquares;
     
-   public TestSynopsisRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+   public TestSynopsisRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -309,7 +309,7 @@ public class TestSynopsisRecord extends StdfRecord
 	    float testSum,
 	    float testSumSquares)
 	{
-		this(cpu, getRecLen(numExecs, numFailures, numAlarms, testName, sequencerName, testLabel, 
+		this(cpu, null, getRecLen(numExecs, numFailures, numAlarms, testName, sequencerName, testLabel, 
 	    	                optFlags, testTime, testMin, testMax, testSum, testSumSquares),
 			 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, testType, 
 					        testNumber, numExecs, numFailures, numAlarms, testName, sequencerName, 

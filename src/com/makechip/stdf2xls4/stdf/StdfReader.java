@@ -57,7 +57,7 @@ public class StdfReader
     * @throws IOException
     * @throws StdfException
     */
-   public StdfReader read(ByteInputStream is)
+   public StdfReader read(TestIdDatabase tdb, ByteInputStream is)
    {
 	   Cpu_t cpu = Cpu_t.PC; // assume this for the first record. The FAR does not need this.
 	   while (is.available() >= 2)
@@ -66,12 +66,9 @@ public class StdfReader
 		   short rtype = cpu.getU1(is);
 		   short stype = cpu.getU1(is);
 		   Record_t type = Record_t.getRecordType(rtype, stype);
-		   StdfRecord r = type.getInstance(cpu,  recLen, is);
-		   if (type == Record_t.FAR)
-		   {
-			   FileAttributesRecord far = (FileAttributesRecord) r;
-			   cpu = far.cpuType;
-		   }
+		   StdfRecord r = type.getInstance(cpu, tdb, recLen, is);
+		   if (type == Record_t.FAR) cpu = ((FileAttributesRecord) r).cpuType;
+		   else if (type == Record_t.PRR)tdb.clearIdDups(); 
 		   records.add(r);
 	   }                
         return(this);
@@ -86,6 +83,7 @@ public class StdfReader
     
     public static void main(String[] args)
     {
+    	TestIdDatabase tdb = new TestIdDatabase();
     	if (args.length != 1)
     	{
     		Log.msg("Usage: java com.makechip.stdf2xls4.stdf.StdfReader <stdfFile>");
@@ -96,7 +94,7 @@ public class StdfReader
             StdfReader rdr = new StdfReader();
             byte[] b = new byte[is.available()];
             is.readFully(b);
-            rdr.read(new ByteInputStream(b));
+            rdr.read(tdb, new ByteInputStream(b));
             rdr.getRecords().stream().forEach(r -> Log.msg(r.toString()));
     	} 
     	catch (Exception e)

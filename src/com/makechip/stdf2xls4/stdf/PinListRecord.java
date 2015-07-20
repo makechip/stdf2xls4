@@ -52,7 +52,7 @@ public class PinListRecord extends StdfRecord
     public final List<String> pgmChal;
     public final List<String> rtnChal;
     
-    public PinListRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public PinListRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         final int k = cpu.getU2(is);
@@ -209,7 +209,7 @@ public class PinListRecord extends StdfRecord
 	    String[] pgmChal,
 	    String[] rtnChal)
 	{
-		this(cpu, getRecLen(pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal),
+		this(cpu, null, getRecLen(pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal),
 			new ByteInputStream(toBytes(cpu, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal)));
 	}
 

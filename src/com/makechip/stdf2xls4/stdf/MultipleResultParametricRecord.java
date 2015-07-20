@@ -37,6 +37,8 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
+
 import static com.makechip.stdf2xls4.stdf.enums.Data_t.*;
 import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 /**
@@ -117,11 +119,16 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     public final IntList rtnState; // byte
     public final IntList rtnIndex;  // int
     public final FloatList results; // float
+    /**
+     * This is not a standard STDF field.  It is used to uniquely identify
+     * this test.
+     */
+    public final TestID id;
     
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
      */
-    public MultipleResultParametricRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public MultipleResultParametricRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super(cpu, recLen, is);
         int l = 8;
@@ -147,6 +154,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
             l += 1 + testName.length();
         }
         else testName = null;
+        id = TestID.createTestID(tdb, testNumber, testName);
         if (l < recLen)
         {
             alarmName = cpu.getCN(is);
@@ -167,25 +175,29 @@ public final class MultipleResultParametricRecord extends ParametricRecord
         else resScal = null;
         if (l < recLen)
         {
-            llmScal = cpu.getI1(is);
+            byte b = cpu.getI1(is);
+        	llmScal = (optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) ? null : b;
             l++;
         }
         else llmScal = null;
         if (l < recLen)
         {
-            hlmScal = cpu.getI1(is);
+            byte b = cpu.getI1(is);
+            hlmScal = (optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) ? null : b;
             l++;
         }
         else hlmScal = null;
         if (l < recLen)
         {
-        	loLimit = cpu.getR4(is);
+        	float b = cpu.getR4(is);
+        	loLimit = (optFlags.contains(NO_LO_LIMIT) || optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) ? null : b;
         	l += R4.numBytes;
         }
         else loLimit = null;
         if (l < recLen)
         {
-        	hiLimit = cpu.getR4(is);
+        	float b = cpu.getR4(is);
+        	hiLimit = (optFlags.contains(NO_HI_LIMIT) || optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) ? null : b;
         	l += R4.numBytes;
         }
         else hiLimit = null;
@@ -285,6 +297,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
      */
     public MultipleResultParametricRecord(
     		final Cpu_t cpu,
+    		final TestIdDatabase tdb,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
@@ -311,7 +324,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     	    final Float loSpec,
     	    final Float hiSpec)
     {
-    	this(cpu,
+    	this(cpu, tdb,
     		 getRecLen(rtnState, results, testName, alarmName, optFlags, resScal, 
     				   llmScal, hlmScal, loLimit, hiLimit, startIn, incrIn, rtnIndex, 
     		           units, unitsIn, resFmt, llmFmt, hlmFmt, loSpec, hiSpec),
@@ -540,7 +553,6 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	@Override
 	public Byte getLlmScal()
 	{
-		if (optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(null);
 		return llmScal;
 	}
 
@@ -550,7 +562,6 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	@Override
 	public Byte getHlmScal()
 	{
-		if (optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(null);
 		return hlmScal;
 	}
 
@@ -560,7 +571,6 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	@Override
 	public Float getLoLimit()
 	{
-		if (optFlags.contains(NO_LO_LIMIT) || optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(null);
 		return loLimit;
 	}
 
@@ -570,7 +580,6 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	@Override
 	public Float getHiLimit()
 	{
-		if (optFlags.contains(NO_HI_LIMIT) || optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(null);
 		return hiLimit;
 	}
 
@@ -713,6 +722,30 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 		else if (!unitsIn.equals(other.unitsIn)) return false;
 		if (!super.equals(obj)) return false;
 		return true;
+	}
+
+	@Override
+	public long getTestNumber()
+	{
+		return(testNumber);
+	}
+
+	@Override
+	public String getTestName()
+	{
+		return(testName);
+	}
+
+	@Override
+	public Set<TestFlag_t> getTestFlags()
+	{
+		return(testFlags);
+	}
+
+	@Override
+	public TestID getTestID()
+	{
+		return(id);
 	}
 
 

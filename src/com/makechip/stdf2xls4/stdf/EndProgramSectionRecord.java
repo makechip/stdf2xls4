@@ -38,13 +38,12 @@ public class EndProgramSectionRecord extends StdfRecord
      * Constructor for initializing this record with binary stream data.
      * @param tdb The TestIdDatabase  is not used by this record, but is
      * required so STDF records have consistent constructor signatures.
-     * @param dvd The DefaultValueDatabase is used to get the CPU type.
      * @param data The binary stream data for this record.  The array should
      * not contain the first four bytes of the record. For this specific
      * record, the array should have a length of zero because the EndProgramSectionRecord
      * has no data fields.
      */
-    public EndProgramSectionRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public EndProgramSectionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
     }
@@ -58,7 +57,7 @@ public class EndProgramSectionRecord extends StdfRecord
      */
     public EndProgramSectionRecord(Cpu_t cpu)
     {
-    	this(cpu, 0, null);
+    	this(cpu, null, 0, null);
     }
 
 	/* (non-Javadoc)

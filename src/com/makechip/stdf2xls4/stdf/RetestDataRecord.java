@@ -47,7 +47,7 @@ public class RetestDataRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public RetestDataRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public RetestDataRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         int k = cpu.getU2(is);
@@ -64,7 +64,7 @@ public class RetestDataRecord extends StdfRecord
      */
     public RetestDataRecord(Cpu_t cpu, int[] retestBins)
     {
-    	this(cpu, getRecLen(retestBins), new ByteInputStream(toBytes(cpu, retestBins)));
+    	this(cpu, null, getRecLen(retestBins), new ByteInputStream(toBytes(cpu, retestBins)));
     }
 
 	@Override

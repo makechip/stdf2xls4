@@ -12,15 +12,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 
 import com.makechip.stdf2xls4.CliOptions;
+import com.makechip.stdf2xls4.stdf.ByteInputStream;
+import com.makechip.stdf2xls4.stdf.DatalogTestRecord;
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
+import com.makechip.stdf2xls4.stdf.PinMapRecord;
 import com.makechip.stdf2xls4.stdf.StdfException;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
+import com.makechip.stdf2xls4.stdf.TestID;
+import com.makechip.stdf2xls4.stdf.TestIdDatabase;
 import com.makechip.stdf2xls4.stdf.TestRecord;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
@@ -44,8 +51,6 @@ public final class StdfAPI
 	private TestIdDatabase tiddb;
 	private TestRecordDatabase tdb;
 	private final CliOptions options;
-    public static final String TEXT_DATA = StdfRecord.TEXT_DATA;
-    public static final String SERIAL_MARKER = StdfRecord.SERIAL_MARKER;
     private final Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap;
     private final Map<PageHeader, Boolean> wafersortMap;
 	private final List<File> stdfFiles;
@@ -65,7 +70,11 @@ public final class StdfAPI
 		if (options.dynamicLimits) dynamicLimitMap = new HashMap<>(); else dynamicLimitMap = null;
 		this.stdfFiles = options.stdfFiles;
 		new ArrayList<StdfRecord>();
-		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
+		if (options.showDuplicates)
+		{
+		    timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
+		}
+		else timeStampedFiles = false;
 		wafersortMap = new HashMap<>();
 	}
 	
@@ -74,52 +83,102 @@ public final class StdfAPI
 		return(wafersortMap.get(hdr));
 	}
 	
-	private void checkLimits(PageHeader hdr, TObjectFloatHashMap<TestID> lmap, List<List<StdfRecord>> list, OptFlag_t missingLimitFlag)
+	private void checkLimits(PageHeader hdr, Map<TestID, Float> llmap, Map<TestID, Float> ulmap, List<List<StdfRecord>> list)
 	{
 		list.stream().flatMap(p -> p.stream()).
 			filter(r -> r instanceof ParametricRecord).
-			map(s -> ParametricRecord.class.cast(s)).forEach(q -> checkLimit(q, lmap, hdr, missingLimitFlag));
+			map(s -> ParametricRecord.class.cast(s)).forEach(q -> checkLimit(q, llmap, ulmap, hdr));
 	}
 	
-	private void checkLimit(ParametricRecord r, TObjectFloatHashMap<TestID> m, PageHeader hdr, OptFlag_t missingLimitFlag)
+	private void checkLimit(ParametricRecord r, Map<TestID, Float> ll, Map<TestID, Float> ul, PageHeader hdr)
 	{
 		Map<TestID, Boolean> m1 = dynamicLimitMap.get(hdr);
 		if (m1 != null)
 		{
-			if (m1.get(r.getTestId()) == true) return;
+			if (m1.get(r.getTestID()) == true) return;
 		}
-        if (!r.getOptFlags().contains(missingLimitFlag))
+        if (r.getLoLimit() != null)
         {
-        	float recLimit = (missingLimitFlag == OptFlag_t.NO_LO_LIMIT) ? r.getLoLimit() : r.getHiLimit();
-            float ll1 = m.get(r.getTestId());
-        	if (ll1 == MISSING_FLOAT) m.put(r.getTestId(), recLimit);
+        	float rlim = r.getLoLimit();
+            Float ll1 = ll.get(r.getTestID());
+        	if (ll1 == null) ll.put(r.getTestID(), r.getLoLimit());
         	else
         	{
-        		if (recLimit < ll1 - 0.0001 * ll1 || recLimit > ll1 + 0.0001 * ll1)
+        		if (rlim < ll1 - 0.001 * ll1 || rlim > ll1 + 0.001 * ll1)
         		{
         			if (m1 == null)
         			{
         				m1 = new IdentityHashMap<>();
         				dynamicLimitMap.put(hdr, m1);
         			}
-        			m1.put(r.getTestId(), true);
+        			m1.put(r.getTestID(), true);
         		}
         	}
         }
+        else if (r.getHiLimit() != null)
+        {
+            float rlim = r.getHiLimit();
+            Float ul1 = ul.get(r.getTestID());
+            if (ul1 == null) ul.put(r.getTestID(), r.getHiLimit());
+            else
+            {
+            	if (rlim < ul1 - 0.001 * ul1 || rlim > ul1 + 0.001 * ul1);
+            	{
+            		if (m1 == null)
+            		{
+            			m1 = new IdentityHashMap<>();
+            			dynamicLimitMap.put(hdr, m1);
+            		}
+            		m1.put(r.getTestID(), true);
+            	}
+            }
+        }
 	}
 	
-	public void initialize() throws StdfException, IOException
+	// Find out if tester is fusionCx
+	// if (sortByTimeStamp && allFilesHaveTimeStampe) use TreeMaps instead of LinkedHashMaps
+	// Create DatalogTestRecords
+	// Set up pinMaps
+	// locate default values
+	// Check for dynamic limits.
+	// Create headers and TestResultDatabase
+	public void initialize()
 	{
 		HashMap<PageHeader, List<List<StdfRecord>>> devList = new HashMap<>();
 		// load the stdf records; group records by device	
-		for (File f : stdfFiles)
+		stdfFiles.stream().forEach(file ->
 		{
-			StdfReader rdr = new StdfReader(tiddb, f, timeStampedFiles);
-			rdr.read();
-			List<StdfRecord> l = new ArrayList<>();
-			for (StdfRecord rec : rdr.getRecords())
+            long timeStamp = timeStampedFiles ? getTimeStamp(file.getName()) : 0L;
+			StdfReader rdr = new StdfReader();
+			try (DataInputStream is = new DataInputStream(new FileInputStream(file)))
 			{
-			    if (options.dump) Log.msg(rec.toString());
+	            byte[] b = new byte[is.available()];
+	            is.readFully(b);
+			    rdr.read(tiddb, new ByteInputStream(b));
+			}
+			catch (IOException e)
+			{
+			    Log.warning("Error reading file: " + file.getName());	
+			    Log.msg(e.getMessage());
+			}
+			// check tester type;
+			MasterInformationRecord mir = (MasterInformationRecord) rdr.getRecords().stream().
+				filter(r -> r instanceof MasterInformationRecord).findFirst().orElse(null);
+			boolean fusionCx = mir.testerType.equalsIgnoreCase("fusion_cx") || mir.testerType.equalsIgnoreCase("CTX");
+			DefaultValueDatabase dvd = new DefaultValueDatabase(fusionCx, timeStamp);
+			// Set up pin maps:
+		    rdr.getRecords().stream().filter(r -> r instanceof PinMapRecord).forEach(r -> dvd.setPinName((PinMapRecord) r));	
+			// Scan for DatalogTestRecords:
+		    List<StdfRecord> records = rdr.getRecords().stream().map(r -> convertDtrs(r)).collect(Collectors.toList());	
+			// locate default values
+			// Note that all records must be scanned for default values
+			// because if the first device fails, then default values
+			// for un-executed tests will be stored in records for subsequent devices.
+		    records.stream().filter(r -> r instanceof ParametricRecord).forEach(r -> dvd.loadDefaults((ParametricRecord) r));	
+			// Create page headers:
+			List<StdfRecord> l = new ArrayList<>();
+			records.stream().forEach(rec ->
+			{
 			    if (rec instanceof PartResultsRecord)
 			    {
 			    	l.add(rec);
@@ -127,18 +186,33 @@ public final class StdfAPI
 			        l = new ArrayList<>();
 			    }
 			    else l.add(rec);
-			}
-		}
-		if (options.dynamicLimits) // check for dynamicLimits
-		{
-			devList.keySet().stream().forEach(p -> checkLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p), OptFlag_t.NO_LO_LIMIT));
-		    devList.keySet().stream().forEach(p -> checkLimits(p, new TObjectFloatHashMap<TestID>(100, 0.7f, MISSING_FLOAT), devList.get(p), OptFlag_t.NO_HI_LIMIT));	
-		}	
-		tdb = new TestRecordDatabase(options, tiddb, dynamicLimitMap);
-	    // now build TestRecord database:
-		devList.keySet().stream().forEach(p -> mapTests(options.sort, p, devList.get(p)));
+			});
+			// check for dynamic limits:
+		    if (options.dynamicLimits)
+		    {
+			    devList.keySet().stream()
+			        .forEach(p -> checkLimits(p, new IdentityHashMap<TestID, Float>(), new IdentityHashMap<TestID, Float>(), devList.get(p)));
+		    }	
+		    tdb = new TestRecordDatabase(options, tiddb, dynamicLimitMap);
+	        // now build TestRecord database:
+		    devList.keySet().stream().forEach(p -> mapTests(options.sort, p, devList.get(p)));
+		});
 	}
 	
+	private StdfRecord convertDtrs(StdfRecord r)
+	{
+	    if (r instanceof DatalogTextRecord)
+	    {
+	    	DatalogTextRecord dtr = (DatalogTextRecord) r;
+	    	if (dtr.text.contains(DatalogTextRecord.TEXT_DATA) && !dtr.text.contains(DatalogTextRecord.SERIAL_MARKER))
+	    	{
+	    		DatalogTestRecord dsr = new DatalogTestRecord(tiddb, dtr.text);
+	    		return(dsr);
+	    	}
+	    }
+	    return(r);
+	}
+
 	private void createHeaders(HeaderUtil hdr, HashMap<PageHeader, List<List<StdfRecord>>> devList, List<StdfRecord> l)
 	{
 		l.stream().forEach(r -> hdr.setHeader(r));
@@ -168,13 +242,13 @@ public final class StdfAPI
 		boolean noPassFailIndication = prr.partInfoFlags.contains(PartInfoFlag_t.NO_PASS_FAIL_INDICATION);
 		MasterInformationRecord mir = null;
 		SnOrXy snxy = null;
-		if (timeStampedFiles)
+		if (allFilesHaveTimeStamps)
 		{
 			mir = (MasterInformationRecord) list.stream().filter(p -> p instanceof MasterInformationRecord).findFirst().orElse(null);
 		}
 		if (wafersortMap.get(hdr))
 		{
-		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(mir.getTimeStamp(), prr.xCoord, prr.yCoord);	
+		    if (allFilesHaveTimeStamps) snxy = TimeXY.getTimeXY(mir.getTimeStamp(), prr.xCoord, prr.yCoord);	
 		    else snxy = XY.getXY(prr.xCoord, prr.yCoord);
 		}
 		else
@@ -189,11 +263,11 @@ public final class StdfAPI
 				st.nextToken(); // burn "TEXT_DATA"
 				st.nextToken(); // burn "S/N"
 				String sn = st.nextToken();
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.getTimeStamp(), sn) : SN.getSN(sn);
+				snxy = allFilesHaveTimeStamps ? TimeSN.getTimeSN(mir.getTimeStamp(), sn) : SN.getSN(sn);
 			}
 			else
 			{
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(mir.getTimeStamp(), prr.partID) : SN.getSN(prr.partID);
+				snxy = allFilesHaveTimeStamps ? TimeSN.getTimeSN(mir.getTimeStamp(), prr.partID) : SN.getSN(prr.partID);
 			}
 		}
 		List<TestRecord> l = list.stream()
@@ -209,7 +283,7 @@ public final class StdfAPI
 	
 	private boolean isSn(DatalogTextRecord r)
 	{
-		return(r.text.contains(TEXT_DATA) && r.text.contains(":") && r.text.contains(SERIAL_MARKER));
+		return(r.text.contains(DatalogTextRecord.TEXT_DATA) && r.text.contains(":") && r.text.contains(DatalogTextRecord.SERIAL_MARKER));
 	}
 	
     private boolean hasTimeStamp(File name)
@@ -264,5 +338,17 @@ public final class StdfAPI
     {
     	return(tdb.toString());
     }
+
+    private long getTimeStamp(String name)
+    {
+    	int dotIndex = (name.toLowerCase().endsWith(".std")) ? name.length() - 4 : name.length() - 5;
+    	int bIndex = dotIndex - 14;
+    	String stamp = name.substring(bIndex, dotIndex);
+    	long timeStamp = 0L;
+    	try { timeStamp = Long.parseLong(stamp); }
+    	catch (Exception e) { Log.fatal("Program bug: timeStamp is in filename, but will not parse correctly"); }
+    	return(timeStamp);
+    }
     
+   
 }

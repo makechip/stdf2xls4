@@ -28,8 +28,6 @@ import com.makechip.util.Log;
  */
 public abstract class StdfRecord
 {
-    public static final String TEXT_DATA          = "TEXT_DATA";
-    public static final String SERIAL_MARKER      = "S/N";
 	
 	/**
 	 * The constructor for an STDF record.
@@ -90,6 +88,7 @@ public abstract class StdfRecord
 	    sb.append(Log.eol);
 	    return(sb.toString());
 	}
+
    	protected static void addNibbles(Cpu_t cpu, int[] array, TByteArrayList list, int index, int len)
    	{
    		byte b0 = (byte) array[2 * index];

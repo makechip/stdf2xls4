@@ -104,7 +104,7 @@ public class PartResultsRecord extends StdfRecord
      */
     public boolean noPassFailIndication() { return(partInfoFlags.contains(PartInfoFlag_t.NO_PASS_FAIL_INDICATION)); }
     
-    public PartResultsRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public PartResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -192,7 +192,7 @@ public class PartResultsRecord extends StdfRecord
     	String partDescription,
     	int[] repair)
     {
-    	this(cpu, 
+    	this(cpu, null,
     		 getRecLen(swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair),
     		 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, partInfoFlags, numExecs, 
     		     hwBinNumber, swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair)));

@@ -52,7 +52,7 @@ public class FileAttributesRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public FileAttributesRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public FileAttributesRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         short c = (short) (0xFF & is.readByte());
@@ -71,7 +71,7 @@ public class FileAttributesRecord extends StdfRecord
      */
     public FileAttributesRecord(Cpu_t cpu, int stdfVersion)
     {
-    	this(cpu, 0, new ByteInputStream(toBytes(cpu, stdfVersion)));
+    	this(cpu, null, 0, new ByteInputStream(toBytes(cpu, stdfVersion)));
     }
     
 	/* (non-Javadoc)

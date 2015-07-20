@@ -326,10 +326,9 @@ public class GenericDataRecord extends StdfRecord
      * Constructor for initializing this record with binary stream data.
      * @param tdb The TestIdDatabase  is not used by this record, but is
      * required so STDF records have consistent constructor signatures.
-     * @param dvd This CTOR sets the CPU type in the DefaultValueDatabase.
 	 * @param data
 	 */
-    public GenericDataRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public GenericDataRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         List<Data> l = new ArrayList<Data>();

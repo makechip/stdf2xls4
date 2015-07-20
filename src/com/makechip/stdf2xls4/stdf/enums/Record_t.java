@@ -70,7 +70,7 @@ public enum Record_t
     @FunctionalInterface
     private interface FuncIf 
     { 
-    	StdfRecord getRecord(Cpu_t cpu, int recLen, ByteInputStream is);
+    	StdfRecord getRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is);
     }
 
     /**
@@ -90,9 +90,9 @@ public enum Record_t
         return(r);
     }
 
-    public StdfRecord getInstance(Cpu_t cpu, int recLen, ByteInputStream is)
+    public StdfRecord getInstance(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-    	return(ctor.getRecord(cpu, recLen, is));
+    	return(ctor.getRecord(cpu, tdb, recLen, is));
     }
 
 }

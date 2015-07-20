@@ -46,7 +46,7 @@ public class PinGroupRecord extends StdfRecord
     public final String groupName;
     public final IntList pmrIdx;
     
-    public PinGroupRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public PinGroupRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         groupIndex = cpu.getU2(is);
@@ -78,7 +78,7 @@ public class PinGroupRecord extends StdfRecord
     	String groupName, 
     	int[] pmrIdx)
     {
-    	this(cpu, getRecLen(groupName, pmrIdx),
+    	this(cpu, null, getRecLen(groupName, pmrIdx),
     		 new ByteInputStream(toBytes(cpu, groupIndex, groupName, pmrIdx)));
     }
 

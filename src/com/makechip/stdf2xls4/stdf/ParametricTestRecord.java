@@ -30,9 +30,12 @@ import gnu.trove.list.array.TByteArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
+
 import static com.makechip.stdf2xls4.stdf.enums.Data_t.*;
 import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
 /**
@@ -101,15 +104,19 @@ public class ParametricTestRecord extends ParametricRecord
      *  This is the HI_SPEC field.
      */
     public final Float hiSpec;
-
+    /**
+     * This is not a standard STDF field.  It is used to uniquely
+     * identify this test.
+     */
+    public final TestID id;
+    
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
      *  @param tdb The TestIdDatabase.  This parameter is used for tracking the Test ID.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public ParametricTestRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public ParametricTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
     	super(cpu, recLen, is);
     	int l = 8;
@@ -125,6 +132,7 @@ public class ParametricTestRecord extends ParametricRecord
             l += 1 + testName.length();
     	}
     	else testName = null;
+    	id = TestID.createTestID(tdb, testNumber, testName);
         if (l < recLen)
         {
             alarmName = cpu.getCN(is);
@@ -145,25 +153,29 @@ public class ParametricTestRecord extends ParametricRecord
         else resScal = null;
         if (l < recLen)
         {
-        	llmScal = cpu.getI1(is);
+        	byte b = cpu.getI1(is);
+		    llmScal = (optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) ? null : b;
         	l++;
         }
         else llmScal = null;
         if (l < recLen)
         {
-            hlmScal = cpu.getI1(is);
+            byte b = cpu.getI1(is);
+		    hlmScal = (optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) ? null : b;
             l++;
         }
         else hlmScal = null;
         if (l < recLen)
         {
-        	loLimit = cpu.getR4(is);
+        	float f = cpu.getR4(is);
+		    loLimit = (optFlags.contains(NO_LO_LIMIT) || optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) ? null : f;
         	l += R4.numBytes;
         }
         else loLimit = null;
         if (l < recLen)
         {
-        	hiLimit = cpu.getR4(is);
+        	float f = cpu.getR4(is);
+		    hiLimit = (optFlags.contains(NO_HI_LIMIT) || optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) ? null : f;
         	l += R4.numBytes;
         }
         else hiLimit = null;
@@ -235,6 +247,7 @@ public class ParametricTestRecord extends ParametricRecord
      */
     public ParametricTestRecord(
     		final Cpu_t cpu,
+    		final TestIdDatabase tdb,
             final long testNumber,
             final short headNumber,
             final short siteNumber,
@@ -256,7 +269,7 @@ public class ParametricTestRecord extends ParametricRecord
     	    final Float loSpec,
     	    final Float hiSpec)
     {
-    	this(cpu, 
+    	this(cpu, tdb,
     		 getRecLen(result, testName, alarmName, optFlags, resScal, llmScal, hlmScal, 
     		 loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec),
     		 new ByteInputStream(toBytes(cpu, testNumber, headNumber, 
@@ -437,7 +450,6 @@ public class ParametricTestRecord extends ParametricRecord
 	@Override
 	public Byte getLlmScal()
 	{
-		if (optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(null);
 		return llmScal;
 	}
 
@@ -447,7 +459,6 @@ public class ParametricTestRecord extends ParametricRecord
 	@Override
 	public Byte getHlmScal()
 	{
-		if (optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(null);
 		return hlmScal;
 	}
 
@@ -457,7 +468,6 @@ public class ParametricTestRecord extends ParametricRecord
 	@Override
 	public Float getLoLimit()
 	{
-		if (optFlags.contains(NO_LO_LIMIT) || optFlags.contains(LO_LIMIT_LLM_SCAL_INVALID)) return(null);
 		return loLimit;
 	}
 
@@ -467,7 +477,6 @@ public class ParametricTestRecord extends ParametricRecord
 	@Override
 	public Float getHiLimit()
 	{
-		if (optFlags.contains(NO_HI_LIMIT) || optFlags.contains(HI_LIMIT_HLM_SCAL_INVALID)) return(null);
 		return hiLimit;
 	}
 
@@ -592,6 +601,30 @@ public class ParametricTestRecord extends ParametricRecord
 		} 
 		else if (!units.equals(other.units)) return false;
 		return true;
+	}
+
+	@Override
+	public long getTestNumber()
+	{
+		return(testNumber);
+	}
+
+	@Override
+	public String getTestName()
+	{
+		return(testName);
+	}
+
+	@Override
+	public Set<TestFlag_t> getTestFlags()
+	{
+		return(testFlags);
+	}
+
+	@Override
+	public TestID getTestID()
+	{
+		return(id);
 	}
 
 

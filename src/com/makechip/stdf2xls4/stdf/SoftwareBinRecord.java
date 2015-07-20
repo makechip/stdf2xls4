@@ -60,7 +60,7 @@ public class SoftwareBinRecord extends StdfRecord
      */
     public final String binName;
     
-    public SoftwareBinRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public SoftwareBinRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -147,7 +147,7 @@ public class SoftwareBinRecord extends StdfRecord
 			char pf, 
 			String binName)
 	{
-		this(cpu, getRecLen(pf, binName),
+		this(cpu, null, getRecLen(pf, binName),
 			 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, swBinNumber, count, pf, binName)));
 	}
 

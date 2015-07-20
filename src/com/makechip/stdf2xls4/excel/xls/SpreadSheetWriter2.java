@@ -49,9 +49,9 @@ import com.makechip.stdf2xls4.excel.xls.layout1.DataHeader;
 import com.makechip.stdf2xls4.excel.xls.layout1.HeaderBlock;
 import com.makechip.stdf2xls4.excel.xls.layout1.LegendBlock;
 import com.makechip.stdf2xls4.excel.xls.layout1.TitleBlock;
+import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdfapi.SnOrXy;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
-import com.makechip.stdf2xls4.stdfapi.TestID;
 import com.makechip.util.Log;
 
 import static com.makechip.stdf2xls4.excel.xls.Format_t.*;

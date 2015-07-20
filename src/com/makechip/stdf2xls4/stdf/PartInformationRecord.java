@@ -45,7 +45,7 @@ public class PartInformationRecord extends StdfRecord
      */
     public final short siteNumber;
     
-    public PartInformationRecord(Cpu_t cpu, int recLen, ByteInputStream is)
+    public PartInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
         super();
         headNumber = cpu.getU1(is);
@@ -54,7 +54,7 @@ public class PartInformationRecord extends StdfRecord
     
     public PartInformationRecord(Cpu_t cpu, short headNumber, short siteNumber)
     {
-        this(cpu, 2, new ByteInputStream(toBytes(cpu, headNumber, siteNumber)));
+        this(cpu, null, 2, new ByteInputStream(toBytes(cpu, headNumber, siteNumber)));
     }
     
 	private static byte[] toBytes(Cpu_t cpu, short headNumber, short siteNumber)
