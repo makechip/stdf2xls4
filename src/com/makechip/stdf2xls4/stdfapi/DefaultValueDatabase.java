@@ -6,6 +6,8 @@ import gnu.trove.map.hash.TShortObjectHashMap;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.FloatList;
+import com.makechip.stdf2xls4.stdf.MultipleResultParametricRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.PinMapRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
@@ -152,6 +154,35 @@ public final class DefaultValueDatabase
         default:
         }
         return(u);
+    }
+    
+    public Float getScaledLoLimit(ParametricRecord r)
+    {
+    	
+    	return(null);
+    }
+
+    public Float getScaledHiLimit(ParametricRecord r)
+    {
+    	
+    	return(null);
+    }
+
+    public Float getScaledUnits(ParametricRecord r)
+    {
+    	
+    	return(null);
+    }
+
+    public Float getScaledResult(ParametricRecord r)
+    {
+    	
+    	return(null);
+    }
+    
+    public FloatList getScaledResults(MultipleResultParametricRecord r)
+    {
+    	return(null);
     }
 
 }
