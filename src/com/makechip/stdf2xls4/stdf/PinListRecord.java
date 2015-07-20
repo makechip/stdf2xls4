@@ -54,7 +54,7 @@ public class PinListRecord extends StdfRecord
     
     public PinListRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.PLR);
         final int k = cpu.getU2(is);
         int l = 2;
         pinIndex = new IntList(Data_t.U2, cpu, k, is);

@@ -76,7 +76,7 @@ public class PartCountRecord extends StdfRecord
      */
     public PartCountRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.PCR);
         headNumber = cpu.getU1(is);
         siteNumber = cpu.getU1(is);
         partsTested = cpu.getU4(is);

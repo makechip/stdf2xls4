@@ -330,7 +330,7 @@ public class GenericDataRecord extends StdfRecord
 	 */
     public GenericDataRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.GDR);
         List<Data> l = new ArrayList<Data>();
         int fields = cpu.getU2(is);
         for (int i=0; i<fields; i++)
@@ -349,6 +349,7 @@ public class GenericDataRecord extends StdfRecord
      */
     public GenericDataRecord(List<Data> list)
     {
+    	super(Record_t.GDR);
     	this.list = Collections.unmodifiableList(list);
     }
 

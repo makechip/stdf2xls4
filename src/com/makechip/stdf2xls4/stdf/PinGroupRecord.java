@@ -48,7 +48,7 @@ public class PinGroupRecord extends StdfRecord
     
     public PinGroupRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.PGR);
         groupIndex = cpu.getU2(is);
         groupName = cpu.getCN(is);
         int l = 2 + 1 + groupName.length();

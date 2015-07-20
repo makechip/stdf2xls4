@@ -55,7 +55,7 @@ public class WaferInformationRecord extends StdfRecord
     
    public WaferInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.WIR);
         headNumber = cpu.getU1(is);
         siteGroupNumber = cpu.getU1(is);
         startDate = cpu.getU4(is);

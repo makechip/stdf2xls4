@@ -1,16 +1,17 @@
 package com.makechip.stdf2xls4.stdfapi;
 
-import gnu.trove.map.hash.TObjectFloatHashMap;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -23,17 +24,13 @@ import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
 import com.makechip.stdf2xls4.stdf.PinMapRecord;
-import com.makechip.stdf2xls4.stdf.StdfException;
 import com.makechip.stdf2xls4.stdf.StdfReader;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.TestIdDatabase;
 import com.makechip.stdf2xls4.stdf.TestRecord;
-import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
 import com.makechip.util.Log;
-
-import static com.makechip.stdf2xls4.stdf.StdfRecord.*;
 
 /**
  * This is not a general purpose API for STDF.  It is mainly to
@@ -56,12 +53,12 @@ public final class StdfAPI
 	private final List<File> stdfFiles;
 	private boolean timeStampedFiles;
 
-	//private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
-	//{
-	//    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
-	//                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
-	//                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
-	//}
+	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
+	{
+	    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
+	                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
+	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
+	}
 
 	public StdfAPI(final CliOptions options)
 	{
@@ -175,18 +172,10 @@ public final class StdfAPI
 			// because if the first device fails, then default values
 			// for un-executed tests will be stored in records for subsequent devices.
 		    records.stream().filter(r -> r instanceof ParametricRecord).forEach(r -> dvd.loadDefaults((ParametricRecord) r));	
+		    // Group records by device:
+            List<List<StdfRecord>> list = records.stream().collect(splitBySeparator(r -> r instanceof PartResultsRecord));
 			// Create page headers:
-			List<StdfRecord> l = new ArrayList<>();
-			records.stream().forEach(rec ->
-			{
-			    if (rec instanceof PartResultsRecord)
-			    {
-			    	l.add(rec);
-			        createHeaders(new HeaderUtil(), devList, l);
-			        l = new ArrayList<>();
-			    }
-			    else l.add(rec);
-			});
+			list.stream().forEach(l -> createHeaders(new HeaderUtil(), devList, l));
 			// check for dynamic limits:
 		    if (options.dynamicLimits)
 		    {
@@ -195,7 +184,7 @@ public final class StdfAPI
 		    }	
 		    tdb = new TestRecordDatabase(options, tiddb, dynamicLimitMap);
 	        // now build TestRecord database:
-		    devList.keySet().stream().forEach(p -> mapTests(options.sort, p, devList.get(p)));
+		    devList.keySet().stream().forEach(p -> mapTests(dvd, options.sort, p, devList.get(p)));
 		});
 	}
 	
@@ -221,13 +210,13 @@ public final class StdfAPI
 		dl.add(l);
 	}
 	
-	private void mapTests(boolean sortDevices, PageHeader hdr, List<List<StdfRecord>> devList)
+	private void mapTests(DefaultValueDatabase dvd, boolean sortDevices, PageHeader hdr, List<List<StdfRecord>> devList)
 	{
 		wafersortMap.put(hdr, hdr.contains(HeaderUtil.WAFER_ID));
-		devList.stream().forEach(p -> buildList(sortDevices, hdr, p));
+		devList.stream().forEach(p -> buildList(dvd, sortDevices, hdr, p));
 	}
 	
-	private void buildList(boolean sortDevices, PageHeader hdr, List<StdfRecord> list)
+	private void buildList(DefaultValueDatabase dvd, boolean sortDevices, PageHeader hdr, List<StdfRecord> list)
 	{
 		PartResultsRecord prr = list.stream()
 			.filter(p -> p instanceof PartResultsRecord)
@@ -242,13 +231,13 @@ public final class StdfAPI
 		boolean noPassFailIndication = prr.partInfoFlags.contains(PartInfoFlag_t.NO_PASS_FAIL_INDICATION);
 		MasterInformationRecord mir = null;
 		SnOrXy snxy = null;
-		if (allFilesHaveTimeStamps)
+		if (timeStampedFiles)
 		{
 			mir = (MasterInformationRecord) list.stream().filter(p -> p instanceof MasterInformationRecord).findFirst().orElse(null);
 		}
 		if (wafersortMap.get(hdr))
 		{
-		    if (allFilesHaveTimeStamps) snxy = TimeXY.getTimeXY(mir.getTimeStamp(), prr.xCoord, prr.yCoord);	
+		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(dvd.timeStamp, prr.xCoord, prr.yCoord);	
 		    else snxy = XY.getXY(prr.xCoord, prr.yCoord);
 		}
 		else
@@ -263,11 +252,11 @@ public final class StdfAPI
 				st.nextToken(); // burn "TEXT_DATA"
 				st.nextToken(); // burn "S/N"
 				String sn = st.nextToken();
-				snxy = allFilesHaveTimeStamps ? TimeSN.getTimeSN(mir.getTimeStamp(), sn) : SN.getSN(sn);
+				snxy = timeStampedFiles ? TimeSN.getTimeSN(dvd.timeStamp, sn) : SN.getSN(sn);
 			}
 			else
 			{
-				snxy = allFilesHaveTimeStamps ? TimeSN.getTimeSN(mir.getTimeStamp(), prr.partID) : SN.getSN(prr.partID);
+				snxy = timeStampedFiles ? TimeSN.getTimeSN(dvd.timeStamp, prr.partID) : SN.getSN(prr.partID);
 			}
 		}
 		List<TestRecord> l = list.stream()
@@ -277,7 +266,7 @@ public final class StdfAPI
 		String temperature = hdr.get(HeaderUtil.TEMPERATURE);
 		if (temperature == null) temperature = mir.temperature;
 		DeviceHeader dh = new DeviceHeader(snxy, hwBin, swBin, fail, abnormalEOT, noPassFailIndication,temperature);
-		tdb.addRecords(sortDevices, hdr, dh, l);
+		tdb.addRecords(dvd, sortDevices, hdr, dh, l);
 	}
 	
 	

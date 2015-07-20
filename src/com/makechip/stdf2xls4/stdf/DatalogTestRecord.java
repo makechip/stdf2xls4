@@ -69,7 +69,7 @@ public class DatalogTestRecord extends TestRecord
      */
     public DatalogTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.DTRX);
         testName = null;
         value = null;
         units = null;
@@ -89,7 +89,7 @@ public class DatalogTestRecord extends TestRecord
      */
     public DatalogTestRecord(TestIdDatabase tdb, String text)
     {
-    	super();
+    	super(Record_t.DTRX);
         StringTokenizer st = new StringTokenizer(text, ":");
         st.nextToken(); // burn TEXT_DATA
         testName = st.nextToken();

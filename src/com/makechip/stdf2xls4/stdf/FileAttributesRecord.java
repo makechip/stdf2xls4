@@ -54,7 +54,7 @@ public class FileAttributesRecord extends StdfRecord
      */
     public FileAttributesRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.FAR);
         short c = (short) (0xFF & is.readByte());
         cpuType = Cpu_t.getCpuType((byte) c);
         stdfVersion = (short) (0xFF & is.readByte());

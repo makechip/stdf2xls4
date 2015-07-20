@@ -118,7 +118,7 @@ public class ParametricTestRecord extends ParametricRecord
      */
     public ParametricTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-    	super(cpu, recLen, is);
+    	super(cpu, Record_t.PTR, recLen, is);
     	int l = 8;
     	if (l < recLen)
     	{

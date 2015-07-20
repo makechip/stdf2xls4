@@ -70,7 +70,7 @@ public class HardwareBinRecord extends StdfRecord
      */
     public HardwareBinRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.HBR);
         headNumber = cpu.getU1(is);
         siteNumber = cpu.getU1(is);
         hwBin = cpu.getU2(is);

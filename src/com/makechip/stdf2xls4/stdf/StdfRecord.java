@@ -28,12 +28,13 @@ import com.makechip.util.Log;
  */
 public abstract class StdfRecord
 {
-	
+    public final Record_t type;	
 	/**
 	 * The constructor for an STDF record.
 	 */
-	protected StdfRecord()
+	protected StdfRecord(Record_t type)
 	{
+		this.type = type;
 	}
 	
 	

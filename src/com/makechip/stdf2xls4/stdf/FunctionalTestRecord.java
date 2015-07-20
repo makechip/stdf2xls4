@@ -150,7 +150,7 @@ public class FunctionalTestRecord extends TestRecord
      */
     public FunctionalTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.FTR);
         int l = 7;
         testNumber = cpu.getU4(is); 
         headNumber = cpu.getU1(is); 

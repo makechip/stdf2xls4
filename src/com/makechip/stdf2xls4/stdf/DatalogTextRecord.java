@@ -74,7 +74,7 @@ public class DatalogTextRecord extends StdfRecord
      */
     public DatalogTextRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.DTR);
         text = cpu.getCN(is);
     }
     

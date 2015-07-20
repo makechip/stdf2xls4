@@ -47,7 +47,7 @@ public class PartInformationRecord extends StdfRecord
     
     public PartInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.PIR);
         headNumber = cpu.getU1(is);
         siteNumber = cpu.getU1(is);
     }

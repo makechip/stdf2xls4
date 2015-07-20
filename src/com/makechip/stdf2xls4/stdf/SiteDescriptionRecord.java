@@ -114,7 +114,7 @@ public class SiteDescriptionRecord extends StdfRecord
     
     public SiteDescriptionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.SDR);
         headNumber = cpu.getU1(is);
         siteGroupNumber = cpu.getU1(is);
         final int k = cpu.getU1(is);

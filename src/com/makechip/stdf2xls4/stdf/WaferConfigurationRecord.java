@@ -76,7 +76,7 @@ public class WaferConfigurationRecord extends StdfRecord
     
     public WaferConfigurationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.WCR);
         int l = 0;
         if (l < recLen)
         {

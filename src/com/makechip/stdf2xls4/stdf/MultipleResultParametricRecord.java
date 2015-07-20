@@ -130,7 +130,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
      */
     public MultipleResultParametricRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(cpu, recLen, is);
+        super(cpu, Record_t.MPR, recLen, is);
         int l = 8;
         final int j = (l < recLen) ? cpu.getU2(is) : 0;
         l += U2.numBytes;

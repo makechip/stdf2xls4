@@ -59,7 +59,7 @@ public class MasterResultsRecord extends StdfRecord
      */
    public MasterResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.MRR);
         finishDate = cpu.getU4(is);
         int l = Data_t.U4.numBytes;
         if (l < recLen) dispCode = (char) cpu.getI1(is); else dispCode = null;

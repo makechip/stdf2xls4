@@ -58,7 +58,7 @@ public class AuditTrailRecord extends StdfRecord
      */
     public AuditTrailRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.ATR);
         date = cpu.getU4(is);
         cmdLine = cpu.getCN(is);
     }

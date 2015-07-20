@@ -62,7 +62,7 @@ public class SoftwareBinRecord extends StdfRecord
     
     public SoftwareBinRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.SBR);
         headNumber = cpu.getU1(is);
         siteNumber = cpu.getU1(is);
         swBinNumber = cpu.getU2(is);

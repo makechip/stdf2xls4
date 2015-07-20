@@ -45,7 +45,7 @@ public class TestRecordDatabase
 		this.options = options;
 	}
 	
-	public void addRecords(boolean sortDevices, PageHeader hdr, DeviceHeader dh, List<TestRecord> list)
+	public void addRecords(DefaultValueDatabase dvd, boolean sortDevices, PageHeader hdr, DeviceHeader dh, List<TestRecord> list)
 	{
 		final Map<DeviceHeader, Map<TestHeader, TestResult>> m1a = 
 			(devMap.get(hdr) == null) ? (sortDevices ? new TreeMap<>() : new LinkedHashMap<>()) : devMap.get(hdr);

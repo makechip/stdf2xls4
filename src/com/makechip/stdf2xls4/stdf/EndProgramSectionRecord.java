@@ -45,7 +45,7 @@ public class EndProgramSectionRecord extends StdfRecord
      */
     public EndProgramSectionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.EPS);
     }
     
     /**

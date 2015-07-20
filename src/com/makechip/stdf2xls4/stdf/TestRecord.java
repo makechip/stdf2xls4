@@ -2,6 +2,7 @@ package com.makechip.stdf2xls4.stdf;
 
 import java.util.Set;
 
+import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 
 /**
@@ -14,9 +15,9 @@ public abstract class TestRecord extends StdfRecord
 	/**
 	 *  This is the parent class for all records that contain test results.
 	 */
-	protected TestRecord()
+	protected TestRecord(Record_t type)
 	{
-		super();
+		super(type);
 	}
 	
 	public abstract long getTestNumber();

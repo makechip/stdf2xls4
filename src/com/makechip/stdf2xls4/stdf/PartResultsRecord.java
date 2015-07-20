@@ -106,7 +106,7 @@ public class PartResultsRecord extends StdfRecord
     
     public PartResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.PRR);
         headNumber = cpu.getU1(is);
         siteNumber = cpu.getU1(is);
         partInfoFlags = Collections.unmodifiableSet(PartInfoFlag_t.getBits(cpu.getI1(is)));

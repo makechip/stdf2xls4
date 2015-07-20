@@ -76,7 +76,7 @@ public class PinMapRecord extends StdfRecord
      */
     public PinMapRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.PMR);
         pmrIdx = cpu.getU2(is);
         int l = Data_t.U2.numBytes;
         if (l < recLen)

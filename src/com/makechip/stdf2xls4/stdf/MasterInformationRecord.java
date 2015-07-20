@@ -299,7 +299,7 @@ public class MasterInformationRecord extends StdfRecord
      */
     public MasterInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.MIR);
         jobDate = cpu.getU4(is);
         testDate = cpu.getU4(is);
         stationNumber = cpu.getU1(is);

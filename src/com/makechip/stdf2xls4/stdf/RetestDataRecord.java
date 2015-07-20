@@ -49,7 +49,7 @@ public class RetestDataRecord extends StdfRecord
      */
     public RetestDataRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.RDR);
         int k = cpu.getU2(is);
         if (k > 0) retestBins = new IntList(Data_t.U2, cpu, k, is);
         else retestBins = null;

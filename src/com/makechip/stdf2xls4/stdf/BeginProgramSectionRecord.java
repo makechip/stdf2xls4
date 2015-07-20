@@ -50,7 +50,7 @@ public class BeginProgramSectionRecord extends StdfRecord
      */
     public BeginProgramSectionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super();
+        super(Record_t.BPS);
         if (recLen > 0) seqName = cpu.getCN(is);
         else seqName = null;
     }
