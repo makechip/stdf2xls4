@@ -134,6 +134,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private HeaderBlock hb;	
     private CornerBlock cb;
 	
+    private static final float MISSING_FLOAT = Float.MAX_VALUE;
     public static final int MAX_ROWS = 1000000;
     
     private static final int colsPerPage = 240;
@@ -336,8 +337,8 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
                 }
                 else // either a ParametricTest with pin, or a MultiParametricTest
                 {
-                   	float lolim = (loLimCell.getType() == CellType.EMPTY) ? StdfRecord.MISSING_FLOAT : (float) ((Number) loLimCell).getValue();
-                   	float hilim = (hiLimCell.getType() == CellType.EMPTY) ? StdfRecord.MISSING_FLOAT : (float) ((Number) hiLimCell).getValue();
+                   	float lolim = (loLimCell.getType() == CellType.EMPTY) ? MISSING_FLOAT : (float) ((Number) loLimCell).getValue();
+                   	float hilim = (hiLimCell.getType() == CellType.EMPTY) ? MISSING_FLOAT : (float) ((Number) hiLimCell).getValue();
                     String pin = pnameCell.getContents();
                     plist.add(new MultiParametricTestHeader(tname, tnum, dnum, pin, units, lolim, hilim));
                 }
@@ -346,8 +347,8 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         	{
         	    if (loLimCell.getType() != CellType.EMPTY || hiLimCell.getType() != CellType.EMPTY)
         	    {
-                   	float lolim = (loLimCell.getType() == CellType.EMPTY) ? StdfRecord.MISSING_FLOAT : (float) ((Number) loLimCell).getValue();
-                   	float hilim = (hiLimCell.getType() == CellType.EMPTY) ? StdfRecord.MISSING_FLOAT : (float) ((Number) hiLimCell).getValue();
+                   	float lolim = (loLimCell.getType() == CellType.EMPTY) ? MISSING_FLOAT : (float) ((Number) loLimCell).getValue();
+                   	float hilim = (hiLimCell.getType() == CellType.EMPTY) ? MISSING_FLOAT : (float) ((Number) hiLimCell).getValue();
                    	String units = unitsCell.getContents();
                    	plist.add(new ParametricTestHeader(tname, tnum, dnum, units, lolim, hilim));
         	    }

@@ -66,19 +66,19 @@ public final class MultipleResultParametricRecord extends ParametricRecord
 	/**
 	 *  This is the LLM_SCAL  field of the MultipleResultParametricRecord.
 	 */
-	private final Byte llmScal;
+	public final Byte llmScal;
 	/**
 	 *  This is the HLM_SCAL field of the MultipleResultParametricRecord.
 	 */
-	private final Byte hlmScal;
+	public final Byte hlmScal;
 	/**
 	 *  This is the LO_LIMIT field of the MultipleResultParametricRecord.
 	 */
-	private final Float loLimit;
+	public final Float loLimit;
 	/**
 	 *  This is the HI_LIMIT field of the MultipleResultParametricRecord.
 	 */
-	private final Float hiLimit;
+	public final Float hiLimit;
 	/**
 	 *  This is the START_IN field of the MultipleResultParametricRecord.
 	 */

@@ -36,6 +36,7 @@ public class StdfTest1
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
+		TestIdDatabase tdb = new TestIdDatabase();
 		FileAttributesRecord far = new FileAttributesRecord(cpu, 4);
 		List<AuditTrailRecord> atrs = new ArrayList<AuditTrailRecord>();
 		atrs.add(new AuditTrailRecord(cpu, 100000000L, "cmdline"));
@@ -59,7 +60,7 @@ public class StdfTest1
 		stdf.add(new PinMapRecord(cpu, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
 		stdf.add(new BeginProgramSectionRecord(cpu, "beginProgramSectionRecord"));
 		stdf.add(new DatalogTextRecord(cpu, "datalogTextRecord"));
-		stdf.add(new FunctionalTestRecord(cpu, 3, (short) 2, (short) 1, (byte) 0,
+		stdf.add(new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 0,
 			(byte) 0, 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
 			new int[] { 0x03, 0x0C, 1, 0x08 }, new int[] { 3, 4, 5, 6 },
 			new int[] { 0x0C, 0x03, 0x08, 1 }, 32, new int[] { 3, 2, 1, 0 },
@@ -73,11 +74,11 @@ public class StdfTest1
 		stdf.add(new GenericDataRecord(lgd));
 		stdf.add(new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
 		stdf.add(new MasterResultsRecord(cpu, 1000L, 'C', "lotDesc", "execDesc"));
-		stdf.add(new MultipleResultParametricRecord(cpu, 22L, (short) 1, (short) 0, (byte) 0,
+		stdf.add(new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
-		stdf.add(new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, (byte) 0,
+		stdf.add(new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class),
 			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
 		stdf.add(new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
@@ -95,7 +96,7 @@ public class StdfTest1
 		stdf.add(new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
 			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc"));
 		stdf.add(new EndProgramSectionRecord(cpu));
-		stdf.add(new FunctionalTestRecord(cpu, 3L, (short) 2, (short) 1, (byte) 0, null, null, null, null,
+		stdf.add(new FunctionalTestRecord(cpu, tdb, 3L, (short) 2, (short) 1, (byte) 0, null, null, null, null,
 				                          null, null, null, null, null, null, null, null, null, null,
 				                          null, null, null, null, null, null, null, null, null, null));
 		GenericDataRecord.Data d3 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U1, 0), new Short((short)33));
@@ -124,7 +125,8 @@ public class StdfTest1
 		catch (Exception e) { Log.msg(e.getMessage()); }
 		rdr = new StdfReader();
 		byte[] b = stdf.getBytes();
-		rdr.read(new ByteInputStream(b));
+		tdb.clearIdDups();
+		rdr.read(tdb, new ByteInputStream(b));
 		list = rdr.getRecords();
         //Files.delete(p);
 	}
@@ -983,110 +985,137 @@ public class StdfTest1
 	    assertEquals(3.0f, mpr.loSpec, 5);
 	    assertEquals(4.0f, mpr.hiSpec, 5);
 
-		MultipleResultParametricRecord mpr1 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+	    TestIdDatabase tdb = new TestIdDatabase();
+		MultipleResultParametricRecord mpr1 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr2 = new MultipleResultParametricRecord(cpu, 23L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr2 = new MultipleResultParametricRecord(cpu, tdb, 23L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr3 = new MultipleResultParametricRecord(cpu, 22L, (short) 2, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr3 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 2, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr4 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr4 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 1, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr5 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr5 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 1, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr6 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr6 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 1, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr7 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr7 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 2, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr8 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr8 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.3f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr9 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr9 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"xext", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr10 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr10 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "xlarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr11 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr11 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.NO_LO_LIMIT), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr12 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr12 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr13 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr13 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 2, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr14 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr14 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 3, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr15 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr15 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 2.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr16 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr16 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 4.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr17 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr17 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			1.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr18 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr18 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 2.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr19 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, //
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr19 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, //
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 1, 2 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr20 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr20 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "xnits", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr21 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr21 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "xnitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr22 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr22 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "xesFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr23 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr23 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "xlmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr24 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr24 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "xlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr25 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr25 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 4.0f, 4.0f);
-		MultipleResultParametricRecord mpr26 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr26 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 5.0f);
+		tdb.clearIdDups();
 		assertTrue(mpr.equals(mpr));
 		assertTrue(mpr.equals(mpr1));
 		assertEquals(mpr.hashCode(), mpr1.hashCode());
@@ -1124,15 +1153,17 @@ public class StdfTest1
 		assertEquals(1.0f, mpr.getLoLimit(), 3);
 		assertEquals(3.0f, mpr.getHiLimit(), 3);
 		assertEquals("units", mpr.getUnits());
-		MultipleResultParametricRecord mpr41 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		MultipleResultParametricRecord mpr41 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.NO_HI_LIMIT), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr51 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr51 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
-		MultipleResultParametricRecord mpr61 = new MultipleResultParametricRecord(cpu, 22L, (short) 1, 
+		tdb.clearIdDups();
+		MultipleResultParametricRecord mpr61 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
 			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
@@ -1179,8 +1210,8 @@ public class StdfTest1
 	    assertEquals("hlmFmt", ptr.hlmFmt);
 	    assertEquals(1.0f, ptr.loSpec, 5);
 	    assertEquals(2.0f, ptr.hiSpec, 5);
-
-		ParametricTestRecord ptr1 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+        TestIdDatabase tdb = new TestIdDatabase();
+		ParametricTestRecord ptr1 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
 		assertTrue(ptr.equals(ptr));
@@ -1209,16 +1240,20 @@ public class StdfTest1
 		assertTrue(s.contains("testNumber ="));
 		assertTrue(s.contains("headNumber ="));
 		assertTrue(s.contains("siteNumber ="));
-		ParametricTestRecord ptr2 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr2 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.NO_LO_LIMIT), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr3 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr3 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.NO_HI_LIMIT), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr4 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr4 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr5 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr5 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
 		assertFalse(ptr.equals(ptr2));
@@ -1235,46 +1270,60 @@ public class StdfTest1
 		assertEquals(null, ptr3.getHiLimit());
 		assertEquals(null, ptr5.getHiLimit());
 		assertEquals("units", ptr.getUnits());
-		ParametricTestRecord ptr10 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr10 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "xlarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr11 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr11 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 11.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr12 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr12 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.1f);
-		ParametricTestRecord ptr13 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr13 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "xlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr14 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr14 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 4, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr15 = new ParametricTestRecord(cpu, 54L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr15 = new ParametricTestRecord(cpu, tdb, 54L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr16 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr16 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "xlmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr17 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr17 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 1, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr18 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr18 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.1f, 2.0f);
-		ParametricTestRecord ptr19 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr19 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.NO_LO_SPEC_LIMIT), (byte) 1,  // set OPT flags
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr20 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr20 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "xesFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr21 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr21 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.6f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr22 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr22 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "xnits", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
-		ParametricTestRecord ptr23 = new ParametricTestRecord(cpu, 44L, (short) 1, (short) 0, 
+		tdb.clearIdDups();
+		ParametricTestRecord ptr23 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 9,  // set OPT flags
 			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
 		assertFalse(ptr.equals(ptr10));
@@ -1919,31 +1968,40 @@ public class StdfTest1
 		assertEquals(null, ftr.rsltTxt);
 		assertEquals(null, ftr.patGenNum);
 		assertEquals(null, ftr.enComps);
-		FunctionalTestRecord ftr0 = new FunctionalTestRecord(cpu, 3L, (short) 2, (short) 1, (byte) 0, null, null, null, null,
+		TestIdDatabase tdb = new TestIdDatabase();
+		FunctionalTestRecord ftr0 = new FunctionalTestRecord(cpu, tdb, 3L, (short) 2, (short) 1, (byte) 0, null, null, null, null,
 				                                             null, null, null, null, null, null, null, null, null, null,
 				                                             null, null, null, null, null, null, null, null, null, null);
-		FunctionalTestRecord ftr1 = new FunctionalTestRecord(cpu, 3, (short) 2, (short) 1, (byte) 0, null, null, null, null,
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr1 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 0, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null);
-		FunctionalTestRecord ftr2 = new FunctionalTestRecord(cpu, 3, (short) 2, (short) 1, (byte) 1, null, null, null, null,
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr2 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 1, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null);
-		FunctionalTestRecord ftr3 = new FunctionalTestRecord(cpu, 3, (short) 2, (short) 1, (byte) 4, null, null, null, null,
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr3 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 4, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null);
-		FunctionalTestRecord ftr4 = new FunctionalTestRecord(cpu, 3, (short) 2, (short) 1, (byte) 8, null, null, null, null,
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr4 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 8, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null);
-		FunctionalTestRecord ftr5 = new FunctionalTestRecord(cpu, 3, (short) 2, (short) 1, (byte) 16, null, null, null, null,
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr5 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 16, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null);
-		FunctionalTestRecord ftr6 = new FunctionalTestRecord(cpu, 3, (short) 2, (short) 1, (byte) 32, null, null, null, null,
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr6 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 32, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null);
-		FunctionalTestRecord ftr7 = new FunctionalTestRecord(cpu, 3, (short) 2, (short) 1, (byte) 64, null, null, null, null,
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr7 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 64, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null);
-		FunctionalTestRecord ftr8 = new FunctionalTestRecord(cpu, 3, (short) 2, (short) 1, (byte) 128, null, null, null, null,
+		tdb.clearIdDups();
+		FunctionalTestRecord ftr8 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 128, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null);
 		assertTrue(ftr0.equals(ftr1));
