@@ -5,10 +5,12 @@ import gnu.trove.map.hash.TShortObjectHashMap;
 
 import java.util.IdentityHashMap;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import com.makechip.stdf2xls4.stdf.FloatList;
 import com.makechip.stdf2xls4.stdf.MultipleResultParametricRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
+import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.PinMapRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
@@ -113,15 +115,6 @@ public final class DefaultValueDatabase
         return(scale);
     }
 
-    protected int getScale(float result, Float hiLimit, byte resScal, byte llmScal, byte hlmScal)
-    {
-        int scale = 0;
-        if (result != 0.0f) scale = (int) resScal;
-        else if (hiLimit != null) scale = (int) hlmScal;
-        else scale = (int) llmScal;
-        return(scale);
-    }
-   
     protected Float scaleValue(Float value, int scale)
     {
         if (value == null) return(value);
@@ -158,31 +151,35 @@ public final class DefaultValueDatabase
     
     public Float getScaledLoLimit(ParametricRecord r)
     {
-    	
-    	return(null);
+    	Float l = loLimDefaults.get(r.getTestID());
+    	if (l == null) return(null);
+    	return(scaleValue(l, findScale(r.getTestID())));
     }
 
     public Float getScaledHiLimit(ParametricRecord r)
     {
-    	
-    	return(null);
+    	Float l = hiLimDefaults.get(r.getTestID());
+    	if (l == null) return(null);
+    	return(scaleValue(l, findScale(r.getTestID())));
     }
 
-    public Float getScaledUnits(ParametricRecord r)
+    public String getScaledUnits(ParametricRecord r)
     {
-    	
-    	return(null);
+    	return(scaleUnits(r.getUnits(), findScale(r.getTestID())));
     }
 
-    public Float getScaledResult(ParametricRecord r)
+    public Float getScaledResult(ParametricTestRecord r)
     {
-    	
-    	return(null);
+    	if (r.result == null) return(null);
+    	return(scaleValue(r.result, findScale(r.getTestID())));
     }
     
     public FloatList getScaledResults(MultipleResultParametricRecord r)
     {
-    	return(null);
+    	if (r.results == null) return(null);
+    	float[] f = new float[r.results.size()];
+        IntStream.range(0, f.length).forEach(i -> f[i] = scaleValue(r.results.get(i), findScale(r.getTestID())));	
+    	return(new FloatList(f));
     }
 
 }
