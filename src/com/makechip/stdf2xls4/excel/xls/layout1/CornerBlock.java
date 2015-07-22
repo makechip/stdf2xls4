@@ -85,6 +85,7 @@ public class CornerBlock implements Block
 
 	public int getWaferOrStepCol() { return(startCol);	}
 	public int getXCol()          { return(onePage ? startCol + 1 : startCol);  }
+	public int getYCol()          { return(getXCol() + 1); }
 	public int getSnOrYCol()      { return(wafersort ? getXCol() + 1 : getXCol()); }
 	public int getHwBinCol()      { return(4); }
 	public int getSwBinCol()      { return(5); }

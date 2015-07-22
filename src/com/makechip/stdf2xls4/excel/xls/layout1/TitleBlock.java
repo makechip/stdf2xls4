@@ -55,6 +55,7 @@ public class TitleBlock implements Block
 	public int getWaferOrStepCol() { return(cb.getWaferOrStepCol()); }
 	public int getSnOrYCol()       { return(cb.getSnOrYCol());       }
 	public int getXCol()           { return(cb.getXCol());           }
+	public int getYCol()           { return(cb.getYCol());           }
 	public int getHwBinCol()       { return(cb.getHwBinCol());       }
 	public int getSwBinCol()       { return(cb.getSwBinCol());       }
 	public int getResultCol()      { return(cb.getResultCol());      }
