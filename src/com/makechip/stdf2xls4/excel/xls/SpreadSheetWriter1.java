@@ -115,7 +115,7 @@ import static com.makechip.stdf2xls4.excel.xls.Format_t.*;
  * 
  * The actual spreadsheet looks like this:
  * <p> <IMG SRC="{@docRoot}/doc-files/xls1.png"> 
- * 
+ * @TODO: update picture
  * @author eric
  *
  */
