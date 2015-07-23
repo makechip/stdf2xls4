@@ -138,7 +138,7 @@ public class CliOptions
 
 	    OptionSpec<File>    L = op.acceptsAll(asList(L_OPT[0], L_OPT[1]), L_OPT[2]).withRequiredArg().ofType(File.class);
 	    OptionSpec<File>    X = op.acceptsAll(asList(X_OPT[0], X_OPT[1]), X_OPT[2]).
-	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1]).withRequiredArg().ofType(File.class);
+	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1], E_OPT[0], E_OPT[1]).withRequiredArg().ofType(File.class);
 
 	    OptionSpec<File> files = op.nonOptions().describedAs("list of STDF files").ofType(File.class);
 	    

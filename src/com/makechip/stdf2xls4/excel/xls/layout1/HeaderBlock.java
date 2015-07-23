@@ -18,6 +18,8 @@ import static com.makechip.stdf2xls4.excel.xls.Format_t.*;
 public class HeaderBlock implements Block
 {
 	public static final int WIDTH = 8;
+	public static final String OPTIONS_LABEL = "OPTIONS:";
+	public static final int VALUE_COL = 3;
 	private final PageHeader hdr;
     private final int height;
     private final String optionsString;
@@ -38,13 +40,13 @@ public class HeaderBlock implements Block
             ws.mergeCells(0, row, 2, row);
             ws.mergeCells(3, row, WIDTH-1, row);
             ws.addCell(new Label(0, row, k, HEADER2_FMT.getFormat()));
-            ws.addCell(new Label(3, row, hdr.get(k), HEADER3_FMT.getFormat()));
+            ws.addCell(new Label(VALUE_COL, row, hdr.get(k), HEADER3_FMT.getFormat()));
             row++;
         }
         ws.mergeCells(0,  row, 2, row);
         ws.mergeCells(3, row, WIDTH-1, row);
-        ws.addCell(new Label(0, row, "OPTIONS:", HEADER2_FMT.getFormat()));
-        ws.addCell(new Label(3, row, optionsString, HEADER3_FMT.getFormat()));
+        ws.addCell(new Label(0, row, OPTIONS_LABEL, HEADER2_FMT.getFormat()));
+        ws.addCell(new Label(VALUE_COL, row, optionsString, HEADER3_FMT.getFormat()));
     }
     
     public int getHeight() 

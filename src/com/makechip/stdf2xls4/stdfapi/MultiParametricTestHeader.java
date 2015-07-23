@@ -53,8 +53,6 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 		builder.append(", ").append("units=").append(units);
 		builder.append(", ").append("loLimit=").append(loLimit);
 		builder.append(", hiLimit=").append(hiLimit);
-		builder.append(", noLoLimit=").append(noLoLimit);
-		builder.append(", noHiLimit=").append(noHiLimit);
 		builder.append(", ");
 		if (testName != null)
 		{

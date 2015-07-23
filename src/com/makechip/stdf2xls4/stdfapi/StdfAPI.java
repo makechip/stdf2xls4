@@ -158,33 +158,40 @@ public final class StdfAPI
 			    Log.warning("Error reading file: " + file.getName());	
 			    Log.msg(e.getMessage());
 			}
-			// check tester type;
-			MasterInformationRecord mir = (MasterInformationRecord) rdr.getRecords().stream().
-				filter(r -> r instanceof MasterInformationRecord).findFirst().orElse(null);
-			boolean fusionCx = mir.testerType.equalsIgnoreCase("fusion_cx") || mir.testerType.equalsIgnoreCase("CTX");
-			DefaultValueDatabase dvd = new DefaultValueDatabase(fusionCx, timeStamp);
-			// Set up pin maps:
-		    rdr.getRecords().stream().filter(r -> r instanceof PinMapRecord).forEach(r -> dvd.setPinName((PinMapRecord) r));	
-			// Scan for DatalogTestRecords:
-		    List<StdfRecord> records = rdr.getRecords().stream().map(r -> convertDtrs(r)).collect(Collectors.toList());	
-			// locate default values
-			// Note that all records must be scanned for default values
-			// because if the first device fails, then default values
-			// for un-executed tests will be stored in records for subsequent devices.
-		    records.stream().filter(r -> r instanceof ParametricRecord).forEach(r -> dvd.loadDefaults((ParametricRecord) r));	
-		    // Group records by device:
-            List<List<StdfRecord>> list = records.stream().collect(splitBySeparator(r -> r instanceof PartResultsRecord));
-			// Create page headers:
-			list.stream().forEach(l -> createHeaders(new HeaderUtil(), devList, l));
-			// check for dynamic limits:
-		    if (options.dynamicLimits)
-		    {
-			    devList.keySet().stream()
-			        .forEach(p -> checkLimits(p, new IdentityHashMap<TestID, Float>(), new IdentityHashMap<TestID, Float>(), devList.get(p)));
-		    }	
-		    tdb = new TestRecordDatabase(options, tiddb, dynamicLimitMap);
-	        // now build TestRecord database:
-		    devList.keySet().stream().forEach(p -> mapTests(dvd, options.sort, p, devList.get(p)));
+			if (options.dump)
+			{
+				rdr.getRecords().stream().forEach(r -> Log.msg(r.toString()));
+			}
+			if (options.xlsName != null || options.dumpTests)
+			{
+				// check tester type;
+				MasterInformationRecord mir = (MasterInformationRecord) rdr.getRecords().stream().
+						filter(r -> r instanceof MasterInformationRecord).findFirst().orElse(null);
+				boolean fusionCx = mir.testerType.equalsIgnoreCase("fusion_cx") || mir.testerType.equalsIgnoreCase("CTX");
+				DefaultValueDatabase dvd = new DefaultValueDatabase(fusionCx, timeStamp);
+				// Set up pin maps:
+				rdr.getRecords().stream().filter(r -> r instanceof PinMapRecord).forEach(r -> dvd.setPinName((PinMapRecord) r));	
+				// Scan for DatalogTestRecords:
+				List<StdfRecord> records = rdr.getRecords().stream().map(r -> convertDtrs(r)).collect(Collectors.toList());	
+				// locate default values
+				// Note that all records must be scanned for default values
+				// because if the first device fails, then default values
+				// for un-executed tests will be stored in records for subsequent devices.
+				records.stream().filter(r -> r instanceof ParametricRecord).forEach(r -> dvd.loadDefaults((ParametricRecord) r));	
+				// Group records by device:
+				List<List<StdfRecord>> list = records.stream().collect(splitBySeparator(r -> r instanceof PartResultsRecord));
+				// Create page headers:
+				list.stream().forEach(l -> createHeaders(new HeaderUtil(), devList, l));
+				// check for dynamic limits:
+				if (options.dynamicLimits)
+				{
+					devList.keySet().stream()
+					.forEach(p -> checkLimits(p, new IdentityHashMap<TestID, Float>(), new IdentityHashMap<TestID, Float>(), devList.get(p)));
+				}	
+				tdb = new TestRecordDatabase(options, tiddb, dynamicLimitMap);
+				// now build TestRecord database:
+				devList.keySet().stream().forEach(p -> mapTests(dvd, options.sort, p, devList.get(p)));
+			}
 		});
 	}
 	

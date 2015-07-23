@@ -3,7 +3,6 @@ package com.makechip.stdf2xls4.stdfapi;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,7 @@ public class HeaderUtil
 	{
 		if (hdr == null)
 		{
-			hdr = new PageHeader(Collections.unmodifiableMap(new HashMap<>(header)));
+			hdr = new PageHeader(Collections.unmodifiableMap(header));
 		}
 		return(hdr);
 	}

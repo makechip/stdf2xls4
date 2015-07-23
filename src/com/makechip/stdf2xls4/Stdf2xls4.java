@@ -33,18 +33,21 @@ public class Stdf2xls4
 		SpreadSheetWriter ssw = null;
 		if (options.xlsName != null)
 		{
-			if (options.xlsName.toString().endsWith(".xlsx"))
+			if (options.xlsName != null)
 			{
-		        if (options.rotate) ssw = new SpreadSheetWriter2(options, api);	
-		        else ssw = new SpreadSheetWriter1(options, api);
+				if (options.xlsName.toString().endsWith(".xlsx"))
+				{
+					if (options.rotate) ssw = new SpreadSheetWriter2(options, api);	
+					else ssw = new SpreadSheetWriter1(options, api);
+				}
+				else
+				{
+					if (options.rotate) ssw = new com.makechip.stdf2xls4.excel.xls.SpreadSheetWriter2(options, api); 
+					else ssw = new com.makechip.stdf2xls4.excel.xls.SpreadSheetWriter1(options, api);
+				}
 			}
-			else
-			{
-				if (options.rotate) ssw = new com.makechip.stdf2xls4.excel.xls.SpreadSheetWriter2(options, api); 
-				else ssw = new com.makechip.stdf2xls4.excel.xls.SpreadSheetWriter1(options, api);
-			}
+			ssw.generate();
 		}
-		ssw.generate();
 	}
 
 	public static void main(String[] args)

@@ -5,10 +5,8 @@ import com.makechip.stdf2xls4.stdf.TestID;
 public class ParametricTestHeader extends TestHeader
 {
 	public final String units;
-	public final float loLimit;
-	public final float hiLimit;
-	public final boolean noLoLimit;
-	public final boolean noHiLimit;
+	public final Float loLimit;
+	public final Float hiLimit;
 
 	public ParametricTestHeader(TestID id, String units, Float loLimit, Float hiLimit)
 	{
@@ -21,8 +19,6 @@ public class ParametricTestHeader extends TestHeader
 		this.units = units;
 		this.loLimit = loLimit;
 		this.hiLimit = hiLimit;
-		this.noLoLimit = loLimit == null;
-		this.noHiLimit = hiLimit == null;
 	}
 
 	/* (non-Javadoc)
@@ -35,8 +31,6 @@ public class ParametricTestHeader extends TestHeader
 		builder.append("ParametricTestHeader [units=").append(units);
 		builder.append(", loLimit=").append(loLimit);
 		builder.append(", hiLimit=").append(hiLimit);
-		builder.append(", noLoLimit=").append(noLoLimit);
-		builder.append(", noHiLimit=").append(noHiLimit);
 		builder.append(", testName=").append(testName);
 		builder.append(", testNumber=").append(testNumber);
 		builder.append(", dupNum=").append(dupNum);
@@ -54,8 +48,6 @@ public class ParametricTestHeader extends TestHeader
 		int result = super.hashCode();
 		result = prime * result + Float.floatToIntBits(hiLimit);
 		result = prime * result + Float.floatToIntBits(loLimit);
-		result = prime * result + (noHiLimit ? 1231 : 1237);
-		result = prime * result + (noLoLimit ? 1231 : 1237);
 		result = prime * result + ((units == null) ? 0 : units.hashCode());
 		return result;
 	}
@@ -69,10 +61,18 @@ public class ParametricTestHeader extends TestHeader
 		if (this == obj) return true;
 		if (!(obj instanceof ParametricTestHeader)) return false;
 		ParametricTestHeader other = (ParametricTestHeader) obj;
-		if (Float.floatToIntBits(hiLimit) != Float.floatToIntBits(other.hiLimit)) return false;
-		if (Float.floatToIntBits(loLimit) != Float.floatToIntBits(other.loLimit)) return false;
-		if (noHiLimit != other.noHiLimit) return false;
-		if (noLoLimit != other.noLoLimit) return false;
+		if (loLimit == null)
+		{
+			if (other.loLimit != null) return false;
+		}
+		else if (other.loLimit == null) return false;
+		else if (Float.floatToIntBits(loLimit) != Float.floatToIntBits(other.loLimit)) return false;
+		if (hiLimit == null)
+		{
+			if (other.hiLimit != null) return false;
+		}
+		else if (other.hiLimit == null) return false;
+		else if (Float.floatToIntBits(hiLimit) != Float.floatToIntBits(other.hiLimit)) return false;
 		if (!units.equals(other.units)) return false;
 		if (!super.equals(obj)) return false;
 		return true;

@@ -151,21 +151,29 @@ public final class DefaultValueDatabase
     
     public Float getScaledLoLimit(ParametricRecord r)
     {
-    	Float l = loLimDefaults.get(r.getTestID());
+    	Float l = null;
+    	if (r.getLoLimit() != null) l = r.getLoLimit();
+    	else l = loLimDefaults.get(r.getTestID());
     	if (l == null) return(null);
     	return(scaleValue(l, findScale(r.getTestID())));
     }
 
     public Float getScaledHiLimit(ParametricRecord r)
     {
-    	Float l = hiLimDefaults.get(r.getTestID());
+    	Float l = null;
+    	if (r.getHiLimit() != null) l = r.getHiLimit();
+    	else l = hiLimDefaults.get(r.getTestID());
     	if (l == null) return(null);
     	return(scaleValue(l, findScale(r.getTestID())));
     }
 
     public String getScaledUnits(ParametricRecord r)
     {
-    	return(scaleUnits(r.getUnits(), findScale(r.getTestID())));
+    	String units = null;
+    	if (r.getUnits() != null) units = r.getUnits();
+    	else units = unitDefaults.get(r.getTestID());
+    	if (units == null) return("");
+    	return(scaleUnits(units, findScale(r.getTestID())));
     }
 
     public Float getScaledResult(ParametricTestRecord r)

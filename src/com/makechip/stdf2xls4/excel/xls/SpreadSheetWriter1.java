@@ -22,7 +22,9 @@ import gnu.trove.list.array.TIntArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,6 +38,7 @@ import jxl.CellType;
 import jxl.CellView;
 import jxl.LabelCell;
 import jxl.NumberCell;
+import jxl.Sheet;
 import jxl.Workbook;
 import jxl.format.Colour;
 import jxl.read.biff.BiffException;
@@ -48,6 +51,7 @@ import jxl.write.biff.RowsExceededException;
 
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.SpreadSheetWriter;
+import com.makechip.stdf2xls4.excel.SheetName;
 import com.makechip.stdf2xls4.excel.xls.layout1.CornerBlock;
 import com.makechip.stdf2xls4.excel.xls.layout1.DataHeader;
 import com.makechip.stdf2xls4.excel.xls.layout1.HeaderBlock;
@@ -118,6 +122,19 @@ import static com.makechip.stdf2xls4.excel.xls.Format_t.*;
  * @TODO: update picture
  * @author eric
  *
+ * Algorithm for sheet management:
+ * 1. Query workbook for sheet [name][page][version=0]
+ * 2. if sheet does not exist, create new sheet;
+ * 2a. Store the TitleBlock by its page name.
+ * 2b. done.
+ * 3. if the sheet does exist, get its page header
+ * 4. Compare sheet header with current header.
+ * 4a. if headers match use existing sheet.
+ * 4b. if headers don't match, create new sheet with bumped version number.
+ * 
+ *
+ *
+ *
  */
 @SuppressWarnings("unused")
 public class SpreadSheetWriter1 implements SpreadSheetWriter
@@ -131,7 +148,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private static final float MISSING_FLOAT = Float.MAX_VALUE;
     public static final int MAX_ROWS = 1000000;
     
-    private static final int colsPerPage = 240;
+    private static final int colsPerPage = 200;
     private WritableWorkbook wb = null;
     private WritableSheet[] ws;
     private int sheetNum = 0;
@@ -142,21 +159,33 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private CellView statusView   = new CellView();
     private CellView unitsView    = new CellView();
     private CellView hdrView      = new CellView();
-    private int firstDataRow;
-    private int firstDataCol;
     private int testColumns;
     private List<TestHeader> testHeaders;
+    private Map<PageHeader, Integer> versionMap;
+    private Map<SheetName, WritableSheet> sheetMap;
     private TitleBlock titleBlock;
 
     public SpreadSheetWriter1(CliOptions options, StdfAPI api) throws IOException, BiffException, WriteException
     {
     	this.options = options;
     	this.api = api;
+        versionMap = new HashMap<>();
+        sheetMap = new IdentityHashMap<>();
         wb = null; 
        	if (options.xlsName.exists()) 
        	{
        		Workbook w = Workbook.getWorkbook(options.xlsName);
        		wb = Workbook.createWorkbook(options.xlsName, w);
+       		// create SheetName objects for existing pages:
+       		Arrays.stream(wb.getSheetNames()).forEach(s -> 
+       		{
+       			SheetName sn = SheetName.getSheet(s);
+       			if (!s.equals(sn.toString())) 
+       			{
+       				throw new RuntimeException("Incorrectly formatted sheet name: " + s + " : " + sn);
+       			}
+       			sheetMap.put(sn, wb.getSheet(s));
+       		});
        	}
        	else 
         {
@@ -210,17 +239,19 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
             IntStream.range(0, pages).forEach(page -> 
             {    	
     	        locateRow(hdr, waferOrStep, device.snxy, page);
-            	final int startCol = page * colsPerPage + firstDataCol;
-            	final int endCol = startCol + colsPerPage > tests.size() ? tests.size() : startCol + colsPerPage;
-           	    IntStream.range(startCol, endCol).forEach(col ->
+            	final int startIndex = page * colsPerPage;
+            	final int endIndex = startIndex + colsPerPage > tests.size() ? tests.size() : startIndex + colsPerPage;
+           	    IntStream.range(startIndex, endIndex).forEach(index ->
            	    {
-           	    	TestHeader th = tests.get(col);
+           	    	int col = titleBlock.getFirstDataCol() + index - startIndex;
+           	    	TestHeader th = tests.get(index);
            			TestResult r = api.getRecord(hdr, device, th);
            			//Log.msg("xy = " + sn + " id = " + id + " result = " + r);
            			try
            			{
            			if (r != null)
            			{
+           				setDevice(ws[page], waferOrStep, currentRow, device);
            				if (r instanceof ParametricTestResult)
            				{
            					ParametricTestResult p = (ParametricTestResult) r;
@@ -252,45 +283,59 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         int pages = numTests / colsPerPage;
         if (numTests % colsPerPage != 0) pages++;
         ws = new WritableSheet[pages];
-        for (int i=0; i<pages; i++)
+        for (int page=0; page<pages; page++)
         {
-        	String name = null;
-        	name = getPageName(hdr, i);
-        	ws[i] = wb.getSheet(name);
-        	if (ws[i] == null) 
+        	SheetName sname = null;
+        	int version = 0;
+        	while (true)
         	{
-        		newSheet(i, name, hdr);
-        		testHeaders = getTestHeaders(hdr, i);
+        	    sname = SheetName.getExistingSheetName(api.wafersort(hdr), hdr, page, version);
+        	    if (sname == null) break;
+        	    ws[page] = sheetMap.get(sname);
+        	    if (ws[page] == null) break;
+        	    PageHeader ph = getPageHeader(ws[page]);
+        	    if (ph.equals(hdr)) break;
+        	    ws[page] = null;
+        	    version++;
+        	}
+        	if (ws[page] == null) 
+        	{
+        		sname = SheetName.getSheet(api.wafersort(hdr), hdr, page, version);
+        		newSheet(page, sname, hdr);
+        		testHeaders = getTestHeaders(hdr, page);
         	}
         	else 
         	{
-        		if (!checkRegistration(ws[i])) throw new StdfException("Incompatible spreadsheet");
-        		testHeaders = getTestHeaders(ws[i]);
+        		if (!checkRegistration(ws[page])) 
+        		{
+        			close();
+        			throw new StdfException("Incompatible spreadsheet");
+        		}
+        		testHeaders = getTestHeaders(ws[page]);
         	}
         }
     }
     
-    private String getWaferOrStepName(PageHeader hdr)
+    private PageHeader getPageHeader(Sheet s)
     {
-    	return(api.wafersort(hdr) ? hdr.get(HeaderUtil.WAFER_ID): hdr.get(HeaderUtil.STEP));
+    	String key = "";
+    	int row = 0;
+    	Map<String, String> header  = new LinkedHashMap<>();
+    	while (!key.equals(HeaderBlock.OPTIONS_LABEL))
+    	{
+    		if (s.getCell(0, row).getType() == CellType.EMPTY) break;
+    	    key = s.getCell(0, row).getContents();
+    	    String value = s.getCell(HeaderBlock.VALUE_COL, row).getContents();
+    	    header.put(key, value);
+    	}
+    	return(new PageHeader(header));
     }
     
-    private String getPageName(PageHeader hdr, int pageIndex)
+    private void newSheet(int page, SheetName name, PageHeader hdr) throws RowsExceededException, WriteException, IOException
     {
-        String prefix = api.wafersort(hdr) ? "    WAFER " : "    STEP ";
-        return(prefix + getWaferOrStepName(hdr) + " Page " + (pageIndex + 1));
-    }
-    
-    private int getFirstDataRow()
-    {
-        return(titleBlock.getHeight());
-    }
-
-    private void newSheet(int page, String name, PageHeader hdr) throws RowsExceededException, WriteException, IOException
-    {
-    	ws[page] = wb.createSheet(name, sheetNum);
+    	ws[page] = wb.createSheet(name.toString(), sheetNum);
     	List<TestHeader> list = getTestHeaders(hdr, page);
-    	titleBlock = new TitleBlock(hdr, options.logoFile, getPageName(hdr, page), api.wafersort(hdr), options, list);
+    	titleBlock = new TitleBlock(hdr, options.logoFile, name.toString(), api.wafersort(hdr), options, list);
     	titleBlock.addBlock(ws[page]);
     	CellView c1 = ws[page].getRowView(6);
     	CellView c2 = ws[page].getRowView(7);
@@ -449,6 +494,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     	int rcol = titleBlock.getFirstDataCol() - 1;
     	int rrow = titleBlock.getTestNameRow();
     	Cell c = ws.getCell(rcol, rrow);
+    	Log.msg("col = " + rcol + " row = " + rrow);
     	Log.msg("CELL TYPE = " + c.getType());
     	Log.msg("CELL CONTENTS = " + c.getContents());
     	if (c.getType() == CellType.LABEL)
@@ -487,6 +533,57 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     	
     }
     
+    private void setDevice(WritableSheet wsi, String waferOrStep, int row, DeviceHeader dh) throws RowsExceededException, WriteException
+    {
+        if (dh.snxy instanceof XY || dh.snxy instanceof TimeXY) // wafersort
+        {
+            if (options.onePage)
+            {
+            	if (dh.snxy instanceof TimeXY)
+            	{
+            	    wsi.setColumnView(0, 15);	
+            	    wsi.addCell(new Number(0, row, ((TimeXY) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
+            	}
+            	wsi.addCell(new Label(titleBlock.getWaferOrStepCol(), row, waferOrStep));
+            }
+            else
+            {
+            	if (dh.snxy instanceof TimeXY)
+            	{
+            	    wsi.mergeCells(0, row, 1, row);	
+            	    wsi.addCell(new Number(0, row, ((TimeXY) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
+            	}
+            }
+        }
+        else // FT
+        {
+            if (options.onePage)
+            {
+                if (dh.snxy instanceof TimeSN)
+                {
+            	    wsi.mergeCells(0, row, 1, row);	
+            	    wsi.addCell(new Number(0, row, ((TimeSN) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
+                }
+            	wsi.addCell(new Label(titleBlock.getWaferOrStepCol(), row, waferOrStep));
+            }
+            else
+            {
+                if (dh.snxy instanceof TimeSN)
+                {
+            	    wsi.mergeCells(1, row, 2, row);	
+            	    wsi.addCell(new Number(1, row, ((TimeSN) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
+                }
+            }
+        }
+        wsi.addCell(new Number(titleBlock.getXCol(), row, dh.snxy.getX(), STATUS_PASS_FMT.getFormat()));
+        wsi.addCell(new Number(titleBlock.getYCol(), row, dh.snxy.getY(), STATUS_PASS_FMT.getFormat()));
+        wsi.addCell(new Number(titleBlock.getHwBinCol(), row, dh.hwBin, STATUS_PASS_FMT.getFormat()));
+        wsi.addCell(new Number(titleBlock.getSwBinCol(), row, dh.swBin, STATUS_PASS_FMT.getFormat()));
+        wsi.addCell(new Label(titleBlock.getTempCol(), row, dh.temperature, STATUS_PASS_FMT.getFormat()));
+        if (dh.fail) wsi.addCell(new Label(titleBlock.getResultCol(), row, "FAIL", STATUS_FAIL_FMT.getFormat()));
+        else wsi.addCell(new Label(titleBlock.getResultCol(), row, "PASS", STATUS_PASS_FMT.getFormat()));
+    }
+    
     private void setValue(WritableSheet wsi, int col, int row, ParametricTestResult p) throws RowsExceededException, WriteException
     {
     	if (p.pass()) wsi.addCell(new Number(col, row, p.result, PASS_VALUE_FMT.getFormat()));
@@ -505,7 +602,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         {
         	if (!options.noOverwrite)
         	{
-        		for (int row=firstDataRow; row<=MAX_ROWS; row++)
+        		for (int row=titleBlock.getFirstDataRow(); row<=MAX_ROWS; row++)
         		{
         			Cell cx = ws[page].getCell(titleBlock.getXCol(), row);
         			if (cx.getType() == CellType.EMPTY)
@@ -527,7 +624,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         			}
         		}
         	}
-            for (int i=firstDataRow; i<=MAX_ROWS; i++)
+            for (int i=titleBlock.getFirstDataRow(); i<=MAX_ROWS; i++)
             {
                 Cell c = ws[page].getCell(titleBlock.getXCol(), i);
                 CellType t = c.getType();
@@ -540,7 +637,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         }
         else // final test
         {
-            for (int row=firstDataRow; row<=MAX_ROWS; row++)
+            for (int row=titleBlock.getFirstDataRow(); row<=MAX_ROWS; row++)
             {
                 Cell c = ws[page].getWritableCell(titleBlock.getSnOrYCol(), row);
                 if (c.getType() == CellType.EMPTY)
