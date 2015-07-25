@@ -119,9 +119,8 @@ import static com.makechip.stdf2xls4.excel.xls.Format_t.*;
  * 
  * The actual spreadsheet looks like this:
  * <p> <IMG SRC="{@docRoot}/doc-files/xls1.png"> 
- * @TODO: update picture
  * @author eric
- *
+ * @TODO update picture
  * Algorithm for sheet management:
  * 1. Query workbook for sheet [name][page][version=0]
  * 2. if sheet does not exist, create new sheet;
@@ -289,29 +288,42 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         	int version = 0;
         	while (true)
         	{
-        	    sname = SheetName.getExistingSheetName(api.wafersort(hdr), hdr, page, version);
+        		ws[page] = null;
+        	    sname = SheetName.getExistingSheetName(api.wafersort(hdr), hdr, page+1, version);
+        	    Log.msg("existing sheet name = " + sname);
         	    if (sname == null) break;
         	    ws[page] = sheetMap.get(sname);
-        	    if (ws[page] == null) break;
+        	    if (ws[page] == null) 
+        	    {
+        	    	Log.msg("page is null");
+        	    	break;
+        	    }
         	    PageHeader ph = getPageHeader(ws[page]);
         	    if (ph.equals(hdr)) break;
-        	    ws[page] = null;
         	    version++;
+        	    Log.msg("headers are unequal: version = " + version);
+        	    Log.msg("HEADER1 = " + hdr);
+        	    Log.msg("HEADER2 = " + ph);
         	}
         	if (ws[page] == null) 
         	{
-        		sname = SheetName.getSheet(api.wafersort(hdr), hdr, page, version);
+        		Log.msg("getting new sheet");
+        		sname = SheetName.getSheet(api.wafersort(hdr), hdr, page+1, version);
+        		Log.msg("new sheet name = " + sname);
         		newSheet(page, sname, hdr);
         		testHeaders = getTestHeaders(hdr, page);
         	}
-        	else 
+        	else // note: an existing sheet might have a titleblock that is incompatible with the current titleblock.
         	{
+        		Log.msg("checking exising sheet...");
+    	        //List<TestHeader> list = getTestHeaders(ws[page]);
+    	        titleBlock = new TitleBlock(hdr, options.logoFile, sname.toString(), api.wafersort(hdr), options, null);
         		if (!checkRegistration(ws[page])) 
         		{
         			close();
         			throw new StdfException("Incompatible spreadsheet");
         		}
-        		testHeaders = getTestHeaders(ws[page]);
+        		//testHeaders = getTestHeaders(ws[page]);
         	}
         }
     }
@@ -321,19 +333,23 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     	String key = "";
     	int row = 0;
     	Map<String, String> header  = new LinkedHashMap<>();
-    	while (!key.equals(HeaderBlock.OPTIONS_LABEL))
+    	while (true)
     	{
     		if (s.getCell(0, row).getType() == CellType.EMPTY) break;
     	    key = s.getCell(0, row).getContents();
+    	    if (key.trim().equals(HeaderBlock.OPTIONS_LABEL)) break;
     	    String value = s.getCell(HeaderBlock.VALUE_COL, row).getContents();
     	    header.put(key, value);
+    	    row++;
+    	    if (row > 100) throw new RuntimeException("Error header in spreadsheet is not compatible with this verison");
     	}
     	return(new PageHeader(header));
     }
     
     private void newSheet(int page, SheetName name, PageHeader hdr) throws RowsExceededException, WriteException, IOException
     {
-    	ws[page] = wb.createSheet(name.toString(), sheetNum);
+    	ws[page] = wb.createSheet(name.toString(), page);
+    	sheetMap.put(name, ws[page]);
     	List<TestHeader> list = getTestHeaders(hdr, page);
     	titleBlock = new TitleBlock(hdr, options.logoFile, name.toString(), api.wafersort(hdr), options, list);
     	titleBlock.addBlock(ws[page]);
@@ -554,6 +570,8 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
             	    wsi.addCell(new Number(0, row, ((TimeXY) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
             	}
             }
+            wsi.addCell(new Number(titleBlock.getXCol(), row, dh.snxy.getX(), STATUS_PASS_FMT.getFormat()));
+            wsi.addCell(new Number(titleBlock.getYCol(), row, dh.snxy.getY(), STATUS_PASS_FMT.getFormat()));
         }
         else // FT
         {
@@ -574,9 +592,8 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
             	    wsi.addCell(new Number(1, row, ((TimeSN) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
                 }
             }
+            wsi.addCell(new Label(titleBlock.getSnOrYCol(), row, dh.snxy.getSerialNumber(), STATUS_PASS_FMT.getFormat()));
         }
-        wsi.addCell(new Number(titleBlock.getXCol(), row, dh.snxy.getX(), STATUS_PASS_FMT.getFormat()));
-        wsi.addCell(new Number(titleBlock.getYCol(), row, dh.snxy.getY(), STATUS_PASS_FMT.getFormat()));
         wsi.addCell(new Number(titleBlock.getHwBinCol(), row, dh.hwBin, STATUS_PASS_FMT.getFormat()));
         wsi.addCell(new Number(titleBlock.getSwBinCol(), row, dh.swBin, STATUS_PASS_FMT.getFormat()));
         wsi.addCell(new Label(titleBlock.getTempCol(), row, dh.temperature, STATUS_PASS_FMT.getFormat()));

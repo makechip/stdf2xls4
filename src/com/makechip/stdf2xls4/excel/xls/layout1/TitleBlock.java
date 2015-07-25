@@ -31,12 +31,12 @@ public class TitleBlock implements Block
 			          List<TestHeader> hdrs)
 	{
 	    hb = new HeaderBlock(options, hdr);
-	    ptb = new PageTitleBlock(pageTitle, hdrs.size(), hb);
+	    testWidth = hdrs == null ? 0 : hdrs.size();
+	    ptb = new PageTitleBlock(pageTitle, testWidth, hb);
 	    lb = new LegendBlock(hb);
 	    logo = new LogoBlock(logoFile, hb);
 	    cb = new CornerBlock(wafersort, options.onePage, hb);
 	    dh = new DataHeader(hb, options.noWrapTestNames, options.precision, hdrs);
-	    testWidth = hdrs.size();
 	}
     
 	@Override
