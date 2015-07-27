@@ -1,6 +1,6 @@
-package com.makechip.stdf2xls4.excel.xls.layout1;
+package com.makechip.stdf2xls4.excel.xls.layout2;
 
-import static com.makechip.stdf2xls4.excel.xls.layout1.Format_t.TITLE_FMT;
+import static com.makechip.stdf2xls4.excel.xls.layout2.Format_t.TITLE_FMT;
 
 import java.io.IOException;
 
@@ -13,22 +13,21 @@ import jxl.write.biff.RowsExceededException;
 
 class PageTitleBlock implements Block
 {
+	public static final int HEIGHT = 7;
     private static final int COL = HeaderBlock.WIDTH;
     private final String title;
     private final int width;
-    private final int height;
    
-    public PageTitleBlock(String title, int testWidth, HeaderBlock hb)
+    public PageTitleBlock(String title, int numDevices)
     {
     	this.title = title;
-    	this.width = testWidth;
-    	height = hb.getHeight();
+    	this.width = numDevices;
     }
     
     @Override
     public void addBlock(WritableSheet ws) throws WriteException, RowsExceededException, IOException
     {
-        ws.mergeCells(COL, 0, COL + width - 1, height - 1);
+        ws.mergeCells(COL, 0, COL + width - 1, HEIGHT - 1);
         ws.addCell(new Label(COL, 0, title, TITLE_FMT.getFormat()));
     }
 
@@ -41,6 +40,6 @@ class PageTitleBlock implements Block
 	@Override
 	public int getHeight()
 	{
-		return(height);
+		return(HEIGHT);
 	}
 }

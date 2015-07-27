@@ -1,11 +1,12 @@
 package com.makechip.stdf2xls4.excel.xls.layout1;
 
-import static com.makechip.stdf2xls4.excel.xls.Format_t.HEADER1_FMT;
-import static com.makechip.stdf2xls4.excel.xls.Format_t.HEADER4_FMT;
+import static com.makechip.stdf2xls4.excel.xls.layout1.Format_t.HEADER1_FMT;
+import static com.makechip.stdf2xls4.excel.xls.layout1.Format_t.HEADER4_FMT;
 
 import java.io.IOException;
 
 import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.excel.xls.layout1.HeaderBlock;
 
 import jxl.write.Label;
 import jxl.write.WritableSheet;

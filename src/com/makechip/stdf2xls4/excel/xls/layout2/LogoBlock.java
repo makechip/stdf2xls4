@@ -1,9 +1,10 @@
-package com.makechip.stdf2xls4.excel.xls.layout1;
+package com.makechip.stdf2xls4.excel.xls.layout2;
 
 import java.io.File;
 import java.io.IOException;
 
 import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.excel.xls.layout2.Format_t;
 
 import jxl.write.Label;
 import jxl.write.WritableImage;
@@ -28,10 +29,10 @@ class LogoBlock implements Block
      * @param logoFile Image file containing JPG image.
      * This parameter may be null, in which case a default logo will be supplied.
      */
-    public LogoBlock(File logoFile, HeaderBlock hb)
+    public LogoBlock(File logoFile)
     {
     	this.logoFile = logoFile;
-    	row = hb.getHeight();
+    	row = 0;
     }
     
     @Override

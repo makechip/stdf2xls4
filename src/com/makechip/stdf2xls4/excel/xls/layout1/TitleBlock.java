@@ -6,6 +6,11 @@ import java.util.List;
 
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.excel.xls.layout1.DataHeader;
+import com.makechip.stdf2xls4.excel.xls.layout1.HeaderBlock;
+import com.makechip.stdf2xls4.excel.xls.layout1.LegendBlock;
+import com.makechip.stdf2xls4.excel.xls.layout1.LogoBlock;
+import com.makechip.stdf2xls4.excel.xls.layout1.PageTitleBlock;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
 

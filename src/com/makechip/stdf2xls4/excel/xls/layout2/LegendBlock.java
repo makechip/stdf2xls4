@@ -1,6 +1,6 @@
-package com.makechip.stdf2xls4.excel.xls.layout1;
+package com.makechip.stdf2xls4.excel.xls.layout2;
 
-import static com.makechip.stdf2xls4.excel.xls.layout1.Format_t.*;
+import static com.makechip.stdf2xls4.excel.xls.layout2.Format_t.*;
 
 import java.io.IOException;
 
@@ -13,28 +13,26 @@ import jxl.write.biff.RowsExceededException;
 
 public class LegendBlock implements Block
 {
-	public static final int LEGEND_ROW_HEIGHT = 1400;
-	public static final int WIDTH = 3;
+	public static final int WIDTH = 2;
 	public static final int HEIGHT = 7;
     private static final int COL = 0;
     private final int row;
     
-    public LegendBlock(HeaderBlock hb)
+    public LegendBlock()
     {
-        row = hb.getHeight();	
+        row = 0;
     }
     
     @Override
     public void addBlock(WritableSheet ws) throws RowsExceededException, WriteException, IOException
     {
-    	ws.setRowView(row, LEGEND_ROW_HEIGHT);
-        ws.mergeCells(COL, row,   COL+2, row);
-        ws.mergeCells(COL, row+1, COL+2, row+1);
-        ws.mergeCells(COL, row+2, COL+2, row+2);
-        ws.mergeCells(COL, row+3, COL+2, row+3);
-        ws.mergeCells(COL, row+4, COL+2, row+4);
-        ws.mergeCells(COL, row+5, COL+2, row+5);
-        ws.mergeCells(COL, row+6, COL+2, row+6);
+        ws.mergeCells(COL, row,   COL+1, row);
+        ws.mergeCells(COL, row+1, COL+1, row+1);
+        ws.mergeCells(COL, row+2, COL+1, row+2);
+        ws.mergeCells(COL, row+3, COL+1, row+3);
+        ws.mergeCells(COL, row+4, COL+1, row+4);
+        ws.mergeCells(COL, row+5, COL+1, row+5);
+        ws.mergeCells(COL, row+6, COL+1, row+6);
 
         ws.addCell(new Label(COL, row,   "Legend:", HEADER1_FMT.getFormat()));
         ws.addCell(new Label(COL, row+1, "PASS", PASS_VALUE_FMT.getFormat()));
@@ -48,13 +46,13 @@ public class LegendBlock implements Block
 	@Override
 	public int getWidth()
 	{
-		return(3);
+		return(WIDTH);
 	}
 
 	@Override
 	public int getHeight()
 	{
-		return(7);
+		return(HEIGHT);
 	}
     
 }

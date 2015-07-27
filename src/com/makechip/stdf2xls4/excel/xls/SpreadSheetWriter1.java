@@ -19,6 +19,8 @@ package com.makechip.stdf2xls4.excel.xls;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 
+import static com.makechip.stdf2xls4.excel.xls.layout1.Format_t.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,17 +55,16 @@ import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.SpreadSheetWriter;
 import com.makechip.stdf2xls4.excel.SheetName;
 import com.makechip.stdf2xls4.excel.xls.layout1.CornerBlock;
-import com.makechip.stdf2xls4.excel.xls.layout1.DataHeader;
-import com.makechip.stdf2xls4.excel.xls.layout1.HeaderBlock;
-import com.makechip.stdf2xls4.excel.xls.layout1.LegendBlock;
+import com.makechip.stdf2xls4.excel.xls.layout1.Format_t;
 import com.makechip.stdf2xls4.excel.xls.layout1.TitleBlock;
+import com.makechip.stdf2xls4.excel.xls.layout2.DataHeader;
+import com.makechip.stdf2xls4.excel.xls.layout2.HeaderBlock;
+import com.makechip.stdf2xls4.excel.xls.layout2.LegendBlock;
 import com.makechip.stdf2xls4.stdfapi.*;
 import com.makechip.stdf2xls4.stdf.StdfException;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.util.Log;
-
-import static com.makechip.stdf2xls4.excel.xls.Format_t.*;
 
 /**
  * This class is used to generate Spreadsheets in the old "xls" format, and
