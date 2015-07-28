@@ -35,11 +35,19 @@ import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
 public class TestResult
 {
     private final Set<TestFlag_t> flags;
+    public final Error_t error;
 
     public TestResult(final Set<TestFlag_t> flags)
     {
     	this.flags = EnumSet.noneOf(TestFlag_t.class);
     	flags.stream().forEach(s -> this.flags.add(s));
+    	if (flags.contains(ABORT)) error = Error_t.ABORT;
+    	else if (flags.contains(NO_PASS_FAIL)) error = Error_t.INVALID;
+    	else if (flags.contains(UNRELIABLE)) error = Error_t.UNRELIABLE;
+    	else if (flags.contains(ALARM)) error = Error_t.ALARM;
+    	else if (flags.contains(TIMEOUT)) error = Error_t.TIMEOUT;
+    	else if (flags.contains(FAIL)) error = Error_t.FAIL;
+    	else error = Error_t.PASS;
     }
     
     public boolean fail()

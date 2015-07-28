@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -276,11 +275,12 @@ public class TestRecordDatabase
 	
 	public Set<PageHeader> getPageHeaders() { return(devMap.keySet()); }
 	
-	public Set<DeviceHeader> getDeviceHeaders(PageHeader hdr) 
+	public List<DeviceHeader> getDeviceHeaders(PageHeader hdr) 
 	{
 		Map<DeviceHeader, Map<TestHeader, TestResult>> m = devMap.get(hdr);
-		if (m == null) return(new LinkedHashSet<DeviceHeader>());
-		return(m.keySet());
+		if (m == null) return(new ArrayList<DeviceHeader>());
+		List<DeviceHeader> list = m.keySet().stream().collect(Collectors.toList());
+		return(list);
 	}
 	
 	public List<TestHeader> getTestHeaders(PageHeader hdr)
@@ -301,13 +301,14 @@ public class TestRecordDatabase
 		return(list);
 	}
 
-	public Set<DeviceHeader> getDeviceHeaders(PageHeader hdr, TestHeader id)
+	public List<DeviceHeader> getDeviceHeaders(PageHeader hdr, TestHeader id)
 	{
 		Map<TestHeader, Map<DeviceHeader, TestResult>> m1 = testMap.get(hdr);
-		if (m1 == null) return(new LinkedHashSet<DeviceHeader>());
+		if (m1 == null) return(new ArrayList<DeviceHeader>());
 		Map<DeviceHeader, TestResult> m2 = m1.get(id);
-		if (m2 == null) return(new LinkedHashSet<DeviceHeader>());
-		return(m2.keySet());
+		if (m2 == null) return(new ArrayList<DeviceHeader>());
+		List<DeviceHeader> list = m2.keySet().stream().collect(Collectors.toList());
+		return(list);
 	}
 	
 	private List<TestHeader> getTestHeader(DefaultValueDatabase dvd, PageHeader hdr, TestRecord r)

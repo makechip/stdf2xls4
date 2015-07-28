@@ -32,6 +32,7 @@ public class TitleBlock implements Block
 			          File logoFile, 
 			          String pageTitle, 
 			          boolean wafersort, 
+			          boolean timeStampedFiles,
 			          CliOptions options,
 			          int numDevices,
 			          List<TestHeader> hdrs)
@@ -41,7 +42,7 @@ public class TitleBlock implements Block
 	    ptb = new PageTitleBlock(pageTitle, numDevices);
 	    lb = new LegendBlock();
 	    logo = new LogoBlock(logoFile);
-	    cb = new CornerBlock(wafersort, options.onePage, hb);
+	    cb = new CornerBlock(wafersort, options.onePage, timeStampedFiles, hb);
 	    dh = new DataHeader(cb, options.precision, hdrs);
 	}
     
@@ -56,29 +57,30 @@ public class TitleBlock implements Block
 		dh.addBlock(ws);
     }
 	
-	public int getFirstDataCol()   { return(hb.getWidth());          }
-	public int getFirstDataRow()   { return(cb.getFirstDataCol());   }
-	public int getWaferOrStepCol() { return(cb.getWaferOrStepRow()); }
-	public int getSnOrYCol()       { return(cb.getSnOrYRow());       }
-	public int getXCol()           { return(cb.getXRow());           }
-	public int getYCol()           { return(cb.getYRow());           }
-	public int getHwBinCol()       { return(cb.getHwBinRow());       }
-	public int getSwBinCol()       { return(cb.getSwBinRow());       }
-	public int getResultCol()      { return(cb.getResultRow());      }
-	public int getTempCol()        { return(cb.getTempRow());        }
-	public int getTestNameRow()    { return(cb.getTestNameCol());    }
-	public int getTestNumberRow()  { return(cb.getTestNumberCol());  }
-	public int getDupNumRow()      { return(cb.getDupNumCol());      }
-	public int getLoLimitRow()     { return(cb.getLoLimitCol());     }
-	public int getHiLimitRow()     { return(cb.getHiLimitCol());     }
-	public int getPinNameRow()     { return(cb.getPinNameCol());     }
-	public int getUnitsRow()       { return(cb.getUnitsCol());       }
+	public int getFirstDataRow()   { return(PageTitleBlock.HEIGHT + cb.getHeight()); }
+	public int getFirstDataCol()   { return(cb.getFirstDataCol());   }
+	public int getTimeStampRow()   { return(cb.getTimeStampRow());   }
+	public int getWaferOrStepRow() { return(cb.getWaferOrStepRow()); }
+	public int getSnOrYRow()       { return(cb.getSnOrYRow());       }
+	public int getXRow()           { return(cb.getXRow());           }
+	public int getYRow()           { return(cb.getYRow());           }
+	public int getHwBinRow()       { return(cb.getHwBinRow());       }
+	public int getSwBinRow()       { return(cb.getSwBinRow());       }
+	public int getResultRow()      { return(cb.getResultRow());      }
+	public int getTempRow()        { return(cb.getTempRow());        }
+	public int getTestNameCol()    { return(cb.getTestNameCol());    }
+	public int getTestNumberCol()  { return(cb.getTestNumberCol());  }
+	public int getDupNumCol()      { return(cb.getDupNumCol());      }
+	public int getLoLimitCol()     { return(cb.getLoLimitCol());     }
+	public int getHiLimitCol()     { return(cb.getHiLimitCol());     }
+	public int getPinNameCol()     { return(cb.getPinNameCol());     }
+	public int getUnitsCol()       { return(cb.getUnitsCol());       }
 	public int getOptionsRow()     { return(hb.getHeight() - 1);     }
 
 	@Override
 	public int getWidth()
 	{
-		return(hb.getWidth() + testWidth);
+		return(hb.getWidth() + cb.getWidth() + testWidth);
 	}
 
 	@Override

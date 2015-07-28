@@ -54,9 +54,9 @@ import jxl.write.biff.RowsExceededException;
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.SpreadSheetWriter;
 import com.makechip.stdf2xls4.excel.SheetName;
-import com.makechip.stdf2xls4.excel.xls.layout1.CornerBlock;
-import com.makechip.stdf2xls4.excel.xls.layout1.Format_t;
-import com.makechip.stdf2xls4.excel.xls.layout1.TitleBlock;
+import com.makechip.stdf2xls4.excel.xls.layout2.CornerBlock;
+import com.makechip.stdf2xls4.excel.xls.layout2.Format_t;
+import com.makechip.stdf2xls4.excel.xls.layout2.TitleBlock;
 import com.makechip.stdf2xls4.excel.xls.layout2.DataHeader;
 import com.makechip.stdf2xls4.excel.xls.layout2.HeaderBlock;
 import com.makechip.stdf2xls4.excel.xls.layout2.LegendBlock;
@@ -90,7 +90,9 @@ import com.makechip.util.Log;
      -+             +                           +
      6|             |                           |
      -+------+------+------+------+------+------+---------------------------+-------+-------+-------+-------+-------+-------+--------+-------
-     7|                                         |                           |       |       |       |       |       |       |waf/stp?|
+     7|                                         |                           |       |       |       |       |       |       |tstamp? |
+      +                                         +                           |       |       |       |       |       |       +        +-------
+      |                                         |                           |       |       |       |       |       |       |waf/stp?|
      -+                                         +                           |       |       |       |       |       |       +--------+--------
       |                                         |                           |       |       |       |       |       |       |      X?|
      -+                                         +                           |       |       |       |       |       |       +--------+---------
@@ -151,7 +153,7 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     private WritableWorkbook wb = null;
     private WritableSheet[] ws;
     private int sheetNum = 0;
-    private int currentRow;
+    private int currentCol;
     private CellView tnumView     = new CellView();
     private CellView loLimitView  = new CellView();
     private CellView hiLimitView  = new CellView();
@@ -159,7 +161,6 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     private CellView unitsView    = new CellView();
     private CellView hdrView      = new CellView();
     private int testColumns;
-    private List<TestHeader> testHeaders;
     private Map<PageHeader, Integer> versionMap;
     private Map<SheetName, WritableSheet> sheetMap;
     private TitleBlock titleBlock;
@@ -226,64 +227,72 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
         close();
     }
         
-    private void writeData(PageHeader hdr) 
+    private void writeData(PageHeader hdr) throws RowsExceededException, WriteException 
     {
     	if (options.sort && options.showDuplicates) noOverwrite = true;
-    	Set<DeviceHeader> devs = api.getDeviceHeaders(hdr);
+    	List<DeviceHeader> devs = api.getDeviceHeaders(hdr);
+    	final int pages = (devs.size() % colsPerPage == 0) ? devs.size() / colsPerPage : 1 + devs.size() / colsPerPage;
+    	IntStream.range(0, pages).forEach(page -> writeResultsOnPage(hdr, page));
+    }	
+    	
+    private void writeResultsOnPage(PageHeader hdr, int page)
+    {
+    	List<DeviceHeader> devs = api.getDeviceHeaders(hdr);
+       	final int startIndex = page * colsPerPage;
+       	final int endIndex = startIndex + colsPerPage > devs.size() ? devs.size() : startIndex + colsPerPage;
+       	String waferOrStep = api.wafersort(hdr) ? hdr.get(HeaderUtil.WAFER_ID) : hdr.get(HeaderUtil.STEP);
+        IntStream.range(startIndex, endIndex).forEach(devIndex -> writeDeviceResults(hdr, waferOrStep, page, devIndex));
+    }
+    
+    private void writeDeviceResults(PageHeader hdr, String waferOrStep, int page, int devIndex)
+    {
+    	List<DeviceHeader> devs = api.getDeviceHeaders(hdr);
+    	DeviceHeader dh = devs.get(devIndex);
     	List<TestHeader> tests = api.getTestHeaders(hdr);
-    	final int pages = (tests.size() % colsPerPage == 0) ? tests.size() / colsPerPage : 1 + tests.size() / colsPerPage;
-        devs.stream().forEach(device -> 
-        {
-        	String waferOrStep = api.wafersort(hdr) ? hdr.get(HeaderUtil.WAFER_ID) : hdr.get(HeaderUtil.STEP);
-            IntStream.range(0, pages).forEach(page -> 
-            {    	
-    	        locateRow(hdr, waferOrStep, device.snxy, page);
-            	final int startIndex = page * colsPerPage;
-            	final int endIndex = startIndex + colsPerPage > tests.size() ? tests.size() : startIndex + colsPerPage;
-           	    IntStream.range(startIndex, endIndex).forEach(index ->
-           	    {
-           	    	int col = titleBlock.getFirstDataCol() + index - startIndex;
-           	    	TestHeader th = tests.get(index);
-           			TestResult r = api.getRecord(hdr, device, th);
-           			//Log.msg("xy = " + sn + " id = " + id + " result = " + r);
-           			try
-           			{
-           			if (r != null)
-           			{
-           				setDevice(ws[page], waferOrStep, currentRow, device);
-           				if (r instanceof ParametricTestResult)
-           				{
-           					ParametricTestResult p = (ParametricTestResult) r;
-           					setValue(ws[page], col, currentRow, p);
-           				}
-           				else if (r instanceof DatalogTestResult)
-           				{
-           					DatalogTestResult d = (DatalogTestResult) r;
-           					setText(ws[page], col, currentRow, d.result);
-           				}
-           				else // a functional test
-           				{
-           					setStatus(ws[page], col, currentRow, r);
-           				}
-           			}
-           			}
-           			catch (Exception e)
-           			{
-           				throw new RuntimeException(e.getMessage());
-           			}
-           		});
-            });
-        });
+        locateCol(api.wafersort(hdr), waferOrStep, dh.snxy, page);
+        setDevice(page, waferOrStep, devs.get(devIndex));
+        IntStream.range(0, tests.size()).forEach(i -> setResult(i, page, tests.get(i), hdr, dh));
     } 
+    
+    private void setResult(int index, int page, TestHeader th, PageHeader hdr, DeviceHeader dh)
+    {
+   	    int row = titleBlock.getFirstDataRow() + index;
+		TestResult r = api.getRecord(hdr, dh, th);
+		try
+		{
+		    if (r != null)
+		    {
+			    if (r instanceof ParametricTestResult)
+			    {
+				    ParametricTestResult p = (ParametricTestResult) r;
+				    setValue(ws[page], currentCol, row, p);
+			    }
+			    else if (r instanceof DatalogTestResult)
+			    {
+				    DatalogTestResult d = (DatalogTestResult) r;
+				    setText(ws[page], currentCol, row, d.result);
+			    }
+			    else // a functional test
+			    {
+				    setStatus(ws[page], currentCol, row, r);
+			    }
+		    }
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e.getMessage());
+		}
+    }
     
     private void openSheet(PageHeader hdr) throws RowsExceededException, WriteException, IOException, StdfException
     {
-        int numTests = api.getTestHeaders(hdr).size();
-        int pages = numTests / colsPerPage;
-        if (numTests % colsPerPage != 0) pages++;
+    	List<DeviceHeader> devs = api.getDeviceHeaders(hdr);
+        int pages = devs.size() / colsPerPage;
+        if (devs.size() % colsPerPage != 0) pages++;
         ws = new WritableSheet[pages];
         for (int page=0; page<pages; page++)
         {
+        	int numDevices = (page == pages - 1) ? (devs.size() % colsPerPage == 0 ? colsPerPage : devs.size() % colsPerPage) : colsPerPage;
         	SheetName sname = null;
         	int version = 0;
         	while (true)
@@ -293,11 +302,7 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
         	    Log.msg("existing sheet name = " + sname);
         	    if (sname == null) break;
         	    ws[page] = sheetMap.get(sname);
-        	    if (ws[page] == null) 
-        	    {
-        	    	Log.msg("page is null");
-        	    	break;
-        	    }
+        	    if (ws[page] == null) break;
         	    PageHeader ph = getPageHeader(ws[page]);
         	    if (ph.equals(hdr)) break;
         	    version++;
@@ -310,20 +315,18 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
         		Log.msg("getting new sheet");
         		sname = SheetName.getSheet(api.wafersort(hdr), hdr, page+1, version);
         		Log.msg("new sheet name = " + sname);
-        		newSheet(page, sname, hdr);
-        		testHeaders = getTestHeaders(hdr, page);
+        		newSheet(page, sname, hdr, numDevices);
         	}
         	else // note: an existing sheet might have a titleblock that is incompatible with the current titleblock.
         	{
         		Log.msg("checking exising sheet...");
     	        //List<TestHeader> list = getTestHeaders(ws[page]);
-    	        titleBlock = new TitleBlock(hdr, options.logoFile, sname.toString(), api.wafersort(hdr), options, null);
+    	        titleBlock = new TitleBlock(hdr, options.logoFile, sname.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, null);
         		if (!checkRegistration(ws[page])) 
         		{
         			close();
         			throw new StdfException("Incompatible spreadsheet");
         		}
-        		//testHeaders = getTestHeaders(ws[page]);
         	}
         }
     }
@@ -346,47 +349,32 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     	return(new PageHeader(header));
     }
     
-    private void newSheet(int page, SheetName name, PageHeader hdr) throws RowsExceededException, WriteException, IOException
+    private void newSheet(int page, SheetName name, PageHeader hdr, int numDevices) throws RowsExceededException, WriteException, IOException
     {
     	ws[page] = wb.createSheet(name.toString(), page);
     	sheetMap.put(name, ws[page]);
-    	List<TestHeader> list = getTestHeaders(hdr, page);
-    	titleBlock = new TitleBlock(hdr, options.logoFile, name.toString(), api.wafersort(hdr), options, list);
+    	List<TestHeader> list = api.getTestHeaders(hdr);
+    	titleBlock = new TitleBlock(hdr, options.logoFile, name.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, list);
     	titleBlock.addBlock(ws[page]);
     	CellView c1 = ws[page].getRowView(6);
     	CellView c2 = ws[page].getRowView(7);
     	Log.msg("row6 height = " + c1.getSize() + " row7 height = " + c2.getSize());
     }
     
-    private List<TestHeader> getTestHeaders(PageHeader hdr, int pageIndex)
-    {
-        List<TestHeader> plist = new ArrayList<>(colsPerPage);
-        List<TestHeader> list = api.getTestHeaders(hdr);
-        int start = colsPerPage * pageIndex;
-        int end = start + colsPerPage;
-        int cols = 0;
-        for (int i=start; i<end && i<list.size(); i++) 
-        {
-        	plist.add(list.get(i));
-        	cols++;
-        }
-        testColumns = cols;
-        return(plist);
-    }
-    
     private List<TestHeader> getTestHeaders(WritableSheet existingSheet) throws StdfException
     {
         List<TestHeader> plist = new ArrayList<>(colsPerPage);
         int cnt = 0;
-        for (int i=titleBlock.getFirstDataCol(); i<titleBlock.getFirstDataCol()+colsPerPage; i++)
+        int row = titleBlock.getFirstDataRow();
+        while (existingSheet.getCell(titleBlock.getFirstDataRow(), titleBlock.getTestNameCol()).getType() != CellType.EMPTY)
         {
-        	Cell tnameCell = existingSheet.getCell(i, titleBlock.getTestNameRow());
-        	Cell tnumCell  = existingSheet.getCell(i, titleBlock.getTestNumberRow());
-        	Cell dupCell   = existingSheet.getCell(i, titleBlock.getDupNumRow());
-        	Cell loLimCell = existingSheet.getCell(i, titleBlock.getLoLimitRow());
-        	Cell hiLimCell = existingSheet.getCell(i, titleBlock.getHiLimitRow());
-        	Cell pnameCell = existingSheet.getCell(i, titleBlock.getPinNameRow());
-        	Cell unitsCell = existingSheet.getCell(i, titleBlock.getUnitsRow());
+        	Cell tnameCell = existingSheet.getCell(titleBlock.getTestNameCol(), row);
+        	Cell tnumCell  = existingSheet.getCell(titleBlock.getTestNumberCol(), row);
+        	Cell dupCell   = existingSheet.getCell(titleBlock.getDupNumCol(), row);
+        	Cell loLimCell = existingSheet.getCell(titleBlock.getLoLimitCol(), row);
+        	Cell hiLimCell = existingSheet.getCell(titleBlock.getHiLimitCol(), row);
+        	Cell pnameCell = existingSheet.getCell(titleBlock.getPinNameCol(), row);
+        	Cell unitsCell = existingSheet.getCell(titleBlock.getUnitsCol(), row);
         	String tname = tnameCell.getContents();
            	long tnum = (long) ((Number) tnumCell).getValue();
            	int dnum = (int) ((Number) dupCell).getValue();
@@ -427,6 +415,7 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
         	    	plist.add(new TestHeader(tname, tnum, dnum));
         	    }
         	}
+        	row++;
         }
         return(plist);
     }
@@ -449,7 +438,7 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     {
     	// Check for option compatibility:
     	int optRow = -1;
-    	for (int row=0; row<100; row++)
+    	for (int row=LegendBlock.HEIGHT; row<100; row++)
     	{
     		Cell c = ws.getCell(0, row);
     		if (c.getType() == CellType.LABEL)
@@ -465,7 +454,7 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     		}
     	}
     	if (optRow < 0) throw new StdfException("Existing spreadsheet is incompatible");
-    	String oldOpts = ws.getCell(3, optRow).getContents();
+    	String oldOpts = ws.getCell(2, optRow).getContents();
     	Log.msg("oldOpts = " + oldOpts);
     	// -b onePage mismatch = error
     	if (oldOpts.contains("-b") && !options.onePage) throw optionError(true, "-b");
@@ -507,8 +496,8 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
         {
             Log.warning("Existing spreadsheet does not use -a option, while current run does.");
         }
-    	int rcol = titleBlock.getFirstDataCol() - 1;
-    	int rrow = titleBlock.getTestNameRow();
+    	int rrow = titleBlock.getFirstDataRow() - 1;
+    	int rcol = titleBlock.getTestNameCol();
     	Cell c = ws.getCell(rcol, rrow);
     	Log.msg("col = " + rcol + " row = " + rrow);
     	Log.msg("CELL TYPE = " + c.getType());
@@ -523,8 +512,7 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     
     private void setStatus(WritableSheet wsi, int col, int row, TestResult r) throws RowsExceededException, WriteException
     {
-    	/*
-        switch (err)
+        switch (r.error)
         {
         case PASS:       wsi.addCell(new Label(col, row, "PASS", STATUS_PASS_FMT.getFormat())); break;
         case FAIL:       wsi.addCell(new Label(col, row, "FAIL", STATUS_FAIL_FMT.getFormat())); break;
@@ -534,7 +522,6 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
         case TIMEOUT:    wsi.addCell(new Label(col, row, "FAIL", STATUS_TIMEOUT_FMT.getFormat())); break;
         default:         wsi.addCell(new Label(col, row, "FAIL", STATUS_ABORT_FMT.getFormat())); break;
         }
-        */
     }
     
     private void setText(WritableSheet wsi, int col, int row, String text) throws RowsExceededException, WriteException
@@ -549,117 +536,122 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     	
     }
     
-    private void setDevice(WritableSheet wsi, String waferOrStep, int row, DeviceHeader dh) throws RowsExceededException, WriteException
+    private void setDevice(int page, String waferOrStep, DeviceHeader dh)
     {
-        if (dh.snxy instanceof XY || dh.snxy instanceof TimeXY) // wafersort
-        {
-            if (options.onePage)
-            {
-            	if (dh.snxy instanceof TimeXY)
-            	{
-            	    wsi.setColumnView(0, 15);	
-            	    wsi.addCell(new Number(0, row, ((TimeXY) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
-            	}
-            	wsi.addCell(new Label(titleBlock.getWaferOrStepCol(), row, waferOrStep));
-            }
-            else
-            {
-            	if (dh.snxy instanceof TimeXY)
-            	{
-            	    wsi.mergeCells(0, row, 1, row);	
-            	    wsi.addCell(new Number(0, row, ((TimeXY) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
-            	}
-            }
-            wsi.addCell(new Number(titleBlock.getXCol(), row, dh.snxy.getX(), STATUS_PASS_FMT.getFormat()));
-            wsi.addCell(new Number(titleBlock.getYCol(), row, dh.snxy.getY(), STATUS_PASS_FMT.getFormat()));
-        }
-        else // FT
-        {
-            if (options.onePage)
-            {
-                if (dh.snxy instanceof TimeSN)
-                {
-            	    wsi.mergeCells(0, row, 1, row);	
-            	    wsi.addCell(new Number(0, row, ((TimeSN) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
-                }
-            	wsi.addCell(new Label(titleBlock.getWaferOrStepCol(), row, waferOrStep));
-            }
-            else
-            {
-                if (dh.snxy instanceof TimeSN)
-                {
-            	    wsi.mergeCells(1, row, 2, row);	
-            	    wsi.addCell(new Number(1, row, ((TimeSN) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
-                }
-            }
-            wsi.addCell(new Label(titleBlock.getSnOrYCol(), row, dh.snxy.getSerialNumber(), STATUS_PASS_FMT.getFormat()));
-        }
-        wsi.addCell(new Number(titleBlock.getHwBinCol(), row, dh.hwBin, STATUS_PASS_FMT.getFormat()));
-        wsi.addCell(new Number(titleBlock.getSwBinCol(), row, dh.swBin, STATUS_PASS_FMT.getFormat()));
-        wsi.addCell(new Label(titleBlock.getTempCol(), row, dh.temperature, STATUS_PASS_FMT.getFormat()));
-        if (dh.fail) wsi.addCell(new Label(titleBlock.getResultCol(), row, "FAIL", STATUS_FAIL_FMT.getFormat()));
-        else wsi.addCell(new Label(titleBlock.getResultCol(), row, "PASS", STATUS_PASS_FMT.getFormat()));
+    	WritableSheet wsi = ws[page];
+    	int col = currentCol;
+    	wsi.setColumnView(col, 12);
+    	try
+    	{
+    		if (dh.snxy instanceof XY || dh.snxy instanceof TimeXY) // wafersort
+    		{
+    			if (options.onePage)
+    			{
+    				if (dh.snxy instanceof TimeXY)
+    				{
+    					wsi.setColumnView(0, 15);	
+    					wsi.addCell(new Number(col, titleBlock.getTimeStampRow(), ((TimeXY) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
+    				}
+    				wsi.addCell(new Label(col, titleBlock.getWaferOrStepRow(), waferOrStep));
+    			}
+    			else
+    			{
+    				if (dh.snxy instanceof TimeXY)
+    				{
+    					wsi.addCell(new Number(col, titleBlock.getTimeStampRow(), ((TimeXY) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
+    				}
+    			}
+    			wsi.addCell(new Number(col, titleBlock.getXRow(), dh.snxy.getX(), STATUS_PASS_FMT.getFormat()));
+    			wsi.addCell(new Number(col, titleBlock.getYRow(), dh.snxy.getY(), STATUS_PASS_FMT.getFormat()));
+    		}
+    		else // FT
+    		{
+    			if (options.onePage)
+    			{
+    				if (dh.snxy instanceof TimeSN)
+    				{
+    					wsi.addCell(new Number(col, titleBlock.getTimeStampRow(), ((TimeSN) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
+    				}
+    				wsi.addCell(new Label(col, titleBlock.getWaferOrStepRow(), waferOrStep));
+    			}
+    			else
+    			{
+    				if (dh.snxy instanceof TimeSN)
+    				{
+    					wsi.addCell(new Number(col, titleBlock.getTimeStampRow(), ((TimeSN) dh.snxy).getTimeStamp(), STATUS_PASS_FMT.getFormat()));
+    				}
+    			}
+    			wsi.addCell(new Label(col, titleBlock.getSnOrYRow(), dh.snxy.getSerialNumber(), STATUS_PASS_FMT.getFormat()));
+    		}
+    		wsi.addCell(new Number(col, titleBlock.getHwBinRow(), dh.hwBin, STATUS_PASS_FMT.getFormat()));
+    		wsi.addCell(new Number(col, titleBlock.getSwBinRow(), dh.swBin, STATUS_PASS_FMT.getFormat()));
+    		wsi.addCell(new Label(col, titleBlock.getTempRow(), dh.temperature, STATUS_PASS_FMT.getFormat()));
+    		if (dh.fail) wsi.addCell(new Label(col, titleBlock.getResultRow(), "FAIL", STATUS_FAIL_FMT.getFormat()));
+    		else wsi.addCell(new Label(col, titleBlock.getResultRow(), "PASS", STATUS_PASS_FMT.getFormat()));
+    	}
+    	catch (WriteException e) { throw new RuntimeException(e.getMessage()); }
     }
     
     private void setValue(WritableSheet wsi, int col, int row, ParametricTestResult p) throws RowsExceededException, WriteException
     {
-    	if (p.pass()) wsi.addCell(new Number(col, row, p.result, PASS_VALUE_FMT.getFormat()));
-    	else if (p.noPassFail()) wsi.addCell(new Number(col, row, p.result, INVALID_VALUE_FMT.getFormat()));
-    	else if (p.unreliable()) wsi.addCell(new Number(col, row, p.result, UNRELIABLE_VALUE_FMT.getFormat()));
-    	else if (p.alarm()) wsi.addCell(new Number(col, row, p.result, ALARM_VALUE_FMT.getFormat()));
-    	else if (p.timeout()) wsi.addCell(new Number(col, row, p.result, TIMEOUT_VALUE_FMT.getFormat()));
-    	else if (p.abort()) wsi.addCell(new Number(col, row, p.result, ABORT_VALUE_FMT.getFormat()));
-    	else wsi.addCell(new Number(col, row, p.result, FAIL_VALUE_FMT.getFormat()));
+    	if (p.pass()) wsi.addCell(new Number(col, row, p.result, PASS_VALUE_FMT.getFormat(options.precision)));
+    	else if (p.noPassFail()) wsi.addCell(new Number(col, row, p.result, INVALID_VALUE_FMT.getFormat(options.precision)));
+    	else if (p.unreliable()) wsi.addCell(new Number(col, row, p.result, UNRELIABLE_VALUE_FMT.getFormat(options.precision)));
+    	else if (p.alarm()) wsi.addCell(new Number(col, row, p.result, ALARM_VALUE_FMT.getFormat(options.precision)));
+    	else if (p.timeout()) wsi.addCell(new Number(col, row, p.result, TIMEOUT_VALUE_FMT.getFormat(options.precision)));
+    	else if (p.abort()) wsi.addCell(new Number(col, row, p.result, ABORT_VALUE_FMT.getFormat(options.precision)));
+    	else wsi.addCell(new Number(col, row, p.result, FAIL_VALUE_FMT.getFormat(options.precision)));
     }
     
-    private void locateRow(PageHeader hdr, String waferOrStep, SnOrXy snOrXy, int page)
+    private void locateCol(boolean wafersort, String waferOrStep, SnOrXy snOrXy, int page)
     {
         TIntArrayList xlist = new TIntArrayList();
-        if (api.wafersort(hdr))
+        final int MAX_COLS = titleBlock.getFirstDataCol() + colsPerPage;
+        if (wafersort)
         {
         	if (!options.noOverwrite)
         	{
-        		for (int row=titleBlock.getFirstDataRow(); row<=MAX_ROWS; row++)
+        		for (int col=titleBlock.getFirstDataCol(); col<=titleBlock.getFirstDataCol() + MAX_COLS; col++)
         		{
-        			Cell cx = ws[page].getCell(titleBlock.getXCol(), row);
+        			Cell cx = ws[page].getCell(col, titleBlock.getXRow());
         			if (cx.getType() == CellType.EMPTY)
         			{
-        				currentRow = row;
+        				currentCol = col;
         				return;
         			}
-        			Cell cy = ws[page].getCell(titleBlock.getYCol(), row);
+        			Cell cy = ws[page].getCell(col, titleBlock.getYRow());
         			short x = (short) ((NumberCell) cx).getValue();
         			short y = (short) ((NumberCell) cy).getValue();
         			if (options.onePage)
         			{
-        				String waf = ws[page].getCell(titleBlock.getWaferOrStepCol(), row).getContents();
+        				String waf = ws[page].getCell(col, titleBlock.getWaferOrStepRow()).getContents();
                         if (waf.equals(waferOrStep) && x == snOrXy.getX() && y == snOrXy.getY())
                         {
-                        	currentRow = row;
+                        	currentCol = col;
                         	return;
                         }
         			}
         		}
         	}
-            for (int i=titleBlock.getFirstDataRow(); i<=MAX_ROWS; i++)
+            for (int col=titleBlock.getFirstDataCol(); col<=MAX_COLS; col++)
             {
-                Cell c = ws[page].getCell(titleBlock.getXCol(), i);
+                Cell c = ws[page].getCell(col, titleBlock.getXRow());
                 CellType t = c.getType();
                 if (t == CellType.EMPTY)
                 {
-                    currentRow = i;
+                    currentCol = col;
                     break;
                 }
             }
         }
         else // final test
         {
-            for (int row=titleBlock.getFirstDataRow(); row<=MAX_ROWS; row++)
+            for (int col=titleBlock.getFirstDataCol(); col<=titleBlock.getFirstDataRow() + MAX_COLS; col++)
             {
-                Cell c = ws[page].getWritableCell(titleBlock.getSnOrYCol(), row);
+                Cell c = ws[page].getWritableCell(col, titleBlock.getSnOrYRow());
                 if (c.getType() == CellType.EMPTY)
                 {
-                    currentRow = row;
+                    currentCol = col;
                     return;
                 }
                 if (!options.noOverwrite)
@@ -667,30 +659,12 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
                 	String sn = c.getContents();
                 	if (sn.equals(snOrXy.getSerialNumber()))
                 	{
-                    	currentRow = row;
+                    	currentCol = col;
                     	break;
                 	}
                 }
             }
         }
-    }
-    
-    public void setCell(WritableSheet wsi, int row, int col, String contents, Format_t format)
-    {
-        try { wsi.addCell(new Label(row, col, contents, format.getFormat())); }
-        catch (Exception e) { e.printStackTrace(); }
-    }
-
-    public void setCell(WritableSheet wsi, int row, int col, double value, Format_t format)
-    {
-        try { wsi.addCell(new Number(row, col, value, format.getFormat(options.precision))); }
-        catch (Exception e) { e.printStackTrace(); }
-    }
-    
-    public void setCell(WritableSheet wsi, int row, int col, int value, Format_t format)
-    {
-        try { wsi.addCell(new Number(row, col, value, format.getFormat())); }
-        catch (Exception e) { e.printStackTrace(); }
     }
     
     public void close()

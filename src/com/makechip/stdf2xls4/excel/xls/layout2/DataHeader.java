@@ -25,11 +25,13 @@ public class DataHeader implements Block
 	private final int row;
 	private final int precision;
 	private final List<TestHeader> hdrs;
+	private double maxWidth;
 	
 	public DataHeader(CornerBlock cb, int precision, List<TestHeader> hdrs)
 	{
 		col = HeaderBlock.WIDTH;
 		row = PageTitleBlock.HEIGHT + cb.getHeight();
+		maxWidth = 0;
 		this.precision = precision;
 		this.hdrs = hdrs;
 	}
@@ -66,6 +68,13 @@ public class DataHeader implements Block
 				ws.addCell(new Label(c + 5, r, mhdr.pin, HEADER1_FMT.getFormat()));
 				ws.addCell(new Label(c + 6, r, mhdr.units, HEADER1_FMT.getFormat()));
 			}
+			else
+			{
+				ws.addCell(new Label(c + 3, r, "", HEADER1_FMT.getFormat()));
+				ws.addCell(new Label(c + 4, r, "", HEADER1_FMT.getFormat()));
+				ws.addCell(new Label(c + 5, r, "", HEADER1_FMT.getFormat()));
+				ws.addCell(new Label(c + 6, r, "", HEADER1_FMT.getFormat()));
+			}
 			r++;
 		}
 	}
@@ -78,7 +87,8 @@ public class DataHeader implements Block
 			if (Character.isUpperCase(testName.charAt(i))) w += 1.5;
 			else w += 1.0;
 		}
-		return((int) w);
+		if (w > maxWidth) maxWidth = w;
+		return((int) maxWidth);
 	}
 
 	@Override

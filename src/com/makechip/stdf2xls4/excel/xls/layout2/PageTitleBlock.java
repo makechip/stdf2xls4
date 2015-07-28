@@ -21,7 +21,7 @@ class PageTitleBlock implements Block
     public PageTitleBlock(String title, int numDevices)
     {
     	this.title = title;
-    	this.width = numDevices;
+    	this.width = numDevices + CornerBlock.WIDTH;
     }
     
     @Override

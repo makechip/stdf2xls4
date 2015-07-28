@@ -45,7 +45,7 @@ public enum Format_t
     HEADER1_FMT(ARIAL_BOLD,                8, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     HEADER2_FMT(ARIAL_BOLD,                8, Alignment.RIGHT,  CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     HEADER3_FMT(ARIAL_NORMAL,             10, Alignment.LEFT,   CENTRE, false, WHITE,        BLACK, THIN, BLACK),
-    HEADER4_FMT(ARIAL_BOLD,                8, Alignment.RIGHT,  CENTRE, false, WHITE,        BLACK, THIN, BLACK),
+    HEADER4_FMT(ARIAL_BOLD,                8, Alignment.CENTRE,  BOTTOM, false, WHITE,        BLACK, THIN, BLACK),
     HEADER5_FMT(ARIAL_BOLD,                8, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     PASS_VALUE_FMT(COURIER_NORMAL,        10, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     FAIL_VALUE_FMT(COURIER_NORMAL,        10, Alignment.CENTRE, CENTRE, false, RED,          BLACK, THIN, BLACK),

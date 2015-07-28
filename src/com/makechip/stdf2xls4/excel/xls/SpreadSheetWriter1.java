@@ -230,7 +230,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     private void writeData(PageHeader hdr) 
     {
     	if (options.sort && options.showDuplicates) noOverwrite = true;
-    	Set<DeviceHeader> devs = api.getDeviceHeaders(hdr);
+    	List<DeviceHeader> devs = api.getDeviceHeaders(hdr);
     	List<TestHeader> tests = api.getTestHeaders(hdr);
     	final int pages = (tests.size() % colsPerPage == 0) ? tests.size() / colsPerPage : 1 + tests.size() / colsPerPage;
         devs.stream().forEach(device -> 
@@ -524,8 +524,7 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     
     private void setStatus(WritableSheet wsi, int col, int row, TestResult r) throws RowsExceededException, WriteException
     {
-    	/*
-        switch (err)
+        switch (r.error)
         {
         case PASS:       wsi.addCell(new Label(col, row, "PASS", STATUS_PASS_FMT.getFormat())); break;
         case FAIL:       wsi.addCell(new Label(col, row, "FAIL", STATUS_FAIL_FMT.getFormat())); break;
@@ -535,7 +534,6 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
         case TIMEOUT:    wsi.addCell(new Label(col, row, "FAIL", STATUS_TIMEOUT_FMT.getFormat())); break;
         default:         wsi.addCell(new Label(col, row, "FAIL", STATUS_ABORT_FMT.getFormat())); break;
         }
-        */
     }
     
     private void setText(WritableSheet wsi, int col, int row, String text) throws RowsExceededException, WriteException
@@ -604,13 +602,13 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
     
     private void setValue(WritableSheet wsi, int col, int row, ParametricTestResult p) throws RowsExceededException, WriteException
     {
-    	if (p.pass()) wsi.addCell(new Number(col, row, p.result, PASS_VALUE_FMT.getFormat()));
-    	else if (p.noPassFail()) wsi.addCell(new Number(col, row, p.result, INVALID_VALUE_FMT.getFormat()));
-    	else if (p.unreliable()) wsi.addCell(new Number(col, row, p.result, UNRELIABLE_VALUE_FMT.getFormat()));
-    	else if (p.alarm()) wsi.addCell(new Number(col, row, p.result, ALARM_VALUE_FMT.getFormat()));
-    	else if (p.timeout()) wsi.addCell(new Number(col, row, p.result, TIMEOUT_VALUE_FMT.getFormat()));
-    	else if (p.abort()) wsi.addCell(new Number(col, row, p.result, ABORT_VALUE_FMT.getFormat()));
-    	else wsi.addCell(new Number(col, row, p.result, FAIL_VALUE_FMT.getFormat()));
+    	if (p.pass()) wsi.addCell(new Number(col, row, p.result, PASS_VALUE_FMT.getFormat(options.precision)));
+    	else if (p.noPassFail()) wsi.addCell(new Number(col, row, p.result, INVALID_VALUE_FMT.getFormat(options.precision)));
+    	else if (p.unreliable()) wsi.addCell(new Number(col, row, p.result, UNRELIABLE_VALUE_FMT.getFormat(options.precision)));
+    	else if (p.alarm()) wsi.addCell(new Number(col, row, p.result, ALARM_VALUE_FMT.getFormat(options.precision)));
+    	else if (p.timeout()) wsi.addCell(new Number(col, row, p.result, TIMEOUT_VALUE_FMT.getFormat(options.precision)));
+    	else if (p.abort()) wsi.addCell(new Number(col, row, p.result, ABORT_VALUE_FMT.getFormat(options.precision)));
+    	else wsi.addCell(new Number(col, row, p.result, FAIL_VALUE_FMT.getFormat(options.precision)));
     }
     
     private void locateRow(PageHeader hdr, String waferOrStep, SnOrXy snOrXy, int page)
@@ -674,24 +672,6 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
                 }
             }
         }
-    }
-    
-    public void setCell(WritableSheet wsi, int row, int col, String contents, Format_t format)
-    {
-        try { wsi.addCell(new Label(row, col, contents, format.getFormat())); }
-        catch (Exception e) { e.printStackTrace(); }
-    }
-
-    public void setCell(WritableSheet wsi, int row, int col, double value, Format_t format)
-    {
-        try { wsi.addCell(new Number(row, col, value, format.getFormat(options.precision))); }
-        catch (Exception e) { e.printStackTrace(); }
-    }
-    
-    public void setCell(WritableSheet wsi, int row, int col, int value, Format_t format)
-    {
-        try { wsi.addCell(new Number(row, col, value, format.getFormat())); }
-        catch (Exception e) { e.printStackTrace(); }
     }
     
     public void close()

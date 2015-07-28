@@ -44,8 +44,8 @@ public class HeaderBlock implements Block
             ws.addCell(new Label(VALUE_COL, row, hdr.get(k), HEADER3_FMT.getFormat()));
             row++;
         }
-        ws.mergeCells(0,  row, 2, row);
-        ws.mergeCells(3, row, WIDTH-1, row);
+        ws.mergeCells(0,  row, 1, row);
+        ws.mergeCells(2, row, WIDTH-1, row);
         ws.addCell(new Label(0, row, OPTIONS_LABEL, HEADER2_FMT.getFormat()));
         ws.addCell(new Label(VALUE_COL, row, optionsString, HEADER3_FMT.getFormat()));
     }

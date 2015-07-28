@@ -51,7 +51,7 @@ public final class StdfAPI
     private final Map<PageHeader, Map<TestID, Boolean>> dynamicLimitMap;
     private final Map<PageHeader, Boolean> wafersortMap;
 	private final List<File> stdfFiles;
-	private boolean timeStampedFiles;
+	public final boolean timeStampedFiles;
 
 	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 	{
@@ -309,12 +309,12 @@ public final class StdfAPI
     	return(tdb.getTestHeaders(hdr, dh));
     }
     
-    public Set<DeviceHeader> getDeviceHeaders(PageHeader hdr, TestHeader id)
+    public List<DeviceHeader> getDeviceHeaders(PageHeader hdr, TestHeader id)
     {
     	return(tdb.getDeviceHeaders(hdr, id));
     }
     
-    public Set<DeviceHeader> getDeviceHeaders(PageHeader hdr) 
+    public List<DeviceHeader> getDeviceHeaders(PageHeader hdr) 
     {
     	return(tdb.getDeviceHeaders(hdr));
     }
