@@ -1,45 +1,87 @@
-/*
- * ==========================================================================
- * Copyright (C) 2013,2014 makechip.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * A copy of the GNU General Public License can be found in the file
- * LICENSE.txt provided with the source distribution of this program
- * This license can also be found on the GNU website at
- * http://www.gnu.org/licenses/gpl.html.
- * 
- * If you did not receive a copy of the GNU General Public License along
- * with this program, contact the lead developer, or write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- */
 package com.makechip.stdf2xls4.excel.xlsx.layout1;
 
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import java.io.File;
+import java.util.List;
 
-import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter1;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.makechip.stdf2xls4.CliOptions;
+import com.makechip.stdf2xls4.excel.xlsx.Block;
+import com.makechip.stdf2xls4.excel.xlsx.layout1.DataHeader;
+import com.makechip.stdf2xls4.excel.xlsx.layout1.HeaderBlock;
+import com.makechip.stdf2xls4.excel.xlsx.layout1.LegendBlock;
+import com.makechip.stdf2xls4.excel.xlsx.layout1.LogoBlock;
+import com.makechip.stdf2xls4.excel.xlsx.layout1.PageTitleBlock;
+import com.makechip.stdf2xls4.stdfapi.PageHeader;
+import com.makechip.stdf2xls4.stdfapi.TestHeader;
 
-public class TitleBlock
+public class TitleBlock implements Block
 {
-    public static final int ROW = 0;
-    public static final int COL = 0;
-    public static final int HEIGHT = 8;
+	private final HeaderBlock hb;
+	private final PageTitleBlock ptb;
+	private final LegendBlock lb;
+	private final LogoBlock logo;
+	private final CornerBlock cb;
+	private final DataHeader dh;
+	private final int testWidth;
+	
+	public TitleBlock(PageHeader hdr, 
+			          File logoFile, 
+			          String pageTitle, 
+			          boolean wafersort, 
+			          CliOptions options,
+			          List<TestHeader> hdrs)
+	{
+	    hb = new HeaderBlock(options, hdr);
+	    testWidth = hdrs == null ? 0 : hdrs.size();
+	    ptb = new PageTitleBlock(pageTitle, testWidth, hb);
+	    lb = new LegendBlock(hb);
+	    logo = new LogoBlock(logoFile, hb);
+	    cb = new CornerBlock(wafersort, options.onePage, hb);
+	    dh = new DataHeader(hb, options.noWrapTestNames, options.precision, hdrs);
+	}
     
-    public static void addBlock(Workbook wb, boolean xssf, SpreadSheetWriter1 sw, Sheet ws, String pageTitle, int titleWidth)
+	@Override
+    public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
     {
-        LogoBlock.addBlock(wb, ws);
-        PageTitleBlock.addBlock(sw, ws, xssf, pageTitle, titleWidth);
+		hb.addBlock(wb, ws);
+		ptb.addBlock(wb, ws);
+		lb.addBlock(wb, ws);
+		logo.addBlock(wb, ws);
+		cb.addBlock(wb, ws);
+		dh.addBlock(wb, ws);
     }
+	
+	public int getFirstDataCol()   { return(hb.getWidth());          }
+	public int getFirstDataRow()   { return(cb.getFirstDataRow());   }
+	public int getWaferOrStepCol() { return(cb.getWaferOrStepCol()); }
+	public int getSnOrYCol()       { return(cb.getSnOrYCol());       }
+	public int getXCol()           { return(cb.getXCol());           }
+	public int getYCol()           { return(cb.getYCol());           }
+	public int getHwBinCol()       { return(cb.getHwBinCol());       }
+	public int getSwBinCol()       { return(cb.getSwBinCol());       }
+	public int getResultCol()      { return(cb.getResultCol());      }
+	public int getTempCol()        { return(cb.getTempCol());        }
+	public int getTestNameRow()    { return(cb.getTestNameRow());    }
+	public int getTestNumberRow()  { return(cb.getTestNumberRow());  }
+	public int getDupNumRow()      { return(cb.getDupNumRow());      }
+	public int getLoLimitRow()     { return(cb.getLoLimitRow());     }
+	public int getHiLimitRow()     { return(cb.getHiLimitRow());     }
+	public int getPinNameRow()     { return(cb.getPinNameRow());     }
+	public int getUnitsRow()       { return(cb.getUnitsRow());       }
+	public int getOptionsRow()     { return(hb.getHeight() - 1);     }
+
+	@Override
+	public int getWidth()
+	{
+		return(hb.getWidth() + testWidth);
+	}
+
+	@Override
+	public int getHeight()
+	{
+		return(hb.getHeight() + lb.getHeight() + 1);
+	}
 
 }

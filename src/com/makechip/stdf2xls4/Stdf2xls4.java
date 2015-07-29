@@ -6,14 +6,15 @@ import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
-import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter1;
-import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter2;
+import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter1Old;
+import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter2Old;
 import com.makechip.stdf2xls4.stdf.StdfException;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
 import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
+	public static final String VERSION = "4.0.0";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)
@@ -37,8 +38,8 @@ public class Stdf2xls4
 			{
 				if (options.xlsName.toString().endsWith(".xlsx"))
 				{
-					if (options.rotate) ssw = new SpreadSheetWriter2(options, api);	
-					else ssw = new SpreadSheetWriter1(options, api);
+					if (options.rotate) ssw = new SpreadSheetWriter2Old(options, api);	
+					else ssw = new SpreadSheetWriter1Old(options, api);
 				}
 				else
 				{

@@ -154,12 +154,6 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     private WritableSheet[] ws;
     private int sheetNum = 0;
     private int currentCol;
-    private CellView tnumView     = new CellView();
-    private CellView loLimitView  = new CellView();
-    private CellView hiLimitView  = new CellView();
-    private CellView statusView   = new CellView();
-    private CellView unitsView    = new CellView();
-    private CellView hdrView      = new CellView();
     private int testColumns;
     private Map<PageHeader, Integer> versionMap;
     private Map<SheetName, WritableSheet> sheetMap;
@@ -194,12 +188,6 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
        	wb.setColourRGB(Colour.SKY_BLUE, 82, 123, 188);
         sheetNum = 0;
         HEADER1_FMT.getFormat().setWrap(true);
-        tnumView.setSize(18*256);
-        loLimitView.setSize(16*256);
-        hiLimitView.setSize(16*256);
-        statusView.setSize(16*256);
-        unitsView.setSize(8*256);
-        hdrView.setSize(14*256);
         noOverwrite = options.noOverwrite;
     }
 

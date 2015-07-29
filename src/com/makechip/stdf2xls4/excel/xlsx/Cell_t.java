@@ -35,7 +35,7 @@ public enum Cell_t
 	NUMERIC(Cell.CELL_TYPE_NUMERIC),
 	STRING(Cell.CELL_TYPE_STRING);
 	
-	private final int type;
+	public final int type;
 	
 	private Cell_t(int type)
 	{
@@ -44,3 +44,4 @@ public enum Cell_t
 	
 	public int getType() { return(type); }
 }
+

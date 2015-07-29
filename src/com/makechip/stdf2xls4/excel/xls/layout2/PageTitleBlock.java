@@ -4,7 +4,7 @@ import static com.makechip.stdf2xls4.excel.xls.layout2.Format_t.TITLE_FMT;
 
 import java.io.IOException;
 
-import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.excel.xls.Block;
 
 import jxl.write.Label;
 import jxl.write.WritableSheet;

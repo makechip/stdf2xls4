@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.makechip.stdf2xls4.CliOptions;
-import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.excel.xls.Block;
 import com.makechip.stdf2xls4.excel.xls.layout2.DataHeader;
 import com.makechip.stdf2xls4.excel.xls.layout2.HeaderBlock;
 import com.makechip.stdf2xls4.excel.xls.layout2.LegendBlock;

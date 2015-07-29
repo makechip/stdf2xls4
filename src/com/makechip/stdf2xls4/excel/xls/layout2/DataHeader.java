@@ -11,7 +11,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
-import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.excel.xls.Block;
 import com.makechip.stdf2xls4.excel.xls.layout2.PageTitleBlock;
 import com.makechip.stdf2xls4.excel.xls.layout2.HeaderBlock;
 import com.makechip.stdf2xls4.excel.xls.layout2.CornerBlock;

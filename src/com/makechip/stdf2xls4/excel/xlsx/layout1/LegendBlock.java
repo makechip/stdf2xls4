@@ -1,86 +1,58 @@
-/*
- * ==========================================================================
- * Copyright (C) 2013,2014 makechip.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * A copy of the GNU General Public License can be found in the file
- * LICENSE.txt provided with the source distribution of this program
- * This license can also be found on the GNU website at
- * http://www.gnu.org/licenses/gpl.html.
- * 
- * If you did not receive a copy of the GNU General Public License along
- * with this program, contact the lead developer, or write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- */
 package com.makechip.stdf2xls4.excel.xlsx.layout1;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
+import static com.makechip.stdf2xls4.excel.xlsx.layout1.Format_t.*;
+
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.makechip.stdf2xls4.excel.xlsx.Cell_t;
-import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter1;
+import com.makechip.stdf2xls4.excel.xlsx.Block;
 
-public class LegendBlock
+public class LegendBlock implements Block
 {
-    private static int COL;
-    private static final int ROW = TitleBlock.HEIGHT;
+	public static final short LEGEND_ROW_HEIGHT = 1400;
+	public static final int WIDTH = 3;
+	public static final int HEIGHT = 7;
+    private static final int COL = 0;
+    private final int row;
     
-    public static void addBlock(SpreadSheetWriter1 sw, Sheet ws, int cbWidth, boolean wrapTestNames)
+    public LegendBlock(HeaderBlock hb)
     {
-    	COL = cbWidth;
-    	if (wrapTestNames) ws.addMergedRegion(new CellRangeAddress(ROW, ROW, COL, COL+2));
-    	addCell(ws, COL, ROW, "Legend:", sw.HEADER1_FMT);
-    	addCell(ws, COL, ROW+1, "PASS", sw.PASS_VALUE_FMT);
-    	addCell(ws, COL, ROW+2, "FAIL", sw.FAIL_VALUE_FMT);
-    	addCell(ws, COL, ROW+3, "UNRELIABLE VALUE", sw.UNRELIABLE_VALUE_FMT);
-    	addCell(ws, COL, ROW+4, "TIMEOUT", sw.TIMEOUT_VALUE_FMT);
-    	addCell(ws, COL, ROW+5, "ALARM", sw.ALARM_VALUE_FMT);
-    	addCell(ws, COL, ROW+6, "ABORT", sw.ABORT_VALUE_FMT);
-    	addCell(ws, COL+2, ROW, "", sw.HEADER1_FMT);
-    	addCell(ws, COL+2, ROW+1, "", sw.PASS_VALUE_FMT);
-    	addCell(ws, COL+2, ROW+2, "", sw.FAIL_VALUE_FMT);
-    	addCell(ws, COL+2, ROW+3, "", sw.UNRELIABLE_VALUE_FMT);
-    	addCell(ws, COL+2, ROW+4, "", sw.TIMEOUT_VALUE_FMT);
-    	addCell(ws, COL+2, ROW+5, "", sw.ALARM_VALUE_FMT);
-    	addCell(ws, COL+2, ROW+6, "", sw.ABORT_VALUE_FMT);
-    	if (wrapTestNames)
-    	{
-    		ws.addMergedRegion(new CellRangeAddress(ROW+1, ROW+1, COL, COL+2));
-    		ws.addMergedRegion(new CellRangeAddress(ROW+2, ROW+2, COL, COL+2));
-    		ws.addMergedRegion(new CellRangeAddress(ROW+3, ROW+3, COL, COL+2));
-    		ws.addMergedRegion(new CellRangeAddress(ROW+4, ROW+4, COL, COL+2));
-    		ws.addMergedRegion(new CellRangeAddress(ROW+5, ROW+5, COL, COL+2));
-    		ws.addMergedRegion(new CellRangeAddress(ROW+6, ROW+6, COL, COL+2));
-    	}
+        row = hb.getHeight();	
     }
     
-    private static void addCell(Sheet ws, int col, int row, String text, CellStyle fmt)
+    @Override
+    public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
     {
-    	Row r = ws.getRow(row);
-    	if (r == null) r = ws.createRow(row);
-    	Cell c = r.getCell(col);
-    	if (c == null)
-    	{
-    		c = r.createCell(col, Cell_t.STRING.getType());
-    		c.setCellValue(text);
-    		c.setCellStyle(fmt);
-    	}
+        setCell(ws, COL, row, HEADER1_FMT.getFormat(wb), "Legend:");
+        setCell(ws, COL, row+1, PASS_VALUE_FMT.getFormat(wb), "PASS");
+        setCell(ws, COL, row+2, FAIL_VALUE_FMT.getFormat(wb), "FAIL");
+        setCell(ws, COL, row+3, UNRELIABLE_VALUE_FMT.getFormat(wb), "UNRELIABLE_VALUE");
+        setCell(ws, COL, row+4, TIMEOUT_VALUE_FMT.getFormat(wb), "TIMEOUT");
+        setCell(ws, COL, row+5, ALARM_VALUE_FMT.getFormat(wb), "ALARM");
+        setCell(ws, COL, row+6, ABORT_VALUE_FMT.getFormat(wb), "ABORT");
+        Row r = ws.getRow(row);
+        r.setHeight(LEGEND_ROW_HEIGHT);
+        ws.addMergedRegion(new CellRangeAddress(row, row, COL, COL+2));
+        ws.addMergedRegion(new CellRangeAddress(row+1, row+1, COL, COL+2));
+        ws.addMergedRegion(new CellRangeAddress(row+2, row+2, COL, COL+2));
+        ws.addMergedRegion(new CellRangeAddress(row+3, row+3, COL, COL+2));
+        ws.addMergedRegion(new CellRangeAddress(row+4, row+4, COL, COL+2));
+        ws.addMergedRegion(new CellRangeAddress(row+5, row+5, COL, COL+2));
+        ws.addMergedRegion(new CellRangeAddress(row+6, row+6, COL, COL+2));
     }
+
+	@Override
+	public int getWidth()
+	{
+		return(3);
+	}
+
+	@Override
+	public int getHeight()
+	{
+		return(7);
+	}
     
-    public static int getWidth() { return(3); }
-    
-    public static int getHeight() { return(LogoBlock.getHeight()); }
 }

@@ -5,7 +5,7 @@ import static com.makechip.stdf2xls4.excel.xls.layout2.Format_t.HEADER4_FMT;
 
 import java.io.IOException;
 
-import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.excel.xls.Block;
 import com.makechip.stdf2xls4.excel.xls.layout2.HeaderBlock;
 import com.makechip.stdf2xls4.excel.xls.layout2.LegendBlock;
 

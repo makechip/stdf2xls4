@@ -11,7 +11,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
-import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.excel.xls.Block;
 import com.makechip.stdf2xls4.stdfapi.MultiParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
@@ -71,6 +71,13 @@ public class DataHeader implements Block
 			    else ws.addCell(new Number(c, row+4, mhdr.hiLimit, HEADER5_FMT.getFormat(precision)));
 				ws.addCell(new Label(c, row+5, mhdr.pin, HEADER1_FMT.getFormat()));
 				ws.addCell(new Label(c, row+6, mhdr.units, HEADER1_FMT.getFormat()));
+			}
+			else
+			{
+				ws.addCell(new Label(c, row+3, "", HEADER1_FMT.getFormat()));
+				ws.addCell(new Label(c, row+4, "", HEADER1_FMT.getFormat()));
+				ws.addCell(new Label(c, row+5, "", HEADER1_FMT.getFormat()));
+				ws.addCell(new Label(c, row+6, "", HEADER1_FMT.getFormat()));
 			}
 			c++;
 		}

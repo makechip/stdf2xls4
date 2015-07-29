@@ -1,4 +1,4 @@
-package com.makechip.stdf2xls4.excel;
+package com.makechip.stdf2xls4.excel.xls;
 
 import java.io.IOException;
 

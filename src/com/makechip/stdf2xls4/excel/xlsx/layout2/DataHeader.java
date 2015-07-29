@@ -1,127 +1,106 @@
-/*
- * ==========================================================================
- * Copyright (C) 2013,2014 makechip.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * A copy of the GNU General Public License can be found in the file
- * LICENSE.txt provided with the source distribution of this program
- * This license can also be found on the GNU website at
- * http://www.gnu.org/licenses/gpl.html.
- * 
- * If you did not receive a copy of the GNU General Public License along
- * with this program, contact the lead developer, or write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- */
 package com.makechip.stdf2xls4.excel.xlsx.layout2;
+
+import static com.makechip.stdf2xls4.excel.xlsx.layout2.Format_t.*;
 
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.makechip.stdf2xls4.excel.xlsx.Block;
+import com.makechip.stdf2xls4.excel.xlsx.layout2.PageTitleBlock;
+import com.makechip.stdf2xls4.excel.xlsx.layout2.HeaderBlock;
+import com.makechip.stdf2xls4.excel.xlsx.layout2.CornerBlock;
+import com.makechip.stdf2xls4.stdfapi.MultiParametricTestHeader;
+import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
+import com.makechip.stdf2xls4.stdfapi.TestHeader;
 
-//import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Sheet;
-
-import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter2;
-import com.makechip.stdf2xls4.stdfapi.DeviceHeader;
-
-public class DataHeader 
+public class DataHeader implements Block
 {
-	//private static final int COL = 5;
-	//private int row;
-	//private final SpreadSheetWriter3 sw;
-	//private List<DeviceHeader> hdrs;
+	private final int col;
+	private final int row;
+	private final int precision;
+	private final List<TestHeader> hdrs;
+	private double maxWidth;
 	
-	public DataHeader(SpreadSheetWriter2 sw, List<DeviceHeader> hdrs, CornerBlock cb, HeaderBlock hb)
+	public DataHeader(CornerBlock cb, int precision, List<TestHeader> hdrs)
 	{
-		//row = CornerBlock.ROW + cb.getHeight();
-		//this.sw = sw;
-		//this.hdrs = hdrs;
+		col = HeaderBlock.WIDTH;
+		row = PageTitleBlock.HEIGHT + cb.getHeight();
+		maxWidth = 0;
+		this.precision = precision;
+		this.hdrs = hdrs;
 	}
 	
-	public void addBlock(Sheet ws, boolean xssf)
+	@Override
+	public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
 	{
-		//int maxWidth = 0;
-		//for (DeviceHeader cid : hdrs)
-		//{
-			//if (cid.getTestName().length() > maxWidth) maxWidth = cid.getTestName().length();
-		//}
-		//ws.setColumnWidth(COL, maxWidth * 256);
-		//CellStyle cs1 = sw.HEADER1_FMT;
-		//CellStyle cs5 = sw.HEADER5_FMT;
-		//for (DeviceHeader cid : hdrs)
-		//{
-			/*
-			int col = COL;
-		    Row r = ws.getRow(row);	
-			if (r == null) r = ws.createRow(row);
-			Cell c0 = r.getCell(col);
-			if (c0 == null)
+		int c = col;
+		int r = row;
+		for (TestHeader hdr : hdrs)
+		{
+		    Row rw = ws.getRow(r);
+		    if (rw == null) rw = ws.createRow(r);
+			ws.setColumnWidth(c, getCellWidth(hdr.testName));
+			setCell(rw, c, TEST_NAME_FMT.getFormat(wb), hdr.testName);
+		    setCell(rw, c+1, HEADER1_FMT.getFormat(wb), hdr.testNumber);	
+		    setCell(rw, c+2,HEADER1_FMT.getFormat(wb), hdr.dupNum);
+			if (hdr instanceof ParametricTestHeader)
 			{
-				c0 = r.createCell(col, Cell_t.STRING.getType());
-				c0.setCellValue(cid.getTestName());
-				c0.setCellStyle(sw.TEST_NAME_FMT);
+			    ParametricTestHeader phdr = (ParametricTestHeader) hdr;	
+			    if (phdr.loLimit == null) setCell(rw, c+3, HEADER1_FMT.getFormat(wb), "");
+			    else setCell(rw, c+3, HEADER5_FMT.getFormat(wb, precision), phdr.loLimit);
+			    if (phdr.hiLimit == null) setCell(rw, c+4, HEADER1_FMT.getFormat(wb), "");
+			    else setCell(rw, c+4, HEADER5_FMT.getFormat(wb, precision), phdr.hiLimit);
+			    setCell(rw, c+5, HEADER1_FMT.getFormat(wb), "");
+			    setCell(rw, c+6, HEADER1_FMT.getFormat(wb), phdr.units);
 			}
-			col++;
-			Cell c1 = r.getCell(col);
-			if (c1 == null)
+			else if (hdr instanceof MultiParametricTestHeader)
 			{
-				c1 = r.createCell(col, Cell_t.STRING.getType());
-				c1.setCellValue(cid.getTestNumber());
-				c1.setCellStyle(cs1);
+			    MultiParametricTestHeader mhdr = (MultiParametricTestHeader) hdr;	
+			    if (mhdr.loLimit == null) setCell(rw, c+3, HEADER1_FMT.getFormat(wb), "");
+			    else setCell(rw, c+3, HEADER5_FMT.getFormat(wb, precision), mhdr.loLimit);
+			    if (mhdr.hiLimit == null) setCell(rw, c+4, HEADER1_FMT.getFormat(wb), "");
+			    else setCell(rw, c+4, HEADER5_FMT.getFormat(wb, precision), mhdr.hiLimit);
+			    setCell(rw, c+5, HEADER1_FMT.getFormat(wb), "");
+			    setCell(rw, c+6, HEADER1_FMT.getFormat(wb), mhdr.units);
 			}
-			col++;
-			Cell c2 = r.getCell(col);
-			if (c2 == null)
+			else
 			{
-				c2 = r.createCell(col, Cell_t.STRING.getType());
-				if (cid.getLoLimit() == StdfRecord.MISSING_FLOAT)
-				{
-					c2.setCellValue("");
-					c2.setCellStyle(cs1);
-				}
-				else
-				{
-					c2.setCellValue(cid.getLoLimit());
-					c2.setCellStyle(cs5);
-				}
+				setCell(rw, c + 3, HEADER1_FMT.getFormat(wb), "");
+				setCell(rw, c + 4, HEADER1_FMT.getFormat(wb), "");
+				setCell(rw, c + 5, HEADER1_FMT.getFormat(wb), "");
+				setCell(rw, c + 6, HEADER1_FMT.getFormat(wb), "");
 			}
-			col++;
-			Cell c3 = r.getCell(col);
-			if (c3 == null)
-			{
-				c3 = r.createCell(col, Cell_t.STRING.getType());
-				if (cid.getHiLimit() == StdfRecord.MISSING_FLOAT)
-				{
-					c3.setCellValue("");
-					c3.setCellStyle(cs1);
-				}
-				else
-				{
-					c3.setCellValue(cid.getHiLimit());
-					c3.setCellStyle(cs5);
-				}
-			}
-			col++;
-			Cell c4 = r.getCell(col);
-			if (c4 == null)
-			{
-				c4 = r.createCell(col, Cell_t.STRING.getType());
-				c4.setCellStyle(cs1);
-				c4.setCellValue(cid.getUnits() == null ? "" : cid.getUnits());
-			}
-			ws.addMergedRegion(new CellRangeAddress(row, row, col, col+1));
-			row++;
-		*/
+		    ws.addMergedRegion(new CellRangeAddress(r, r, c + 6, c + 7));
+			r++;
 		}
-	//}
+	}
+	
+	private int getCellWidth(String testName)
+	{
+		double w = 0.0;
+		for (int i=0; i<testName.length(); i++)
+		{
+			if (Character.isUpperCase(testName.charAt(i))) w += 1.5;
+			else w += 1.0;
+		}
+		if (w > maxWidth) maxWidth = w;
+		w *= 256.0;
+		return((int) maxWidth);
+	}
+
+	@Override
+	public int getWidth()
+	{
+		return(8);
+	}
+
+	@Override
+	public int getHeight()
+	{
+		return(hdrs.size());
+	}
 }

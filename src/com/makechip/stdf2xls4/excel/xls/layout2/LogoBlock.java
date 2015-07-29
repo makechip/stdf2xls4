@@ -3,7 +3,7 @@ package com.makechip.stdf2xls4.excel.xls.layout2;
 import java.io.File;
 import java.io.IOException;
 
-import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.excel.xls.Block;
 import com.makechip.stdf2xls4.excel.xls.layout2.Format_t;
 
 import jxl.write.Label;
