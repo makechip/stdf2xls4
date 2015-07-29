@@ -626,6 +626,14 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
                         	return;
                         }
         			}
+        			else
+        			{
+        				if (x == snOrXy.getX() && y == snOrXy.getY())
+        				{
+        					currentRow = row;
+        					return;
+        				}
+        			}
         		}
         	}
             for (int i=titleBlock.getFirstDataRow(); i<=MAX_ROWS; i++)
@@ -652,10 +660,22 @@ public class SpreadSheetWriter1 implements SpreadSheetWriter
                 if (!options.noOverwrite)
                 {
                 	String sn = c.getContents();
-                	if (sn.equals(snOrXy.getSerialNumber()))
+                	if (options.onePage)
                 	{
-                    	currentRow = row;
-                    	break;
+                		String step = ws[page].getCell(titleBlock.getWaferOrStepCol(), row).getContents();
+                		if (step.equals(waferOrStep) && sn.equals(snOrXy.getSerialNumber()))
+                		{
+                			currentRow = row;
+                			return;
+                		}
+                	}
+                	else
+                	{
+                	    if (sn.equals(snOrXy.getSerialNumber()))
+                	    {
+                    	    currentRow = row;
+                    	    break;
+                	    }
                 	}
                 }
             }

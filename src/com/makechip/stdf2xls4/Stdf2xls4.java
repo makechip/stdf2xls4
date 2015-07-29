@@ -2,12 +2,14 @@ package com.makechip.stdf2xls4;
 
 import java.io.IOException;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+
 import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
-import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter1Old;
-import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter2Old;
+import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter1;
+import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter2;
 import com.makechip.stdf2xls4.stdf.StdfException;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
 import com.makechip.util.Log;
@@ -22,7 +24,7 @@ public class Stdf2xls4
 		this.options = options;
 	}
 	
-	public void run() throws RowsExceededException, WriteException, BiffException, IOException, StdfException
+	public void run() throws RowsExceededException, WriteException, BiffException, IOException, StdfException, InvalidFormatException
 	{
 		StdfAPI api = new StdfAPI(options);
 		api.initialize();
@@ -38,8 +40,8 @@ public class Stdf2xls4
 			{
 				if (options.xlsName.toString().endsWith(".xlsx"))
 				{
-					if (options.rotate) ssw = new SpreadSheetWriter2Old(options, api);	
-					else ssw = new SpreadSheetWriter1Old(options, api);
+					if (options.rotate) ssw = new SpreadSheetWriter2(options, api);	
+					else ssw = new SpreadSheetWriter1(options, api);
 				}
 				else
 				{

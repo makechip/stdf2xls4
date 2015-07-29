@@ -322,7 +322,7 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     private PageHeader getPageHeader(Sheet s)
     {
     	String key = "";
-    	int row = 0;
+    	int row = LegendBlock.HEIGHT;
     	Map<String, String> header  = new LinkedHashMap<>();
     	while (true)
     	{
@@ -619,6 +619,14 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
                         	return;
                         }
         			}
+        			else
+        			{
+        				if (x == snOrXy.getX() && y == snOrXy.getY())
+        				{
+        					currentCol = col;
+        					return;
+        				}
+        			}
         		}
         	}
             for (int col=titleBlock.getFirstDataCol(); col<=MAX_COLS; col++)
@@ -645,10 +653,23 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
                 if (!options.noOverwrite)
                 {
                 	String sn = c.getContents();
-                	if (sn.equals(snOrXy.getSerialNumber()))
+                	if (options.onePage)
                 	{
-                    	currentCol = col;
-                    	break;
+                	    c = ws[page].getWritableCell(col, titleBlock.getWaferOrStepRow());
+                	    String step = c.getContents();
+                	    if (step.equals(waferOrStep) && sn.equals(snOrXy.getSerialNumber()))
+                	    {
+                	        currentCol = col;
+                	        return;
+                	    }
+                	}
+                	else
+                	{
+                	    if (sn.equals(snOrXy.getSerialNumber()))
+                	    {
+                    	    currentCol = col;
+                    	    break;
+                	    }
                 	}
                 }
             }
