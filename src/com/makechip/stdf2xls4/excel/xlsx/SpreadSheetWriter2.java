@@ -314,10 +314,12 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
     	while (true)
     	{
     		Row r = s.getRow(row);
+    		if (r == null) break;
     		if (r.getCell(0).getCellType() == Cell_t.BLANK.type) break;
     	    key = r.getCell(0).getStringCellValue();
     	    if (key.trim().equals(HeaderBlock.OPTIONS_LABEL)) break;
-    	    String value = r.getCell(HeaderBlock.VALUE_COL).getStringCellValue();
+    	    Cell c = r.getCell(HeaderBlock.VALUE_COL);
+    	    String value = (c == null) ? "" : c.getStringCellValue();
     	    header.put(key, value);
     	    row++;
     	    if (row > 100) throw new RuntimeException("Error header in spreadsheet is not compatible with this verison");
@@ -585,8 +587,8 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
 	
 	private void setCell(XSSFSheet ws, int col, int row, CellStyle cs, String val)
 	{
-		Row r = ws.getRow(col);
-		if (r == null) r = ws.createRow(col);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		setCell(r, col, cs, val);
 	}
 
@@ -603,8 +605,8 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
 	
 	private void setCell(XSSFSheet ws, int col, int row, CellStyle cs, long val)
 	{
-		Row r = ws.getRow(col);
-		if (r == null) r = ws.createRow(col);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		setCell(r, col, cs, val);
 	}
 
@@ -621,8 +623,8 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
 	
 	private void setCell(XSSFSheet ws, int col, int row, CellStyle cs, int val)
 	{
-		Row r = ws.getRow(col);
-		if (r == null) r = ws.createRow(col);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		setCell(r, col, cs, val);
 	}
 
@@ -639,8 +641,8 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
 	
 	private void setCell(XSSFSheet ws, int col, int row, CellStyle cs, float val)
 	{
-		Row r = ws.getRow(col);
-		if (r == null) r = ws.createRow(col);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		setCell(r, col, cs, val);
 	}
 
@@ -657,8 +659,8 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
 	
 	private void setCell(XSSFSheet ws, int col, int row, CellStyle cs, double val)
 	{
-		Row r = ws.getRow(col);
-		if (r == null) r = ws.createRow(col);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		setCell(r, col, cs, val);
 	}
 
@@ -690,6 +692,11 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
         				break;
         			}
         			Cell cx = r.getCell(col);
+        			if (cx == null)
+        			{
+        				currentCol = col;
+        				return;
+        			}
         			if (cx.getCellType() == Cell_t.BLANK.type)
         			{
         				currentCol = col;
@@ -735,7 +742,17 @@ public class SpreadSheetWriter2 implements SpreadSheetWriter
             for (int col=titleBlock.getFirstDataCol(); col<=titleBlock.getFirstDataRow() + MAX_COLS; col++)
             {
             	Row r = ws[page].getRow(titleBlock.getSnOrYRow());
+            	if (r == null)
+            	{
+            		currentCol = col;
+            		return;
+            	}
                 Cell c = r.getCell(col);
+                if (c == null)
+                {
+                	currentCol = col;
+                	return;
+                }
                 if (c.getCellType() == Cell_t.BLANK.type)
                 {
                     currentCol = col;

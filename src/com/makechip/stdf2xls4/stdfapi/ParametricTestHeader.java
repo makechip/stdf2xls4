@@ -46,8 +46,8 @@ public class ParametricTestHeader extends TestHeader
 	{
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Float.floatToIntBits(hiLimit);
-		result = prime * result + Float.floatToIntBits(loLimit);
+		result = prime * result + ((hiLimit == null) ? 0 : Float.floatToIntBits(hiLimit));
+		result = prime * result + ((loLimit == null) ? 0 : Float.floatToIntBits(loLimit));
 		result = prime * result + ((units == null) ? 0 : units.hashCode());
 		return result;
 	}

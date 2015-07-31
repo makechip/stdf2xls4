@@ -100,8 +100,9 @@ public enum Format_t
             f.setFont(font.getFont(wb, fontSize, fgColor.color));
         	f.setAlignment(hAlign);
         	f.setVerticalAlignment(vAlign);
-        	f.setFillBackgroundColor(bgColor.index);
         	f.setFillForegroundColor(bgColor.index);
+        	f.setFillPattern(CellStyle.SOLID_FOREGROUND);
+        	f.setFillBackgroundColor(bgColor.index);
         	f.setBorderBottom(borderStyle.getStyle());
         	f.setBorderTop(borderStyle.getStyle());
         	f.setBorderLeft(borderStyle.getStyle());
@@ -130,8 +131,9 @@ public enum Format_t
             f.setFont(font.getFont(wb, fontSize, fgColor.color));
         	f.setAlignment(hAlign);
         	f.setVerticalAlignment(vAlign);
-        	f.setFillBackgroundColor(bgColor.index);
         	f.setFillForegroundColor(bgColor.index);
+        	f.setFillBackgroundColor(bgColor.index);
+        	f.setFillPattern(CellStyle.SOLID_FOREGROUND);
         	f.setBorderBottom(borderStyle.getStyle());
         	f.setBorderTop(borderStyle.getStyle());
         	f.setBorderLeft(borderStyle.getStyle());

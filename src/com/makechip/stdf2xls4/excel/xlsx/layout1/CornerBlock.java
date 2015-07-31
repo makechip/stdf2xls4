@@ -49,8 +49,8 @@ public class CornerBlock implements Block
 	{
 		int col = startCol;
 		int row = devRow - 1;
-		Row r = ws.getRow(devRow - 1);
-		if (r == null) r = ws.createRow(devRow - 1);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		CellStyle cs = Format_t.HEADER1_FMT.getFormat(wb);
 		if (onePage)
 		{
@@ -73,13 +73,14 @@ public class CornerBlock implements Block
 		
 		col = 7;
 		row = testRow;
-		cs = Format_t.HEADER4_FMT.getFormat(wb);
-	    setCell(ws, col, row, cs, LABEL_TEST_NAME);	row++;
-	    setCell(ws, col, row, cs, LABEL_DUP);	row++;
-	    setCell(ws, col, row, cs, LABEL_LO_LIMIT);	row++;
-	    setCell(ws, col, row, cs, LABEL_HI_LIMIT);	row++;
-	    setCell(ws, col, row, cs, LABEL_PIN);	row++;
-	    setCell(ws, col, row, cs, LABEL_UNITS);	row++;
+		CellStyle cs1 = Format_t.HEADER4_FMT.getFormat(wb);
+	    setCell(ws, col, row, cs1, LABEL_TEST_NAME);	row++;
+	    setCell(ws, col, row, cs1, LABEL_TEST_NUM);	row++;
+	    setCell(ws, col, row, cs1, LABEL_DUP);	row++;
+	    setCell(ws, col, row, cs1, LABEL_LO_LIMIT);	row++;
+	    setCell(ws, col, row, cs1, LABEL_HI_LIMIT);	row++;
+	    setCell(ws, col, row, cs1, LABEL_PIN);	row++;
+	    setCell(ws, col, row, cs1, LABEL_UNITS);	row++;
 	}
 
 	public int getWaferOrStepCol() { return(startCol);	}

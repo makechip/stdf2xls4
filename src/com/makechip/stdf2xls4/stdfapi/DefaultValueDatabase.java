@@ -1,6 +1,7 @@
 package com.makechip.stdf2xls4.stdfapi;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.map.hash.TShortObjectHashMap;
 
 import java.util.IdentityHashMap;
@@ -8,17 +9,23 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.makechip.stdf2xls4.stdf.FloatList;
+import com.makechip.stdf2xls4.stdf.IntList;
 import com.makechip.stdf2xls4.stdf.MultipleResultParametricRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.PinMapRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
+import com.makechip.util.Log;
 
 public final class DefaultValueDatabase
 {
 	public final boolean fusionCx;
 	public final long timeStamp;
+
+    // pin index map:
+    //     site                head               index             pin name
+    final TShortObjectHashMap<TShortObjectHashMap<TIntObjectHashMap<String>>> pinMaps;
 
     // for PTR and MPR
     public final IdentityHashMap<TestID, Set<OptFlag_t>> optDefaults;
@@ -28,9 +35,66 @@ public final class DefaultValueDatabase
     public final IdentityHashMap<TestID, Float> loLimDefaults;
     public final IdentityHashMap<TestID, Float> hiLimDefaults;
     public final IdentityHashMap<TestID, String> unitDefaults;
-    // pin index map:
-    //     site                head               index             pin name
-    final TShortObjectHashMap<TShortObjectHashMap<TIntObjectHashMap<String>>> pinMaps;
+    public final IdentityHashMap<TestID, IntList> rtnIndexDefaults;
+
+    public final TLongObjectHashMap<Set<OptFlag_t>> noptDefaults;
+    public final TLongObjectHashMap<Byte> nresScalDefaults;
+    public final TLongObjectHashMap<Byte> nllmScalDefaults;
+    public final TLongObjectHashMap<Byte> nhlmScalDefaults;
+    public final TLongObjectHashMap<Float> nloLimDefaults;
+    public final TLongObjectHashMap<Float> nhiLimDefaults;
+    public final TLongObjectHashMap<String> nunitDefaults;
+    // MPR only
+    public final TLongObjectHashMap<IntList> nrtnIndexDefaults;
+    
+    public Byte getDefaultLlmScal(TestID id)
+    {
+    	Byte b = llmScalDefaults.get(id);
+    	if (b == null) b = nllmScalDefaults.get(id.testNumber);
+    	return(b);
+    }
+    
+    public Byte getDefaultHlmScal(TestID id)
+    {
+    	Byte b = hlmScalDefaults.get(id);
+    	if (b == null) b = nhlmScalDefaults.get(id.testNumber);
+    	return(b);
+    }
+    
+    public Float getDefaultLoLimit(TestID id)
+    {
+    	Float b = loLimDefaults.get(id);
+    	if (b == null) b = nloLimDefaults.get(id.testNumber);
+    	return(b);
+    }
+    
+    public Float getDefaultHiLimit(TestID id)
+    {
+    	Float b = hiLimDefaults.get(id);
+    	if (b == null) b = nhiLimDefaults.get(id.testNumber);
+    	return(b);
+    }
+    
+    public String getDefaultUnits(TestID id)
+    {
+    	String b = unitDefaults.get(id);
+    	if (b == null) b = nunitDefaults.get(id.testNumber);
+    	return(b);
+    }
+    
+    public Byte getDefaultResScal(TestID id)
+    {
+    	Byte b = resScalDefaults.get(id);
+    	if (b == null) b = nresScalDefaults.get(id.testNumber);
+    	return(b);
+    }
+    
+    public Set<OptFlag_t> getDefaultOptDefaults(TestID id)
+    {
+    	Set<OptFlag_t> s = optDefaults.get(id);
+    	if (s == null) s = noptDefaults.get(id.testNumber);
+    	return(s);
+    }
     
     void clearDefaults()
     {
@@ -41,6 +105,15 @@ public final class DefaultValueDatabase
     	loLimDefaults.clear();
     	hiLimDefaults.clear();
     	unitDefaults.clear();
+    	rtnIndexDefaults.clear();
+    	noptDefaults.clear();
+    	nresScalDefaults.clear();
+    	nllmScalDefaults.clear();
+    	nhlmScalDefaults.clear();
+    	nloLimDefaults.clear();
+    	nhiLimDefaults.clear();
+    	nunitDefaults.clear();
+    	nrtnIndexDefaults.clear();
     }
     
     public DefaultValueDatabase(boolean fusionCx, long timeStamp)
@@ -54,7 +127,16 @@ public final class DefaultValueDatabase
     	loLimDefaults = new IdentityHashMap<>(100);
     	hiLimDefaults = new IdentityHashMap<>(100);
     	unitDefaults = new IdentityHashMap<>(100);
+    	rtnIndexDefaults = new IdentityHashMap<>(100);
     	pinMaps = new TShortObjectHashMap<>(100);
+    	noptDefaults = new TLongObjectHashMap<>(1000);
+    	nresScalDefaults = new TLongObjectHashMap<>(100);
+    	nllmScalDefaults = new TLongObjectHashMap<>(100);
+    	nhlmScalDefaults = new TLongObjectHashMap<>(100);
+    	nloLimDefaults = new TLongObjectHashMap<>(100);
+    	nhiLimDefaults = new TLongObjectHashMap<>(100);
+    	nunitDefaults = new TLongObjectHashMap<>(100);
+    	nrtnIndexDefaults = new TLongObjectHashMap<>(100);
     }
     
     void loadDefaults(ParametricRecord r)
@@ -67,8 +149,31 @@ public final class DefaultValueDatabase
     	if (loLimDefaults.get(id) == null && r.getLoLimit() != null)  loLimDefaults.put(id, r.getLoLimit());
     	if (hiLimDefaults.get(id) == null && r.getHiLimit() != null) hiLimDefaults.put(id, r.getHiLimit());
     	if (unitDefaults.get(id) == null && r.getUnits() != null) unitDefaults.put(id, r.getUnits());
+    	long tn = id.testNumber;
+    	if (r instanceof MultipleResultParametricRecord)
+    	{
+    	    MultipleResultParametricRecord mpr = (MultipleResultParametricRecord) r;
+    	    if (nrtnIndexDefaults.get(tn) == null && mpr.rtnIndex != null) nrtnIndexDefaults.put(tn, mpr.rtnIndex);
+    	    if (rtnIndexDefaults.get(id) == null && mpr.rtnIndex != null) rtnIndexDefaults.put(id, mpr.rtnIndex);
+    	}
+    	if (noptDefaults.get(tn) == null && r.getOptFlags() != null) noptDefaults.put(tn, r.getOptFlags());
+    	if (nresScalDefaults.get(tn) == null && r.getResScal() != null) nresScalDefaults.put(tn, r.getResScal());
+    	if (nllmScalDefaults.get(tn) == null && r.getLlmScal() != null) nllmScalDefaults.put(tn, r.getLlmScal());
+    	if (nhlmScalDefaults.get(tn) == null && r.getHlmScal() != null) nhlmScalDefaults.put(tn, r.getHlmScal());
+    	if (tn == 19L) Log.msg("tn = " + tn + " loLimit = " + r.getLoLimit() + " hiLimit = " + r.getHiLimit());
+    	if (nloLimDefaults.get(tn) == null && r.getLoLimit() != null)
+    	{
+    		Log.msg("tn = " + tn + " saving default lolimit");
+    		nloLimDefaults.put(tn, r.getLoLimit());
+    	}
+    	if (nhiLimDefaults.get(tn) == null && r.getHiLimit() != null) 
+    	{
+    		Log.msg("tn = " + tn + " saving default hilimit");
+    		nhiLimDefaults.put(tn, r.getHiLimit());
+    	}
+    	if (nunitDefaults.get(tn) == null && r.getUnits() != null) nunitDefaults.put(tn, r.getUnits());
     }
-   
+    
     public String getPinName(short site, short head, int index)
     {
     	TShortObjectHashMap<TIntObjectHashMap<String>> m1 = pinMaps.get(site);
@@ -98,9 +203,10 @@ public final class DefaultValueDatabase
     
     protected int findScale(TestID id)
     {
-        Float loLimit = loLimDefaults.get(id);
-        Float hiLimit = hiLimDefaults.get(id);
+        Float loLimit = getDefaultLoLimit(id);
+        Float hiLimit = getDefaultHiLimit(id);
         float val = 0.0f;
+        if (loLimit == null & hiLimit == null) Log.msg("limits are null: TestID = " + id);
         if (loLimit == null) val = Math.abs(hiLimit);
         else if (hiLimit == null) val = Math.abs(loLimit);
         else val = (Math.abs(hiLimit) > Math.abs(loLimit)) ? Math.abs(hiLimit) : Math.abs(loLimit);
@@ -153,7 +259,7 @@ public final class DefaultValueDatabase
     {
     	Float l = null;
     	if (r.getLoLimit() != null) l = r.getLoLimit();
-    	else l = loLimDefaults.get(r.getTestID());
+    	else l = getDefaultLoLimit(r.getTestID());
     	if (l == null) return(null);
     	return(scaleValue(l, findScale(r.getTestID())));
     }
@@ -162,7 +268,7 @@ public final class DefaultValueDatabase
     {
     	Float l = null;
     	if (r.getHiLimit() != null) l = r.getHiLimit();
-    	else l = hiLimDefaults.get(r.getTestID());
+    	else l = getDefaultHiLimit(r.getTestID());
     	if (l == null) return(null);
     	return(scaleValue(l, findScale(r.getTestID())));
     }
@@ -171,7 +277,7 @@ public final class DefaultValueDatabase
     {
     	String units = null;
     	if (r.getUnits() != null) units = r.getUnits();
-    	else units = unitDefaults.get(r.getTestID());
+    	else units = getDefaultUnits(r.getTestID());
     	if (units == null) return("");
     	return(scaleUnits(units, findScale(r.getTestID())));
     }
@@ -188,6 +294,13 @@ public final class DefaultValueDatabase
     	float[] f = new float[r.results.size()];
         IntStream.range(0, f.length).forEach(i -> f[i] = scaleValue(r.results.get(i), findScale(r.getTestID())));	
     	return(new FloatList(f));
+    }
+    
+    public IntList getDefaultRtnIndex(TestID id)
+    {
+    	IntList i = rtnIndexDefaults.get(id);
+    	if (i == null) i = nrtnIndexDefaults.get(id.testNumber);
+    	return(i);
     }
 
 }

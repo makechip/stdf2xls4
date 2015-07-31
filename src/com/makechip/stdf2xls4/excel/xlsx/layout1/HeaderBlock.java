@@ -39,6 +39,8 @@ public class HeaderBlock implements Block
         {
         	setCell(ws, 0, row, cs2, k);
         	setCell(ws, VALUE_COL, row, cs3, hdr.get(k));
+      	    ws.addMergedRegion(new CellRangeAddress(row, row, 0, VALUE_COL-1));
+       	    ws.addMergedRegion(new CellRangeAddress(row, row, VALUE_COL, WIDTH-1));
             row++;
         }
         setCell(ws, 0, row, cs2, VERSION_LABEL);

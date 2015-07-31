@@ -13,6 +13,7 @@ import com.makechip.stdf2xls4.excel.xlsx.Block;
 import com.makechip.stdf2xls4.stdfapi.MultiParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
+import com.makechip.util.Log;
 
 public class DataHeader implements Block
 {
@@ -36,6 +37,7 @@ public class DataHeader implements Block
 	{
 		CellStyle cst = TEST_NAME_FMT.getFormat(wb);
 		CellStyle cstw = TEST_NAME_FMT_WRAP.getFormat(wb);
+		cstw.setWrapText(true);
 		CellStyle cs1 = HEADER1_FMT.getFormat(wb);
 		CellStyle cs5 = HEADER5_FMT.getFormat(wb, precision);
 		int c = col;
@@ -45,11 +47,14 @@ public class DataHeader implements Block
 			{
 				ws.setColumnWidth(c, getCellWidth(hdr.testName));
 				setCell(ws, c, row, cst, hdr.testName);
+				Log.msg("NOT wrapping text");
 			}
 			else 
 			{
 				ws.setColumnWidth(c, 256 * (8 + precision));
 				setCell(ws, c, row, cstw, hdr.testName);
+				cstw.setWrapText(true);
+				Log.msg("wrapping text");
 			}
 			setCell(ws, c, row+1, cs1, hdr.testNumber);
 			setCell(ws, c, row+2, cs1, hdr.dupNum);

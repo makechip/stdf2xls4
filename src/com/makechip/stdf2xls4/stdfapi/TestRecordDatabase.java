@@ -22,6 +22,7 @@ import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.TestIdDatabase;
 import com.makechip.stdf2xls4.stdf.TestRecord;
 import com.makechip.stdf2xls4.stdf.FunctionalTestRecord;
+import com.makechip.stdf2xls4.stdf.IntList;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.TestID.PinTestID;
 import com.makechip.stdf2xls4.stdf.enums.ParamFlag_t;
@@ -340,11 +341,13 @@ public class TestRecordDatabase
 	        sLoLimit = dvd.getScaledLoLimit(mpr);
 	        sHiLimit = dvd.getScaledHiLimit(mpr);
 			if (hasDynamicLimits(hdr, mpr.getTestID())) list.add(new MultiParametricTestHeader(mpr.getTestID(), sunits, Limit_t.LO_LIMIT));
-			mpr.rtnIndex.stream().mapToObj(x -> dvd.getPinName(mpr.siteNumber, mpr.headNumber, x)).forEach(pin -> { 
-					    	  				  PinTestID pid = TestID.PinTestID.getTestID(tdb, mpr.getTestID(), pin); 
-					    	  				  list.add(new MultiParametricTestHeader(pid, sunits, sLoLimit, sHiLimit)); });
-				  if (hasDynamicLimits(hdr, mpr.getTestID())) list.add(new MultiParametricTestHeader(mpr.getTestID(), sunits, Limit_t.HI_LIMIT));
-				  break;
+			IntList rtn = (mpr.rtnIndex == null) ? dvd.getDefaultRtnIndex(mpr.id) : mpr.rtnIndex;
+			if (rtn == null) Log.msg("RTN_INDEX is NULL test number is " + r.getTestID().testNumber);
+			rtn.stream().mapToObj(x -> dvd.getPinName(mpr.siteNumber, mpr.headNumber, x)).forEach(pin -> { 
+				 				  PinTestID pid = TestID.PinTestID.getTestID(tdb, mpr.getTestID(), pin); 
+				  				  list.add(new MultiParametricTestHeader(pid, sunits, sLoLimit, sHiLimit)); });
+		    if (hasDynamicLimits(hdr, mpr.getTestID())) list.add(new MultiParametricTestHeader(mpr.getTestID(), sunits, Limit_t.HI_LIMIT));
+		    break;
 		case DTR: 
 			DatalogTestRecord dtr = (DatalogTestRecord) r;
 			list.add(new ParametricTestHeader(r.getTestID(), dtr.units, null, null)); break; 

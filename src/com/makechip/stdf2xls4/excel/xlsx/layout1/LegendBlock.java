@@ -33,6 +33,7 @@ public class LegendBlock implements Block
         setCell(ws, COL, row+5, ALARM_VALUE_FMT.getFormat(wb), "ALARM");
         setCell(ws, COL, row+6, ABORT_VALUE_FMT.getFormat(wb), "ABORT");
         Row r = ws.getRow(row);
+        if (r == null) r = ws.createRow(row);
         r.setHeight(LEGEND_ROW_HEIGHT);
         ws.addMergedRegion(new CellRangeAddress(row, row, COL, COL+2));
         ws.addMergedRegion(new CellRangeAddress(row+1, row+1, COL, COL+2));

@@ -25,8 +25,8 @@ public interface Block
 	
 	default void setCell(XSSFSheet ws, int col, int row, CellStyle cs, String val)
 	{
-		Row r = ws.getRow(col);
-		if (r == null) r = ws.createRow(col);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		setCell(r, col, cs, val);
 	}
 
@@ -43,8 +43,8 @@ public interface Block
 	
 	default void setCell(XSSFSheet ws, int col, int row, CellStyle cs, long val)
 	{
-		Row r = ws.getRow(col);
-		if (r == null) r = ws.createRow(col);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		setCell(r, col, cs, val);
 	}
 
@@ -61,8 +61,8 @@ public interface Block
 	
 	default void setCell(XSSFSheet ws, int col, int row, CellStyle cs, int val)
 	{
-		Row r = ws.getRow(col);
-		if (r == null) r = ws.createRow(col);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		setCell(r, col, cs, val);
 	}
 
@@ -79,8 +79,8 @@ public interface Block
 	
 	default void setCell(XSSFSheet ws, int col, int row, CellStyle cs, float val)
 	{
-		Row r = ws.getRow(col);
-		if (r == null) r = ws.createRow(col);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		setCell(r, col, cs, val);
 	}
 
@@ -97,8 +97,8 @@ public interface Block
 	
 	default void setCell(XSSFSheet ws, int col, int row, CellStyle cs, double val)
 	{
-		Row r = ws.getRow(col);
-		if (r == null) r = ws.createRow(col);
+		Row r = ws.getRow(row);
+		if (r == null) r = ws.createRow(row);
 		setCell(r, col, cs, val);
 	}
 
