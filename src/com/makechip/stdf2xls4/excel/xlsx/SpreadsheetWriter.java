@@ -23,6 +23,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.makechip.stdf2xls4.CliOptions;
+import com.makechip.stdf2xls4.excel.CellFormat;
+import com.makechip.stdf2xls4.excel.Cell_t;
 import com.makechip.stdf2xls4.excel.SheetName;
 import com.makechip.stdf2xls4.excel.xlsx.layout.CornerBlock;
 import com.makechip.stdf2xls4.excel.xlsx.layout.HeaderBlock;

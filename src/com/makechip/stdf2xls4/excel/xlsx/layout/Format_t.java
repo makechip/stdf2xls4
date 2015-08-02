@@ -13,6 +13,8 @@ import static com.makechip.stdf2xls4.excel.xlsx.Color_t.WHITE;
 import static com.makechip.stdf2xls4.excel.xlsx.Color_t.YELLOW;
 import static com.makechip.stdf2xls4.excel.xlsx.Font_t.*;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import jxl.write.WritableCellFormat;
+import jxl.write.WriteException;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -22,8 +24,8 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFDataFormat;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.makechip.stdf2xls4.excel.CellFormat;
 import com.makechip.stdf2xls4.excel.xlsx.BorderStyle_t;
-import com.makechip.stdf2xls4.excel.xlsx.CellFormat;
 import com.makechip.stdf2xls4.excel.xlsx.Color_t;
 import com.makechip.stdf2xls4.excel.xlsx.Font_t;
 
@@ -152,6 +154,18 @@ public enum Format_t implements CellFormat
         }
         return(f);
     }
+
+	@Override
+	public WritableCellFormat getFormat() throws WriteException
+	{
+		return null;
+	}
+
+	@Override
+	public WritableCellFormat getFormat(int precision) throws WriteException
+	{
+		return null;
+	}
     
     
 }

@@ -22,26 +22,47 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.makechip.stdf2xls4.excel.xlsx;
+package com.makechip.stdf2xls4.excel;
+
+import java.util.Arrays;
 
 import org.apache.poi.ss.usermodel.Cell;
 
+import jxl.CellType;
+
 public enum Cell_t
 {
-	BLANK(Cell.CELL_TYPE_BLANK),
-	BOOLEAN(Cell.CELL_TYPE_BOOLEAN),
-	ERROR(Cell.CELL_TYPE_ERROR),
-	FORMULA(Cell.CELL_TYPE_FORMULA),
-	NUMERIC(Cell.CELL_TYPE_NUMERIC),
-	STRING(Cell.CELL_TYPE_STRING);
+	BLANK(CellType.EMPTY, Cell.CELL_TYPE_BLANK),
+	BOOLEAN(CellType.BOOLEAN, Cell.CELL_TYPE_BOOLEAN),
+	ERROR(CellType.ERROR, Cell.CELL_TYPE_ERROR),
+	FORMULA(CellType.NUMBER_FORMULA, Cell.CELL_TYPE_FORMULA),
+	NUMERIC(CellType.NUMBER, Cell.CELL_TYPE_NUMERIC),
+	STRING(CellType.LABEL, Cell.CELL_TYPE_STRING);
 	
-	public final int type;
+	public final CellType jxlType;
+    public final int poiType;
 	
-	private Cell_t(int type)
+	private Cell_t(CellType jxlType, int poiType)
 	{
-		this.type = type;
+		this.jxlType = jxlType;
+		this.poiType = poiType;
 	}
 	
-	public int getType() { return(type); }
+	public static Cell_t getCellType(int poitype)
+	{
+		Cell_t ct = Arrays.stream(Cell_t.class.getEnumConstants())
+				        .filter(type -> type.poiType == poitype)
+				        .findFirst().orElse(null);
+		return(ct);
+	}
+	
+	public static Cell_t getCellType(CellType jxltype)
+	{
+		Cell_t ct = Arrays.stream(Cell_t.class.getEnumConstants())
+				        .filter(type -> type.jxlType.equals(jxltype))
+				        .findFirst().orElse(null);
+		return(ct);
+	}
+	
 }
 
