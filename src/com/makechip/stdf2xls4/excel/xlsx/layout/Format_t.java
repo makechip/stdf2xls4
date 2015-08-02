@@ -1,4 +1,4 @@
-package com.makechip.stdf2xls4.excel.xlsx.layout2;
+package com.makechip.stdf2xls4.excel.xlsx.layout;
 
 import static com.makechip.stdf2xls4.excel.xlsx.BorderStyle_t.*;
 import static com.makechip.stdf2xls4.excel.xlsx.Color_t.BLACK;
@@ -23,10 +23,11 @@ import org.apache.poi.xssf.usermodel.XSSFDataFormat;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.makechip.stdf2xls4.excel.xlsx.BorderStyle_t;
+import com.makechip.stdf2xls4.excel.xlsx.CellFormat;
 import com.makechip.stdf2xls4.excel.xlsx.Color_t;
 import com.makechip.stdf2xls4.excel.xlsx.Font_t;
 
-public enum Format_t
+public enum Format_t implements CellFormat
 {
     TEST_NUMBER_FMT(ARIAL_NORMAL,         10, CellStyle.ALIGN_LEFT,   CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     TEST_NAME_FMT(ARIAL_NORMAL,           10, CellStyle.ALIGN_LEFT,   CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
@@ -40,7 +41,8 @@ public enum Format_t
     HEADER1_FMT(ARIAL_BOLD,                8, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     HEADER2_FMT(ARIAL_BOLD,                8, CellStyle.ALIGN_RIGHT,  CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     HEADER3_FMT(ARIAL_NORMAL,             10, CellStyle.ALIGN_LEFT,   CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
-    HEADER4_FMT(ARIAL_BOLD,                8, CellStyle.ALIGN_RIGHT,  CellStyle.VERTICAL_BOTTOM, false, WHITE,        BLACK, THIN, BLACK),
+    HEADER4_FMT(ARIAL_BOLD,                8, CellStyle.ALIGN_RIGHT,  CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
+    HEADER4_FMTR(ARIAL_BOLD,               8, CellStyle.ALIGN_RIGHT,  CellStyle.VERTICAL_BOTTOM, false, WHITE,        BLACK, THIN, BLACK),
     HEADER5_FMT(ARIAL_BOLD,                8, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     PASS_VALUE_FMT(COURIER_NORMAL,        10, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     FAIL_VALUE_FMT(COURIER_NORMAL,        10, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_CENTER, false, RED,          BLACK, THIN, BLACK),
@@ -70,6 +72,8 @@ public enum Format_t
     public final int fontSize;
     
     private static Map<Format_t, TIntObjectHashMap<CellStyle>> map = new EnumMap<>(Format_t.class);
+    
+    public static void clear() { map.clear(); }
     
     private Format_t(Font_t font, int fontSize, short hAlign, short vAlign, boolean wrap, 
     		         Color_t bgColor, Color_t fgColor, BorderStyle_t borderStyle, Color_t borderColor)

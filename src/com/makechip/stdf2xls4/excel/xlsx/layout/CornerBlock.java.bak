@@ -1,0 +1,212 @@
+package com.makechip.stdf2xls4.excel.xlsx.layout;
+
+import static com.makechip.stdf2xls4.excel.xlsx.layout.Format_t.HEADER1_FMT;
+import static com.makechip.stdf2xls4.excel.xlsx.layout.Format_t.HEADER4_FMT;
+
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.makechip.stdf2xls4.excel.xlsx.Block;
+import com.makechip.stdf2xls4.excel.xlsx.layout.Format_t;
+import com.makechip.stdf2xls4.excel.xlsx.layout.HeaderBlock;
+import com.makechip.stdf2xls4.excel.xlsx.layout.LegendBlock;
+
+public class CornerBlock implements Block
+{
+	public static final String LABEL_TIMESTAMP = "TimeStamp";
+	public static final String LABEL_WAFER = "Wafer";
+	public static final String LABEL_STEP = "Step";
+	public static final String LABEL_X = "X";
+	public static final String LABEL_Y = "X";
+	public static final String LABEL_SN = "S/N";
+	public static final String LABEL_DUP = "Duplicate";
+	public static final String LABEL_HW_BIN = "HW Bin";
+	public static final String LABEL_SW_BIN = "SW Bin";
+	public static final String LABEL_RESULT = "Result";
+	public static final String LABEL_TEMP = "Temp";
+	public static final String LABEL_TEST_NAME = "Test Name";
+	public static final String LABEL_TEST_NUM = "Test Num";
+	public static final String LABEL_LO_LIMIT = "Lo Limit";
+	public static final String LABEL_HI_LIMIT = "Hi Limit";
+	public static final String LABEL_PIN = "Pin";
+	public static final String LABEL_UNITS = "Units";
+	private final boolean wafersort;
+	private final boolean onePage;
+	private final boolean timeStampedFiles;
+	private final boolean rot;
+	private final int startRow;
+	private final int startCol;
+	private final int devCol;
+	private final int devRow;
+	private final int testRow;
+	
+	public CornerBlock(boolean wafersort, boolean onePage, boolean timeStampedFiles, boolean rotate, HeaderBlock hb)
+	{
+		this.wafersort = wafersort;
+		this.onePage = onePage;
+		this.timeStampedFiles = timeStampedFiles;
+		this.rot = rotate;
+		int h = PageTitleBlock.HEIGHT;
+		startRow = onePage ? (wafersort ? h + 7 : h + 6) : (wafersort ? h + 6 : h + 5);
+		if (rot) devCol = 10;
+		else devCol = 2 + getWidth();
+		devRow = PageTitleBlock.HEIGHT + 8;
+		startCol = 2;
+		testRow = hb.getHeight();
+	}
+	
+	@Override
+	public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
+	{
+		if (rot)
+		{
+			int col = devCol - 1;
+			int row = PageTitleBlock.HEIGHT;
+			CellStyle cs = HEADER1_FMT.getFormat(wb);
+			if (timeStampedFiles)
+			{
+				Block.setCell(ws, col, row++, cs, LABEL_TIMESTAMP);
+			}
+			if (onePage)
+			{
+				Block.setCell(ws, col, row++, cs, wafersort ? LABEL_WAFER : LABEL_STEP);
+			}
+			if (wafersort)
+			{
+				Block.setCell(ws, col, row++, cs, LABEL_X);
+				Block.setCell(ws, col, row++, cs, LABEL_Y);
+			}
+			else 
+			{
+				Block.setCell(ws, col, row++, cs, LABEL_SN);
+			}
+			Block.setCell(ws, col, row++, cs, LABEL_HW_BIN);
+			Block.setCell(ws, col, row++, cs, LABEL_SW_BIN);
+			Block.setCell(ws, col, row++, cs, LABEL_RESULT);
+			Block.setCell(ws, col, row++, cs, LABEL_TEMP);
+
+			cs = HEADER4_FMT.getFormat(wb);
+			Row r = ws.getRow(LegendBlock.HEIGHT);
+			if (r == null) r = ws.createRow(LegendBlock.HEIGHT);
+			Block.setCell(r, getTestNameCol(), cs, LABEL_TEST_NAME);
+			Block.setCell(r, getTestNumberCol(), cs, LABEL_TEST_NUM);
+			Block.setCell(r, getDupNumCol(), cs, LABEL_DUP);
+			Block.setCell(r, getPinNameCol(), cs, LABEL_PIN);
+			Block.setCell(r, getLoLimitCol(), cs, LABEL_LO_LIMIT);
+			Block.setCell(r, getHiLimitCol(), cs, LABEL_HI_LIMIT);
+			Block.setCell(r, getUnitsCol(), cs, LABEL_UNITS);
+
+			ws.setColumnWidth(getTestNameCol(), 256 * 48);
+			ws.addMergedRegion(new CellRangeAddress(LegendBlock.HEIGHT, startRow - 1, getTestNameCol(), getTestNameCol()));
+			ws.addMergedRegion(new CellRangeAddress(LegendBlock.HEIGHT, startRow - 1, getTestNumberCol(), getTestNumberCol()));
+			ws.addMergedRegion(new CellRangeAddress(LegendBlock.HEIGHT, startRow - 1, getDupNumCol(), getDupNumCol()));
+			ws.addMergedRegion(new CellRangeAddress(LegendBlock.HEIGHT, startRow - 1, getPinNameCol(), getPinNameCol()));
+			ws.addMergedRegion(new CellRangeAddress(LegendBlock.HEIGHT, startRow - 1, getLoLimitCol(), getLoLimitCol()));
+			ws.addMergedRegion(new CellRangeAddress(LegendBlock.HEIGHT, startRow - 1, getHiLimitCol(), getHiLimitCol()));
+			ws.addMergedRegion(new CellRangeAddress(LegendBlock.HEIGHT, startRow - 1, getUnitsCol(), getUnitsCol()));
+		}
+		else
+		{
+			int col = startCol;
+			int row = devRow - 1;
+			Row r = ws.getRow(row);
+			if (r == null) r = ws.createRow(row);
+			CellStyle cs = Format_t.HEADER1_FMT.getFormat(wb);
+			if (timeStampedFiles)
+			{
+				Block.setCell(r, col++, cs, LABEL_TIMESTAMP);
+			}
+			if (onePage)
+			{
+				String s = (wafersort) ? LABEL_WAFER : LABEL_STEP;
+				Block.setCell(r, col++, cs, s);
+			}
+			if (wafersort)
+			{
+				Block.setCell(r, col++, cs, LABEL_X);
+				Block.setCell(r, col++, cs, LABEL_Y);
+			}
+			else 
+			{
+				Block.setCell(r, col++, cs, LABEL_SN);
+			}
+			Block.setCell(r, col++, cs, LABEL_HW_BIN);
+			Block.setCell(r, col++, cs, LABEL_SW_BIN);
+			Block.setCell(r, col++, cs, LABEL_RESULT);
+			Block.setCell(r, col++, cs, LABEL_TEMP);
+			
+			col = 7;
+			row = testRow;
+			CellStyle cs1 = Format_t.HEADER4_FMT.getFormat(wb);
+		    Block.setCell(ws, col, row++, cs1, LABEL_TEST_NAME);
+		    Block.setCell(ws, col, row++, cs1, LABEL_TEST_NUM);
+		    Block.setCell(ws, col, row++, cs1, LABEL_DUP);
+		    Block.setCell(ws, col, row++, cs1, LABEL_LO_LIMIT);
+		    Block.setCell(ws, col, row++, cs1, LABEL_HI_LIMIT);
+		    Block.setCell(ws, col, row++, cs1, LABEL_PIN);
+		    Block.setCell(ws, col, row++, cs1, LABEL_UNITS);
+			
+		}
+	}
+
+	public int getTimeStampRow()   { return(7); }
+	public int getWaferOrStepRow() { return(timeStampedFiles ? 8 : 7);	}
+	public int getXRow()           { return(onePage ? getWaferOrStepRow() + 1 : getWaferOrStepRow());  }
+	public int getYRow()           { return(getXRow() + 1); }
+	public int getSnOrYRow()       { return(wafersort ? getXRow() + 1 : getXRow()); }
+	public int getHwBinRow()       { return(getSnOrYRow() + 1); }
+	public int getSwBinRow()       { return(getSnOrYRow() + 2); }
+	public int getResultRow()      { return(getSnOrYRow() + 3); }
+	public int getTempRow()        { return(getSnOrYRow() + 4); }
+	public int getFirstDataCol()   { return(devCol); }
+	public int getTestNameCol()    { return(devCol - 8); }
+	public int getTestNumberCol()  { return(devCol - 7); }
+	public int getDupNumCol()      { return(devCol - 6); }
+	public int getLoLimitCol()     { return(devCol - 5); }
+	public int getHiLimitCol()     { return(devCol - 4); }
+	public int getPinNameCol()     { return(devCol - 3); }
+	public int getUnitsCol()       { return(devCol - 2); }
+	public int getWaferOrStepCol() { return(startCol);	}
+	public int getXCol()           { return(onePage ? startCol + 1 : startCol);  }
+	public int getYCol()           { return(getXCol() + 1); }
+	public int getSnOrYCol()       { return(wafersort ? getXCol() + 1 : getXCol()); }
+	public int getHwBinCol()       { return(4); }
+	public int getSwBinCol()       { return(5); }
+	public int getResultCol()      { return(6); }
+	public int getTempCol()        { return(7); }
+	public int getFirstDataRow()   { return(devRow); }
+	public int getTestNameRow()    { return(devRow - 8); }
+	public int getTestNumberRow()  { return(devRow - 7); }
+	public int getDupNumRow()      { return(devRow - 6); }
+	public int getLoLimitRow()     { return(devRow - 5); }
+	public int getHiLimitRow()     { return(devRow - 4); }
+	public int getPinNameRow()     { return(devRow - 3); }
+	public int getUnitsRow()       { return(devRow - 2); }
+	
+	@Override
+	public int getHeight() 
+	{  
+		if (rot)
+		{
+		    boolean t = timeStampedFiles;
+		    boolean o = onePage;
+		    boolean w = wafersort;
+		    return(t ? (o ? (w ? 8 : 7) : (w ? 7 : 6)) : (o ? (w ? 7 : 6) : (w ? 6 : 5))); 
+		}
+		return(8);
+	}
+
+	@Override
+	public int getWidth() 
+	{ 
+		if (rot) return(8); 
+	    boolean t = timeStampedFiles;
+	    boolean o = onePage;
+	    boolean w = wafersort;
+	    return(t ? (o ? (w ? 8 : 7) : (w ? 7 : 6)) : (o ? (w ? 7 : 6) : (w ? 6 : 5))); 
+	}
+
+}

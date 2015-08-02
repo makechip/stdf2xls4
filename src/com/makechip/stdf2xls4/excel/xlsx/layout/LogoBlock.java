@@ -1,4 +1,4 @@
-package com.makechip.stdf2xls4.excel.xlsx.layout2;
+package com.makechip.stdf2xls4.excel.xlsx.layout;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,19 +16,15 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.makechip.stdf2xls4.excel.xlsx.Block;
-import com.makechip.stdf2xls4.excel.xlsx.layout2.Format_t;
+import com.makechip.stdf2xls4.excel.xlsx.layout.Format_t;
 
 class LogoBlock implements Block
 {
-	public static final int WIDTH = 4;
+	public static final int WIDTH = 1;
     public static final int HEIGHT = 7;	
-    private static final int COL = LegendBlock.WIDTH;
-	@SuppressWarnings("unused")
-	private static final double CELL_DEFAULT_HEIGHT = 255;
-	@SuppressWarnings("unused")
-	private static final double CELL_DEFAULT_WIDTH = 64;
+    public static final int COL = 0;
+	public static final int ROW = 0;
 	private File logoFile;
-	private final int row;
     
     /**
      * Constructor for the LogoBlock.
@@ -38,16 +34,16 @@ class LogoBlock implements Block
     public LogoBlock(File logoFile)
     {
     	this.logoFile = logoFile;
-    	row = 0;
     }
     
     @Override
     public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
     {
-   		ws.addMergedRegion(new CellRangeAddress(row, row + HEIGHT - 1, COL, COL + WIDTH - 1));
+   		ws.addMergedRegion(new CellRangeAddress(ROW, ROW + HEIGHT - 1, COL, COL));
+   		ws.setColumnWidth(COL, 28 * 256);
     	if (logoFile == null)
     	{
-    		setCell(ws,  COL,  row,  Format_t.LOGO_FMT.getFormat(wb), "makechip.com");
+    		Block.setCell(ws, COL, ROW,  Format_t.LOGO_FMT.getFormat(wb), "makechip.com");
     	}
     	else
     	{
@@ -70,9 +66,9 @@ class LogoBlock implements Block
     			//set top-left corner for the image
     			anchor.setAnchorType(0);
     			anchor.setCol1(COL);
-    			anchor.setRow1(row);
+    			anchor.setRow1(ROW);
     			anchor.setCol2(COL + WIDTH -1);
-    			anchor.setRow2(row + HEIGHT -1);
+    			anchor.setRow2(ROW + HEIGHT -1);
     			//Creates a picture
     			Picture pict = drawing.createPicture(anchor, pictureIdx);
     			pict.resize();
