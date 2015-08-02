@@ -8,6 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.Stdf2xls4;
+import com.makechip.stdf2xls4.excel.Coord;
 import com.makechip.stdf2xls4.excel.xlsx.Block;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
 
@@ -39,16 +40,36 @@ public class HeaderBlock implements Block
         {
         	Row r = ws.getRow(row);
         	if (r == null) r = ws.createRow(row);
-        	Block.setCell(r, KEY_COL,   HEADER2_FMT.getFormat(wb), k);
-        	Block.setCell(r, VALUE_COL, HEADER3_FMT.getFormat(wb), hdr.get(k));
+        	Block.setCell(r, KEY_COL, k);
+        	Block.setCell(r, VALUE_COL, hdr.get(k));
             ws.setColumnWidth(VALUE_COL, getCellWidth(hdr.get(k)));
             row++;
         }
-        Block.setCell(ws, KEY_COL,   row, HEADER2_FMT.getFormat(wb), VERSION_LABEL);
-        Block.setCell(ws, VALUE_COL, row, HEADER3_FMT.getFormat(wb), Stdf2xls4.VERSION);
+        Block.setCell(ws, new Coord(KEY_COL, row), VERSION_LABEL);
+        Block.setCell(ws, new Coord(VALUE_COL, row), Stdf2xls4.VERSION);
         row++;
-        Block.setCell(ws, KEY_COL,   row, HEADER2_FMT.getFormat(wb), OPTIONS_LABEL);
-        Block.setCell(ws, VALUE_COL, row, HEADER3_FMT.getFormat(wb), optionsString);
+        Block.setCell(ws, new Coord(KEY_COL,   row), OPTIONS_LABEL);
+        Block.setCell(ws, new Coord(VALUE_COL, row), optionsString);
+        addFormat(wb, ws);
+    }
+    
+    @Override
+    public void addFormat(XSSFWorkbook wb, XSSFSheet ws)
+    {
+    	int row = PageTitleBlock.HEIGHT;
+        for (@SuppressWarnings("unused") String k : hdr.getNames())
+        {
+        	Row r = ws.getRow(row);
+        	if (r == null) r = ws.createRow(row);
+        	Block.setCell(r, KEY_COL,   HEADER2_FMT.getFormat(wb));
+        	Block.setCell(r, VALUE_COL, HEADER3_FMT.getFormat(wb));
+            row++;
+        }
+        Block.setCell(ws, new Coord(KEY_COL,   row), HEADER2_FMT.getFormat(wb));
+        Block.setCell(ws, new Coord(VALUE_COL, row), HEADER3_FMT.getFormat(wb));
+        row++;
+        Block.setCell(ws, new Coord(KEY_COL,   row), HEADER2_FMT.getFormat(wb));
+        Block.setCell(ws, new Coord(VALUE_COL, row), HEADER3_FMT.getFormat(wb));
     }
     
 	private int getCellWidth(String testName)

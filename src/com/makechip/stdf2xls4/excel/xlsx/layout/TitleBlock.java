@@ -7,6 +7,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.makechip.stdf2xls4.CliOptions;
+import com.makechip.stdf2xls4.excel.DeviceXY;
+import com.makechip.stdf2xls4.excel.TestXY;
 import com.makechip.stdf2xls4.excel.xlsx.Block;
 import com.makechip.stdf2xls4.excel.xlsx.layout.DataHeader;
 import com.makechip.stdf2xls4.excel.xlsx.layout.HeaderBlock;
@@ -60,6 +62,17 @@ public class TitleBlock implements Block
 		cb.addBlock(wb, ws);
 		dh.addBlock(wb, ws);
     }
+	
+	@Override 
+	public void addFormat(XSSFWorkbook wb, XSSFSheet ws)
+	{
+		hb.addFormat(wb, ws);
+		ptb.addFormat(wb, ws);
+		lb.addFormat(wb, ws);
+		logo.addFormat(wb, ws);
+		cb.addFormat(wb, ws);
+		dh.addFormat(wb, ws);
+	}
 	
 	@Override
 	public int getWidth()

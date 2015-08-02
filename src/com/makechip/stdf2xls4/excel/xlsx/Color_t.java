@@ -76,7 +76,7 @@ public enum Color_t
 	PLUM              (new XSSFColor(new java.awt.Color(0x99,0x33,0x66)), 61),
 	INDIGO            (new XSSFColor(new java.awt.Color(0x33,0x33,0x99)), 62),
 	GREY_80_PERCENT   (new XSSFColor(new java.awt.Color(0x33,0x33,0x33)), 63),
-    MC_BLUE(new XSSFColor(new java.awt.Color(65, 112, 233)), 65),
+    MC_BLUE(new XSSFColor(new java.awt.Color(82, 123, 188)), 65),
     DEFAULT(new XSSFColor(java.awt.Color.BLACK), 8);
 
     public final XSSFColor color;

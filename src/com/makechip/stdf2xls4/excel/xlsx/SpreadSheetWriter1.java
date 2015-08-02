@@ -349,20 +349,20 @@ public class SpreadSheetWriter1 extends SpreadsheetWriter implements SpreadSheet
             	if (dh.snxy instanceof TimeXY)
             	{
             	    wsi.setColumnWidth(0, 256 * 15);	
-            	    setCell(wsi, 0, row, cs, ((TimeXY) dh.snxy).getTimeStamp());
+            	    Block.setCell(wsi, 0, row, cs, ((TimeXY) dh.snxy).getTimeStamp());
             	}
-            	setCell(wsi, titleBlock.devxy.wafOrStepLabel.c, row, cs, waferOrStep);
+            	Block.setCell(wsi, titleBlock.devxy.wafOrStepLabel.c, row, cs, waferOrStep);
             }
             else
             {
             	if (dh.snxy instanceof TimeXY)
             	{
-            	    setCell(wsi, 0, row, cs, ((TimeXY) dh.snxy).getTimeStamp());
+            	    Block.setCell(wsi, 0, row, cs, ((TimeXY) dh.snxy).getTimeStamp());
             	    wsi.addMergedRegion(new CellRangeAddress(row, row, 0, 1));
             	}
             }
-            setCell(wsi, titleBlock.devxy.xLabel.c, row, cs, dh.snxy.getX());
-            setCell(wsi, titleBlock.devxy.yOrSn.c, row, cs, dh.snxy.getY());
+            Block.setCell(wsi, titleBlock.devxy.xLabel.c, row, cs, dh.snxy.getX());
+            Block.setCell(wsi, titleBlock.devxy.yOrSn.c, row, cs, dh.snxy.getY());
         }
         else // FT
         {
@@ -370,38 +370,38 @@ public class SpreadSheetWriter1 extends SpreadsheetWriter implements SpreadSheet
             {
                 if (dh.snxy instanceof TimeSN)
                 {
-            	    setCell(wsi, 0, row, cs, ((TimeSN) dh.snxy).getTimeStamp());
+            	    Block.setCell(wsi, 0, row, cs, ((TimeSN) dh.snxy).getTimeStamp());
             	    wsi.addMergedRegion(new CellRangeAddress(row, row, 0, 1));
                 }
-            	setCell(wsi, titleBlock.devxy.wafOrStepLabel.c, row, cs, waferOrStep);
+            	Block.setCell(wsi, titleBlock.devxy.wafOrStepLabel.c, row, cs, waferOrStep);
             }
             else
             {
                 if (dh.snxy instanceof TimeSN)
                 {
-            	    setCell(wsi, 1, row, cs, ((TimeSN) dh.snxy).getTimeStamp());
+            	    Block.setCell(wsi, 1, row, cs, ((TimeSN) dh.snxy).getTimeStamp());
             	    wsi.addMergedRegion(new CellRangeAddress(row, row, 1, 2));
                 }
             }
-            setCell(wsi, titleBlock.devxy.yOrSnLabel.c, row, cs, dh.snxy.getSerialNumber());
+            Block.setCell(wsi, titleBlock.devxy.yOrSnLabel.c, row, cs, dh.snxy.getSerialNumber());
         }
-        setCell(wsi, titleBlock.devxy.hwBinLabel.c, row, cs, dh.hwBin);
-        setCell(wsi, titleBlock.devxy.swBinLabel.c, row, cs, dh.swBin);
-        setCell(wsi, titleBlock.devxy.tempLabel.c, row, cs, dh.temperature);
+        Block.setCell(wsi, titleBlock.devxy.hwBinLabel.c, row, cs, dh.hwBin);
+        Block.setCell(wsi, titleBlock.devxy.swBinLabel.c, row, cs, dh.swBin);
+        Block.setCell(wsi, titleBlock.devxy.tempLabel.c, row, cs, dh.temperature);
 
-        if (dh.fail) setCell(wsi, titleBlock.devxy.rsltLabel.c, row, STATUS_FAIL_FMT.getFormat(wb), "FAIL");
-        else setCell(wsi, titleBlock.devxy.rsltLabel.c, row, cs, "PASS");
+        if (dh.fail) Block.setCell(wsi, titleBlock.devxy.rsltLabel.c, row, STATUS_FAIL_FMT.getFormat(wb), "FAIL");
+        else Block.setCell(wsi, titleBlock.devxy.rsltLabel.c, row, cs, "PASS");
     }
     
     private void setValue(XSSFSheet wsi, int col, int row, ParametricTestResult p)
     {
-    	if (p.pass()) setCell(wsi, col, row, PASS_VALUE_FMT.getFormat(wb, options.precision), p.result);
-    	else if (p.noPassFail()) setCell(wsi, col, row, INVALID_VALUE_FMT.getFormat(wb, options.precision), p.result);
-    	else if (p.unreliable()) setCell(wsi, col, row, UNRELIABLE_VALUE_FMT.getFormat(wb, options.precision), p.result);
-    	else if (p.alarm()) setCell(wsi, col, row, ALARM_VALUE_FMT.getFormat(wb, options.precision), p.result);
-    	else if (p.timeout()) setCell(wsi, col, row, TIMEOUT_VALUE_FMT.getFormat(wb, options.precision), p.result);
-    	else if (p.abort()) setCell(wsi, col, row, ABORT_VALUE_FMT.getFormat(wb, options.precision), p.result);
-    	else setCell(wsi, col, row, FAIL_VALUE_FMT.getFormat(wb, options.precision), p.result);
+    	if (p.pass()) Block.setCell(wsi, col, row, PASS_VALUE_FMT.getFormat(wb, options.precision), p.result);
+    	else if (p.noPassFail()) Block.setCell(wsi, col, row, INVALID_VALUE_FMT.getFormat(wb, options.precision), p.result);
+    	else if (p.unreliable()) Block.setCell(wsi, col, row, UNRELIABLE_VALUE_FMT.getFormat(wb, options.precision), p.result);
+    	else if (p.alarm()) Block.setCell(wsi, col, row, ALARM_VALUE_FMT.getFormat(wb, options.precision), p.result);
+    	else if (p.timeout()) Block.setCell(wsi, col, row, TIMEOUT_VALUE_FMT.getFormat(wb, options.precision), p.result);
+    	else if (p.abort()) Block.setCell(wsi, col, row, ABORT_VALUE_FMT.getFormat(wb, options.precision), p.result);
+    	else Block.setCell(wsi, col, row, FAIL_VALUE_FMT.getFormat(wb, options.precision), p.result);
     }
     
     private void locateRow(boolean wafersort, String waferOrStep, SnOrXy snOrXy, int page)

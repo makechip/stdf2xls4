@@ -1,4 +1,4 @@
-package com.makechip.stdf2xls4.excel.xlsx.layout;
+package com.makechip.stdf2xls4.excel;
 
 public class DeviceXY
 {
@@ -27,8 +27,8 @@ public class DeviceXY
 		this.rotate = rotate;
 		if (rotate)
 		{
-			final int c = LogoBlock.WIDTH + LegendBlock.WIDTH + 6;
-		    tstampLabel = new Coord(c, PageTitleBlock.HEIGHT);
+			final int c = 8;
+		    tstampLabel = new Coord(c, 7);
 		    wafOrStepLabel = new Coord(c, timeStampedFiles ? tstampLabel.r + 1 : tstampLabel.r);
 		    xLabel = new Coord(c, onePage ? wafOrStepLabel.r + 1 : wafOrStepLabel.r);
 		    yOrSnLabel = new Coord(c, wafersort ? xLabel.r + 1 : xLabel.r);
@@ -39,8 +39,8 @@ public class DeviceXY
 		}
 		else
 		{
-			final int r = PageTitleBlock.HEIGHT;
-			final int c0 = LogoBlock.WIDTH + LegendBlock.WIDTH;
+			final int r = 7;
+			final int c0 = 2;
 		    tstampLabel = new Coord(c0, r);
 		    wafOrStepLabel = new Coord(timeStampedFiles ? tstampLabel.c + 1 : tstampLabel.c, r);
 		    xLabel = new Coord(onePage ? wafOrStepLabel.c + 1 : wafOrStepLabel.c, r);

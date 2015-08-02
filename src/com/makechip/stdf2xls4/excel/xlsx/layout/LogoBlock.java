@@ -15,6 +15,7 @@ import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.makechip.stdf2xls4.excel.Coord;
 import com.makechip.stdf2xls4.excel.xlsx.Block;
 import com.makechip.stdf2xls4.excel.xlsx.layout.Format_t;
 
@@ -43,7 +44,7 @@ class LogoBlock implements Block
    		ws.setColumnWidth(COL, 28 * 256);
     	if (logoFile == null)
     	{
-    		Block.setCell(ws, COL, ROW,  Format_t.LOGO_FMT.getFormat(wb), "makechip.com");
+    		Block.setCell(ws, new Coord(COL, ROW), "makechip.com");
     	}
     	else
     	{
@@ -74,6 +75,16 @@ class LogoBlock implements Block
     			pict.resize();
     		}
     		catch (IOException e) { throw new RuntimeException(e.getMessage()); }
+    	}
+    	addFormat(wb, ws);
+    }
+    
+    @Override
+    public void addFormat(XSSFWorkbook wb, XSSFSheet ws)
+    {
+    	if (logoFile == null)
+    	{
+    		Block.setCell(ws, new Coord(COL, ROW),  Format_t.LOGO_FMT.getFormat(wb));
     	}
     }
 

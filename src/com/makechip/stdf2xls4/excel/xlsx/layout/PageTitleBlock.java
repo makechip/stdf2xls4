@@ -6,6 +6,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.makechip.stdf2xls4.excel.Coord;
 import com.makechip.stdf2xls4.excel.xlsx.Block;
 
 public class PageTitleBlock implements Block
@@ -24,8 +25,15 @@ public class PageTitleBlock implements Block
     @Override
     public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
     {
-    	Block.setCell(ws, COL, 0, TITLE_FMT.getFormat(wb), title);
+    	Block.setCell(ws, new Coord(COL, 0), title);
     	ws.addMergedRegion(new CellRangeAddress(0, HEIGHT - 1, COL, COL + width - 1));
+    	addFormat(wb, ws);
+    }
+
+    @Override
+    public void addFormat(XSSFWorkbook wb, XSSFSheet ws)
+    {
+    	Block.setCell(ws, new Coord(COL, 0), TITLE_FMT.getFormat(wb));
     }
 
 	@Override

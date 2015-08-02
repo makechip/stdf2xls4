@@ -39,6 +39,53 @@ public class DataHeader implements Block
 	@Override
 	public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
 	{
+		cb.tstxy.reset();
+		hdrs.stream().forEach(hdr ->
+		{
+			if (rot || noWrapTestNames) ws.setColumnWidth(cb.tstxy.tname.c, getCellWidth(hdr.testName));
+			else ws.addMergedRegion(new CellRangeAddress(cb.tstxy.tnameLabel.r, cb.tstxy.tnumLabel.r-1, cb.tstxy.tname.c, cb.tstxy.tname.c));
+			Block.setCell(ws, cb.tstxy.tname, hdr.testName);
+			Block.setCell(ws, cb.tstxy.tnum, hdr.testNumber);	
+			Block.setCell(ws, cb.tstxy.dupNum, hdr.dupNum);
+			if (hdr instanceof ParametricTestHeader)
+			{
+				ParametricTestHeader phdr = (ParametricTestHeader) hdr;	
+				if (phdr.loLimit == null) Block.setCell(ws, cb.tstxy.loLim, "");
+				else Block.setCell(ws, cb.tstxy.loLim, phdr.loLimit);
+				if (phdr.hiLimit == null) Block.setCell(ws, cb.tstxy.hiLim, "");
+				else Block.setCell(ws, cb.tstxy.hiLim, phdr.hiLimit);
+				Block.setCell(ws, cb.tstxy.pin, "");
+				Block.setCell(ws, cb.tstxy.units, phdr.units);
+			}
+			else if (hdr instanceof MultiParametricTestHeader)
+			{
+				MultiParametricTestHeader mhdr = (MultiParametricTestHeader) hdr;	
+				if (mhdr.loLimit == null) Block.setCell(ws, cb.tstxy.loLim, "");
+				else Block.setCell(ws, cb.tstxy.loLim, mhdr.loLimit);
+				if (mhdr.hiLimit == null) Block.setCell(ws, cb.tstxy.hiLim, "");
+				else Block.setCell(ws, cb.tstxy.hiLim, mhdr.hiLimit);
+				Block.setCell(ws, cb.tstxy.pin, mhdr.pin);
+				Block.setCell(ws, cb.tstxy.units, mhdr.units);
+			}
+			else
+			{
+				Block.setCell(ws, cb.tstxy.loLim, "");
+				Block.setCell(ws, cb.tstxy.hiLim, "");
+				Block.setCell(ws, cb.tstxy.pin, "");
+				Block.setCell(ws, cb.tstxy.units, "");
+			}
+			if (!rot)
+			{
+			    ws.addMergedRegion(new CellRangeAddress(cb.tstxy.units.r, cb.tstxy.units.r+1, cb.tstxy.units.c, cb.tstxy.units.c));
+			}
+			cb.tstxy.inc();
+		});
+		addFormat(wb, ws);
+	}
+	
+	@Override
+	public void addFormat(XSSFWorkbook wb, XSSFSheet ws)
+	{
 		CellStyle cst = TEST_NAME_FMT.getFormat(wb);
 		CellStyle cstw = TEST_NAME_FMT_WRAP.getFormat(wb);
 		cstw.setWrapText(true);
@@ -47,41 +94,35 @@ public class DataHeader implements Block
 		cb.tstxy.reset();
 		hdrs.stream().forEach(hdr ->
 		{
-			if (rot || noWrapTestNames) ws.setColumnWidth(cb.tstxy.tname.c, getCellWidth(hdr.testName));
-			else ws.addMergedRegion(new CellRangeAddress(cb.tstxy.tnameLabel.r, cb.tstxy.tnumLabel.r-1, cb.tstxy.tname.c, cb.tstxy.tname.c));
-			Block.setCell(ws, cb.tstxy.tname, noWrapTestNames ? cst : cstw, hdr.testName);
-			Block.setCell(ws, cb.tstxy.tnum, cs1, hdr.testNumber);	
-			Block.setCell(ws, cb.tstxy.dupNum, cs1, hdr.dupNum);
+			Block.setCell(ws, cb.tstxy.tname, noWrapTestNames ? cst : cstw);
+			Block.setCell(ws, cb.tstxy.tnum, cs1);	
+			Block.setCell(ws, cb.tstxy.dupNum, cs1);
 			if (hdr instanceof ParametricTestHeader)
 			{
 				ParametricTestHeader phdr = (ParametricTestHeader) hdr;	
-				if (phdr.loLimit == null) Block.setCell(ws, cb.tstxy.loLim, cs1, "");
-				else Block.setCell(ws, cb.tstxy.loLim, cs5, phdr.loLimit);
-				if (phdr.hiLimit == null) Block.setCell(ws, cb.tstxy.hiLim, cs1, "");
-				else Block.setCell(ws, cb.tstxy.hiLim, cs5, phdr.hiLimit);
-				Block.setCell(ws, cb.tstxy.pin, cs1, "");
-				Block.setCell(ws, cb.tstxy.units, cs1, phdr.units);
+				if (phdr.loLimit == null) Block.setCell(ws, cb.tstxy.loLim, cs1);
+				else Block.setCell(ws, cb.tstxy.loLim, cs5);
+				if (phdr.hiLimit == null) Block.setCell(ws, cb.tstxy.hiLim, cs1);
+				else Block.setCell(ws, cb.tstxy.hiLim, cs5);
+				Block.setCell(ws, cb.tstxy.pin, cs1);
+				Block.setCell(ws, cb.tstxy.units, cs1);
 			}
 			else if (hdr instanceof MultiParametricTestHeader)
 			{
 				MultiParametricTestHeader mhdr = (MultiParametricTestHeader) hdr;	
-				if (mhdr.loLimit == null) Block.setCell(ws, cb.tstxy.loLim, cs1, "");
-				else Block.setCell(ws, cb.tstxy.loLim, cs5, mhdr.loLimit);
-				if (mhdr.hiLimit == null) Block.setCell(ws, cb.tstxy.hiLim, cs1, "");
-				else Block.setCell(ws, cb.tstxy.hiLim, cs5, mhdr.hiLimit);
-				Block.setCell(ws, cb.tstxy.pin, cs1, mhdr.pin);
-				Block.setCell(ws, cb.tstxy.units, cs1, mhdr.units);
+				if (mhdr.loLimit == null) Block.setCell(ws, cb.tstxy.loLim, cs1);
+				else Block.setCell(ws, cb.tstxy.loLim, cs5);
+				if (mhdr.hiLimit == null) Block.setCell(ws, cb.tstxy.hiLim, cs1);
+				else Block.setCell(ws, cb.tstxy.hiLim, cs5);
+				Block.setCell(ws, cb.tstxy.pin, cs1);
+				Block.setCell(ws, cb.tstxy.units, cs1);
 			}
 			else
 			{
-				Block.setCell(ws, cb.tstxy.loLim, cs1, "");
-				Block.setCell(ws, cb.tstxy.hiLim, cs1, "");
-				Block.setCell(ws, cb.tstxy.pin, cs1, "");
-				Block.setCell(ws, cb.tstxy.units, cs1, "");
-			}
-			if (!rot)
-			{
-			    ws.addMergedRegion(new CellRangeAddress(cb.tstxy.units.r, cb.tstxy.units.r+1, cb.tstxy.units.c, cb.tstxy.units.c));
+				Block.setCell(ws, cb.tstxy.loLim, cs1);
+				Block.setCell(ws, cb.tstxy.hiLim, cs1);
+				Block.setCell(ws, cb.tstxy.pin, cs1);
+				Block.setCell(ws, cb.tstxy.units, cs1);
 			}
 			cb.tstxy.inc();
 		});

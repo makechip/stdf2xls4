@@ -8,6 +8,9 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.makechip.stdf2xls4.excel.Coord;
+import com.makechip.stdf2xls4.excel.DeviceXY;
+import com.makechip.stdf2xls4.excel.TestXY;
 import com.makechip.stdf2xls4.excel.xlsx.Block;
 
 public class CornerBlock implements Block
@@ -57,37 +60,35 @@ public class CornerBlock implements Block
 	@Override
 	public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
 	{
-		CellStyle cs4r = HEADER4_FMTR.getFormat(wb);
-		CellStyle cs4 = HEADER4_FMT.getFormat(wb);
 		if (timeStampedFiles)
 		{
-			Block.setCell(ws, devxy.tstampLabel, rotate ? cs4 : cs4r, LABEL_TIMESTAMP);
+			Block.setCell(ws, devxy.tstampLabel, LABEL_TIMESTAMP);
 		}
 		if (onePage)
 		{
-			Block.setCell(ws, devxy.wafOrStepLabel, rotate ? cs4 : cs4r, wafersort ? LABEL_WAFER : LABEL_STEP);
+			Block.setCell(ws, devxy.wafOrStepLabel, wafersort ? LABEL_WAFER : LABEL_STEP);
 		}
 		if (wafersort)
 		{
-			Block.setCell(ws, devxy.xLabel, rotate ? cs4 : cs4r, LABEL_X);
-			Block.setCell(ws, devxy.yOrSnLabel, rotate ? cs4 : cs4r, LABEL_Y);
+			Block.setCell(ws, devxy.xLabel, LABEL_X);
+			Block.setCell(ws, devxy.yOrSnLabel, LABEL_Y);
 		}
 		else 
 		{
-			Block.setCell(ws, devxy.yOrSnLabel, rotate ? cs4 : cs4r, LABEL_SN);
+			Block.setCell(ws, devxy.yOrSnLabel, LABEL_SN);
 		}
-		Block.setCell(ws, devxy.hwBinLabel, rotate ? cs4 : cs4r, LABEL_HW_BIN);
-		Block.setCell(ws, devxy.swBinLabel, rotate ? cs4 : cs4r, LABEL_SW_BIN);
-		Block.setCell(ws, devxy.rsltLabel, rotate ? cs4 : cs4r, LABEL_RESULT);
-		Block.setCell(ws, devxy.tempLabel, rotate ? cs4 : cs4r, LABEL_TEMP);
+		Block.setCell(ws, devxy.hwBinLabel, LABEL_HW_BIN);
+		Block.setCell(ws, devxy.swBinLabel, LABEL_SW_BIN);
+		Block.setCell(ws, devxy.rsltLabel, LABEL_RESULT);
+		Block.setCell(ws, devxy.tempLabel, LABEL_TEMP);
 
-		Block.setCell(ws, tstxy.tnameLabel, rotate ? cs4r : cs4, LABEL_TEST_NAME);
-		Block.setCell(ws, tstxy.tnumLabel, rotate ? cs4r : cs4, LABEL_TEST_NUM);
-		Block.setCell(ws, tstxy.dupNumLabel, rotate ? cs4r : cs4, LABEL_DUP);
-		Block.setCell(ws, tstxy.pinLabel, rotate ? cs4r : cs4, LABEL_PIN);
-		Block.setCell(ws, tstxy.loLimLabel, rotate ? cs4r : cs4, LABEL_LO_LIMIT);
-		Block.setCell(ws, tstxy.hiLimLabel, rotate ? cs4r : cs4, LABEL_HI_LIMIT);
-		Block.setCell(ws, tstxy.unitsLabel, rotate ? cs4r : cs4, LABEL_UNITS);
+		Block.setCell(ws, tstxy.tnameLabel, LABEL_TEST_NAME);
+		Block.setCell(ws, tstxy.tnumLabel, LABEL_TEST_NUM);
+		Block.setCell(ws, tstxy.dupNumLabel, LABEL_DUP);
+		Block.setCell(ws, tstxy.pinLabel, LABEL_PIN);
+		Block.setCell(ws, tstxy.loLimLabel, LABEL_LO_LIMIT);
+		Block.setCell(ws, tstxy.hiLimLabel, LABEL_HI_LIMIT);
+		Block.setCell(ws, tstxy.unitsLabel, LABEL_UNITS);
 
 		if (rotate)
 		{
@@ -127,6 +128,43 @@ public class CornerBlock implements Block
 		    			                                tstxy.tnameLabel.c));
 		    }
 		}
+		addFormat(wb, ws);
+	}
+	
+	@Override
+	public void addFormat(XSSFWorkbook wb, XSSFSheet ws)
+	{
+		CellStyle cs4r = HEADER4_FMTR.getFormat(wb);
+		CellStyle cs4 = HEADER4_FMT.getFormat(wb);
+		if (timeStampedFiles)
+		{
+			Block.setCell(ws, devxy.tstampLabel, rotate ? cs4 : cs4r);
+		}
+		if (onePage)
+		{
+			Block.setCell(ws, devxy.wafOrStepLabel, rotate ? cs4 : cs4r);
+		}
+		if (wafersort)
+		{
+			Block.setCell(ws, devxy.xLabel, rotate ? cs4 : cs4r);
+			Block.setCell(ws, devxy.yOrSnLabel, rotate ? cs4 : cs4r);
+		}
+		else 
+		{
+			Block.setCell(ws, devxy.yOrSnLabel, rotate ? cs4 : cs4r);
+		}
+		Block.setCell(ws, devxy.hwBinLabel, rotate ? cs4 : cs4r);
+		Block.setCell(ws, devxy.swBinLabel, rotate ? cs4 : cs4r);
+		Block.setCell(ws, devxy.rsltLabel, rotate ? cs4 : cs4r);
+		Block.setCell(ws, devxy.tempLabel, rotate ? cs4 : cs4r);
+
+		Block.setCell(ws, tstxy.tnameLabel, rotate ? cs4r : cs4);
+		Block.setCell(ws, tstxy.tnumLabel, rotate ? cs4r : cs4);
+		Block.setCell(ws, tstxy.dupNumLabel, rotate ? cs4r : cs4);
+		Block.setCell(ws, tstxy.pinLabel, rotate ? cs4r : cs4);
+		Block.setCell(ws, tstxy.loLimLabel, rotate ? cs4r : cs4);
+		Block.setCell(ws, tstxy.hiLimLabel, rotate ? cs4r : cs4);
+		Block.setCell(ws, tstxy.unitsLabel, rotate ? cs4r : cs4);
 	}
 	
 	private CellRangeAddress getTRange(Coord xy)

@@ -18,7 +18,6 @@ import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -215,107 +214,17 @@ public abstract class SpreadsheetWriter
     	if (rw == null) rw = wsi.createRow(row);
         switch (r.error)
         {
-        case PASS:       setCell(rw, col, STATUS_PASS_FMT.getFormat(wb), "PASS"); break;
-        case FAIL:       setCell(rw, col, STATUS_FAIL_FMT.getFormat(wb), "FAIL"); break;
-        case INVALID:    setCell(rw, col, STATUS_INVALID_FMT.getFormat(wb), "FAIL"); break;
-        case UNRELIABLE: setCell(rw, col, STATUS_UNRELIABLE_FMT.getFormat(wb), "FAIL"); break;
-        case ALARM:      setCell(rw, col, STATUS_ALARM_FMT.getFormat(wb), "FAIL"); break;
-        case TIMEOUT:    setCell(rw, col, STATUS_TIMEOUT_FMT.getFormat(wb), "FAIL"); break;
-        default:         setCell(rw, col, STATUS_ABORT_FMT.getFormat(wb), "FAIL"); break;
+        case PASS:       Block.setCell(rw, col, STATUS_PASS_FMT.getFormat(wb), "PASS"); break;
+        case FAIL:       Block.setCell(rw, col, STATUS_FAIL_FMT.getFormat(wb), "FAIL"); break;
+        case INVALID:    Block.setCell(rw, col, STATUS_INVALID_FMT.getFormat(wb), "FAIL"); break;
+        case UNRELIABLE: Block.setCell(rw, col, STATUS_UNRELIABLE_FMT.getFormat(wb), "FAIL"); break;
+        case ALARM:      Block.setCell(rw, col, STATUS_ALARM_FMT.getFormat(wb), "FAIL"); break;
+        case TIMEOUT:    Block.setCell(rw, col, STATUS_TIMEOUT_FMT.getFormat(wb), "FAIL"); break;
+        default:         Block.setCell(rw, col, STATUS_ABORT_FMT.getFormat(wb), "FAIL"); break;
         }
     }
     
-	protected void setCell(Row r, int col, CellStyle cs, String val)
-	{
-		Cell c = r.getCell(col);
-		if (c == null)
-		{
-			c = r.createCell(col, Cell_t.STRING.type);
-			c.setCellValue(val);
-			c.setCellStyle(cs);
-		}
-	}
-	
-	protected void setCell(XSSFSheet ws, int col, int row, CellStyle cs, String val)
-	{
-		Row r = ws.getRow(row);
-		if (r == null) r = ws.createRow(row);
-		setCell(r, col, cs, val);
-	}
-
-	protected void setCell(Row r, int col, CellStyle cs, long val)
-	{
-		Cell c = r.getCell(col);
-		if (c == null)
-		{
-			c = r.createCell(col, Cell_t.NUMERIC.type);
-			c.setCellValue(val);
-			c.setCellStyle(cs);
-		}
-	}
-	
-	protected void setCell(XSSFSheet ws, int col, int row, CellStyle cs, long val)
-	{
-		Row r = ws.getRow(row);
-		if (r == null) r = ws.createRow(row);
-		setCell(r, col, cs, val);
-	}
-
-	protected void setCell(Row r, int col, CellStyle cs, int val)
-	{
-		Cell c = r.getCell(col);
-		if (c == null)
-		{
-			c = r.createCell(col, Cell_t.NUMERIC.type);
-			c.setCellValue(val);
-			c.setCellStyle(cs);
-		}
-	}
-	
-	protected void setCell(XSSFSheet ws, int col, int row, CellStyle cs, int val)
-	{
-		Row r = ws.getRow(row);
-		if (r == null) r = ws.createRow(row);
-		setCell(r, col, cs, val);
-	}
-
-	protected void setCell(Row r, int col, CellStyle cs, float val)
-	{
-		Cell c = r.getCell(col);
-		if (c == null)
-		{
-			c = r.createCell(col, Cell_t.NUMERIC.type);
-			c.setCellValue(val);
-			c.setCellStyle(cs);
-		}
-	}
-	
-	protected void setCell(XSSFSheet ws, int col, int row, CellStyle cs, float val)
-	{
-		Row r = ws.getRow(row);
-		if (r == null) r = ws.createRow(row);
-		setCell(r, col, cs, val);
-	}
-
-	protected void setCell(Row r, int col, CellStyle cs, double val)
-	{
-		Cell c = r.getCell(col);
-		if (c == null)
-		{
-			c = r.createCell(col, Cell_t.NUMERIC.type);
-			c.setCellValue(val);
-			c.setCellStyle(cs);
-		}
-	}
-	
-	protected void setCell(XSSFSheet ws, int col, int row, CellStyle cs, double val)
-	{
-		Row r = ws.getRow(row);
-		if (r == null) r = ws.createRow(row);
-		setCell(r, col, cs, val);
-	}
-
-    protected void setText(XSSFSheet wsi, int col, int row, CellFormat format, String text)
+   protected void setText(XSSFSheet wsi, int col, int row, CellFormat format, String text)
     {
         String s = text.trim();
         int size = wsi.getColumnWidth(col);
@@ -323,7 +232,7 @@ public abstract class SpreadsheetWriter
         {   
             wsi.setColumnWidth(col, 256*(14 * s.length())/10);
         }   
-        setCell(wsi, col, row, format.getFormat(wb), text.trim());
+        Block.setCell(wsi, col, row, format.getFormat(wb), text.trim());
     }
     
     public void close() throws IOException

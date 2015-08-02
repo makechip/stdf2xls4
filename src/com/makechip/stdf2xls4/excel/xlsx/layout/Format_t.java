@@ -8,7 +8,6 @@ import static com.makechip.stdf2xls4.excel.xlsx.Color_t.LIGHT_BLUE;
 import static com.makechip.stdf2xls4.excel.xlsx.Color_t.MC_BLUE;
 import static com.makechip.stdf2xls4.excel.xlsx.Color_t.PINK;
 import static com.makechip.stdf2xls4.excel.xlsx.Color_t.RED;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.SKY_BLUE;
 import static com.makechip.stdf2xls4.excel.xlsx.Color_t.TURQUOISE;
 import static com.makechip.stdf2xls4.excel.xlsx.Color_t.WHITE;
 import static com.makechip.stdf2xls4.excel.xlsx.Color_t.YELLOW;
@@ -19,6 +18,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFDataFormat;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -32,7 +32,7 @@ public enum Format_t implements CellFormat
     TEST_NUMBER_FMT(ARIAL_NORMAL,         10, CellStyle.ALIGN_LEFT,   CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     TEST_NAME_FMT(ARIAL_NORMAL,           10, CellStyle.ALIGN_LEFT,   CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     TEST_NAME_FMT_WRAP(ARIAL_NORMAL,      10, CellStyle.ALIGN_JUSTIFY,CellStyle.VERTICAL_CENTER, true,  WHITE,        BLACK, THIN, BLACK),
-    TITLE_FMT(ARIAL_BOLD,                 20, CellStyle.ALIGN_LEFT,   CellStyle.VERTICAL_CENTER, false, SKY_BLUE,     WHITE, THIN, BLACK),
+    TITLE_FMT(ARIAL_BOLD,                 20, CellStyle.ALIGN_LEFT,   CellStyle.VERTICAL_CENTER, false, MC_BLUE,      WHITE, THIN, BLACK),
     LOGO_FMT(ARIAL_BOLD,                  24, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_CENTER, false, WHITE,      MC_BLUE, THIN, BLACK),
     LO_LIMIT_FMT(ARIAL_NORMAL,            10, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     HI_LIMIT_FMT(ARIAL_NORMAL,            10, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
@@ -42,7 +42,7 @@ public enum Format_t implements CellFormat
     HEADER2_FMT(ARIAL_BOLD,                8, CellStyle.ALIGN_RIGHT,  CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     HEADER3_FMT(ARIAL_NORMAL,             10, CellStyle.ALIGN_LEFT,   CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     HEADER4_FMT(ARIAL_BOLD,                8, CellStyle.ALIGN_RIGHT,  CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
-    HEADER4_FMTR(ARIAL_BOLD,               8, CellStyle.ALIGN_RIGHT,  CellStyle.VERTICAL_BOTTOM, false, WHITE,        BLACK, THIN, BLACK),
+    HEADER4_FMTR(ARIAL_BOLD,               8, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_BOTTOM, false, WHITE,        BLACK, THIN, BLACK),
     HEADER5_FMT(ARIAL_BOLD,                8, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     PASS_VALUE_FMT(COURIER_NORMAL,        10, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_CENTER, false, WHITE,        BLACK, THIN, BLACK),
     FAIL_VALUE_FMT(COURIER_NORMAL,        10, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_CENTER, false, RED,          BLACK, THIN, BLACK),
@@ -71,7 +71,7 @@ public enum Format_t implements CellFormat
     public final Color_t borderColor;
     public final int fontSize;
     
-    private static Map<Format_t, TIntObjectHashMap<CellStyle>> map = new EnumMap<>(Format_t.class);
+    private static Map<Format_t, TIntObjectHashMap<XSSFCellStyle>> map = new EnumMap<>(Format_t.class);
     
     public static void clear() { map.clear(); }
     
@@ -91,30 +91,30 @@ public enum Format_t implements CellFormat
     
     public CellStyle getFormat(XSSFWorkbook wb)
     {
-        TIntObjectHashMap<CellStyle> m = map.get(this);
+        TIntObjectHashMap<XSSFCellStyle> m = map.get(this);
         if (m == null)
         {
         	m = new TIntObjectHashMap<>();
         	map.put(this, m);
         }
-        CellStyle f = m.get(3);
+        XSSFCellStyle f = m.get(3);
         if (f == null)
         {
         	f = wb.createCellStyle();
             f.setFont(font.getFont(wb, fontSize, fgColor.color));
         	f.setAlignment(hAlign);
         	f.setVerticalAlignment(vAlign);
-        	f.setFillForegroundColor(bgColor.index);
+        	f.setFillForegroundColor(bgColor.color);
         	f.setFillPattern(CellStyle.SOLID_FOREGROUND);
-        	f.setFillBackgroundColor(bgColor.index);
+        	f.setFillBackgroundColor(bgColor.color);
         	f.setBorderBottom(borderStyle.getStyle());
         	f.setBorderTop(borderStyle.getStyle());
         	f.setBorderLeft(borderStyle.getStyle());
         	f.setBorderRight(borderStyle.getStyle());
-            f.setBottomBorderColor(borderColor.index);
-            f.setTopBorderColor(borderColor.index);
-            f.setLeftBorderColor(borderColor.index);
-            f.setRightBorderColor(borderColor.index);
+            f.setBottomBorderColor(borderColor.color);
+            f.setTopBorderColor(borderColor.color);
+            f.setLeftBorderColor(borderColor.color);
+            f.setRightBorderColor(borderColor.color);
             m.put(3, f);
         }
         return(f);
@@ -122,13 +122,13 @@ public enum Format_t implements CellFormat
     
     public CellStyle getFormat(XSSFWorkbook wb, int precision)
     {
-        TIntObjectHashMap<CellStyle> m = map.get(this);
+        TIntObjectHashMap<XSSFCellStyle> m = map.get(this);
         if (m == null)
         {
         	m = new TIntObjectHashMap<>();
         	map.put(this, m);
         }
-        CellStyle f = m.get(3);
+        XSSFCellStyle f = m.get(3);
         if (f == null)
         {
         	f = wb.createCellStyle();

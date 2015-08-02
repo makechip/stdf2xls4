@@ -1,4 +1,4 @@
-package com.makechip.stdf2xls4.excel.xlsx.layout;
+package com.makechip.stdf2xls4.excel;
 
 public class TestXY
 {
@@ -29,8 +29,8 @@ public class TestXY
 			if (timeStampedFiles) row++;
 			if (onePage) row++;
 			if (wafersort) row++;
-			final int c = LogoBlock.WIDTH + LegendBlock.WIDTH;
-			final int r = PageTitleBlock.HEIGHT;
+			final int c = 2;
+			final int r = 7;
 		    tnameLabel = new Coord(c, r);
 		    tnumLabel = new Coord(c+1, r);
 		    dupNumLabel = new Coord(c+2, r);
@@ -42,8 +42,8 @@ public class TestXY
 		else
 		{
 			int y = 0;
-			final int r = PageTitleBlock.HEIGHT;
-			final int c = LogoBlock.WIDTH + LegendBlock.WIDTH;
+			final int r = 7;
+			final int c = 2;
 			int col = c + 4;
 		    if (timeStampedFiles) col++;
 		    if (onePage) col++;

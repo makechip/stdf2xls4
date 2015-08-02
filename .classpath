@@ -9,8 +9,6 @@
 	<classpathentry kind="lib" path="lib/poi-ooxml-3.12-20150628.jar"/>
 	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-3.12-20150628.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util"/>
-	<classpathentry kind="lib" path="lib/poi-examples-3.12-20150628.jar"/>
-	<classpathentry kind="lib" path="lib/poi-scratchpad-3.12-20150628.jar"/>
 	<classpathentry kind="lib" path="lib/xbean.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
