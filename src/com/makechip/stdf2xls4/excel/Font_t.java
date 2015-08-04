@@ -14,12 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with stdf2xls.  If not, see <http://www.gnu.org/licenses/>.
 
-package com.makechip.stdf2xls4.excel.xls;
-
-import gnu.trove.map.hash.TIntObjectHashMap;
-
-import java.util.EnumMap;
-import java.util.Map;
+package com.makechip.stdf2xls4.excel;
 
 import jxl.format.UnderlineStyle;
 import jxl.write.*;
@@ -59,11 +54,42 @@ public enum Font_t
     TAHOMA_BOLD_ITALIC_UNDERLINE(WritableFont.TAHOMA, true, WritableFont.BOLD, UnderlineStyle.SINGLE),
     TIMES_BOLD_ITALIC_UNDERLINE(WritableFont.TIMES, true, WritableFont.BOLD, UnderlineStyle.SINGLE);
 
-    public final WritableFont.FontName fontName;
-    public final boolean italic;
-    public final WritableFont.BoldStyle style;
-    public final UnderlineStyle utype;
-    private static Map<Font_t, TIntObjectHashMap<Map<Color_t, WritableFont>>> cache = new EnumMap<>(Font_t.class);
+    /**
+	 * @return the fontName
+	 */
+	public WritableFont.FontName getFontName()
+	{
+		return fontName;
+	}
+
+	/**
+	 * @return the italic
+	 */
+	public boolean isItalic()
+	{
+		return italic;
+	}
+
+	/**
+	 * @return the style
+	 */
+	public WritableFont.BoldStyle getStyle()
+	{
+		return style;
+	}
+
+	/**
+	 * @return the utype
+	 */
+	public UnderlineStyle getUtype()
+	{
+		return utype;
+	}
+
+	private final WritableFont.FontName fontName;
+    private final boolean italic;
+    private final WritableFont.BoldStyle style;
+    private final UnderlineStyle utype;
 
     private Font_t(WritableFont.FontName fontName, boolean italic, WritableFont.BoldStyle style, UnderlineStyle utype)
     {
@@ -73,52 +99,4 @@ public enum Font_t
         this.utype = utype;
     }
     
-    public WritableFont getFont(int size) throws WriteException
-    {
-    	TIntObjectHashMap<Map<Color_t, WritableFont>> m1 = cache.get(this);
-    	if (m1 == null)
-    	{
-    		m1 = new TIntObjectHashMap<>();
-    		cache.put(this, m1);
-    	}
-    	Map<Color_t, WritableFont> m2 = m1.get(size);
-    	if (m2 == null)
-    	{
-    		m2 = new EnumMap<>(Color_t.class);
-    		m1.put(size, m2);
-    	}
-    	WritableFont f = m2.get(Color_t.BLACK);
-    	if (f == null)
-    	{
-    		f = new WritableFont(fontName, size, style, italic, utype);	
-            f.setColour(jxl.format.Colour.BLACK);
-    		m2.put(Color_t.BLACK, f);
-    	}
-        return(f);
-    }
-    
-    public WritableFont getFont(int size, Color_t color) throws WriteException
-    {
-    	TIntObjectHashMap<Map<Color_t, WritableFont>> m1 = cache.get(this);
-    	if (m1 == null)
-    	{
-    		m1 = new TIntObjectHashMap<>();
-    		cache.put(this, m1);
-    	}
-    	Map<Color_t, WritableFont> m2 = m1.get(size);
-    	if (m2 == null)
-    	{
-    		m2 = new EnumMap<>(Color_t.class);
-    		m1.put(size, m2);
-    	}
-    	WritableFont f = m2.get(color);
-    	if (f == null)
-    	{
-            f = new WritableFont(fontName, size, style, italic, utype);	
-            f.setColour(color.color);
-            m2.put(color, f);
-    	}
-        return(f);
-    	
-    }
 }

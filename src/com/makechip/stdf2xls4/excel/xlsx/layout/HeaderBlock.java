@@ -8,8 +8,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.Stdf2xls4;
+import com.makechip.stdf2xls4.excel.Block;
 import com.makechip.stdf2xls4.excel.Coord;
-import com.makechip.stdf2xls4.excel.xlsx.Block;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
 
 public class HeaderBlock implements Block

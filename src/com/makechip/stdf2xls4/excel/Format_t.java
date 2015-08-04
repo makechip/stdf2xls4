@@ -1,35 +1,24 @@
-package com.makechip.stdf2xls4.excel.xls.layout1;
+package com.makechip.stdf2xls4.excel;
 
-import static com.makechip.stdf2xls4.excel.xls.BorderStyle_t.*;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.BLACK;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.BLUE;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.BRIGHT_GREEN;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.LIGHT_BLUE;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.MC_BLUE;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.PINK;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.RED;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.SKY_BLUE;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.TURQUOISE;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.WHITE;
-import static com.makechip.stdf2xls4.excel.xls.Color_t.YELLOW;
-import static com.makechip.stdf2xls4.excel.xls.Font_t.*;
+import static com.makechip.stdf2xls4.excel.BorderStyle_t.*;
+import static com.makechip.stdf2xls4.excel.Color_t.BLACK;
+import static com.makechip.stdf2xls4.excel.Color_t.BLUE;
+import static com.makechip.stdf2xls4.excel.Color_t.BRIGHT_GREEN;
+import static com.makechip.stdf2xls4.excel.Color_t.LIGHT_BLUE;
+import static com.makechip.stdf2xls4.excel.Color_t.MC_BLUE;
+import static com.makechip.stdf2xls4.excel.Color_t.PINK;
+import static com.makechip.stdf2xls4.excel.Color_t.RED;
+import static com.makechip.stdf2xls4.excel.Color_t.SKY_BLUE;
+import static com.makechip.stdf2xls4.excel.Color_t.TURQUOISE;
+import static com.makechip.stdf2xls4.excel.Color_t.WHITE;
+import static com.makechip.stdf2xls4.excel.Color_t.YELLOW;
+import static com.makechip.stdf2xls4.excel.Font_t.*;
 import static jxl.format.VerticalAlignment.*;
-import gnu.trove.map.hash.TIntObjectHashMap;
 
-import java.util.EnumMap;
-import java.util.Map;
-
-import com.makechip.stdf2xls4.excel.xls.BorderStyle_t;
-import com.makechip.stdf2xls4.excel.xls.Color_t;
-import com.makechip.stdf2xls4.excel.xls.Font_t;
+import com.makechip.stdf2xls4.excel.Color_t;
 
 import jxl.format.Alignment;
-import jxl.format.Border;
 import jxl.format.VerticalAlignment;
-import jxl.write.NumberFormat;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableFont;
-import jxl.write.WriteException;
 
 public enum Format_t
 {
@@ -46,6 +35,7 @@ public enum Format_t
     HEADER2_FMT(ARIAL_BOLD,                8, Alignment.RIGHT,  CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     HEADER3_FMT(ARIAL_NORMAL,             10, Alignment.LEFT,   CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     HEADER4_FMT(ARIAL_BOLD,                8, Alignment.RIGHT,  CENTRE, false, WHITE,        BLACK, THIN, BLACK),
+    HEADER4_FMTR(ARIAL_BOLD,               8, Alignment.CENTRE, BOTTOM, false, WHITE,        BLACK, THIN, BLACK),
     HEADER5_FMT(ARIAL_BOLD,                8, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     PASS_VALUE_FMT(COURIER_NORMAL,        10, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     FAIL_VALUE_FMT(COURIER_NORMAL,        10, Alignment.CENTRE, CENTRE, false, RED,          BLACK, THIN, BLACK),
@@ -62,19 +52,87 @@ public enum Format_t
     STATUS_TIMEOUT_FMT(COURIER_NORMAL,    10, Alignment.CENTRE, CENTRE, false, PINK,         BLACK, THIN, BLACK),
     STATUS_ABORT_FMT(COURIER_NORMAL,      10, Alignment.CENTRE, CENTRE, false, TURQUOISE,    BLACK, THIN, BLACK);
     
-    public static final String[] PRECISION = { "0.000", "0.0", "0.00", "0.000", "0.0000", "0.00000", "0.000000", "0.0000000",
-                                               "0.00000000", "0.000000000", "0.0000000000", "0.00000000000", "0.00000000000" };
-    public final Font_t font;
-    public final Alignment hAlign;
-    public final VerticalAlignment vAlign;
-    public final Color_t bgColor;
-    public final Color_t fgColor;
-    public final boolean wrap;
-    public final BorderStyle_t borderStyle;
-    public final Color_t borderColor;
-    public final int fontSize;
-    
-    private static Map<Format_t, TIntObjectHashMap<WritableCellFormat>> map = new EnumMap<>(Format_t.class);
+    /**
+	 * @return the font
+	 */
+	public Font_t getFont()
+	{
+		return font;
+	}
+
+	/**
+	 * @return the hAlign
+	 */
+	public Alignment getHAlign()
+	{
+		return hAlign;
+	}
+
+	/**
+	 * @return the vAlign
+	 */
+	public VerticalAlignment getVAlign()
+	{
+		return vAlign;
+	}
+
+	/**
+	 * @return the bgColor
+	 */
+	public Color_t getBgColor()
+	{
+		return bgColor;
+	}
+
+	/**
+	 * @return the fgColor
+	 */
+	public Color_t getFgColor()
+	{
+		return fgColor;
+	}
+
+	/**
+	 * @return the wrap
+	 */
+	public boolean isWrap()
+	{
+		return wrap;
+	}
+
+	/**
+	 * @return the borderStyle
+	 */
+	public BorderStyle_t getBorderStyle()
+	{
+		return borderStyle;
+	}
+
+	/**
+	 * @return the borderColor
+	 */
+	public Color_t getBorderColor()
+	{
+		return borderColor;
+	}
+
+	/**
+	 * @return the fontSize
+	 */
+	public int getFontSize()
+	{
+		return fontSize;
+	}
+
+	private final Font_t font;
+    private final Alignment hAlign;
+    private final VerticalAlignment vAlign;
+    private final Color_t bgColor;
+    private final Color_t fgColor;
+    private final boolean wrap;
+    private final BorderStyle_t borderStyle;
+    private final Color_t borderColor;
+    private final int fontSize;
     
     private Format_t(Font_t font, int fontSize, Alignment hAlign, VerticalAlignment vAlign, boolean wrap, 
     		         Color_t bgColor, Color_t fgColor, BorderStyle_t borderStyle, Color_t borderColor)
@@ -90,49 +148,5 @@ public enum Format_t
     	this.borderColor = borderColor;
     }
     
-    public WritableCellFormat getFormat() throws WriteException 
-    {
-        TIntObjectHashMap<WritableCellFormat> m = map.get(this);
-        if (m == null)
-        {
-        	m = new TIntObjectHashMap<>();
-        	map.put(this, m);
-        }
-        WritableCellFormat f = m.get(3);
-        if (f == null)
-        {
-        	WritableFont wf = font.getFont(fontSize, fgColor);
-        	f = new WritableCellFormat(wf);
-        	f.setAlignment(hAlign);
-        	f.setBackground(bgColor.color);
-        	f.setBorder(Border.ALL, borderStyle.style, borderColor.color);
-        	f.setVerticalAlignment(vAlign);
-        	f.setWrap(wrap);
-        }
-        return(f);
-    }
-    
-    public WritableCellFormat getFormat(int precision) throws WriteException
-    {
-        TIntObjectHashMap<WritableCellFormat> m = map.get(this);
-        if (m == null)
-        {
-        	m = new TIntObjectHashMap<>();
-        	map.put(this, m);
-        }
-        WritableCellFormat f = m.get(precision);
-        if (f == null)
-        {
-        	WritableFont wf = font.getFont(fontSize, fgColor);
-        	f = new WritableCellFormat(wf, new NumberFormat(PRECISION[precision]));
-        	f.setAlignment(hAlign);
-        	f.setBackground(bgColor.color);
-        	f.setBorder(Border.ALL, borderStyle.style, borderColor.color);
-        	f.setVerticalAlignment(vAlign);
-        	f.setWrap(wrap);
-        	m.put(precision, f);
-        }
-        return(f);
-    }
     
 }

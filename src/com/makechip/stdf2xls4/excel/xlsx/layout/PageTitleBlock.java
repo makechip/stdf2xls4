@@ -6,8 +6,8 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.makechip.stdf2xls4.excel.Block;
 import com.makechip.stdf2xls4.excel.Coord;
-import com.makechip.stdf2xls4.excel.xlsx.Block;
 
 public class PageTitleBlock implements Block
 {

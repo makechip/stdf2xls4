@@ -1,6 +1,7 @@
 package com.makechip.stdf2xls4.excel.xls.layout2;
 
-import static com.makechip.stdf2xls4.excel.xls.BorderStyle_t.*;
+import static com.makechip.stdf2xls4.excel.BorderStyle_t.*;
+import static com.makechip.stdf2xls4.excel.Font_t.*;
 import static com.makechip.stdf2xls4.excel.xls.Color_t.BLACK;
 import static com.makechip.stdf2xls4.excel.xls.Color_t.BLUE;
 import static com.makechip.stdf2xls4.excel.xls.Color_t.BRIGHT_GREEN;
@@ -12,16 +13,15 @@ import static com.makechip.stdf2xls4.excel.xls.Color_t.SKY_BLUE;
 import static com.makechip.stdf2xls4.excel.xls.Color_t.TURQUOISE;
 import static com.makechip.stdf2xls4.excel.xls.Color_t.WHITE;
 import static com.makechip.stdf2xls4.excel.xls.Color_t.YELLOW;
-import static com.makechip.stdf2xls4.excel.xls.Font_t.*;
 import static jxl.format.VerticalAlignment.*;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-import com.makechip.stdf2xls4.excel.xls.BorderStyle_t;
+import com.makechip.stdf2xls4.excel.BorderStyle_t;
+import com.makechip.stdf2xls4.excel.Font_t;
 import com.makechip.stdf2xls4.excel.xls.Color_t;
-import com.makechip.stdf2xls4.excel.xls.Font_t;
 
 import jxl.format.Alignment;
 import jxl.format.Border;

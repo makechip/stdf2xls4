@@ -5,8 +5,9 @@ import static com.makechip.stdf2xls4.excel.xlsx.layout.Format_t.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.makechip.stdf2xls4.excel.Block;
 import com.makechip.stdf2xls4.excel.Coord;
-import com.makechip.stdf2xls4.excel.xlsx.Block;
+import com.makechip.stdf2xls4.excel.Spreadsheet;
 
 public class LegendBlock implements Block
 {
@@ -21,29 +22,29 @@ public class LegendBlock implements Block
     }
     
     @Override
-    public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
+    public void addBlock(Spreadsheet ss, int page)
     {
-    	Block.setCell(ws, new Coord(COL, ROW),   "Legend:");
-    	Block.setCell(ws, new Coord(COL, ROW+1), "PASS");
-    	Block.setCell(ws, new Coord(COL, ROW+2), "FAIL");
-    	Block.setCell(ws, new Coord(COL, ROW+3), "UNRELIABLE VALUE");
-    	Block.setCell(ws, new Coord(COL, ROW+4), "TIMEOUT");
-    	Block.setCell(ws, new Coord(COL, ROW+5), "ALARM");
-    	Block.setCell(ws, new Coord(COL, ROW+6), "ABORT");
-    	ws.setColumnWidth(COL, CELL_WIDTH);
-    	addFormat(wb, ws);
+    	ss.setCell(page, new Coord(COL, ROW),   "Legend:");
+    	ss.setCell(page, new Coord(COL, ROW+1), "PASS");
+    	ss.setCell(page, new Coord(COL, ROW+2), "FAIL");
+    	ss.setCell(page, new Coord(COL, ROW+3), "UNRELIABLE VALUE");
+    	ss.setCell(page, new Coord(COL, ROW+4), "TIMEOUT");
+    	ss.setCell(page, new Coord(COL, ROW+5), "ALARM");
+    	ss.setCell(page, new Coord(COL, ROW+6), "ABORT");
+    	ss.setColumnWidth(COL, CELL_WIDTH);
+    	addFormat(ss, page);
     }
 
     @Override
-    public void addFormat(XSSFWorkbook wb, XSSFSheet ws)
+    public void addFormat(Spreadsheet ss, int page)
     {
-    	Block.setCell(ws, new Coord(COL, ROW),   HEADER1_FMT.getFormat(wb));
-    	Block.setCell(ws, new Coord(COL, ROW+1), PASS_VALUE_FMT.getFormat(wb));
-    	Block.setCell(ws, new Coord(COL, ROW+2), FAIL_VALUE_FMT.getFormat(wb));
-    	Block.setCell(ws, new Coord(COL, ROW+3), UNRELIABLE_VALUE_FMT.getFormat(wb));
-    	Block.setCell(ws, new Coord(COL, ROW+4), TIMEOUT_VALUE_FMT.getFormat(wb));
-    	Block.setCell(ws, new Coord(COL, ROW+5), ALARM_VALUE_FMT.getFormat(wb));
-    	Block.setCell(ws, new Coord(COL, ROW+6), ABORT_VALUE_FMT.getFormat(wb));
+    	ss.setCell(page, new Coord(COL, ROW),   HEADER1_FMT.getFormat(wb));
+    	ss.setCell(page, new Coord(COL, ROW+1), PASS_VALUE_FMT.getFormat(wb));
+    	ss.setCell(page, new Coord(COL, ROW+2), FAIL_VALUE_FMT.getFormat(wb));
+    	ss.setCell(page, new Coord(COL, ROW+3), UNRELIABLE_VALUE_FMT.getFormat(wb));
+    	ss.setCell(page, new Coord(COL, ROW+4), TIMEOUT_VALUE_FMT.getFormat(wb));
+    	ss.setCell(page, new Coord(COL, ROW+5), ALARM_VALUE_FMT.getFormat(wb));
+    	ss.setCell(page, new Coord(COL, ROW+6), ABORT_VALUE_FMT.getFormat(wb));
     }
 
 	@Override

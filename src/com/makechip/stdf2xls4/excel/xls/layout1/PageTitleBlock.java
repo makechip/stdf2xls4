@@ -1,6 +1,6 @@
 package com.makechip.stdf2xls4.excel.xls.layout1;
 
-import static com.makechip.stdf2xls4.excel.xls.layout1.Format_t.TITLE_FMT;
+import static com.makechip.stdf2xls4.excel.Format_t.TITLE_FMT;
 
 import java.io.IOException;
 

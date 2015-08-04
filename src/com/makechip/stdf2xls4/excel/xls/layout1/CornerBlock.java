@@ -1,7 +1,7 @@
 package com.makechip.stdf2xls4.excel.xls.layout1;
 
-import static com.makechip.stdf2xls4.excel.xls.layout1.Format_t.HEADER1_FMT;
-import static com.makechip.stdf2xls4.excel.xls.layout1.Format_t.HEADER4_FMT;
+import static com.makechip.stdf2xls4.excel.Format_t.HEADER1_FMT;
+import static com.makechip.stdf2xls4.excel.Format_t.HEADER4_FMT;
 
 import java.io.IOException;
 

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with stdf2xls.  If not, see <http://www.gnu.org/licenses/>.
 
-package com.makechip.stdf2xls4.excel.xls;
+package com.makechip.stdf2xls4.excel;
 
 import jxl.format.BorderLineStyle;
 
@@ -36,11 +36,13 @@ public enum BorderStyle_t
     THIN(BorderLineStyle.THIN),
     DEFAULT(BorderLineStyle.THIN);
 
-    public final BorderLineStyle style;
+    private final BorderLineStyle style;
 
     private BorderStyle_t(BorderLineStyle style)
     {
         this.style = style;
     }
+    
+    public BorderLineStyle getBorderStyle() { return(style); }
 
 }

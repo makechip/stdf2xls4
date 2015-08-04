@@ -1,16 +1,16 @@
 package com.makechip.stdf2xls4.excel.xlsx.layout;
 
+import static com.makechip.stdf2xls4.excel.Color_t.BLACK;
+import static com.makechip.stdf2xls4.excel.Color_t.BLUE;
+import static com.makechip.stdf2xls4.excel.Color_t.BRIGHT_GREEN;
+import static com.makechip.stdf2xls4.excel.Color_t.LIGHT_BLUE;
+import static com.makechip.stdf2xls4.excel.Color_t.MC_BLUE;
+import static com.makechip.stdf2xls4.excel.Color_t.PINK;
+import static com.makechip.stdf2xls4.excel.Color_t.RED;
+import static com.makechip.stdf2xls4.excel.Color_t.TURQUOISE;
+import static com.makechip.stdf2xls4.excel.Color_t.WHITE;
+import static com.makechip.stdf2xls4.excel.Color_t.YELLOW;
 import static com.makechip.stdf2xls4.excel.xlsx.BorderStyle_t.*;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.BLACK;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.BLUE;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.BRIGHT_GREEN;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.LIGHT_BLUE;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.MC_BLUE;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.PINK;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.RED;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.TURQUOISE;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.WHITE;
-import static com.makechip.stdf2xls4.excel.xlsx.Color_t.YELLOW;
 import static com.makechip.stdf2xls4.excel.xlsx.Font_t.*;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import jxl.write.WritableCellFormat;
@@ -25,8 +25,8 @@ import org.apache.poi.xssf.usermodel.XSSFDataFormat;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.makechip.stdf2xls4.excel.CellFormat;
+import com.makechip.stdf2xls4.excel.Color_t;
 import com.makechip.stdf2xls4.excel.xlsx.BorderStyle_t;
-import com.makechip.stdf2xls4.excel.xlsx.Color_t;
 import com.makechip.stdf2xls4.excel.xlsx.Font_t;
 
 public enum Format_t implements CellFormat

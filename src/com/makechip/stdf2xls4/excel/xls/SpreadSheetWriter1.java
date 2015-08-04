@@ -19,7 +19,7 @@ package com.makechip.stdf2xls4.excel.xls;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 
-import static com.makechip.stdf2xls4.excel.xls.layout1.Format_t.*;
+import static com.makechip.stdf2xls4.excel.Format_t.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,9 +53,9 @@ import jxl.write.biff.RowsExceededException;
 
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.SpreadSheetWriter;
+import com.makechip.stdf2xls4.excel.Format_t;
 import com.makechip.stdf2xls4.excel.SheetName;
 import com.makechip.stdf2xls4.excel.xls.layout1.CornerBlock;
-import com.makechip.stdf2xls4.excel.xls.layout1.Format_t;
 import com.makechip.stdf2xls4.excel.xls.layout1.TitleBlock;
 import com.makechip.stdf2xls4.excel.xls.layout2.DataHeader;
 import com.makechip.stdf2xls4.excel.xls.layout2.HeaderBlock;

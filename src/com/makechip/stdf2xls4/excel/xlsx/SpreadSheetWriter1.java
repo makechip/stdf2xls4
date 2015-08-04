@@ -49,6 +49,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.SpreadSheetWriter;
+import com.makechip.stdf2xls4.excel.Block;
 import com.makechip.stdf2xls4.excel.Cell_t;
 import com.makechip.stdf2xls4.excel.SheetName;
 import com.makechip.stdf2xls4.excel.xlsx.layout.CornerBlock;

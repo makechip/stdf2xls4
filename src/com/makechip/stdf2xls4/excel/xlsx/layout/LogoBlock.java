@@ -15,8 +15,8 @@ import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.makechip.stdf2xls4.excel.Block;
 import com.makechip.stdf2xls4.excel.Coord;
-import com.makechip.stdf2xls4.excel.xlsx.Block;
 import com.makechip.stdf2xls4.excel.xlsx.layout.Format_t;
 
 class LogoBlock implements Block

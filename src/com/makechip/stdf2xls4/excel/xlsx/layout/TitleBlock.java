@@ -7,9 +7,9 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.makechip.stdf2xls4.CliOptions;
+import com.makechip.stdf2xls4.excel.Block;
 import com.makechip.stdf2xls4.excel.DeviceXY;
 import com.makechip.stdf2xls4.excel.TestXY;
-import com.makechip.stdf2xls4.excel.xlsx.Block;
 import com.makechip.stdf2xls4.excel.xlsx.layout.DataHeader;
 import com.makechip.stdf2xls4.excel.xlsx.layout.HeaderBlock;
 import com.makechip.stdf2xls4.excel.xlsx.layout.LegendBlock;
