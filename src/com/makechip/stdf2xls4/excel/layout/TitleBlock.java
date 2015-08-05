@@ -1,20 +1,18 @@
-package com.makechip.stdf2xls4.excel.xlsx.layout;
+package com.makechip.stdf2xls4.excel.layout;
 
 import java.io.File;
 import java.util.List;
 
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.excel.Block;
 import com.makechip.stdf2xls4.excel.DeviceXY;
+import com.makechip.stdf2xls4.excel.Spreadsheet;
 import com.makechip.stdf2xls4.excel.TestXY;
-import com.makechip.stdf2xls4.excel.xlsx.layout.DataHeader;
-import com.makechip.stdf2xls4.excel.xlsx.layout.HeaderBlock;
-import com.makechip.stdf2xls4.excel.xlsx.layout.LegendBlock;
-import com.makechip.stdf2xls4.excel.xlsx.layout.LogoBlock;
-import com.makechip.stdf2xls4.excel.xlsx.layout.PageTitleBlock;
+import com.makechip.stdf2xls4.excel.layout.DataHeader;
+import com.makechip.stdf2xls4.excel.layout.HeaderBlock;
+import com.makechip.stdf2xls4.excel.layout.LegendBlock;
+import com.makechip.stdf2xls4.excel.layout.LogoBlock;
+import com.makechip.stdf2xls4.excel.layout.PageTitleBlock;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
 
@@ -53,25 +51,25 @@ public class TitleBlock implements Block
 	}
     
 	@Override
-    public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
+	public void addBlock(Spreadsheet ss, int page)
     {
-		hb.addBlock(wb, ws);
-		ptb.addBlock(wb, ws);
-		lb.addBlock(wb, ws);
-		logo.addBlock(wb, ws);
-		cb.addBlock(wb, ws);
-		dh.addBlock(wb, ws);
+		hb.addBlock(ss, page);
+		ptb.addBlock(ss, page);
+		lb.addBlock(ss, page);
+		logo.addBlock(ss, page);
+		cb.addBlock(ss, page);
+		dh.addBlock(ss, page);
     }
 	
 	@Override 
-	public void addFormat(XSSFWorkbook wb, XSSFSheet ws)
+	public void addFormat(Spreadsheet ss, int page)
 	{
-		hb.addFormat(wb, ws);
-		ptb.addFormat(wb, ws);
-		lb.addFormat(wb, ws);
-		logo.addFormat(wb, ws);
-		cb.addFormat(wb, ws);
-		dh.addFormat(wb, ws);
+		hb.addFormat(ss, page);
+		ptb.addFormat(ss, page);
+		lb.addFormat(ss, page);
+		logo.addFormat(ss, page);
+		cb.addFormat(ss, page);
+		dh.addFormat(ss, page);
 	}
 	
 	@Override
@@ -85,6 +83,5 @@ public class TitleBlock implements Block
 	{
 		return(hb.getHeight() + lb.getHeight() + 1);
 	}
-	
 
 }

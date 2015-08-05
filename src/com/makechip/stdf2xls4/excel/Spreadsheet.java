@@ -6,8 +6,6 @@ import java.io.IOException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import jxl.read.biff.BiffException;
-import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
 
 public interface Spreadsheet
 {
@@ -20,25 +18,35 @@ public interface Spreadsheet
 	
 	public String getCellContents(int page, Coord xy);
 	
+	public double getCellValue(int page, Coord xy);
+	
 	public Cell_t getCellType(int page, Coord xy);
 	
-    public void setCell(int page, Coord xy, String value) throws RowsExceededException, WriteException;	
+    public void setCell(int page, Coord xy, String value);
     
-    public void setCell(int page, Coord xy, double value) throws RowsExceededException, WriteException;
+    public void setCell(int page, Coord xy, double value);
     
-    public void setCell(int page, Coord xy, Format_t format, String value) throws RowsExceededException, WriteException;
+    public void setCell(int page, Coord xy, Format_t format, String value);
     
-    public void setCell(int page, Coord xy, Format_t format, int precision, double value) throws RowsExceededException, WriteException;
+    public void setCell(int page, Coord xy, Format_t format, int precision, double value);
     
-    public void setCell(int page, Coord xy, Format_t format, long value) throws RowsExceededException, WriteException;
+    public void setCell(int page, Coord xy, Format_t format, long value);
 
-    public void setFormat(int page, Coord xy, Format_t format) throws RowsExceededException, WriteException;
+    public void setFormat(int page, Coord xy, Format_t format);
     
-    public void setFormat(int page, Coord xy, Format_t format, int precision) throws RowsExceededException, WriteException;
+    public void setFormat(int page, Coord xy, Format_t format, int precision);
     
     public void createNewPages(int pages);
+    
+    public Object initSheet(int page, SheetName sname);
     
     public void createSheet(int page, SheetName name);
     
     public void setColumnWidth(int page, int col, int widthInChars);
+    
+    public void mergeCells(int page, int upperRow, int lowerRow, int leftCol, int rightCol);
+    
+    public void addImage(int page, File imageFile, Coord ul, Coord lr);
+    
+    public void close(File file);
 }

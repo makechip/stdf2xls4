@@ -1,4 +1,4 @@
-package com.makechip.stdf2xls4.excel.xls;
+package com.makechip.stdf2xls4.excel;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,14 +8,6 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-
-import com.makechip.stdf2xls4.excel.Cell_t;
-import com.makechip.stdf2xls4.excel.Color_t;
-import com.makechip.stdf2xls4.excel.Coord;
-import com.makechip.stdf2xls4.excel.Font_t;
-import com.makechip.stdf2xls4.excel.SheetName;
-import com.makechip.stdf2xls4.excel.Spreadsheet;
-import com.makechip.stdf2xls4.excel.Format_t;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 import jxl.Cell;
@@ -28,10 +20,10 @@ import jxl.write.NumberFormat;
 import jxl.write.WritableCell;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
+import jxl.write.WritableImage;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
 import jxl.write.Number;
 
 public class JxlSpreadsheet implements Spreadsheet
@@ -79,6 +71,13 @@ public class JxlSpreadsheet implements Spreadsheet
 	}
 
 	@Override
+	public double getCellValue(int page, Coord xy)
+	{
+		Number c = (Number) ws[page].getCell(xy.c, xy.r);
+		return(c.getValue());
+	}
+	
+	@Override
 	public Cell_t getCellType(int page, Coord xy)
 	{
 		Cell c = ws[page].getCell(xy.c, xy.r);
@@ -86,53 +85,67 @@ public class JxlSpreadsheet implements Spreadsheet
 	}
 
 	@Override
-	public void setCell(int page, Coord xy, String value) throws RowsExceededException, WriteException
+	public void setCell(int page, Coord xy, String value)
 	{
-	    ws[page].addCell(new Label(xy.c, xy.r, value));	
+	    try { ws[page].addCell(new Label(xy.c, xy.r, value)); }
+	    catch (Exception e) { throw new RuntimeException(e); }
 	}
 
 	@Override
-	public void setCell(int page, Coord xy, double value) throws RowsExceededException, WriteException
+	public void setCell(int page, Coord xy, double value)
 	{
-	    ws[page].addCell(new Number(xy.c, xy.r, value));	
+	    try { ws[page].addCell(new Number(xy.c, xy.r, value)); }
+	    catch (Exception e) { throw new RuntimeException(e); }
 	}
 
 	@Override
-	public void setCell(int page, Coord xy, Format_t format, String value) throws RowsExceededException, WriteException
+	public void setCell(int page, Coord xy, Format_t format, String value)
 	{
-	    ws[page].addCell(new Label(xy.c, xy.r, value, getFormat(format)));	
+	    try { ws[page].addCell(new Label(xy.c, xy.r, value, getFormat(format))); }
+	    catch (Exception e) { throw new RuntimeException(e); }
 	}
 
 	@Override
-	public void setCell(int page, Coord xy, Format_t format, int precision, double value) throws RowsExceededException, WriteException
+	public void setCell(int page, Coord xy, Format_t format, int precision, double value)
 	{
-	    ws[page].addCell(new Number(xy.c, xy.r, value, getFormat(format, precision)));	
+	    try { ws[page].addCell(new Number(xy.c, xy.r, value, getFormat(format, precision))); }
+	    catch (Exception e) { throw new RuntimeException(e); }
 	}
 
 	@Override
-	public void setCell(int page, Coord xy, Format_t format, long value) throws RowsExceededException, WriteException
+	public void setCell(int page, Coord xy, Format_t format, long value)
 	{
-	    ws[page].addCell(new Number(xy.c, xy.r, value, getFormat(format)));	
+	    try { ws[page].addCell(new Number(xy.c, xy.r, value, getFormat(format))); }
+	    catch (Exception e) { throw new RuntimeException(e); }
 	}
 
 	@Override
-	public void setFormat(int page, Coord xy, Format_t format) throws WriteException
+	public void setFormat(int page, Coord xy, Format_t format)
 	{
 		WritableCell c = ws[page].getWritableCell(xy.c, xy.r);
-		c.setCellFormat(getFormat(format));
+		try { c.setCellFormat(getFormat(format)); }
+	    catch (Exception e) { throw new RuntimeException(e); }
 	}
 
 	@Override
-	public void setFormat(int page, Coord xy, Format_t format, int precision) throws WriteException
+	public void setFormat(int page, Coord xy, Format_t format, int precision)
 	{
 		WritableCell c = ws[page].getWritableCell(xy.c, xy.r);
-		c.setCellFormat(getFormat(format, precision));
+		try { c.setCellFormat(getFormat(format, precision)); }
+	    catch (Exception e) { throw new RuntimeException(e); }
 	}
 
 	@Override
 	public void createNewPages(int pages)
 	{
 	    ws = new WritableSheet[pages];	
+	}
+	
+	@Override
+	public Object initSheet(int page, SheetName sname)
+	{
+		ws[page] = sheetMap.get(sname);
+		return(ws[page]);
 	}
 
 	@Override
@@ -146,6 +159,24 @@ public class JxlSpreadsheet implements Spreadsheet
 	public void setColumnWidth(int page, int col, int widthInChars)
 	{
 	    ws[page].setColumnView(col, (14*widthInChars)/10);	
+	}
+	
+	@Override
+	public void addImage(int page, File imageFile, Coord ul, Coord lr)
+	{
+		try
+		{
+		    WritableImage image = new WritableImage(ul.c, ul.r, lr.c - ul.c, (double) (lr.r - ul.r) - 0.1, imageFile);
+		    ws[page].addImage(image);
+		}
+	    catch (Exception e) { throw new RuntimeException(e); }
+	}
+	
+	@Override
+	public void mergeCells(int page, int upperRow, int lowerRow, int leftCol, int rightCol)
+	{
+		try { ws[page].mergeCells(leftCol, upperRow, rightCol, lowerRow); }
+	    catch (Exception e) { throw new RuntimeException(e); }
 	}
 
     private WritableCellFormat getFormat(Format_t fmt) throws WriteException 
@@ -242,4 +273,17 @@ public class JxlSpreadsheet implements Spreadsheet
         return(f);
     	
     }
+
+	@Override
+	public void close(File file)
+	{
+        if (ws == null) return;
+        try 
+        {
+            wb.write();
+            wb.close();
+        }
+        catch (Exception e) { throw new RuntimeException(e); }
+	}
+
 }

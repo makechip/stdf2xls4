@@ -1,13 +1,10 @@
-package com.makechip.stdf2xls4.excel.xlsx.layout;
+package com.makechip.stdf2xls4.excel.layout;
 
-import static com.makechip.stdf2xls4.excel.xlsx.layout.Format_t.TITLE_FMT;
-
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import static com.makechip.stdf2xls4.excel.Format_t.TITLE_FMT;
 
 import com.makechip.stdf2xls4.excel.Block;
 import com.makechip.stdf2xls4.excel.Coord;
+import com.makechip.stdf2xls4.excel.Spreadsheet;
 
 public class PageTitleBlock implements Block
 {
@@ -23,17 +20,17 @@ public class PageTitleBlock implements Block
     }
     
     @Override
-    public void addBlock(XSSFWorkbook wb, XSSFSheet ws)
+    public void addBlock(Spreadsheet ss, int page)
     {
-    	Block.setCell(ws, new Coord(COL, 0), title);
-    	ws.addMergedRegion(new CellRangeAddress(0, HEIGHT - 1, COL, COL + width - 1));
-    	addFormat(wb, ws);
+    	ss.setCell(page, new Coord(COL, 0), title);
+    	ss.mergeCells(page, 0, HEIGHT - 1, COL, COL + width - 1);
+    	addFormat(ss, page);
     }
 
     @Override
-    public void addFormat(XSSFWorkbook wb, XSSFSheet ws)
+    public void addFormat(Spreadsheet ss, int page)
     {
-    	Block.setCell(ws, new Coord(COL, 0), TITLE_FMT.getFormat(wb));
+    	ss.setFormat(page, new Coord(COL, 0), TITLE_FMT);
     }
 
 	@Override

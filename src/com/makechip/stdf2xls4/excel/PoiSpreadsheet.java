@@ -1,7 +1,10 @@
-package com.makechip.stdf2xls4.excel.xlsx;
+package com.makechip.stdf2xls4.excel;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.EnumMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -10,21 +13,20 @@ import java.util.Map;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.Picture;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import com.makechip.stdf2xls4.excel.Cell_t;
-import com.makechip.stdf2xls4.excel.Color_t;
-import com.makechip.stdf2xls4.excel.Coord;
-import com.makechip.stdf2xls4.excel.Font_t;
-import com.makechip.stdf2xls4.excel.SheetName;
-import com.makechip.stdf2xls4.excel.Spreadsheet;
-import com.makechip.stdf2xls4.excel.Format_t;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 
@@ -62,7 +64,7 @@ public class PoiSpreadsheet implements Spreadsheet
 	private Cell getCell(int page, Coord xy, Cell_t type)
 	{
 		Row r = ws[page].getRow(xy.r);
-		if (r == null) ws[page].createRow(xy.r);
+		if (r == null) r = ws[page].createRow(xy.r);
 		Cell c = r.getCell(xy.c);
 		if (c == null) c = r.createCell(xy.c, type.poiType);
 		return(c);
@@ -76,6 +78,16 @@ public class PoiSpreadsheet implements Spreadsheet
 		Cell cell = r.getCell(xy.c);
 		if (cell == null) return(null);
 		return(cell.getStringCellValue());
+	}
+
+	@Override
+	public double getCellValue(int page, Coord xy)
+	{
+		Row r = ws[page].getRow(xy.r);
+		if (r == null) return(Double.MAX_VALUE);
+		Cell c = r.getCell(xy.c);
+		if (c == null) return(Double.MAX_VALUE);
+		return(c.getNumericCellValue());
 	}
 
 	@Override
@@ -130,7 +142,7 @@ public class PoiSpreadsheet implements Spreadsheet
 	private Cell getCell(int page, Coord xy)
 	{
 		Row r = ws[page].getRow(xy.r);
-		if (r == null) ws[page].createRow(xy.r);
+		if (r == null) r = ws[page].createRow(xy.r);
 		Cell c = r.getCell(xy.c);
 		return(c);
 	}
@@ -156,6 +168,13 @@ public class PoiSpreadsheet implements Spreadsheet
 	}
 
 	@Override
+	public Object initSheet(int page, SheetName sname)
+	{
+		ws[page] = sheetMap.get(sname);
+		return(ws[page]);
+	}
+
+	@Override
 	public void createSheet(int page, SheetName name)
 	{
 		ws[page] = wb.createSheet(name.toString());
@@ -165,8 +184,48 @@ public class PoiSpreadsheet implements Spreadsheet
 	@Override
 	public void setColumnWidth(int page, int col, int widthInChars)
 	{
-	    ws[page].setColumnWidth(col, 256 * widthInChars);
+	    ws[page].setColumnWidth(col, widthInChars);
 	}
+	
+	@Override
+	public void mergeCells(int page, int upperRow, int lowerRow, int leftCol, int rightCol)
+	{
+		ws[page].addMergedRegion(new CellRangeAddress(upperRow, lowerRow, leftCol, rightCol));
+	}
+	
+	@Override
+	public void addImage(int page, File imageFile, Coord ul, Coord lr)
+	{
+		try
+		{
+			//FileInputStream obtains input bytes from the image file
+			InputStream inputStream = new FileInputStream(imageFile);
+			//Get the contents of an InputStream as a byte[].
+			byte[] bytes = IOUtils.toByteArray(inputStream);
+			//Adds a picture to the workbook
+			int pictureIdx = wb.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+			//close the input stream
+			inputStream.close();
+			//Returns an object that handles instantiating concrete classes
+			CreationHelper helper = wb.getCreationHelper();
+			//Creates the top-level drawing patriarch.
+			Drawing drawing = ws[page].createDrawingPatriarch();
+			//Create an anchor that is attached to the worksheet
+			ClientAnchor anchor = helper.createClientAnchor();
+			//set top-left corner for the image
+			anchor.setAnchorType(0);
+			anchor.setCol1(ul.c);
+			anchor.setRow1(ul.r);
+			anchor.setCol2(lr.c);
+			anchor.setRow2(lr.r);
+			//Creates a picture
+			Picture pict = drawing.createPicture(anchor, pictureIdx);
+			pict.resize();
+		}
+		catch (IOException e) { throw new RuntimeException(e.getMessage()); }
+		
+	}
+
 
     private CellStyle getFormat(Format_t fmt)
     {
@@ -313,5 +372,26 @@ public class PoiSpreadsheet implements Spreadsheet
     	 }
     	 return(c);
     }
+
+	@Override
+	public void close(File file)
+	{
+        if (ws == null) return;
+        //for (int i=0; i<ws.length; i++)
+        //{
+        //    Row r1 = ws[i].getRow(20);
+        //    Cell c = r1.getCell(8);
+        //    if (c != null) c.setAsActiveCell();
+        //}
+        try
+        {
+            file.delete();
+            FileOutputStream fos = new FileOutputStream(file);
+            wb.write(fos);
+            wb.close();
+            fos.close();
+        }
+        catch (Exception e) { throw new RuntimeException(e); }
+	}
 
 }

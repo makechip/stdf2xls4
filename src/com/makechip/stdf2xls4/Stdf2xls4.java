@@ -5,12 +5,10 @@ import java.io.IOException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import jxl.read.biff.BiffException;
-import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
-
-import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter1;
-import com.makechip.stdf2xls4.excel.xlsx.SpreadSheetWriter2;
-import com.makechip.stdf2xls4.stdf.StdfException;
+import com.makechip.stdf2xls4.excel.Spreadsheet;
+import com.makechip.stdf2xls4.excel.SpreadsheetWriter;
+import com.makechip.stdf2xls4.excel.PoiSpreadsheet;
+import com.makechip.stdf2xls4.excel.JxlSpreadsheet;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
 import com.makechip.util.Log;
 
@@ -24,7 +22,7 @@ public class Stdf2xls4
 		this.options = options;
 	}
 	
-	public void run() throws RowsExceededException, WriteException, BiffException, IOException, StdfException, InvalidFormatException
+	public void run() throws IOException, InvalidFormatException, BiffException
 	{
 		StdfAPI api = new StdfAPI(options);
 		api.initialize();
@@ -33,22 +31,21 @@ public class Stdf2xls4
 			api.initialize();
 			Log.msg(api.toString());
 		}
-		SpreadSheetWriter ssw = null;
+		Spreadsheet ss = null;
 		if (options.xlsName != null)
 		{
 			if (options.xlsName != null)
 			{
 				if (options.xlsName.toString().endsWith(".xlsx"))
 				{
-					if (options.rotate) ssw = new SpreadSheetWriter2(options, api);	
-					else ssw = new SpreadSheetWriter1(options, api);
+					ss = new PoiSpreadsheet();
 				}
 				else
 				{
-					if (options.rotate) ssw = new com.makechip.stdf2xls4.excel.xls.SpreadSheetWriter2(options, api); 
-					else ssw = new com.makechip.stdf2xls4.excel.xls.SpreadSheetWriter1(options, api);
+					ss = new JxlSpreadsheet();
 				}
 			}
+			SpreadsheetWriter ssw = new SpreadsheetWriter(options, api, ss);
 			ssw.generate();
 		}
 	}
