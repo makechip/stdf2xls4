@@ -16,6 +16,8 @@ public interface Spreadsheet
 	
 	public void openWorkbook(File file) throws InvalidFormatException, IOException, BiffException;
 	
+	public void clearStyles();
+	
 	public String getCellContents(int page, Coord xy);
 	
 	public double getCellValue(int page, Coord xy);
@@ -49,4 +51,12 @@ public interface Spreadsheet
     public void addImage(int page, File imageFile, Coord ul, Coord lr);
     
     public void close(File file);
+    
+    public int getRowHeight(int page, int row);
+    
+    public void setRowHeight(int page, int row, int height);
+    
+    public int getNumberOfSheets();
+    
+    public String getSheetName(int page);
 }

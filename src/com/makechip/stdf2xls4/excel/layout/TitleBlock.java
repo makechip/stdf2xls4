@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.List;
 
 import com.makechip.stdf2xls4.CliOptions;
-import com.makechip.stdf2xls4.excel.Block;
 import com.makechip.stdf2xls4.excel.DeviceXY;
 import com.makechip.stdf2xls4.excel.Spreadsheet;
 import com.makechip.stdf2xls4.excel.TestXY;
@@ -16,7 +15,7 @@ import com.makechip.stdf2xls4.excel.layout.PageTitleBlock;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
 
-public class TitleBlock implements Block
+public class TitleBlock
 {
 	private final HeaderBlock hb;
 	private final PageTitleBlock ptb;
@@ -50,7 +49,6 @@ public class TitleBlock implements Block
 	    dh = new DataHeader(cb, options.precision, options.rotate, options.noWrapTestNames, hdrs);
 	}
     
-	@Override
 	public void addBlock(Spreadsheet ss, int page)
     {
 		hb.addBlock(ss, page);
@@ -61,24 +59,11 @@ public class TitleBlock implements Block
 		dh.addBlock(ss, page);
     }
 	
-	@Override 
-	public void addFormat(Spreadsheet ss, int page)
-	{
-		hb.addFormat(ss, page);
-		ptb.addFormat(ss, page);
-		lb.addFormat(ss, page);
-		logo.addFormat(ss, page);
-		cb.addFormat(ss, page);
-		dh.addFormat(ss, page);
-	}
-	
-	@Override
 	public int getWidth()
 	{
 		return(hb.getWidth() + cb.getWidth() + testWidth);
 	}
 
-	@Override
 	public int getHeight()
 	{
 		return(hb.getHeight() + lb.getHeight() + 1);

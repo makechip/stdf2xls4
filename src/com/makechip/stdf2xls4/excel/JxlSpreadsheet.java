@@ -11,6 +11,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 import jxl.Cell;
+import jxl.CellView;
 import jxl.Workbook;
 import jxl.format.Border;
 import jxl.format.Colour;
@@ -37,6 +38,8 @@ public class JxlSpreadsheet implements Spreadsheet
 	public JxlSpreadsheet()
 	{
 	}
+	
+	public void clearStyles() { map.clear(); }
 
 	@Override
 	public void openWorkbook(File file) throws InvalidFormatException, IOException, BiffException
@@ -158,7 +161,7 @@ public class JxlSpreadsheet implements Spreadsheet
 	@Override
 	public void setColumnWidth(int page, int col, int widthInChars)
 	{
-	    ws[page].setColumnView(col, (14*widthInChars)/10);	
+	    ws[page].setColumnView(col, widthInChars);	
 	}
 	
 	@Override
@@ -285,5 +288,23 @@ public class JxlSpreadsheet implements Spreadsheet
         }
         catch (Exception e) { throw new RuntimeException(e); }
 	}
+
+	@Override
+	public int getRowHeight(int page, int row)
+	{
+		CellView cv = ws[page].getRowView(row);
+		return(cv.getSize());
+	}
+
+	@Override
+	public void setRowHeight(int page, int row, int height)
+	{
+		CellView cv = ws[page].getRowView(row);
+        cv.setSize(height);		
+	}
+	
+	public int getNumberOfSheets() { return(wb.getNumberOfSheets()); }
+	
+	public String getSheetName(int page) { return(ws[page].getName()); }
 
 }

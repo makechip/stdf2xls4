@@ -3,13 +3,13 @@ package com.makechip.stdf2xls4.excel.layout;
 import static com.makechip.stdf2xls4.excel.Format_t.HEADER4_FMT;
 import static com.makechip.stdf2xls4.excel.Format_t.HEADER4_FMTR;
 
-import com.makechip.stdf2xls4.excel.Block;
+import com.makechip.stdf2xls4.excel.Coord;
 import com.makechip.stdf2xls4.excel.DeviceXY;
 import com.makechip.stdf2xls4.excel.Format_t;
 import com.makechip.stdf2xls4.excel.Spreadsheet;
 import com.makechip.stdf2xls4.excel.TestXY;
 
-public class CornerBlock implements Block
+public class CornerBlock
 {
 	public static final String LABEL_TIMESTAMP = "TimeStamp";
 	public static final String LABEL_WAFER = "Wafer";
@@ -53,39 +53,8 @@ public class CornerBlock implements Block
 		this.rotate = rotate;
 	}
 	
-	@Override
 	public void addBlock(Spreadsheet ss, int page)
 	{
-		if (timeStampedFiles)
-		{
-			ss.setCell(page, devxy.tstampLabel, LABEL_TIMESTAMP);
-		}
-		if (onePage)
-		{
-			ss.setCell(page, devxy.wafOrStepLabel, wafersort ? LABEL_WAFER : LABEL_STEP);
-		}
-		if (wafersort)
-		{
-			ss.setCell(page, devxy.xLabel, LABEL_X);
-			ss.setCell(page, devxy.yOrSnLabel, LABEL_Y);
-		}
-		else 
-		{
-			ss.setCell(page, devxy.yOrSnLabel, LABEL_SN);
-		}
-		ss.setCell(page, devxy.hwBinLabel, LABEL_HW_BIN);
-		ss.setCell(page, devxy.swBinLabel, LABEL_SW_BIN);
-		ss.setCell(page, devxy.rsltLabel, LABEL_RESULT);
-		ss.setCell(page, devxy.tempLabel, LABEL_TEMP);
-
-		ss.setCell(page, tstxy.tnameLabel, LABEL_TEST_NAME);
-		ss.setCell(page, tstxy.tnumLabel, LABEL_TEST_NUM);
-		ss.setCell(page, tstxy.dupNumLabel, LABEL_DUP);
-		ss.setCell(page, tstxy.pinLabel, LABEL_PIN);
-		ss.setCell(page, tstxy.loLimLabel, LABEL_LO_LIMIT);
-		ss.setCell(page, tstxy.hiLimLabel, LABEL_HI_LIMIT);
-		ss.setCell(page, tstxy.unitsLabel, LABEL_UNITS);
-
 		if (rotate)
 		{
 		    ss.setColumnWidth(page, tstxy.tname.c, 48);
@@ -102,65 +71,74 @@ public class CornerBlock implements Block
 			if (timeStampedFiles)
 			{
 				ss.setColumnWidth(page, devxy.tstampLabel.c, 15);
+				fixBorders(ss, page, devxy.tstampLabel, devxy.tempLabel.r, HEADER4_FMT);
 			    ss.mergeCells(page, devxy.tstampLabel.r, devxy.tempLabel.r, devxy.tstampLabel.c, devxy.tstampLabel.c);
 			}
 			if (onePage)
 			{
+				fixBorders(ss, page, devxy.wafOrStepLabel, devxy.tempLabel.r, HEADER4_FMT);
 				ss.mergeCells(page, devxy.wafOrStepLabel.r, devxy.tempLabel.r, devxy.wafOrStepLabel.c, devxy.wafOrStepLabel.c);
 			}
 			if (wafersort)
 			{
+				fixBorders(ss, page, devxy.xLabel, devxy.tempLabel.r, HEADER4_FMT);
 				ss.mergeCells(page, devxy.xLabel.r, devxy.tempLabel.r, devxy.xLabel.c, devxy.xLabel.c);
 			}
+			fixBorders(ss, page, devxy.yOrSnLabel, devxy.tempLabel.r, HEADER4_FMT);
 			ss.mergeCells(page, devxy.yOrSnLabel.r, devxy.tempLabel.r, devxy.yOrSnLabel.c, devxy.yOrSnLabel.c);
+			fixBorders(ss, page, devxy.hwBinLabel, devxy.tempLabel.r, HEADER4_FMT);
 			ss.mergeCells(page, devxy.hwBinLabel.r, devxy.tempLabel.r, devxy.hwBinLabel.c, devxy.hwBinLabel.c);
+			fixBorders(ss, page, devxy.swBinLabel, devxy.tempLabel.r, HEADER4_FMT);
 			ss.mergeCells(page, devxy.swBinLabel.r, devxy.tempLabel.r, devxy.swBinLabel.c, devxy.swBinLabel.c);
+			fixBorders(ss, page, devxy.rsltLabel, devxy.tempLabel.r, HEADER4_FMT);
 		    ss.mergeCells(page, devxy.rsltLabel.r, devxy.tempLabel.r, devxy.rsltLabel.c, devxy.rsltLabel.c);
 		    if (!noWrap)
 		    {
 		    	ss.mergeCells(page, tstxy.tnameLabel.r, tstxy.tnumLabel.r-1, tstxy.tnameLabel.c, tstxy.tnameLabel.c);
 		    }
 		}
-		addFormat(ss, page);
-	}
-	
-	@Override
-	public void addFormat(Spreadsheet ss, int page)
-	{
 		Format_t cs4r = HEADER4_FMTR;
 		Format_t cs4 = HEADER4_FMT;
 		if (timeStampedFiles)
 		{
-			ss.setFormat(page, devxy.tstampLabel, rotate ? cs4 : cs4r);
+			ss.setCell(page, devxy.tstampLabel, rotate ? cs4 : cs4r, LABEL_TIMESTAMP);
 		}
 		if (onePage)
 		{
-			ss.setFormat(page, devxy.wafOrStepLabel, rotate ? cs4 : cs4r);
+			ss.setCell(page, devxy.wafOrStepLabel, rotate ? cs4 : cs4r, wafersort ? LABEL_WAFER : LABEL_STEP);
 		}
 		if (wafersort)
 		{
-			ss.setFormat(page, devxy.xLabel, rotate ? cs4 : cs4r);
-			ss.setFormat(page, devxy.yOrSnLabel, rotate ? cs4 : cs4r);
+			ss.setCell(page, devxy.xLabel, rotate ? cs4 : cs4r, LABEL_X);
+			ss.setCell(page, devxy.yOrSnLabel, rotate ? cs4 : cs4r, LABEL_Y);
 		}
 		else 
 		{
-			ss.setFormat(page, devxy.yOrSnLabel, rotate ? cs4 : cs4r);
+			ss.setCell(page, devxy.yOrSnLabel, rotate ? cs4 : cs4r, LABEL_SN);
 		}
-		ss.setFormat(page, devxy.hwBinLabel, rotate ? cs4 : cs4r);
-		ss.setFormat(page, devxy.swBinLabel, rotate ? cs4 : cs4r);
-		ss.setFormat(page, devxy.rsltLabel, rotate ? cs4 : cs4r);
-		ss.setFormat(page, devxy.tempLabel, rotate ? cs4 : cs4r);
+		ss.setCell(page, devxy.hwBinLabel, rotate ? cs4 : cs4r, LABEL_HW_BIN);
+		ss.setCell(page, devxy.swBinLabel, rotate ? cs4 : cs4r, LABEL_SW_BIN);
+		ss.setCell(page, devxy.rsltLabel, rotate ? cs4 : cs4r, LABEL_RESULT);
+		ss.setCell(page, devxy.tempLabel, rotate ? cs4 : cs4r, LABEL_TEMP);
 
-		ss.setFormat(page, tstxy.tnameLabel, rotate ? cs4r : cs4);
-		ss.setFormat(page, tstxy.tnumLabel, rotate ? cs4r : cs4);
-		ss.setFormat(page, tstxy.dupNumLabel, rotate ? cs4r : cs4);
-		ss.setFormat(page, tstxy.pinLabel, rotate ? cs4r : cs4);
-		ss.setFormat(page, tstxy.loLimLabel, rotate ? cs4r : cs4);
-		ss.setFormat(page, tstxy.hiLimLabel, rotate ? cs4r : cs4);
-		ss.setFormat(page, tstxy.unitsLabel, rotate ? cs4r : cs4);
+		ss.setCell(page, tstxy.tnameLabel, rotate ? cs4r : cs4, LABEL_TEST_NAME);
+		ss.setCell(page, tstxy.tnumLabel, rotate ? cs4r : cs4, LABEL_TEST_NUM);
+		ss.setCell(page, tstxy.dupNumLabel, rotate ? cs4r : cs4, LABEL_DUP);
+		ss.setCell(page, tstxy.pinLabel, rotate ? cs4r : cs4, LABEL_PIN);
+		ss.setCell(page, tstxy.loLimLabel, rotate ? cs4r : cs4, LABEL_LO_LIMIT);
+		ss.setCell(page, tstxy.hiLimLabel, rotate ? cs4r : cs4, LABEL_HI_LIMIT);
+		ss.setCell(page, tstxy.unitsLabel, rotate ? cs4r : cs4, LABEL_UNITS);
+
 	}
 	
-	@Override
+	private void fixBorders(Spreadsheet ss, int page, Coord xy, int row, Format_t fmt)
+	{
+		for (int i=xy.r; i<=row; i++)
+		{
+			ss.setCell(page, new Coord(xy.c, i), fmt, "");
+		}
+	}
+	
 	public int getHeight() 
 	{  
 		if (rotate)
@@ -170,10 +148,9 @@ public class CornerBlock implements Block
 		    boolean w = wafersort;
 		    return(t ? (o ? (w ? 8 : 7) : (w ? 7 : 6)) : (o ? (w ? 7 : 6) : (w ? 6 : 5))); 
 		}
-		return(8);
+		return(9);
 	}
 
-	@Override
 	public int getWidth() 
 	{ 
 		if (rotate) return(7); 

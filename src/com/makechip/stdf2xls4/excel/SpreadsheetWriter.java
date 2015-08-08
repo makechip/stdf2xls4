@@ -16,6 +16,7 @@ import static com.makechip.stdf2xls4.excel.Format_t.TIMEOUT_VALUE_FMT;
 import static com.makechip.stdf2xls4.excel.Format_t.UNRELIABLE_VALUE_FMT;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,6 +49,7 @@ import jxl.read.biff.BiffException;
 public final class SpreadsheetWriter
 {
 	public static final int MAX_ROWS = 1000000;
+	public static final String DUMMY_SHEET_NAME = "STEP QXU Page 0 V0";
 	public static final int COLS_PER_PAGE = 200;
 	private final CliOptions options;
 	private final StdfAPI api;
@@ -62,7 +64,7 @@ public final class SpreadsheetWriter
 		this.ss = ss;
         ss.openWorkbook(options.xlsName);
 	}
-
+	
     public void generate()
     {
     	if (options.onePage)
@@ -215,15 +217,18 @@ public final class SpreadsheetWriter
     private void writeData(PageHeader hdr)
     {
     	List<DeviceHeader> devs = api.getDeviceHeaders(hdr);
-    	final int pages = (devs.size() % COLS_PER_PAGE == 0) ? devs.size() / COLS_PER_PAGE : 1 + devs.size() / COLS_PER_PAGE;
+    	List<TestHeader> tests = api.getTestHeaders(hdr);
+    	int size = options.rotate ? devs.size() : tests.size();
+    	final int pages = (size % COLS_PER_PAGE == 0) ? size / COLS_PER_PAGE : 1 + size / COLS_PER_PAGE;
     	IntStream.range(0, pages).forEach(page -> writeResultsOnPage(hdr, page));
     }	
     	
     private void writeResultsOnPage(PageHeader hdr, int page)
     {
     	List<DeviceHeader> devs = api.getDeviceHeaders(hdr);
-       	final int startIndex = page * COLS_PER_PAGE;
-       	final int endIndex = startIndex + COLS_PER_PAGE > devs.size() ? devs.size() : startIndex + COLS_PER_PAGE;
+        final int size = devs.size();	
+       	final int startIndex = options.rotate ? page * COLS_PER_PAGE : 0;
+       	final int endIndex = options.rotate ? startIndex + COLS_PER_PAGE > size ? size : startIndex + COLS_PER_PAGE : size;
        	String waferOrStep = api.wafersort(hdr) ? hdr.get(HeaderUtil.WAFER_ID) : hdr.get(HeaderUtil.STEP);
         IntStream.range(startIndex, endIndex).forEach(devIndex -> writeDeviceResults(hdr, waferOrStep, page, devIndex));
     }
@@ -233,12 +238,15 @@ public final class SpreadsheetWriter
     	List<DeviceHeader> devs = api.getDeviceHeaders(hdr);
     	DeviceHeader dh = devs.get(devIndex);
     	List<TestHeader> tests = api.getTestHeaders(hdr);
+    	final int size = tests.size();
         locateRC(api.wafersort(hdr), waferOrStep, dh.snxy, page);
         setDevice(page, waferOrStep, devs.get(devIndex));
-        IntStream.range(0, tests.size()).forEach(i -> setResult(i, page, tests.get(i), hdr, dh));
+        final int startIndex = options.rotate ? 0 : page * COLS_PER_PAGE;
+        final int endIndex = options.rotate ? size : (startIndex + COLS_PER_PAGE > size ? size : startIndex + COLS_PER_PAGE);
+        IntStream.range(startIndex, endIndex).forEach(i -> setResult(i, page, tests.get(i), hdr, dh));
     } 
     
-    private Coord getDevCoord(Coord devCoord)
+   private Coord getDevCoord(Coord devCoord)
     {
     	if (options.rotate) return(new Coord(currentRC, devCoord.r));
     	return(new Coord(devCoord.c, currentRC));
@@ -285,6 +293,7 @@ public final class SpreadsheetWriter
     				ss.setCell(page, getDevCoord(titleBlock.devxy.tstamp), cs, ((TimeSN) dh.snxy).getTimeStamp());
     			}
     		}
+    		Log.msg("currentRC = " + currentRC);
     		ss.setCell(page, getDevCoord(titleBlock.devxy.yOrSn), cs, dh.snxy.getSerialNumber());
     	}
     	ss.setCell(page, getDevCoord(titleBlock.devxy.hwBin), cs, dh.hwBin);
@@ -309,7 +318,7 @@ public final class SpreadsheetWriter
         {
         	if (!options.noOverwrite || (options.sort && options.showDuplicates))
         	{
-        		for (int rc=getRC() + 1; rc<=getRC() + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
+        		for (int rc=getRC(); rc<=getRC() + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
         		{
         			Cell_t ct = ss.getCellType(page, titleBlock.devxy.x);
         			if (ct == Cell_t.BLANK)
@@ -353,9 +362,11 @@ public final class SpreadsheetWriter
         }
         else // final test
         {
+        	Log.msg("getRC() = " + getRC());
             for (int rc=getRC(); rc<=getRC() + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
             {
             	Cell_t ct = ss.getCellType(page, titleBlock.devxy.yOrSn);
+            	Log.msg("rc = " + rc + " CellType = " + ct);
                 if (ct == Cell_t.BLANK)
                 {
                     currentRC = rc;
@@ -389,9 +400,9 @@ public final class SpreadsheetWriter
     
     private void setResult(int index, int page, TestHeader th, PageHeader hdr, DeviceHeader dh)
     {
+		TestResult r = api.getRecord(hdr, dh, th);
    	    int rc = options.rotate ? titleBlock.tstxy.unitsLabel.r + 1 + index : titleBlock.tstxy.unitsLabel.c + 1 + (index % COLS_PER_PAGE);
    	    Coord xy = options.rotate ? new Coord(currentRC, rc) : new Coord(rc, currentRC);
-		TestResult r = api.getRecord(hdr, dh, th);
 		try
 		{
 		    if (r != null)
@@ -476,12 +487,22 @@ public final class SpreadsheetWriter
     private void newSheet(int page, SheetName name, PageHeader hdr, int numDevices)
     {
     	ss.createSheet(page, name);
-    	List<TestHeader> list = api.getTestHeaders(hdr);
+    	List<TestHeader> list = options.rotate ? api.getTestHeaders(hdr) : getTestHeaders(hdr, page);
     	titleBlock = new TitleBlock(hdr, options.logoFile, name.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, list);
     	titleBlock.addBlock(ss, page);
     }
     
-    /*
+    private List<TestHeader> getTestHeaders(PageHeader hdr, int pageIndex)
+    {
+        List<TestHeader> plist = new ArrayList<>(COLS_PER_PAGE);
+        List<TestHeader> list = api.getTestHeaders(hdr);
+        int start = COLS_PER_PAGE * pageIndex;
+        int end = (start + COLS_PER_PAGE < list.size()) ? start + COLS_PER_PAGE : list.size();
+        IntStream.range(start, end).forEach(i -> plist.add(list.get(i)));
+        return(plist);
+    }
+    
+   /*
     private List<TestHeader> getTestHeaders(XSSFSheet existingSheet) throws StdfException
     {
         List<TestHeader> plist = new ArrayList<>(COLS_PER_PAGE);

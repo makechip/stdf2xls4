@@ -48,7 +48,7 @@ public class DeviceXY
 		    hwBinLabel = new Coord(yOrSnLabel.c + 1, r);
 		    swBinLabel = new Coord(hwBinLabel.c + 1, r);
 		    rsltLabel = new Coord(swBinLabel.c + 1, r);
-		    tempLabel = new Coord(rsltLabel.c + 1, r + 10);
+		    tempLabel = new Coord(rsltLabel.c + 1, r + 11);
 		    	
 		}
 	}
@@ -68,14 +68,14 @@ public class DeviceXY
 		}
 		else
 		{
-		    tstamp = new Coord(tstampLabel.c, xLabel.r + 11);
-		    wafOrStep = new Coord(wafOrStepLabel.c, xLabel.r + 11);
-		    x = new Coord(xLabel.c, xLabel.r + 11);
-		    yOrSn = new Coord(yOrSnLabel.c, xLabel.r + 11);
-		    hwBin = new Coord(hwBinLabel.c, xLabel.r + 11);
-		    swBin = new Coord(swBinLabel.c, xLabel.r + 11);
-		    rslt = new Coord(rsltLabel.c, xLabel.r + 11);
-		    temp = new Coord(tempLabel.c, xLabel.r + 11);
+		    tstamp = new Coord(tstampLabel.c, xLabel.r + 12);
+		    wafOrStep = new Coord(wafOrStepLabel.c, xLabel.r + 12);
+		    x = new Coord(xLabel.c, xLabel.r + 12);
+		    yOrSn = new Coord(yOrSnLabel.c, xLabel.r + 12);
+		    hwBin = new Coord(hwBinLabel.c, xLabel.r + 12);
+		    swBin = new Coord(swBinLabel.c, xLabel.r + 12);
+		    rslt = new Coord(rsltLabel.c, xLabel.r + 12);
+		    temp = new Coord(tempLabel.c, xLabel.r + 12);
 		}
 	}
 	

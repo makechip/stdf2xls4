@@ -6,14 +6,15 @@ import static com.makechip.stdf2xls4.excel.Format_t.TEST_NAME_FMT;
 import static com.makechip.stdf2xls4.excel.Format_t.TEST_NAME_FMT_WRAP;
 
 import java.util.List;
-import com.makechip.stdf2xls4.excel.Block;
+
+import com.makechip.stdf2xls4.excel.Coord;
 import com.makechip.stdf2xls4.excel.Spreadsheet;
 import com.makechip.stdf2xls4.excel.layout.CornerBlock;
 import com.makechip.stdf2xls4.stdfapi.MultiParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
 
-public class DataHeader implements Block
+public class DataHeader
 {
 	private final int precision;
 	private final boolean rot;
@@ -32,7 +33,6 @@ public class DataHeader implements Block
 		this.noWrapTestNames = noWrapTestNames;
 	}
 	
-	@Override
 	public void addBlock(Spreadsheet ss, int page)
 	{
 		cb.tstxy.reset();
@@ -46,93 +46,58 @@ public class DataHeader implements Block
 				    ss.setColumnWidth(page, cb.tstxy.tname.c, maxLength);
 				}
 			}
-			else ss.mergeCells(page, cb.tstxy.tnameLabel.r, cb.tstxy.tnumLabel.r-1, cb.tstxy.tname.c, cb.tstxy.tname.c);
-			ss.setCell(page, cb.tstxy.tname, hdr.testName);
-			ss.setCell(page, cb.tstxy.tnum, hdr.testNumber);	
-			ss.setCell(page, cb.tstxy.dupNum, hdr.dupNum);
+			else 
+			{
+				for (int r=cb.tstxy.tnameLabel.r; r<cb.tstxy.tnumLabel.r; r++)
+				{
+				    ss.setCell(page, new Coord(cb.tstxy.tname.c, r), TEST_NAME_FMT_WRAP, "");
+				}
+				ss.mergeCells(page, cb.tstxy.tnameLabel.r, cb.tstxy.tnumLabel.r-1, cb.tstxy.tname.c, cb.tstxy.tname.c);
+			}
+			ss.setCell(page, cb.tstxy.tname, noWrapTestNames ? TEST_NAME_FMT : TEST_NAME_FMT_WRAP, hdr.testName);
+			ss.setCell(page, cb.tstxy.tnum, HEADER1_FMT, hdr.testNumber);	
+			ss.setCell(page, cb.tstxy.dupNum, HEADER1_FMT, hdr.dupNum);
 			if (hdr instanceof ParametricTestHeader)
 			{
 				ParametricTestHeader phdr = (ParametricTestHeader) hdr;	
-				if (phdr.loLimit == null) ss.setCell(page, cb.tstxy.loLim, "");
-				else ss.setCell(page, cb.tstxy.loLim, phdr.loLimit);
-				if (phdr.hiLimit == null) ss.setCell(page, cb.tstxy.hiLim, "");
-				else ss.setCell(page, cb.tstxy.hiLim, phdr.hiLimit);
-				ss.setCell(page, cb.tstxy.pin, "");
-				ss.setCell(page, cb.tstxy.units, phdr.units);
+				if (phdr.loLimit == null) ss.setCell(page, cb.tstxy.loLim, HEADER1_FMT, "");
+				else ss.setCell(page, cb.tstxy.loLim, HEADER5_FMT, precision, phdr.loLimit);
+				if (phdr.hiLimit == null) ss.setCell(page, cb.tstxy.hiLim, HEADER1_FMT, "");
+				else ss.setCell(page, cb.tstxy.hiLim, HEADER5_FMT, precision, phdr.hiLimit);
+				ss.setCell(page, cb.tstxy.pin, HEADER1_FMT, "");
+				ss.setCell(page, cb.tstxy.units, HEADER1_FMT, phdr.units);
 			}
 			else if (hdr instanceof MultiParametricTestHeader)
 			{
 				MultiParametricTestHeader mhdr = (MultiParametricTestHeader) hdr;	
-				if (mhdr.loLimit == null) ss.setCell(page, cb.tstxy.loLim, "");
-				else ss.setCell(page, cb.tstxy.loLim, mhdr.loLimit);
-				if (mhdr.hiLimit == null) ss.setCell(page, cb.tstxy.hiLim, "");
-				else ss.setCell(page, cb.tstxy.hiLim, mhdr.hiLimit);
-				ss.setCell(page, cb.tstxy.pin, mhdr.pin);
-				ss.setCell(page, cb.tstxy.units, mhdr.units);
+				if (mhdr.loLimit == null) ss.setCell(page, cb.tstxy.loLim, HEADER1_FMT, "");
+				else ss.setCell(page, cb.tstxy.loLim, HEADER5_FMT, precision, mhdr.loLimit);
+				if (mhdr.hiLimit == null) ss.setCell(page, cb.tstxy.hiLim, HEADER1_FMT, "");
+				else ss.setCell(page, cb.tstxy.hiLim, HEADER5_FMT, precision, mhdr.hiLimit);
+				ss.setCell(page, cb.tstxy.pin, HEADER1_FMT, mhdr.pin);
+				ss.setCell(page, cb.tstxy.units, HEADER1_FMT, mhdr.units);
 			}
 			else
 			{
-				ss.setCell(page, cb.tstxy.loLim, "");
-				ss.setCell(page, cb.tstxy.hiLim, "");
-				ss.setCell(page, cb.tstxy.pin, "");
-				ss.setCell(page, cb.tstxy.units, "");
+				ss.setCell(page, cb.tstxy.loLim, HEADER1_FMT, "");
+				ss.setCell(page, cb.tstxy.hiLim, HEADER1_FMT, "");
+				ss.setCell(page, cb.tstxy.pin, HEADER1_FMT, "");
+				ss.setCell(page, cb.tstxy.units, HEADER1_FMT, "");
 			}
 			if (!rot)
 			{
+				ss.setCell(page, new Coord(cb.tstxy.units.c, cb.tstxy.units.r+1), HEADER1_FMT, "");
 			    ss.mergeCells(page, cb.tstxy.units.r, cb.tstxy.units.r+1, cb.tstxy.units.c, cb.tstxy.units.c);
 			}
 			cb.tstxy.inc();
 		});
-		addFormat(ss, page);
 	}
 	
-	@Override
-	public void addFormat(Spreadsheet ss, int page)
-	{
-		cb.tstxy.reset();
-		hdrs.stream().forEach(hdr ->
-		{
-			ss.setFormat(page, cb.tstxy.tname, noWrapTestNames ? TEST_NAME_FMT : TEST_NAME_FMT_WRAP);
-			ss.setFormat(page, cb.tstxy.tnum, HEADER1_FMT);	
-			ss.setFormat(page, cb.tstxy.dupNum, HEADER1_FMT);
-			if (hdr instanceof ParametricTestHeader)
-			{
-				ParametricTestHeader phdr = (ParametricTestHeader) hdr;	
-				if (phdr.loLimit == null) ss.setFormat(page, cb.tstxy.loLim, HEADER1_FMT);
-				else ss.setFormat(page, cb.tstxy.loLim, HEADER5_FMT, precision);
-				if (phdr.hiLimit == null) ss.setFormat(page, cb.tstxy.hiLim, HEADER1_FMT);
-				else ss.setFormat(page, cb.tstxy.hiLim, HEADER5_FMT, precision);
-				ss.setFormat(page, cb.tstxy.pin, HEADER1_FMT);
-				ss.setFormat(page, cb.tstxy.units, HEADER1_FMT);
-			}
-			else if (hdr instanceof MultiParametricTestHeader)
-			{
-				MultiParametricTestHeader mhdr = (MultiParametricTestHeader) hdr;	
-				if (mhdr.loLimit == null) ss.setFormat(page, cb.tstxy.loLim, HEADER1_FMT);
-				else ss.setFormat(page, cb.tstxy.loLim, HEADER5_FMT, precision);
-				if (mhdr.hiLimit == null) ss.setFormat(page, cb.tstxy.hiLim, HEADER1_FMT);
-				else ss.setFormat(page, cb.tstxy.hiLim, HEADER5_FMT, precision);
-				ss.setFormat(page, cb.tstxy.pin, HEADER1_FMT);
-				ss.setFormat(page, cb.tstxy.units, HEADER1_FMT);
-			}
-			else
-			{
-				ss.setFormat(page, cb.tstxy.loLim, HEADER1_FMT);
-				ss.setFormat(page, cb.tstxy.hiLim, HEADER1_FMT);
-				ss.setFormat(page, cb.tstxy.pin, HEADER1_FMT);
-				ss.setFormat(page, cb.tstxy.units, HEADER1_FMT);
-			}
-			cb.tstxy.inc();
-		});
-	}
-	
-	@Override
 	public int getWidth()
 	{
 		return(8);
 	}
 
-	@Override
 	public int getHeight()
 	{
 		return(hdrs.size());

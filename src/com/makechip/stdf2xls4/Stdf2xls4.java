@@ -7,7 +7,8 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import jxl.read.biff.BiffException;
 import com.makechip.stdf2xls4.excel.Spreadsheet;
 import com.makechip.stdf2xls4.excel.SpreadsheetWriter;
-import com.makechip.stdf2xls4.excel.PoiSpreadsheet;
+import com.makechip.stdf2xls4.excel.XSSFSpreadsheet;
+import com.makechip.stdf2xls4.excel.HSSFSpreadsheet;
 import com.makechip.stdf2xls4.excel.JxlSpreadsheet;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
 import com.makechip.util.Log;
@@ -38,11 +39,12 @@ public class Stdf2xls4
 			{
 				if (options.xlsName.toString().endsWith(".xlsx"))
 				{
-					ss = new PoiSpreadsheet();
+					ss = new XSSFSpreadsheet();
 				}
 				else
 				{
-					ss = new JxlSpreadsheet();
+					if (options.useJxl) ss = new JxlSpreadsheet();
+					else ss = new HSSFSpreadsheet();
 				}
 			}
 			SpreadsheetWriter ssw = new SpreadsheetWriter(options, api, ss);

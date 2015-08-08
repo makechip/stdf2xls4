@@ -49,7 +49,7 @@ public class TestXY
 		    if (onePage) col++;
 		    if (wafersort) col++;
 		    tnameLabel = new Coord(col, r);
-		    if (noWrap) y = 1; else y = 4;
+		    if (noWrap) y = 1; else y = 5;
 		    tnumLabel = new Coord(col, r+y);
 		    dupNumLabel = new Coord(col, r+y+1);
 		    loLimLabel = new Coord(col, r+y+2);
