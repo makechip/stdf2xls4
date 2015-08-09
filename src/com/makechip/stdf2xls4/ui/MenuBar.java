@@ -16,6 +16,7 @@ import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.util.Log;
 import com.makechip.util.widgets.console.widget.ConsolePanel;
 import com.makechip.util.widgets.console.widget.GuiConsole;
@@ -25,26 +26,24 @@ public class MenuBar extends JMenuBar implements ActionListener
 	private static final long serialVersionUID = -7935982234009232527L;
 	private FileMenu fileMenu;
 	private OptionsMenu optionsMenu;
-	private ToolsMenu toolsMenu;
 	private JButton run;
 	private GuiConsole io;
 	private ConsolePanel console;
 	private JFrame parent;
+	private StdfOptionsDialog stdfDialog;
 
-	public MenuBar(JFrame parent, ConsolePanel console)
+	public MenuBar(JFrame parent, ConsolePanel console, CliOptions options)
 	{
 		this.console = console;
 		this.parent = parent;
-		io = console.getConsole();
+		stdfDialog = new StdfOptionsDialog(parent, options);
+        io = console.getConsole();
 		fileMenu = new FileMenu(parent);
 		optionsMenu = new OptionsMenu();
-		toolsMenu = new ToolsMenu();
 		fileMenu.addActionListener(this);
 		optionsMenu.addActionListener(this);
-		toolsMenu.addActionListener(this);
 		add(fileMenu);
 		add(optionsMenu);
-		add(toolsMenu);
 		run = new JButton("Run");
 		run.setActionCommand("RUN");
 		run.addActionListener(e -> io.echo(e.getActionCommand()));
@@ -106,37 +105,12 @@ public class MenuBar extends JMenuBar implements ActionListener
 
 	}
 
-	class ToolsMenu extends JMenu
-	{
-		private static final long serialVersionUID = -6310529811112802438L;
-		private JMenuItem modifyRecords;
-		private JMenuItem modifyDevices;
-
-		public ToolsMenu()
-		{
-			super("Tools");
-			modifyRecords = new JMenuItem("Modify Records");
-			modifyDevices = new JMenuItem("Modify Devices");
-			modifyRecords.setActionCommand("MODIFY RECORDS");
-		    modifyDevices.setActionCommand("MODIFY DEVICES");	
-			add(modifyRecords);
-			add(modifyDevices);
-		}
-		
-		@Override
-		public void addActionListener(ActionListener a)
-		{
-			modifyRecords.addActionListener(a);
-			modifyDevices.addActionListener(a);
-		}
-
-	}
-	
 	class OptionsMenu extends JMenu
 	{
 		private static final long serialVersionUID = 4859293688041251934L;
 		private JMenuItem stdfOptions;
 		private JMenuItem spreadsheetOptions;
+		private JMenuItem modifyRecords;
 		private JMenuItem setSize1200x800;
 		private JMenuItem setSize800x533;
 		private JMenuItem setSize600x400;
@@ -147,8 +121,10 @@ public class MenuBar extends JMenuBar implements ActionListener
 			super("Options");
 			stdfOptions = new JMenuItem("STDF Options");
 			spreadsheetOptions = new JMenuItem("Spreadsheet Options");
-			stdfOptions.setActionCommand("STDF OPTIONS");
+			stdfOptions.addActionListener(e -> stdfDialog.setVisible(true));
 			spreadsheetOptions.setActionCommand("SPREADSHEET OPTIONS");
+			modifyRecords = new JMenuItem("Modify Records");
+			modifyRecords.setActionCommand("MODIFY RECORDS");
 			setSize1200x800 = new JMenuItem("Set Size Large");
 			setSize1200x800.addActionListener(e -> changeSize(new Dimension(1200, 800)));
 			setSize800x533 = new JMenuItem("Set Size Medium");
@@ -157,6 +133,7 @@ public class MenuBar extends JMenuBar implements ActionListener
 			setSize600x400.addActionListener(e -> changeSize(new Dimension(600, 400)));
 			add(stdfOptions);
 			add(spreadsheetOptions);
+			add(modifyRecords);
 			add(setSize1200x800);
 			add(setSize800x533);
 			add(setSize600x400);

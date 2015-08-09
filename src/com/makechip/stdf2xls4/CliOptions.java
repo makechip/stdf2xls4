@@ -56,10 +56,10 @@ public class CliOptions
 	private static final String[] T_OPT = { "t", "show-duplicates", "Don't suppress duplicates when using timestamped files" }; 
 	private static final String[] H_OPT = { "h", "help", "show this help text" }; 
 	private static final String[] M_OPT = { "m", "sort-by-device", "sort by serial-number or X-Y coordinate" }; 
-	private static final String[] A_OPT = { "a", "pin-suffix", "Assume test names for ParametricTestRecords have the pin name following the last '$' character" };
+	private static final String[] A_OPT = { "a", "pin-suffix", "Assume test names for ParametricTestRecords have the pin name following the character delimiter" };
 	private static final String[] L_OPT = { "l", "logo", "Specify a logo file for the spreadsheet" };
-	private OptionSpec<Void>    A;
-	private OptionSpec<Void>    J;
+	private OptionSpec<String>    A;
+	private OptionSpec<File>    J;
 	private OptionSpec<Void>    F;
 	private OptionSpec<Void>    D;
 	private OptionSpec<Void>    E;
@@ -92,10 +92,36 @@ public class CliOptions
 	public final boolean sort;
 	public final boolean gui;
 	public final boolean pinSuffix;
+	public final char delimiter;
 	public final List<File> stdfFiles;
 	private boolean success;
 	private StringWriter sout;
 	
+	public static final Character[] suffixChars = {
+			'~',
+			'`',
+			'@',
+			'#',
+			'$',
+			'%',
+			'^',
+			'&',
+			'*',
+			'_',
+			'-',
+			'+',
+			'=',
+			':',
+			';',
+			'\'',
+			',',
+			'.',
+			'?',
+			'/',
+			'|',
+			'\\'
+	};
+
 	@Override
 	public String toString()
 	{
@@ -122,8 +148,8 @@ public class CliOptions
 	{
 	    OptionParser op = new OptionParser();	
 	    sout = new StringWriter();
-	    A = op.acceptsAll(asList(A_OPT[0], A_OPT[1]), A_OPT[2]);
-	    J = op.acceptsAll(asList(J_OPT[0], J_OPT[1]), J_OPT[2]);
+	    A = op.acceptsAll(asList(A_OPT[0], A_OPT[1]), A_OPT[2]).withOptionalArg().ofType(String.class);
+	    //J = op.acceptsAll(asList(J_OPT[0], J_OPT[1]), J_OPT[2]);
 	    F = op.acceptsAll(asList(F_OPT[0], F_OPT[1]), F_OPT[2]);
 	    D = op.acceptsAll(asList(D_OPT[0], D_OPT[1]), D_OPT[2]); // .requiredUnless("x", "xls-name");
 	    E = op.acceptsAll(asList(E_OPT[0], E_OPT[1]), E_OPT[2]); // .requiredUnless("x", "xls-name");
@@ -152,6 +178,7 @@ public class CliOptions
 	    options = op.parse(args);
 	    
 	    pinSuffix = options.has(A);
+	    String delim = (options.valueOf(A) == null) ? "@" : options.valueOf(A);
 	    forceHdr = options.has(F); 
 	    sort = options.has(M);
 	    noWrapTestNames = options.has(N);
@@ -169,6 +196,7 @@ public class CliOptions
 	    useJxl = options.has(J);
 	    precision = options.has(P) ? options.valueOf(P) : 3;
 	    stdfFiles = files.values(options);
+	    if (stdfFiles == null || stdfFiles.size() == 0) throw new RuntimeException("Error: no STDF files specified");
 	    String defaultFile = System.getenv("STDF2XLS_LOGO_FILE");
 	    logoFile = options.has(L) ? options.valueOf(L) : (defaultFile != null ? new File(defaultFile) : null);
 	    success = true;
@@ -207,6 +235,25 @@ public class CliOptions
 	    		success = false;
 	    	}
 	    }
+	    
+	    if (delim.length() != 1) throw new RuntimeException("Error: pin suffix can only be on character: " + delim);
+	    delimiter = delim.charAt(0);
+	    boolean found = false;
+	    for (char c : suffixChars)
+	    {
+	        if (c == delimiter)
+	        {
+	        	found = true;
+	        	break;
+	        }
+	    }
+	    if (!found)
+	    {
+	    	Log.msg("Invalid suffix character. Valid choices are:");
+	    	for (char c : suffixChars) Log.msg_("" + c + " ");
+	    	throw new RuntimeException("Invalid arguments");
+	    }
+	   
 	}
 	
 	public String getMessage() { return(sout.toString()); }
@@ -215,7 +262,8 @@ public class CliOptions
 	
 	public static void main(String[] args)
 	{
-		
+	    CliOptions options = new CliOptions(new String[] { "-x", "x.xlsx", "x.stdf" });	
+	    Log.msg("options = " + options);
 	}
 	
 }

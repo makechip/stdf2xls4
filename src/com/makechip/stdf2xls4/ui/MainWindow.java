@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.util.Log;
 import com.makechip.util.widgets.console.CmdStatus_t;
 import com.makechip.util.widgets.console.widget.ConsoleListener;
@@ -18,9 +19,11 @@ public class MainWindow implements Runnable, ConsoleListener
 	private MenuBar mb;
 	private ConsolePanel console;
 	private GuiConsole io;
+	private CliOptions options;
 
-	public MainWindow()
+	public MainWindow(CliOptions options)
 	{
+		this.options = options;
         console = new ConsolePanel();
         console.setPreferredSize(new Dimension(600, 400));
         io = console.getConsole();
@@ -39,7 +42,7 @@ public class MainWindow implements Runnable, ConsoleListener
         //Create and set up the window.
         JFrame frame = new JFrame("Stdf2xls4");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mb = new MenuBar(frame, console);
+		mb = new MenuBar(frame, console, options);
         frame.setJMenuBar(mb);
  
         //Add the ubiquitous "Hello World" label.
@@ -54,7 +57,8 @@ public class MainWindow implements Runnable, ConsoleListener
  
     public static void main(String[] args) 
     {
-    	MainWindow mw = new MainWindow();
+    	CliOptions options = new CliOptions(args);
+    	MainWindow mw = new MainWindow(options);
         javax.swing.SwingUtilities.invokeLater(mw);
     }
 
