@@ -67,11 +67,7 @@ public final class StdfAPI
 		if (options.dynamicLimits) dynamicLimitMap = new HashMap<>(); else dynamicLimitMap = null;
 		this.stdfFiles = options.stdfFiles;
 		new ArrayList<StdfRecord>();
-		if (options.showDuplicates)
-		{
-		    timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
-		}
-		else timeStampedFiles = false;
+		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
 		wafersortMap = new HashMap<>();
 	}
 	
@@ -162,7 +158,7 @@ public final class StdfAPI
 			{
 				rdr.getRecords().stream().forEach(r -> Log.msg(r.toString()));
 			}
-			if (options.xlsName != null || options.dumpTests)
+			if (options.xlsName != null)
 			{
 				// check tester type;
 				MasterInformationRecord mir = (MasterInformationRecord) rdr.getRecords().stream().
@@ -266,10 +262,22 @@ public final class StdfAPI
 				snxy = timeStampedFiles ? TimeSN.getTimeSN(dvd.timeStamp, prr.partID) : SN.getSN(prr.partID);
 			}
 		}
-		List<TestRecord> l = list.stream()
+		List<TestRecord> l = null;
+		if (options.dontSkipSearchFails)
+		{
+		    l = list.stream()
 			.filter(p -> p instanceof TestRecord)
 			.map(p -> TestRecord.class.cast(p))
 			.collect(Collectors.toList());
+		}
+		else
+		{
+		    l = list.stream()
+			.filter(p -> p instanceof TestRecord)
+			.filter(p -> !((TestRecord) p).getTestID().testName.endsWith("Search Failed")) 
+			.map(p -> TestRecord.class.cast(p))
+			.collect(Collectors.toList());
+		}
 		String temperature = hdr.get(HeaderUtil.TEMPERATURE);
 		if (temperature == null) temperature = mir.temperature;
 		DeviceHeader dh = new DeviceHeader(snxy, hwBin, swBin, fail, abnormalEOT, noPassFailIndication,temperature);

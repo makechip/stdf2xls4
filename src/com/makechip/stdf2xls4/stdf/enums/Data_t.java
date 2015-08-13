@@ -90,7 +90,15 @@ public enum Data_t
     /**
      * 
      */
-    VN(14, -1);
+    C1(14, 1),
+    /**
+     * 
+     */
+    VN(15, -1),
+    /**
+     * 
+     */
+    B1(16, 1);
 
     /**
      * The numeric representation of the data type.

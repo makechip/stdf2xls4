@@ -11,6 +11,7 @@ import com.makechip.stdf2xls4.excel.XSSFSpreadsheet;
 import com.makechip.stdf2xls4.excel.HSSFSpreadsheet;
 import com.makechip.stdf2xls4.excel.JxlSpreadsheet;
 import com.makechip.stdf2xls4.stdfapi.StdfAPI;
+import com.makechip.stdf2xls4.ui.MainWindow;
 import com.makechip.util.Log;
 
 public class Stdf2xls4
@@ -25,16 +26,16 @@ public class Stdf2xls4
 	
 	public void run() throws IOException, InvalidFormatException, BiffException
 	{
-		StdfAPI api = new StdfAPI(options);
-		api.initialize();
-		if (options.dumpTests)
+		if (options.gui)
 		{
-			api.initialize();
-			Log.msg(api.toString());
+			MainWindow mw = new MainWindow(options);
+			javax.swing.SwingUtilities.invokeLater(mw);
 		}
-		Spreadsheet ss = null;
-		if (options.xlsName != null)
+		else
 		{
+			StdfAPI api = new StdfAPI(options);
+			api.initialize();
+			Spreadsheet ss = null;
 			if (options.xlsName != null)
 			{
 				if (options.xlsName.toString().endsWith(".xlsx"))
@@ -46,9 +47,9 @@ public class Stdf2xls4
 					if (options.useJxl) ss = new JxlSpreadsheet();
 					else ss = new HSSFSpreadsheet();
 				}
+				SpreadsheetWriter ssw = new SpreadsheetWriter(options, api, ss);
+				ssw.generate();
 			}
-			SpreadsheetWriter ssw = new SpreadsheetWriter(options, api, ss);
-			ssw.generate();
 		}
 	}
 

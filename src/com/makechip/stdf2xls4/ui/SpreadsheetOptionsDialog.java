@@ -31,6 +31,7 @@ public class SpreadsheetOptionsDialog extends JDialog
 	private JCheckBox onePage;
 	private JCheckBox rotate;
     private JCheckBox output;
+    private JCheckBox sort;
 	private JCheckBox logo;
 	private JCheckBox jxlFormat;
 	private JTextField outputFile;
@@ -43,6 +44,24 @@ public class SpreadsheetOptionsDialog extends JDialog
 	private JButton cancel;
 	private JButton apply;
 	
+	public File getXlsFile() { return(outputFile.getDocument().getLength() < 1 ? null : new File(outputFile.getText())); }
+	
+	public boolean getNoWrap() { return(noWrap.isSelected()); }
+	
+	public boolean getNoOverwrite() { return(noOverwrite.isSelected()); }
+	
+	public boolean getRotate() { return(rotate.isSelected()); }
+	
+	public boolean getSort() { return(sort.isSelected()); }
+	
+	public File getLogoFile() { return(logoFile.getDocument().getLength() < 1 ? null : new File(logoFile.getText())); }
+	
+	public int getPrecision() { return((int) precision.getSelectedItem()); }
+	
+	public boolean useJxl() { return(jxlFormat.isSelected()); }
+	
+	public boolean getOnePage() { return(onePage.isSelected()); }
+
 	public SpreadsheetOptionsDialog(Frame parent, CliOptions options)
 	{
 		super(parent, "STDF Options", true);
@@ -84,17 +103,24 @@ public class SpreadsheetOptionsDialog extends JDialog
 		cs.gridwidth = 1;
 		panel.add(rotate, cs);
 
+		sort = new JCheckBox("Sort by serial number or XY", options.sort);
+		cs.gridx = 0;
+		cs.gridy = 4;
+		cs.gridwidth = 1;
+		panel.add(sort, cs);
+
 		output = new JCheckBox("Output Spreadsheet", options.xlsName != null);
 		output.addActionListener(e -> browse1Enable(e));
 		cs.gridx = 0;
-		cs.gridy = 4;
+		cs.gridy = 5;
 		cs.gridwidth = 1;
 		panel.add(output, cs);
 
 	    outputFile = new JTextField(32);
 	    outputFile.setEnabled(output.isSelected());
+	    if (options.xlsName != null) outputFile.setText(options.xlsName.toString());
 	    cs.gridx = 1;
-	    cs.gridy = 4;
+	    cs.gridy = 5;
 	    cs.gridwidth = 1;
 	    cs.insets = new Insets(0, 10, 0, 10);
 	    panel.add(outputFile, cs);
@@ -103,7 +129,7 @@ public class SpreadsheetOptionsDialog extends JDialog
 	    browse1.setEnabled(output.isSelected());
 	    browse1.addActionListener(e -> ssFileChooser.showOpenDialog(parent));
 	    cs.gridx = 2;
-	    cs.gridy = 4;
+	    cs.gridy = 5;
 	    cs.gridwidth = 1;
 	    cs.insets = new Insets(0, 0, 0, 0);
 	    panel.add(browse1, cs);
@@ -111,14 +137,15 @@ public class SpreadsheetOptionsDialog extends JDialog
 		logo = new JCheckBox("Use Custom Logo", options.logoFile != null);
 		logo.addActionListener(e -> browse2Enable(e));
 		cs.gridx = 0;
-		cs.gridy = 5;
+		cs.gridy = 6;
 		cs.gridwidth = 1;
 		panel.add(logo, cs);
 
 	    logoFile = new JTextField(32);
 	    logoFile.setEnabled(logo.isSelected());
+	    if (options.logoFile != null) logoFile.setText(options.logoFile.toString());
 	    cs.gridx = 1;
-	    cs.gridy = 5;
+	    cs.gridy = 6;
 	    cs.gridwidth = 1;
 	    cs.insets = new Insets(0, 10, 0, 10);
 	    panel.add(logoFile, cs);
@@ -127,21 +154,21 @@ public class SpreadsheetOptionsDialog extends JDialog
 	    browse2.setEnabled(logo.isSelected());
 	    browse2.addActionListener(e -> logoFileChooser.showOpenDialog(parent));
 	    cs.gridx = 2;
-	    cs.gridy = 5;
+	    cs.gridy = 6;
 	    cs.gridwidth = 1;
 	    cs.insets = new Insets(0, 0, 0, 0);
 	    panel.add(browse2, cs);
 
 		jxlFormat = new JCheckBox("Use JXL library (xls format only)", options.useJxl);
 		cs.gridx = 0;
-		cs.gridy = 6;
+		cs.gridy = 7;
 		cs.gridwidth = 1;
 	    cs.insets = new Insets(0, 0, 0, 0);
 		panel.add(jxlFormat, cs);
 		
 		JLabel p = new JLabel("Decimal Places:");
 		cs.gridx = 1;
-		cs.gridy = 6;
+		cs.gridy = 7;
 		cs.insets = new Insets(0, 0, 0, 10);
 		cs.anchor = GridBagConstraints.EAST;
 		cs.gridwidth = 1;
@@ -153,7 +180,7 @@ public class SpreadsheetOptionsDialog extends JDialog
 		cs.anchor = GridBagConstraints.WEST;
 		cs.insets = new Insets(0, 0, 0, 0);
 		cs.gridx = 2;
-		cs.gridy = 6;
+		cs.gridy = 7;
 		cs.gridwidth = 1;
 		panel.add(precision, cs);
 		

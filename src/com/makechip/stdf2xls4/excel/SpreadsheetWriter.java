@@ -316,7 +316,7 @@ public final class SpreadsheetWriter
    		titleBlock.devxy.reset();
         if (wafersort)
         {
-        	if (!options.noOverwrite || (options.sort && options.showDuplicates))
+        	if (!options.noOverwrite)
         	{
         		for (int rc=getRC(); rc<=getRC() + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
         		{

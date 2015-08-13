@@ -41,11 +41,11 @@ public class StdfOptionsDialog extends JDialog
 	
 	public boolean usePinSuffix() { return(pinSuffix.isSelected()); }
 	
-	public char getDelimiter() { return((char) suffixChar.getSelectedItem()); }
+	public Character getDelimiter() { return((Character) suffixChar.getSelectedItem()); }
 	
 	public boolean dumpStdf() { return(dump.isSelected()); }
 	
-	public File getDumpFile() { return(fileChooser.getSelectedFile()); }
+	public File getDumpFile() { return(dumpName.getDocument().getLength() < 1 ? null : new File(dumpName.getText())); }
 	
 	public StdfOptionsDialog(Frame parent, CliOptions options)
 	{
