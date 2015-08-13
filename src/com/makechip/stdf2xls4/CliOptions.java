@@ -164,9 +164,9 @@ public class CliOptions
 
 	    OptionSpec<File>    L = op.acceptsAll(asList(L_OPT[0], L_OPT[1]), L_OPT[2]).withRequiredArg().ofType(File.class);
 	    OptionSpec<File>    X = op.acceptsAll(asList(X_OPT[0], X_OPT[1]), X_OPT[2]).
-	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1]).withRequiredArg().ofType(File.class);
+	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1], G_OPT[0], G_OPT[1]).withRequiredArg().ofType(File.class);
 	    OptionSpec<File>    J = op.acceptsAll(asList(J_OPT[0], J_OPT[1]), J_OPT[2]).
-	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1], X_OPT[0], X_OPT[1]).withRequiredArg().ofType(File.class);
+	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1], X_OPT[0], X_OPT[1], G_OPT[0], G_OPT[1]).withRequiredArg().ofType(File.class);
 
 	    OptionSpec<File> files = op.nonOptions().describedAs("list of STDF files").ofType(File.class);
 	    
@@ -184,6 +184,7 @@ public class CliOptions
 	    dump = options.has(D);
 	    if (dump) dumpFile = options.valueOf(D); else dumpFile = null;
 	    gui = options.has(G);
+	    Log.msg("gui = " + gui);
 	    xlsName = options.has(X) ? options.valueOf(X) : (options.has(J) ? options.valueOf(J) : null);
 	    useJxl = options.has(J);
 	    precision = options.has(P) ? options.valueOf(P) : 3;
@@ -208,9 +209,10 @@ public class CliOptions
 	    	}
 	    }
 	    
-	    if (!options.has(H))
+	    if (!options.has(H) && !gui)
 	    {
-	    	if (stdfFiles == null | stdfFiles.size() == 0)
+	    	Log.msg("gui = " + gui);
+	    	if (stdfFiles == null || stdfFiles.size() == 0)
 	    	{
 	    		sout.write("Error: No STDF files have been specified");
 	    		success = false;
