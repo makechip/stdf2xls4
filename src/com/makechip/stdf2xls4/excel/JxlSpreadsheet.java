@@ -109,7 +109,7 @@ public class JxlSpreadsheet implements Spreadsheet
 	}
 
 	@Override
-	public void setCell(int page, Coord xy, Format_t format, int precision, double value)
+	public void setCell(int page, Coord xy, Format_t format, int precision, float value)
 	{
 	    try { ws[page].addCell(new Number(xy.c, xy.r, value, getFormat(format, precision))); }
 	    catch (Exception e) { throw new RuntimeException(e); }

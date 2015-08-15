@@ -76,7 +76,6 @@ public final class SpreadsheetWriter
     	{
     	    for (PageHeader hdr : api.getPageHeaders())
     		{
-    	    	Log.msg("HDR: " + hdr.toString());
     			openSheet(hdr);
     		    writeData(hdr);
     		}
@@ -143,7 +142,6 @@ public final class SpreadsheetWriter
     	int optRow = getOptRow(page, startRow); 
     	if (optRow < 0) throw new RuntimeException("Existing spreadsheet is incompatible");
     	String oldOpts = ss.getCellContents(page, new Coord(1, optRow));
-    	Log.msg("oldOpts = " + oldOpts);
     	// -b onePage mismatch = error
     	if (oldOpts.contains("-b") && !options.onePage) throw optionError(true, "-b");
     	if (!oldOpts.contains("-b") && options.onePage) throw optionError(false, "-b");
@@ -293,7 +291,6 @@ public final class SpreadsheetWriter
     				ss.setCell(page, getDevCoord(titleBlock.devxy.tstamp), cs, ((TimeSN) dh.snxy).getTimeStamp());
     			}
     		}
-    		Log.msg("currentRC = " + currentRC);
     		ss.setCell(page, getDevCoord(titleBlock.devxy.yOrSn), cs, dh.snxy.getSerialNumber());
     	}
     	ss.setCell(page, getDevCoord(titleBlock.devxy.hwBin), cs, dh.hwBin);
@@ -362,11 +359,9 @@ public final class SpreadsheetWriter
         }
         else // final test
         {
-        	Log.msg("getRC() = " + getRC());
             for (int rc=getRC(); rc<=getRC() + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
             {
             	Cell_t ct = ss.getCellType(page, titleBlock.devxy.yOrSn);
-            	Log.msg("rc = " + rc + " CellType = " + ct);
                 if (ct == Cell_t.BLANK)
                 {
                     currentRC = rc;
@@ -431,7 +426,7 @@ public final class SpreadsheetWriter
     
     private void setValue(int page, Coord xy, ParametricTestResult p)
     {
-    	if (p.pass()) ss.setCell(page, xy, PASS_VALUE_FMT, options.precision, (double) p.result);
+    	if (p.pass()) ss.setCell(page, xy, PASS_VALUE_FMT, options.precision, p.result);
     	else if (p.noPassFail()) ss.setCell(page, xy, INVALID_VALUE_FMT, options.precision, p.result);
     	else if (p.unreliable()) ss.setCell(page, xy, UNRELIABLE_VALUE_FMT, options.precision, p.result);
     	else if (p.alarm()) ss.setCell(page, xy, ALARM_VALUE_FMT, options.precision, p.result);
@@ -465,14 +460,11 @@ public final class SpreadsheetWriter
         	}
         	if (ss.initSheet(page, sname) == null) 
         	{
-        		Log.msg("getting new sheet");
         		sname = SheetName.getSheet(api.wafersort(hdr), hdr, page+1, version);
-        		Log.msg("new sheet name = " + sname);
         		newSheet(page, sname, hdr, numDevices);
         	}
         	else // note: an existing sheet might have a titleblock that is incompatible with the current titleblock.
         	{
-        		Log.msg("checking exising sheet...");
     	        //List<TestHeader> list = getTestHeaders(ws[page]);
     	        titleBlock = new TitleBlock(hdr, options.logoFile, sname.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, null);
         		if (!checkRegistration(page, LegendBlock.HEIGHT, titleBlock.tstxy.tnameLabel)) 

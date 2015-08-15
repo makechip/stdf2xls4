@@ -324,10 +324,12 @@ public class TestRecordDatabase
 		    Float sLoLimit = dvd.getScaledLoLimit(ptr);
 		    Float sHiLimit = dvd.getScaledHiLimit(ptr);
 		    if (hasDynamicLimits(hdr, ptr.getTestID())) list.add(new MultiParametricTestHeader(ptr.getTestID(), sunits, Limit_t.LO_LIMIT));  
-		    if (options.pinSuffix && ptr.id.testName.indexOf('$') > 0)
+		    if (options.pinSuffix && ptr.id.testName.indexOf(options.delimiter) > 0)
 		    {
-		        String pin = ptr.id.testName.substring(ptr.id.testName.lastIndexOf('$')+1);
-		        list.add(new MultiParametricTestHeader(ptr.id.testName, ptr.id.testNumber, ptr.id.dupNum, pin, sunits, sLoLimit, sHiLimit));  
+		    	int didx = ptr.id.testName.lastIndexOf(options.delimiter);
+		        String pin = ptr.id.testName.substring(didx+1);
+		        String tname = ptr.id.testName.substring(0, didx);
+		        list.add(new MultiParametricTestHeader(tname, ptr.id.testNumber, ptr.id.dupNum, pin, sunits, sLoLimit, sHiLimit));  
 		    }
 		    else
 		    {

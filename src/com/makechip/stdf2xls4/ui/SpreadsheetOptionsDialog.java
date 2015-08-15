@@ -14,13 +14,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
 import com.makechip.stdf2xls4.CliOptions;
+import com.makechip.util.Log;
 
 public class SpreadsheetOptionsDialog extends JDialog
 {
@@ -62,11 +62,12 @@ public class SpreadsheetOptionsDialog extends JDialog
 	
 	public boolean getOnePage() { return(onePage.isSelected()); }
 
-	public SpreadsheetOptionsDialog(Frame parent, CliOptions options)
+	public SpreadsheetOptionsDialog(Frame parent, MenuBar mb, CliOptions options)
 	{
 		super(parent, "STDF Options", true);
 		ssFileChooser = new JFileChooser();
 		ssFileChooser.setMultiSelectionEnabled(false);
+		Log.msg("CWD = " + System.getProperty("user.dir"));
 		ssFileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 		ssFileChooser.addActionListener(e -> processFile1(e));
 		logoFileChooser = new JFileChooser();
@@ -118,6 +119,7 @@ public class SpreadsheetOptionsDialog extends JDialog
 
 	    outputFile = new JTextField(32);
 	    outputFile.setEnabled(output.isSelected());
+		outputFile.getDocument().addDocumentListener(mb);
 	    if (options.xlsName != null) outputFile.setText(options.xlsName.toString());
 	    cs.gridx = 1;
 	    cs.gridy = 5;
@@ -253,15 +255,4 @@ public class SpreadsheetOptionsDialog extends JDialog
 		return(3);
 	}
 	
-	public static void main(String[] args)
-	{
-		CliOptions options = new CliOptions(args);
-		final JFrame frame = new JFrame("JDialog Demo");
-		SpreadsheetOptionsDialog dlg = new SpreadsheetOptionsDialog(frame, options);
-		dlg.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(300, 100);
-		frame.setVisible(true);
-	}
-
 }

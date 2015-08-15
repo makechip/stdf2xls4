@@ -129,22 +129,32 @@ public class MainWindow implements Runnable, ConsoleListener, ActionListener
 	    try
 	    {
 	    	newOptions = new CliOptions(l.toArray(new String[4]));
+	    	Log.msg("allocating API");
 	    	StdfAPI api = new StdfAPI(newOptions);
+	    	Log.msg("initializing API");
 	    	api.initialize();
 	    	Spreadsheet ss = null;
-	    	if (options.xlsName != null)
+	    	Log.msg("Creating spreadsheet xlsName = " + newOptions.xlsName);
+	    	if (newOptions.xlsName != null)
 	    	{
-	    		if (options.xlsName.toString().toUpperCase().endsWith(".XLSX")) ss = new XSSFSpreadsheet();
+	    		if (newOptions.xlsName.toString().toUpperCase().endsWith(".XLSX")) ss = new XSSFSpreadsheet();
 	    		else
 	    		{
-	    			if (options.useJxl) ss = new JxlSpreadsheet();
+	    			if (newOptions.useJxl) ss = new JxlSpreadsheet();
 	    			else ss = new HSSFSpreadsheet();
 	    		}
+	    		Log.msg("creating STDFWriter");
 	    		SpreadsheetWriter ssw = new SpreadsheetWriter(newOptions, api, ss);
+	    		Log.msg("generating...");
 	    		ssw.generate();
+	    		Log.msg("Done");
 	    	}
 	    }
-	    catch (Exception e) { console.getConsole().echo(e.getMessage()); }
+	    catch (Exception e) 
+	    {
+	    	e.printStackTrace();
+	    	console.getConsole().echo(e.getMessage()); 
+	    }
 	}
 
 }

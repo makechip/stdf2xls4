@@ -34,8 +34,6 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.makechip.util.Log;
-
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class XSSFSpreadsheet implements Spreadsheet
@@ -164,11 +162,12 @@ public class XSSFSpreadsheet implements Spreadsheet
 	}
 
 	@Override
-	public void setCell(int page, Coord xy, Format_t format, int precision, double value)
+	public void setCell(int page, Coord xy, Format_t format, int precision, float value)
 	{
 		Cell c = getCell(page, xy, Cell_t.NUMERIC);
 		c.setCellValue(value);
-		c.setCellStyle(getFormat(format, precision));
+		CellStyle cs = getFormat(format, precision);
+		c.setCellStyle(cs);
 	}
 
 	@Override
@@ -314,6 +313,7 @@ public class XSSFSpreadsheet implements Spreadsheet
             f.setTopBorderColor(fmt.getBorderColor().index);
             f.setLeftBorderColor(fmt.getBorderColor().index);
             f.setRightBorderColor(fmt.getBorderColor().index);
+            f.setDataFormat(df.getFormat(PRECISION[3]));
             m.put(3, f);
         }
         return(f);
@@ -327,7 +327,7 @@ public class XSSFSpreadsheet implements Spreadsheet
         	m = new TIntObjectHashMap<>();
         	map.put(fmt, m);
         }
-        CellStyle f = m.get(3);
+        CellStyle f = m.get(precision);
         if (f == null)
         {
         	f = wb.createCellStyle();
@@ -346,7 +346,7 @@ public class XSSFSpreadsheet implements Spreadsheet
             f.setLeftBorderColor(fmt.getBorderColor().index);
             f.setRightBorderColor(fmt.getBorderColor().index);
             f.setDataFormat(df.getFormat(PRECISION[precision]));
-            m.put(3, f);
+            m.put(precision, f);
         }
         return(f);
     }
@@ -424,17 +424,14 @@ public class XSSFSpreadsheet implements Spreadsheet
         //}
         //int index = wb.getSheetIndex(dummySheet);
         //wb.removeSheetAt(index);
-        Log.msg("Number of sheets before removing dummies: " + wb.getNumberOfSheets());
         groups.stream().forEach(dummies ->
         {
             Arrays.stream(dummies).forEach(sheet ->
             {
         	    int index = wb.getSheetIndex(sheet);
-        	    Log.msg("removing sheet number: " + index);
         	    wb.removeSheetAt(index);
             });
         });
-        Log.msg("Number of sheets after removing dummies: " + wb.getNumberOfSheets());
         try
         {
             file.delete();

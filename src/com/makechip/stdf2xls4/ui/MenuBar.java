@@ -19,13 +19,16 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.Modifier;
 import com.makechip.util.Log;
 import com.makechip.util.widgets.console.widget.ConsolePanel;
 import com.makechip.util.widgets.console.widget.GuiConsole;
 
-public class MenuBar extends JMenuBar implements ActionListener
+public class MenuBar extends JMenuBar implements DocumentListener
 {
 	private static final long serialVersionUID = -7935982234009232527L;
 	private FileMenu fileMenu;
@@ -122,14 +125,12 @@ public class MenuBar extends JMenuBar implements ActionListener
 		this.console = console;
 		this.parent = parent;
 		this.options = options;
-		stdfDialog = new StdfOptionsDialog(parent, options);
-		ssDialog = new SpreadsheetOptionsDialog(parent, options);
+		stdfDialog = new StdfOptionsDialog(parent, this, options);
+		ssDialog = new SpreadsheetOptionsDialog(parent, this, options);
 		modDialog = new ModifyRecordsDialog(parent, options);
         io = console.getConsole();
 		fileMenu = new FileMenu(parent);
 		optionsMenu = new OptionsMenu();
-		fileMenu.addActionListener(this);
-		optionsMenu.addActionListener(this);
 		add(fileMenu);
 		add(optionsMenu);
 		run = new JButton("Run");
@@ -156,11 +157,6 @@ public class MenuBar extends JMenuBar implements ActionListener
 		}
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-	    io.echo(e.getActionCommand());	
-	}
 
 	class FileMenu extends JMenu implements ActionListener
 	{
@@ -180,6 +176,7 @@ public class MenuBar extends JMenuBar implements ActionListener
 			fileChooser.setMultiSelectionEnabled(true);
 			fileChooser.addActionListener(this);
 			fileChooser.setFileFilter(new StdfFileFilter());
+			fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 		    selectStdf = new JMenuItem("Select STDF Files");	
 		    selectStdf.addActionListener(e -> fileChooser.showOpenDialog(parent));
 		    launchLibreOffice = new JMenuItem("Launch Libreoffice");
@@ -318,5 +315,30 @@ public class MenuBar extends JMenuBar implements ActionListener
 	{
 		String s = System.getProperty("os.name");
 		return(s.contains("Windows"));
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent e)
+	{
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent e)
+	{
+		if ((getDumpFile() != null || getXlsFile() != null) && getStdfFiles().size() > 0)
+		{
+			run.setEnabled(true);
+		}
+		else run.setEnabled(false);
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent e)
+	{
+		if ((getDumpFile() != null || getXlsFile() != null) && getStdfFiles().size() > 0)
+		{
+			run.setEnabled(true);
+		}
+		else run.setEnabled(false);
 	}
 }

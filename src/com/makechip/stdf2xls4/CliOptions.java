@@ -44,7 +44,7 @@ public class CliOptions
 	private final OptionSet options;
 	private static final String[] X_OPT = { "x", "xls-name", "Specify the spreadsheet filename" };
 	private static final String[] M_OPT = { "m", "modifier", "Specify an STDF field modifier" };
-	private static final String[] J_OPT = { "j", "jxl-xls-name", "Specify the spreadsheet filename for JXL format" };
+	private static final String[] J_OPT = { "j", "jxl-xls-name", "Use JXL library for xls format instead of HSSF library" };
 	private static final String[] D_OPT = { "d", "dump", "Make ascii dump of STDF file(s) to file" };
 	private static final String[] N_OPT = { "n", "no-wrap-test-names", "Don't wrap test names - gives really wide columns" };
 	private static final String[] O_OPT = { "o", "no-overwrite", "Don't overwrite duplicate serial numbers or XY-coords" };
@@ -59,7 +59,7 @@ public class CliOptions
 	private static final String[] A_OPT = { "a", "pin-suffix", "Assume test names for ParametricTestRecords have the pin name following the character delimiter" };
 	private static final String[] L_OPT = { "l", "logo", "Specify a logo file for the spreadsheet" };
 	private OptionSpec<String>  A;
-	private OptionSpec<File>    J;
+	private OptionSpec<Void>    J;
 	private OptionSpec<Void>    F;
 	private OptionSpec<File>    D;
 	private OptionSpec<Void>    E;
@@ -147,7 +147,6 @@ public class CliOptions
 	    OptionParser op = new OptionParser();	
 	    sout = new StringWriter();
 	    A = op.acceptsAll(asList(A_OPT[0], A_OPT[1]), A_OPT[2]).withOptionalArg().ofType(String.class);
-	    //J = op.acceptsAll(asList(J_OPT[0], J_OPT[1]), J_OPT[2]);
 	    D = op.acceptsAll(asList(D_OPT[0], D_OPT[1]), D_OPT[2]).withRequiredArg().ofType(File.class);
 	    N = op.acceptsAll(asList(N_OPT[0], N_OPT[1]), N_OPT[2]);
 	    O = op.acceptsAll(asList(O_OPT[0], O_OPT[1]), O_OPT[2]);
@@ -165,8 +164,7 @@ public class CliOptions
 	    OptionSpec<File>    L = op.acceptsAll(asList(L_OPT[0], L_OPT[1]), L_OPT[2]).withRequiredArg().ofType(File.class);
 	    OptionSpec<File>    X = op.acceptsAll(asList(X_OPT[0], X_OPT[1]), X_OPT[2]).
 	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1], G_OPT[0], G_OPT[1]).withRequiredArg().ofType(File.class);
-	    OptionSpec<File>    J = op.acceptsAll(asList(J_OPT[0], J_OPT[1]), J_OPT[2]).
-	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1], X_OPT[0], X_OPT[1], G_OPT[0], G_OPT[1]).withRequiredArg().ofType(File.class);
+	    J = op.acceptsAll(asList(J_OPT[0], J_OPT[1]), J_OPT[2]);
 
 	    OptionSpec<File> files = op.nonOptions().describedAs("list of STDF files").ofType(File.class);
 	    
@@ -185,11 +183,14 @@ public class CliOptions
 	    if (dump) dumpFile = options.valueOf(D); else dumpFile = null;
 	    gui = options.has(G);
 	    Log.msg("gui = " + gui);
-	    xlsName = options.has(X) ? options.valueOf(X) : (options.has(J) ? options.valueOf(J) : null);
+	    xlsName = options.has(X) ? options.valueOf(X) : null;
 	    useJxl = options.has(J);
 	    precision = options.has(P) ? options.valueOf(P) : 3;
 	    stdfFiles = files.values(options);
-	    if (stdfFiles == null || stdfFiles.size() == 0) throw new RuntimeException("Error: no STDF files specified");
+	    if (!gui && !options.has(H))
+	    {
+	        if (stdfFiles == null || stdfFiles.size() == 0) throw new RuntimeException("Error: no STDF files specified");
+	    }
 	    String defaultFile = System.getenv("STDF2XLS_LOGO_FILE");
 	    logoFile = options.has(L) ? options.valueOf(L) : (defaultFile != null ? new File(defaultFile) : null);
 	    success = true;

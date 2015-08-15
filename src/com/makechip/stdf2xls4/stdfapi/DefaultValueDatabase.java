@@ -16,7 +16,6 @@ import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.PinMapRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
-import com.makechip.util.Log;
 
 public final class DefaultValueDatabase
 {
@@ -160,15 +159,12 @@ public final class DefaultValueDatabase
     	if (nresScalDefaults.get(tn) == null && r.getResScal() != null) nresScalDefaults.put(tn, r.getResScal());
     	if (nllmScalDefaults.get(tn) == null && r.getLlmScal() != null) nllmScalDefaults.put(tn, r.getLlmScal());
     	if (nhlmScalDefaults.get(tn) == null && r.getHlmScal() != null) nhlmScalDefaults.put(tn, r.getHlmScal());
-    	if (tn == 19L) Log.msg("tn = " + tn + " loLimit = " + r.getLoLimit() + " hiLimit = " + r.getHiLimit());
     	if (nloLimDefaults.get(tn) == null && r.getLoLimit() != null)
     	{
-    		Log.msg("tn = " + tn + " saving default lolimit");
     		nloLimDefaults.put(tn, r.getLoLimit());
     	}
     	if (nhiLimDefaults.get(tn) == null && r.getHiLimit() != null) 
     	{
-    		Log.msg("tn = " + tn + " saving default hilimit");
     		nhiLimDefaults.put(tn, r.getHiLimit());
     	}
     	if (nunitDefaults.get(tn) == null && r.getUnits() != null) nunitDefaults.put(tn, r.getUnits());
@@ -206,7 +202,6 @@ public final class DefaultValueDatabase
         Float loLimit = getDefaultLoLimit(id);
         Float hiLimit = getDefaultHiLimit(id);
         float val = 0.0f;
-        if (loLimit == null & hiLimit == null) Log.msg("limits are null: TestID = " + id);
         if (loLimit == null) val = Math.abs(hiLimit);
         else if (hiLimit == null) val = Math.abs(loLimit);
         else val = (Math.abs(hiLimit) > Math.abs(loLimit)) ? Math.abs(hiLimit) : Math.abs(loLimit);

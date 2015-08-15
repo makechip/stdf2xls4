@@ -14,7 +14,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
@@ -47,7 +46,7 @@ public class StdfOptionsDialog extends JDialog
 	
 	public File getDumpFile() { return(dumpName.getDocument().getLength() < 1 ? null : new File(dumpName.getText())); }
 	
-	public StdfOptionsDialog(Frame parent, CliOptions options)
+	public StdfOptionsDialog(Frame parent, MenuBar mb, CliOptions options)
 	{
 		super(parent, "STDF Options", true);
 		fileChooser = new JFileChooser();
@@ -96,6 +95,7 @@ public class StdfOptionsDialog extends JDialog
 	
 	    dumpName = new JTextField(32);
 	    dumpName.setEnabled(dump.isSelected());
+	    dumpName.getDocument().addDocumentListener(mb);
 	    cs.gridx = 0;
 	    cs.gridy = 4;
 	    cs.gridwidth = 1;
@@ -171,15 +171,4 @@ public class StdfOptionsDialog extends JDialog
 		return(2);
 	}
 	
-	public static void main(String[] args)
-	{
-		CliOptions options = new CliOptions(args);
-		final JFrame frame = new JFrame("JDialog Demo");
-		StdfOptionsDialog dlg = new StdfOptionsDialog(frame, options);
-		dlg.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(300, 100);
-		frame.setVisible(true);
-	}
-
 }

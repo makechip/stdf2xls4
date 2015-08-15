@@ -30,7 +30,7 @@ public interface Spreadsheet
     
     public void setCell(int page, Coord xy, Format_t format, String value);
     
-    public void setCell(int page, Coord xy, Format_t format, int precision, double value);
+    public void setCell(int page, Coord xy, Format_t format, int precision, float value);
     
     public void setCell(int page, Coord xy, Format_t format, long value);
 

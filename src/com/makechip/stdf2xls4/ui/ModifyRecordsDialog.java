@@ -35,7 +35,10 @@ public class ModifyRecordsDialog extends JDialog
 	List<Modifier> getModifiers()
 	{
 		List<Modifier> l = new ArrayList<>();
-		for (int i=0; i<model.getSize(); i++) l.add(model.getElementAt(i));
+		if (model != null)
+		{
+		    for (int i=0; i<model.getSize(); i++) l.add(model.getElementAt(i));
+		}
 		return(l);
 	}
 	

@@ -26,13 +26,6 @@ public class Stdf2xls4
 	
 	public void run() throws IOException, InvalidFormatException, BiffException
 	{
-		if (options.gui)
-		{
-			MainWindow mw = new MainWindow(options);
-			javax.swing.SwingUtilities.invokeLater(mw);
-		}
-		else
-		{
 			StdfAPI api = new StdfAPI(options);
 			api.initialize();
 			Spreadsheet ss = null;
@@ -50,7 +43,6 @@ public class Stdf2xls4
 				SpreadsheetWriter ssw = new SpreadsheetWriter(options, api, ss);
 				ssw.generate();
 			}
-		}
 	}
 
 	public static void main(String[] args)
@@ -72,10 +64,22 @@ public class Stdf2xls4
         	Log.msg(options.getMessage());
         	System.exit(0);
         }
-        Stdf2xls4 pgm = new Stdf2xls4(options);
-        try { pgm.run(); }
-        catch (Exception e) { Log.fatal(e); }
-        System.exit(0);
+        if (options.gui)
+        {
+			Log.msg("AA");
+			MainWindow mw = new MainWindow(options);
+			Log.msg("BB");
+			javax.swing.SwingUtilities.invokeLater(mw);
+			//mw.run();
+			Log.msg("CC");
+        }
+        else
+        {
+            Stdf2xls4 pgm = new Stdf2xls4(options);
+            try { pgm.run(); }
+            catch (Exception e) { Log.fatal(e); }
+            System.exit(0);
+        }
 	}
 
 }
