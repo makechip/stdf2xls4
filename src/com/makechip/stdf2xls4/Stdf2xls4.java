@@ -16,7 +16,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.0.0";
+	public static final String VERSION = "4.0.1";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)
@@ -66,12 +66,9 @@ public class Stdf2xls4
         }
         if (options.gui)
         {
-			Log.msg("AA");
 			MainWindow mw = new MainWindow(options);
-			Log.msg("BB");
 			javax.swing.SwingUtilities.invokeLater(mw);
 			//mw.run();
-			Log.msg("CC");
         }
         else
         {

@@ -57,9 +57,10 @@ public class StdfReader
     * @throws IOException
     * @throws StdfException
     */
-   public StdfReader read(TestIdDatabase tdb, ByteInputStream is)
+   public StdfReader read(TestIdDatabase tdb, List<Modifier> modifiers, ByteInputStream is)
    {
 	   Cpu_t cpu = Cpu_t.PC; // assume this for the first record. The FAR does not need this.
+	   int cnt = 0;
 	   while (is.available() >= 2)
 	   {
 		   int recLen = cpu.getU2(is);	
@@ -69,9 +70,17 @@ public class StdfReader
 		   StdfRecord r = type.getInstance(cpu, tdb, recLen, is);
 		   if (type == Record_t.FAR) cpu = ((FileAttributesRecord) r).cpuType;
 		   else if (type == Record_t.PRR)tdb.clearIdDups(); 
+		   for (Modifier m : modifiers)
+		   {
+		       if (r.type == m.record) 
+		       {
+		           if (r.modify(m)) cnt++;
+		       }
+		   }
 		   records.add(r);
 	   }                
-        return(this);
+	   Log.msg("Modified " + cnt + " records");
+       return(this);
     }
     
     /**
@@ -94,7 +103,7 @@ public class StdfReader
             StdfReader rdr = new StdfReader();
             byte[] b = new byte[is.available()];
             is.readFully(b);
-            rdr.read(tdb, new ByteInputStream(b));
+            rdr.read(tdb, new ArrayList<Modifier>(), new ByteInputStream(b));
             rdr.getRecords().stream().forEach(r -> Log.msg(r.toString()));
     	} 
     	catch (Exception e)

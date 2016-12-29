@@ -235,7 +235,7 @@ public class CliOptions
 	    if (options.has(M))
 	    {
 	    	List<String> list = options.valuesOf(M);
-	    	list.stream().forEach(s -> l.add(new Modifier(s.substring(1, s.length()-1))));
+	    	list.stream().forEach(s -> l.add(new Modifier(s.substring(0, s.length()))));
 	    }
 	    modifiers = Collections.unmodifiableList(l);
 	    
@@ -265,7 +265,7 @@ public class CliOptions
 	
 	public static void main(String[] args)
 	{
-	    CliOptions options = new CliOptions(new String[] { "-x", "x.xlsx", "-m", "\"R:DTR F:TEXT_DAT C:EQUALS: V:XXX N:YYY\"", "x.stdf" });	
+	    CliOptions options = new CliOptions(new String[] { "-x", "x.xlsx", "-m", "\"R:DTR F:TEXT_DAT C:EQUALS: V:STEP #: 2.00\\ N:STEP #: 2.00\"", "x.stdf" });	
 	    Log.msg("options = " + options);
 	    Log.msg("mods = " + options.modifiers);
 	}

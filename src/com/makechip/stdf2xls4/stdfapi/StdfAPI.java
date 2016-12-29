@@ -147,7 +147,7 @@ public final class StdfAPI
 			{
 	            byte[] b = new byte[is.available()];
 	            is.readFully(b);
-			    rdr.read(tiddb, new ByteInputStream(b));
+			    rdr.read(tiddb, options.modifiers, new ByteInputStream(b));
 			}
 			catch (IOException e)
 			{

@@ -1,11 +1,10 @@
 package com.makechip.stdf2xls4.stdf;
 
-import java.util.StringTokenizer;
-
 import com.makechip.stdf2xls4.stdf.enums.Condition_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.descriptors.FieldDescriptor;
+import com.makechip.util.Log;
 
 public class Modifier
 {
@@ -25,41 +24,91 @@ public class Modifier
 	/**
 	 * A modifier string has the form of:
 	 * R:Record_t F:FieldDescriptor C:Condition_t V:oldValue N:newValue
+	 * Example:
+	 * "R=DTR F=TEXT_DAT C=EQUALS V='STEP #: 2.00\\' N='STEP #: 2.00'"
 	 * @param modString
 	 */
-	public Modifier(String modString)
+	public Modifier(String mod)
 	{
-		StringTokenizer st = new StringTokenizer(modString, ": ");
-		int numToks = st.countTokens();
-		if (numToks < 10) throw new RuntimeException("Invalid modifier string: " + modString);
-		String s = st.nextToken();
-		if (!s.equals("R")) error("Invalid modifier string: Expected 'R', got " + s);
-		s = st.nextToken();
-		record = Enum.valueOf(Record_t.class, s);
-		if (record == null) error("Invalid modifier string: Invalid record type: " + s);
-		s = st.nextToken();
-		if (!s.equals("F")) error("Invalid modifier string: Expected 'F', got " + s);
-		s = st.nextToken();
-		field = FieldDescriptor.getDescriptor(record, s);
-		if (field == null) error("Invalid modifier String: Invalid field name: " + s);
-		s = st.nextToken();
-		if (!s.equals("C")) error("Invalid modifier string: Expected 'C', got " + s);
-		s = st.nextToken();
-		condition = Enum.valueOf(Condition_t.class, s);
-		if (condition == null) error("Invalid modifier string: Invalid condition: " + s);
-		s = st.nextToken();
-		if (!s.equals("V")) error("Invalid modifier string: Expected 'V', got " + s);
-		s = st.nextToken();
+	    Log.msg("modifier = " + mod);
+	    int l = mod.length();
+	    if (mod.charAt(0) != 'R' || mod.charAt(1) != '=')
+	    {
+	        error("Invalid modifier string: Expected R=, got '" + mod.charAt(0) + mod.charAt(1) + "'");
+	    }
+	    int j = 2;
+	    String r = "";
+	    while (mod.charAt(j) != ' ' && mod.charAt(j) != '\t' && j < l)
+	    {
+	        r += mod.charAt(j);
+	        j++;
+	    }
+	    Log.msg("R = " + r);
+		record = Enum.valueOf(Record_t.class, r);
+		if (record == null) error("Invalid modifier string: Invalid record type: " + r);
+		while (mod.charAt(j) != 'F' && j < l) j++;
+	    if (mod.charAt(j) != 'F' || mod.charAt(j+1) != '=')
+	    {
+	        error("Invalid modifier string: Expected F=, got '" + mod.charAt(j) + mod.charAt(j+1) + "'");
+	    }
+	    j+=2;
+	    String f = "";
+	    while (mod.charAt(j) != ' ' && mod.charAt(j) != '\t' && j< l)
+	    {
+	        f += mod.charAt(j);
+	        j++;
+	    }
+	    Log.msg("F = " + f);
+		field = FieldDescriptor.getDescriptor(record, f);
+		if (field == null) error("Invalid modifier String: Invalid field name: " + f);
+		while (mod.charAt(j) != 'C' && j < l) j++;
+	    if (mod.charAt(j) != 'C' || mod.charAt(j+1) != '=')
+	    {
+	        error("Invalid modifier string: Expected C=, got '" + mod.charAt(j) + mod.charAt(j+1) + "'");
+	    }
+	    j+=2;
+	    String c = "";
+	    while (mod.charAt(j) != ' ' && mod.charAt(j) != '\t' && j< l)
+	    {
+	        c += mod.charAt(j);
+	        j++;
+	    }
+	    Log.msg("C = " + c);
+		condition = Enum.valueOf(Condition_t.class, c);
+		if (condition == null) error("Invalid modifier string: Invalid condition: " + c);
+		while (mod.charAt(j) != 'V' && j < l) j++;
+	    if (mod.charAt(j) != 'V' || mod.charAt(j+1) != '=')
+	    {
+	        error("Invalid modifier string: Expected V=, got '" + mod.charAt(j) + mod.charAt(j+1) + "'");
+	    }
+	    j+=2;
+	    if (mod.charAt(j) != '\'') error("Expected \"'\", got '" + mod.charAt(j) + "'");
+	    j++;
+	    String v = "";
+	    while (mod.charAt(j) != '\'' && j < l)
+	    {
+	        v += mod.charAt(j);
+	        j++;
+	    }
 		Data_t dt = field.getType();
-		oldValue = getValue(dt, s);
-		s = st.nextToken();
-		if (!s.equals("N")) error("Invalid modifier String: Expected 'N', got " + s);
-		s = st.nextToken();
-		if (st.hasMoreTokens())
-		{
-			s = s + st.nextToken("");
-		}
-		newValue = getValue(dt, s);
+		oldValue = getValue(dt, v);
+		Log.msg("oldValue = " + oldValue);
+		while (mod.charAt(j) != 'N' && j < l) j++;
+	    if (mod.charAt(j) != 'N' || mod.charAt(j+1) != '=')
+	    {
+	        error("Invalid modifier string: Expected N=, got '" + mod.charAt(j) + mod.charAt(j+1) + "'");
+	    }
+	    j+=2;
+	    if (mod.charAt(j) != '\'') error("Expected \"'\", got '" + mod.charAt(j) + "'");
+	    j++;
+	    String n = "";
+	    while (mod.charAt(j) != '\'' && j < l)
+	    {
+	        n += mod.charAt(j);
+	        j++;
+	    }
+		newValue = getValue(dt, n);
+		Log.msg("newValue = " + newValue);
 	}
 	
 	/* (non-Javadoc)

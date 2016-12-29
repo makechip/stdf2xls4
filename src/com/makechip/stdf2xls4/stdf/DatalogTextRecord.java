@@ -63,7 +63,7 @@ public class DatalogTextRecord extends StdfRecord
 {
     public static final String TEXT_DATA          = "TEXT_DATA";
     public static final String SERIAL_MARKER      = "S/N";
-    public final String text;
+    public String text;
     
     /**
      * Constructor for initializing this record with binary stream data.
@@ -76,6 +76,33 @@ public class DatalogTextRecord extends StdfRecord
     {
         super(Record_t.DTR);
         text = cpu.getCN(is);
+    }
+    
+    @Override
+    public boolean modify(Modifier m)
+    {
+        boolean rval = false;
+        switch (m.condition)
+        {
+        case EQUALS:
+            if (text.equals(m.oldValue)) 
+            {
+                text = (String) m.newValue;
+                rval = true;
+            }
+            break;
+        case CONTAINS:
+            if (text.contains((String) m.oldValue)) 
+            {
+                text = (String) m.newValue;
+                rval = true;
+            }
+            break;
+        default:
+            text = (String) m.newValue;
+            rval = true;
+        }
+        return(rval);
     }
     
     /**

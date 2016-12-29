@@ -126,7 +126,7 @@ public class StdfTest1
 		rdr = new StdfReader();
 		byte[] b = stdf.getBytes();
 		tdb.clearIdDups();
-		rdr.read(tdb, new ByteInputStream(b));
+		rdr.read(tdb, new ArrayList<Modifier>(), new ByteInputStream(b));
 		list = rdr.getRecords();
         //Files.delete(p);
 	}

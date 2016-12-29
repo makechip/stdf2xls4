@@ -37,6 +37,10 @@ public abstract class StdfRecord
 		this.type = type;
 	}
 	
+	public boolean modify(Modifier m)
+	{
+	    return(false);
+	}
 	
 	/**
 	 * This method converts the field values to the byte array used by the constructor.
