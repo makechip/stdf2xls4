@@ -48,6 +48,11 @@ public class TitleBlock
 	    logo = new LogoBlock(logoFile);
 	    dh = new DataHeader(cb, options.precision, options.rotate, options.noWrapTestNames, hdrs);
 	}
+	
+	public int getRC(String testName, long tnum, int dupNum)
+	{
+	    return(dh.getRC(testName, tnum, dupNum));
+	}
     
 	public void addBlock(Spreadsheet ss, int page)
     {

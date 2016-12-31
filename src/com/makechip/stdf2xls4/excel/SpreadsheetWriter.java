@@ -44,6 +44,7 @@ import com.makechip.stdf2xls4.stdfapi.TimeXY;
 import com.makechip.stdf2xls4.stdfapi.XY;
 import com.makechip.util.Log;
 
+import gnu.trove.map.hash.TIntObjectHashMap;
 import jxl.read.biff.BiffException;
 
 public final class SpreadsheetWriter
@@ -53,7 +54,7 @@ public final class SpreadsheetWriter
 	public static final int COLS_PER_PAGE = 200;
 	private final CliOptions options;
 	private final StdfAPI api;
-	private TitleBlock titleBlock;
+	private TIntObjectHashMap<TitleBlock> titles;
 	private final Spreadsheet ss;
 	private int currentRC;
 
@@ -62,6 +63,7 @@ public final class SpreadsheetWriter
 		this.options = options;
 		this.api = api;
 		this.ss = ss;
+		titles = new TIntObjectHashMap<>();
         ss.openWorkbook(options.xlsName);
 	}
 	
@@ -182,6 +184,7 @@ public final class SpreadsheetWriter
         {
             Log.warning("Existing spreadsheet does not use -a option, while current run does.");
         }
+        TitleBlock titleBlock = titles.get(page);
     	Cell_t ct = ss.getCellType(page, titleBlock.tstxy.tnameLabel);
     	if (ct == Cell_t.STRING)
     	{
@@ -253,6 +256,7 @@ public final class SpreadsheetWriter
     private void setDevice(int page, String waferOrStep, DeviceHeader dh)
     {
     	Format_t cs = STATUS_PASS_FMT;
+    	TitleBlock titleBlock = titles.get(page);
     	if (dh.snxy instanceof XY || dh.snxy instanceof TimeXY) // wafersort
     	{
     		if (options.onePage)
@@ -301,7 +305,7 @@ public final class SpreadsheetWriter
     	else ss.setCell(page, getDevCoord(titleBlock.devxy.rslt), cs, "PASS");
     }
     
-    private int getRC()
+    private int getRC(TitleBlock titleBlock)
     {
     	if (options.rotate) return(titleBlock.devxy.yOrSnLabel.c + 1);
     	return(titleBlock.devxy.tempLabel.r + 1);
@@ -309,13 +313,14 @@ public final class SpreadsheetWriter
     
     private void locateRC(boolean wafersort, String waferOrStep, SnOrXy snOrXy, int page)
     {
+        TitleBlock titleBlock = titles.get(page);
         final int MAX_COLS = titleBlock.devxy.yOrSnLabel.c + 1 + COLS_PER_PAGE;
    		titleBlock.devxy.reset();
         if (wafersort)
         {
         	if (!options.noOverwrite)
         	{
-        		for (int rc=getRC(); rc<=getRC() + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
+        		for (int rc=getRC(titleBlock); rc<=getRC(titleBlock) + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
         		{
         			Cell_t ct = ss.getCellType(page, titleBlock.devxy.x);
         			if (ct == Cell_t.BLANK)
@@ -346,7 +351,7 @@ public final class SpreadsheetWriter
         		}
         		throw new RuntimeException("Cannot locate blank or matching X-Y");
         	}
-            for (int rc=getRC(); rc<=getRC() + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
+            for (int rc=getRC(titleBlock); rc<=getRC(titleBlock) + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
             {
                 Cell_t ct = ss.getCellType(page, titleBlock.devxy.x);
                 if (ct == Cell_t.BLANK)
@@ -359,7 +364,7 @@ public final class SpreadsheetWriter
         }
         else // final test
         {
-            for (int rc=getRC(); rc<=getRC() + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
+            for (int rc=getRC(titleBlock); rc<=getRC(titleBlock) + (options.rotate ? MAX_COLS : MAX_ROWS); rc++)
             {
             	Cell_t ct = ss.getCellType(page, titleBlock.devxy.yOrSn);
                 if (ct == Cell_t.BLANK)
@@ -396,7 +401,10 @@ public final class SpreadsheetWriter
     private void setResult(int index, int page, TestHeader th, PageHeader hdr, DeviceHeader dh)
     {
 		TestResult r = api.getRecord(hdr, dh, th);
-   	    int rc = options.rotate ? titleBlock.tstxy.unitsLabel.r + 1 + index : titleBlock.tstxy.unitsLabel.c + 1 + (index % COLS_PER_PAGE);
+   	    //int rc = options.rotate ? titleBlock.tstxy.unitsLabel.r + 1 + index : titleBlock.tstxy.unitsLabel.c + 1 + (index % COLS_PER_PAGE);
+		TitleBlock titleBlock = titles.get(page);
+		int rc = titleBlock.getRC(th.testName, th.testNumber, th.dupNum);
+		if (rc < 0) return;
    	    Coord xy = options.rotate ? new Coord(currentRC, rc) : new Coord(rc, currentRC);
 		try
 		{
@@ -466,7 +474,7 @@ public final class SpreadsheetWriter
         	else // note: an existing sheet might have a titleblock that is incompatible with the current titleblock.
         	{
     	        //List<TestHeader> list = getTestHeaders(ws[page]);
-    	        titleBlock = new TitleBlock(hdr, options.logoFile, sname.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, null);
+    	        TitleBlock titleBlock = new TitleBlock(hdr, options.logoFile, sname.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, null);
         		if (!checkRegistration(page, LegendBlock.HEIGHT, titleBlock.tstxy.tnameLabel)) 
         		{
         			ss.close(options.xlsName);
@@ -480,7 +488,8 @@ public final class SpreadsheetWriter
     {
     	ss.createSheet(page, name);
     	List<TestHeader> list = options.rotate ? api.getTestHeaders(hdr) : getTestHeaders(hdr, page);
-    	titleBlock = new TitleBlock(hdr, options.logoFile, name.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, list);
+    	TitleBlock titleBlock = new TitleBlock(hdr, options.logoFile, name.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, list);
+    	titles.put(page, titleBlock);
     	titleBlock.addBlock(ss, page);
     }
     
