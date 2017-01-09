@@ -15,7 +15,6 @@ import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.MultipleResultParametricRecord;
 import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.DatalogTestRecord;
-import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
 import com.makechip.stdf2xls4.stdf.FloatList;
 import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
@@ -100,7 +99,9 @@ public class TestRecordDatabase
 		TestResult tr = null;
 		switch (r.type)
 		{
-		case DTR: tr = new DatalogTestResult(((DatalogTextRecord) r).text); break;
+		case DTRX: 
+		    Object o = ((DatalogTestRecord) r).value; 
+		    tr = new DatalogTestResult(o.toString()); break;
 		case FTR: tr = new TestResult(((FunctionalTestRecord) r).testFlags); break;
 		case PTR: 
 			ParametricTestRecord ptr = (ParametricTestRecord) r;
@@ -350,7 +351,7 @@ public class TestRecordDatabase
 				  				  list.add(new MultiParametricTestHeader(pid, sunits, sLoLimit, sHiLimit)); });
 		    if (hasDynamicLimits(hdr, mpr.getTestID())) list.add(new MultiParametricTestHeader(mpr.getTestID(), sunits, Limit_t.HI_LIMIT));
 		    break;
-		case DTR: 
+		case DTRX: 
 			DatalogTestRecord dtr = (DatalogTestRecord) r;
 			list.add(new ParametricTestHeader(r.getTestID(), dtr.units, null, null)); break; 
 	    default: throw new RuntimeException("Unknown Test Record type: " + r.type);

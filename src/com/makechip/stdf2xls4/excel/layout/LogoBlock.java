@@ -27,8 +27,8 @@ class LogoBlock
     {
    		ss.mergeCells(page, ROW, ROW + HEIGHT - 1, COL, COL);
    		ss.setColumnWidth(page, COL, 32);
-    	if (logoFile == null) ss.setCell(page, new Coord(COL, ROW), Format_t.LOGO_FMT, "makechip.com");
-    	else ss.addImage(page, logoFile, new Coord(COL, ROW), new Coord(COL + WIDTH - 1, ROW + HEIGHT - 1));
+   		if (logoFile == null)  ss.setCell(page, new Coord(COL, ROW), Format_t.LOGO_FMT, "makechip.com");
+    	else ss.addImage(page, logoFile, new Coord(COL, ROW), new Coord(COL + WIDTH, ROW + HEIGHT));
     }
     
 	public int getWidth()

@@ -134,8 +134,18 @@ public class DatalogTestRecord extends TestRecord
             }
             else if (cnt == 0L) // it's an int
             {
-                value = new Integer(v);	
-                type = Data_t.I4;
+                Long tmp = new Long(v);
+                if ((tmp >= Integer.MAX_VALUE) || (tmp <= Integer.MIN_VALUE))
+                {
+                    // it's too big, so convert to string
+                    value = v;
+                    type = Data_t.CN;
+                }
+                else
+                {
+                    value = new Integer(v);	
+                    type = Data_t.I4;
+                }
             }
             else // it's a String
             {

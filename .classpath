@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="lib/poi-ooxml-3.13-beta1-20150723.jar"/>
 	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-3.13-beta1-20150723.jar"/>
 	<classpathentry kind="lib" path="lib/xmlbeans-2.6.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

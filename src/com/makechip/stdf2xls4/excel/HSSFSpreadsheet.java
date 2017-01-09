@@ -21,7 +21,6 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Picture;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -255,7 +254,8 @@ public class HSSFSpreadsheet implements Spreadsheet
 			//Get the contents of an InputStream as a byte[].
 			byte[] bytes = IOUtils.toByteArray(inputStream);
 			//Adds a picture to the workbook
-			int pictureIdx = wb.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+			boolean jpg = imageFile.getName().toLowerCase().endsWith(".jpg");
+			int pictureIdx = wb.addPicture(bytes, jpg ? Workbook.PICTURE_TYPE_JPEG : Workbook.PICTURE_TYPE_PNG);
 			//close the input stream
 			inputStream.close();
 			//Returns an object that handles instantiating concrete classes
@@ -265,14 +265,18 @@ public class HSSFSpreadsheet implements Spreadsheet
 			//Create an anchor that is attached to the worksheet
 			ClientAnchor anchor = helper.createClientAnchor();
 			//set top-left corner for the image
-			anchor.setAnchorType(0);
+			anchor.setAnchorType(ClientAnchor.MOVE_AND_RESIZE);
+            anchor.setDx1(0);
+            anchor.setDy1(0);
+            anchor.setDx2(0);
+            anchor.setDy2(0);
 			anchor.setCol1(ul.c);
 			anchor.setRow1(ul.r);
 			anchor.setCol2(lr.c);
 			anchor.setRow2(lr.r);
 			//Creates a picture
-			Picture pict = drawing.createPicture(anchor, pictureIdx);
-			pict.resize();
+			drawing.createPicture(anchor, pictureIdx);
+			//pict.resize();
 		}
 		catch (IOException e) { throw new RuntimeException(e.getMessage()); }
 		
