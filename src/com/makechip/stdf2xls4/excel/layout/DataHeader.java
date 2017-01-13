@@ -5,16 +5,26 @@ import static com.makechip.stdf2xls4.excel.Format_t.HEADER5_FMT;
 import static com.makechip.stdf2xls4.excel.Format_t.TEST_NAME_FMT;
 import static com.makechip.stdf2xls4.excel.Format_t.TEST_NAME_FMT_WRAP;
 
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineBreakMeasurer;
+import java.awt.font.TextAttribute;
+import java.awt.image.BufferedImage;
+import java.text.AttributedString;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.makechip.stdf2xls4.excel.Coord;
 import com.makechip.stdf2xls4.excel.Spreadsheet;
 import com.makechip.stdf2xls4.excel.layout.CornerBlock;
 import com.makechip.stdf2xls4.stdfapi.MultiParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
+
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -72,6 +82,49 @@ public class DataHeader
 	public void addBlock(Spreadsheet ss, int page)
 	{
 		cb.tstxy.reset();
+		int lineCnt = 5;
+		if (!rot && !noWrapTestNames)
+		{
+		    String maxTestName = "";
+		    int maxLen = 0;
+		    for (TestHeader h : hdrs)
+		    {
+		        if (h.testName.length() > maxLen)
+		        {
+		            maxLen = h.testName.length();
+		            maxTestName = h.testName;
+		        }
+		    }
+		    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		    GraphicsDevice gd = ge.getDefaultScreenDevice();
+		    GraphicsConfiguration gc = gd.getDefaultConfiguration();
+		    BufferedImage bi = gc.createCompatibleImage(500, 50);
+		    Graphics2D graphics = bi.createGraphics();
+		    java.awt.Font currFont = new java.awt.Font("ARIAL", 0, 10);
+		    graphics.setFont(currFont);
+		    FontMetrics fm = graphics.getFontMetrics();
+		    int zeroWidth = fm.charWidth('0');
+		    int defColWidth = 10 * zeroWidth;
+		    AttributedString attrStr = new AttributedString(maxTestName);
+		    attrStr.addAttribute(TextAttribute.FONT, currFont);
+		    FontRenderContext frc = graphics.getFontRenderContext();
+		    LineBreakMeasurer measurer = new LineBreakMeasurer(attrStr.getIterator(), frc);
+		    int nextPos = 0;
+		    lineCnt = 0;
+		    while (measurer.getPosition() < maxTestName.length())
+		    {
+		        nextPos = measurer.nextOffset(defColWidth); // mergedCellWidth is the max width of each line
+		        lineCnt++;
+		        measurer.setPosition(nextPos);
+		    }
+		    if (lineCnt < 5) lineCnt = 5;
+			int defRowHeight = ss.getRowHeight(page, cb.tstxy.tnameLabel.r);
+			int newHeight = (lineCnt * defRowHeight) / 5;
+			for (int i=cb.tstxy.tnameLabel.r; i<cb.tstxy.tnumLabel.r; i++)
+			{
+			    ss.setRowHeight(page, i, newHeight);
+			}
+		}
 		hdrs.stream().forEach(hdr ->
 		{
 			if (rot || noWrapTestNames) 

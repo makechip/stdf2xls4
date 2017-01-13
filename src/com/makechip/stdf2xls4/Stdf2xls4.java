@@ -9,7 +9,8 @@ package com.makechip.stdf2xls4;
  * Fixed bug in DatalogTestRecord where a date-string was interpreted
  * to be an integer, but was too large to fit in an integer.
  * 
- * 
+ * 4.0.4 1/12/17:
+ * Improve row height for test names when test names go horizontally across the page.
  * 
  * 
  * 
@@ -31,7 +32,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.0.3";
+	public static final String VERSION = "4.0.4";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)
