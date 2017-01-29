@@ -33,12 +33,14 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 	@Override
 	public boolean isLoLimitHeader()
 	{
+	    if (pin == null) return false;
 		return(pin.equals(LL_HDR));
 	}
 	
 	@Override
 	public boolean isHiLimitHeader()
 	{
+	    if (pin == null) return false;
 		return(pin.equals(HL_HDR));
 	}
 
@@ -73,7 +75,7 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 	{
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + pin.hashCode();
+		result = (pin == null) ?  prime * result : prime * result + pin.hashCode();
 		return result;
 	}
 
@@ -86,7 +88,10 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 		if (this == obj) return true;
 		if (!(obj instanceof MultiParametricTestHeader)) return false;
 		MultiParametricTestHeader other = (MultiParametricTestHeader) obj;
-		if (!pin.equals(other.pin)) return false;
+		if (pin != null)
+		{
+		    if (!pin.equals(other.pin)) return false;
+		}
 		if (!super.equals(obj)) return false;
 		return true;
 	}

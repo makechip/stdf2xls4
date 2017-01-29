@@ -61,7 +61,7 @@ public class CliOptions
 	private OptionSpec<String>  A;
 	private OptionSpec<Void>    J;
 	private OptionSpec<Void>    F;
-	private OptionSpec<File>    D;
+	private OptionSpec<Void>    D;
 	private OptionSpec<Void>    E;
 	private OptionSpec<Void>    C;
 	private OptionSpec<Void>    N;
@@ -77,7 +77,6 @@ public class CliOptions
 	private OptionSpec<Integer> P;
 	public final File xlsName;
 	public final File logoFile;
-	public final File dumpFile;
 	public final List<Modifier> modifiers;
 	public final boolean dump;
 	public final boolean sort;
@@ -147,7 +146,7 @@ public class CliOptions
 	    OptionParser op = new OptionParser();	
 	    sout = new StringWriter();
 	    A = op.acceptsAll(asList(A_OPT[0], A_OPT[1]), A_OPT[2]).withOptionalArg().ofType(String.class);
-	    D = op.acceptsAll(asList(D_OPT[0], D_OPT[1]), D_OPT[2]).withRequiredArg().ofType(File.class);
+	    D = op.acceptsAll(asList(D_OPT[0], D_OPT[1]), D_OPT[2]);
 	    N = op.acceptsAll(asList(N_OPT[0], N_OPT[1]), N_OPT[2]);
 	    O = op.acceptsAll(asList(O_OPT[0], O_OPT[1]), O_OPT[2]);
 	    S = op.acceptsAll(asList(S_OPT[0], S_OPT[1]), S_OPT[2]);
@@ -180,7 +179,6 @@ public class CliOptions
 	    rotate = options.has(R);
 	    dynamicLimits = options.has(Y);
 	    dump = options.has(D);
-	    if (dump) dumpFile = options.valueOf(D); else dumpFile = null;
 	    gui = options.has(G);
 	    Log.msg("gui = " + gui);
 	    xlsName = options.has(X) ? options.valueOf(X) : null;

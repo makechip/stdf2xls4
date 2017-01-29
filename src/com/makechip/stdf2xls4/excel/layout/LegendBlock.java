@@ -19,13 +19,13 @@ public class LegendBlock
     
     public void addBlock(Spreadsheet ss, int page)
     {
-    	ss.setCell(page, new Coord(COL, ROW),   HEADER1_FMT, "Legend:");
-    	ss.setCell(page, new Coord(COL, ROW+1), PASS_VALUE_FMTC, "PASS");
-    	ss.setCell(page, new Coord(COL, ROW+2), FAIL_VALUE_FMTC, "FAIL");
-    	ss.setCell(page, new Coord(COL, ROW+3), UNRELIABLE_VALUE_FMTC, "UNRELIABLE VALUE");
-    	ss.setCell(page, new Coord(COL, ROW+4), TIMEOUT_VALUE_FMTC, "TIMEOUT");
-    	ss.setCell(page, new Coord(COL, ROW+5), ALARM_VALUE_FMTC, "ALARM");
-    	ss.setCell(page, new Coord(COL, ROW+6), ABORT_VALUE_FMTC, "ABORT");
+    	ss.setCell(page, new Coord(COL, ROW), PASS_VALUE_FMTC, "PASS");
+    	ss.setCell(page, new Coord(COL, ROW+1), FAIL_VALUE_FMTC, "FAIL");
+    	ss.setCell(page, new Coord(COL, ROW+2), UNRELIABLE_VALUE_FMTC, "UNRELIABLE VALUE");
+    	ss.setCell(page, new Coord(COL, ROW+3), TIMEOUT_VALUE_FMTC, "TIMEOUT");
+    	ss.setCell(page, new Coord(COL, ROW+4), ALARM_VALUE_FMTC, "ALARM");
+    	ss.setCell(page, new Coord(COL, ROW+5), ABORT_VALUE_FMTC, "ABORT");
+    	ss.setCell(page, new Coord(COL, ROW+6), INVALID_VALUE_FMTC, "INVALID");
     	ss.setColumnWidth(page, COL, CELL_WIDTH);
     }
 

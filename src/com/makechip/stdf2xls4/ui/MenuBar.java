@@ -137,7 +137,7 @@ public class MenuBar extends JMenuBar implements DocumentListener
 		run.addActionListener(main);
 		run.setEnabled(stdfDialog.getDumpFile() != null || ssDialog.getXlsFile() != null);
 		run.addActionListener(e -> io.echo(e.getActionCommand()));
-		if (options.xlsName == null && options.dumpFile == null) run.setEnabled(false);
+		if (options.xlsName == null) run.setEnabled(false);
 		add(run);
 	}
 	

@@ -3,15 +3,12 @@ package com.makechip.stdf2xls4.stdfapi;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -53,12 +50,12 @@ public final class StdfAPI
 	private final List<File> stdfFiles;
 	public final boolean timeStampedFiles;
 
-	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
-	{
-	    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
-	                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
-	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
-	}
+//	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
+//	{
+//	    return Collector.of(() -> new ArrayList<List<StdfRecord>>(Arrays.asList(new ArrayList<>())),
+//	                        (l, elem) -> { l.get(l.size()-1).add(elem); if(sep.test(elem)) l.add(new ArrayList<>()); },
+//	                        (l1, l2) -> {l1.get(l1.size() - 1).addAll(l2.remove(0)); l1.addAll(l2); return l1;}); 
+//	}
 
 	public StdfAPI(final CliOptions options)
 	{
@@ -175,9 +172,35 @@ public final class StdfAPI
 				// for un-executed tests will be stored in records for subsequent devices.
 				records.stream().filter(r -> r instanceof ParametricRecord).forEach(r -> dvd.loadDefaults((ParametricRecord) r));	
 				// Group records by device:
-				List<List<StdfRecord>> list = records.stream().collect(splitBySeparator(r -> r instanceof PartResultsRecord));
+				//List<List<StdfRecord>> list = records.stream().collect(splitBySeparator(r -> r instanceof PartResultsRecord));
+				
+				List<List<StdfRecord>> list = new ArrayList<>();
+				List<StdfRecord> w = new ArrayList<>();
+				for (StdfRecord r : records)
+				{
+				    if (r instanceof PartResultsRecord)
+				    {
+				        w.add(r);
+				        list.add(w);
+				        w = new ArrayList<>();
+				    }
+				    else w.add(r);
+				}
+				
 				// Create page headers:
-				list.stream().forEach(l -> createHeaders(new HeaderUtil(), devList, l));
+				//list.stream().forEach(l -> createHeaders(new HeaderUtil(), devList, l));
+				HeaderUtil hdr = new HeaderUtil();
+				records.stream().forEach(r -> hdr.setHeader(r));
+				for(List<StdfRecord> x : list)
+				{
+				    List<List<StdfRecord>> l1 = devList.get(hdr.getHeader());
+				    if (l1 == null)
+				    {
+				        l1 = new ArrayList<List<StdfRecord>>();
+				        devList.put(hdr.getHeader(), l1);
+				    }
+				    l1.add(x);
+				}
 				// check for dynamic limits:
 				if (options.dynamicLimits)
 				{
@@ -186,7 +209,11 @@ public final class StdfAPI
 				}	
 				tdb = new TestRecordDatabase(options, tiddb, dynamicLimitMap);
 				// now build TestRecord database:
-				devList.keySet().stream().forEach(p -> mapTests(dvd, options.sort, p, devList.get(p)));
+				for (PageHeader p : devList.keySet())
+				{
+				    List<List<StdfRecord>> l = devList.get(p);
+				    mapTests(dvd, options.sort, p, l);
+				}
 			}
 		});
 	}
@@ -205,13 +232,13 @@ public final class StdfAPI
 	    return(r);
 	}
 
-	private void createHeaders(HeaderUtil hdr, HashMap<PageHeader, List<List<StdfRecord>>> devList, List<StdfRecord> l)
-	{
-		l.stream().forEach(r -> hdr.setHeader(r));
-		List<List<StdfRecord>> dl = devList.get(hdr.getHeader());
-		if (dl == null) devList.put(hdr.getHeader(), dl = new ArrayList<>());
-		dl.add(l);
-	}
+//	private void createHeaders(HeaderUtil hdr, HashMap<PageHeader, List<List<StdfRecord>>> devList, List<StdfRecord> l)
+//	{
+//		l.stream().forEach(r -> hdr.setHeader(r));
+//		List<List<StdfRecord>> dl = devList.get(hdr.getHeader());
+//		if (dl == null) devList.put(hdr.getHeader(), dl = new ArrayList<>());
+//		//dl.add(l);
+//	}
 	
 	private void mapTests(DefaultValueDatabase dvd, boolean sortDevices, PageHeader hdr, List<List<StdfRecord>> devList)
 	{
@@ -279,7 +306,7 @@ public final class StdfAPI
 			.collect(Collectors.toList());
 		}
 		String temperature = hdr.get(HeaderUtil.TEMPERATURE);
-		if (temperature == null) temperature = mir.temperature;
+		if (temperature == null && mir != null) temperature = mir.temperature;
 		DeviceHeader dh = new DeviceHeader(snxy, hwBin, swBin, fail, abnormalEOT, noPassFailIndication,temperature);
 		tdb.addRecords(dvd, sortDevices, hdr, dh, l);
 	}

@@ -119,7 +119,7 @@ public class DataHeader
 		    }
 		    if (lineCnt < 5) lineCnt = 5;
 			int defRowHeight = ss.getRowHeight(page, cb.tstxy.tnameLabel.r);
-			int newHeight = (lineCnt * defRowHeight) / 5;
+			int newHeight = ((1+lineCnt) * defRowHeight) / 5;
 			for (int i=cb.tstxy.tnameLabel.r; i<cb.tstxy.tnumLabel.r; i++)
 			{
 			    ss.setRowHeight(page, i, newHeight);

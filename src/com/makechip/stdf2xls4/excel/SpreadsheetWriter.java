@@ -326,7 +326,7 @@ public final class SpreadsheetWriter
         			if (ct == Cell_t.BLANK)
         			{
         				currentRC = rc;
-        				break;
+        				return;
         			}
         			short x = (short) ss.getCellValue(page, titleBlock.devxy.x);
         			short y = (short) ss.getCellValue(page, titleBlock.devxy.yOrSn);
@@ -441,6 +441,16 @@ public final class SpreadsheetWriter
     	else if (p.timeout()) ss.setCell(page, xy, TIMEOUT_VALUE_FMT, options.precision, p.result);
     	else if (p.abort()) ss.setCell(page, xy, ABORT_VALUE_FMT, options.precision, p.result);
     	else ss.setCell(page, xy, FAIL_VALUE_FMT, options.precision, p.result);
+    	if (p.result >= 10000.0) 
+    	{
+    	    int digits = 5 + (int) (Math.log(p.result) / Math.log(10.0));
+    	    ss.setColumnWidth(page, xy.c, (14 * digits)/10);
+    	}
+    	else if (p.result <= -1000.0) 
+    	{
+    	    int digits = 6 + (int) (Math.log(-p.result) / Math.log(10.0));
+    	    ss.setColumnWidth(page, xy.c, (14 * digits)/10);
+    	}
     }
     
     private void openSheet(PageHeader hdr)

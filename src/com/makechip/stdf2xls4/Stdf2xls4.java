@@ -11,9 +11,15 @@ package com.makechip.stdf2xls4;
  * 
  * 4.0.4 1/12/17:
  * Improve row height for test names when test names go horizontally across the page.
+ *
+ * 4.0.5 1/24/17:
+ * Add legend for invalid value
+ * Fix column width for overly large values
+ * Increase row height for test names (when they go horizontally).
  * 
- * 
- * 
+ * 4.0.6 1/29/17:
+ * Fixed null pointer bug due to missing temperature (StdfAPI.java line 282) 
+ * Fixed more null pointer bugs in StdfAPI, and also MultiParametricTestHeader.
  * 
  */
 
@@ -32,7 +38,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.0.4";
+	public static final String VERSION = "4.0.6";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

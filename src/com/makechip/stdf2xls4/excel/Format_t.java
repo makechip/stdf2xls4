@@ -3,7 +3,7 @@ package com.makechip.stdf2xls4.excel;
 import static com.makechip.stdf2xls4.excel.BorderStyle_t.*;
 import static com.makechip.stdf2xls4.excel.Color_t.BLACK;
 import static com.makechip.stdf2xls4.excel.Color_t.BLUE;
-import static com.makechip.stdf2xls4.excel.Color_t.BRIGHT_GREEN;
+import static com.makechip.stdf2xls4.excel.Color_t.AQUA;
 import static com.makechip.stdf2xls4.excel.Color_t.LIGHT_BLUE;
 import static com.makechip.stdf2xls4.excel.Color_t.MC_BLUE;
 import static com.makechip.stdf2xls4.excel.Color_t.PINK;
@@ -39,21 +39,21 @@ public enum Format_t
     HEADER5_FMT(ARIAL_BOLD,                8, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     PASS_VALUE_FMT(COURIER_NORMAL,        10, Alignment.RIGHT,  CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     FAIL_VALUE_FMT(COURIER_NORMAL,        10, Alignment.RIGHT,  CENTRE, false, RED,          BLACK, THIN, BLACK),
-    INVALID_VALUE_FMT(COURIER_NORMAL,     10, Alignment.RIGHT,  CENTRE, false, BRIGHT_GREEN, BLACK, THIN, BLACK),
+    INVALID_VALUE_FMT(COURIER_NORMAL,     10, Alignment.RIGHT,  CENTRE, false, AQUA,         BLACK, THIN, BLACK),
     UNRELIABLE_VALUE_FMT(COURIER_NORMAL,  10, Alignment.RIGHT,  CENTRE, false, LIGHT_BLUE,   BLACK, THIN, BLACK),
     ALARM_VALUE_FMT(COURIER_NORMAL,       10, Alignment.RIGHT,  CENTRE, false, YELLOW,       BLACK, THIN, BLACK),
     TIMEOUT_VALUE_FMT(COURIER_NORMAL,     10, Alignment.RIGHT,  CENTRE, false, PINK,         BLACK, THIN, BLACK),
     ABORT_VALUE_FMT(COURIER_NORMAL,       10, Alignment.RIGHT,  CENTRE, false, TURQUOISE,    BLACK, THIN, BLACK),
     PASS_VALUE_FMTC(COURIER_NORMAL,       10, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     FAIL_VALUE_FMTC(COURIER_NORMAL,       10, Alignment.CENTRE, CENTRE, false, RED,          BLACK, THIN, BLACK),
-    INVALID_VALUE_FMTC(COURIER_NORMAL,    10, Alignment.CENTRE, CENTRE, false, BRIGHT_GREEN, BLACK, THIN, BLACK),
+    INVALID_VALUE_FMTC(COURIER_NORMAL,    10, Alignment.CENTRE, CENTRE, false, AQUA,         BLACK, THIN, BLACK),
     UNRELIABLE_VALUE_FMTC(COURIER_NORMAL, 10, Alignment.CENTRE, CENTRE, false, LIGHT_BLUE,   BLACK, THIN, BLACK),
     ALARM_VALUE_FMTC(COURIER_NORMAL,      10, Alignment.CENTRE, CENTRE, false, YELLOW,       BLACK, THIN, BLACK),
     TIMEOUT_VALUE_FMTC(COURIER_NORMAL,    10, Alignment.CENTRE, CENTRE, false, PINK,         BLACK, THIN, BLACK),
     ABORT_VALUE_FMTC(COURIER_NORMAL,      10, Alignment.CENTRE, CENTRE, false, TURQUOISE,    BLACK, THIN, BLACK),
     STATUS_PASS_FMT(COURIER_NORMAL,       10, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     STATUS_FAIL_FMT(COURIER_NORMAL,       10, Alignment.CENTRE, CENTRE, false, RED,          BLACK, THIN, BLACK),
-    STATUS_INVALID_FMT(COURIER_NORMAL,    10, Alignment.CENTRE, CENTRE, false, BRIGHT_GREEN, BLACK, THIN, BLACK),
+    STATUS_INVALID_FMT(COURIER_NORMAL,    10, Alignment.CENTRE, CENTRE, false, AQUA,         BLACK, THIN, BLACK),
     STATUS_UNRELIABLE_FMT(COURIER_NORMAL, 10, Alignment.CENTRE, CENTRE, false, BLUE,         BLACK, THIN, BLACK),
     STATUS_ALARM_FMT(COURIER_NORMAL,      10, Alignment.CENTRE, CENTRE, false, YELLOW,       BLACK, THIN, BLACK),
     STATUS_TIMEOUT_FMT(COURIER_NORMAL,    10, Alignment.CENTRE, CENTRE, false, PINK,         BLACK, THIN, BLACK),
