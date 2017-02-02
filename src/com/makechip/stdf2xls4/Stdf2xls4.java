@@ -21,6 +21,9 @@ package com.makechip.stdf2xls4;
  * Fixed null pointer bug due to missing temperature (StdfAPI.java line 282) 
  * Fixed more null pointer bugs in StdfAPI, and also MultiParametricTestHeader.
  * 
+ * 4.0.7 2/1/17:
+ * Fixed bug that caused DatalogTestRecords to have ever-increasing duplicate numbers.
+ * 
  */
 
 import java.io.IOException;
@@ -38,7 +41,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.0.6";
+	public static final String VERSION = "4.0.7";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)
