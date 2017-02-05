@@ -24,6 +24,10 @@ package com.makechip.stdf2xls4;
  * 4.0.7 2/1/17:
  * Fixed bug that caused DatalogTestRecords to have ever-increasing duplicate numbers.
  * 
+ * 4.0.8 2/4/17:
+ * Fixed units where scaling created new units like "kUA"
+ * Improved column widths for non-rotated sheets.
+ * 
  */
 
 import java.io.IOException;
@@ -41,7 +45,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.0.7";
+	public static final String VERSION = "4.0.8";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

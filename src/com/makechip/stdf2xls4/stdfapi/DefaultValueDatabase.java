@@ -235,6 +235,7 @@ public final class DefaultValueDatabase
     
     protected String scaleUnits(String units, int scale)
     {
+        if (units.equals("")) return("");
         String u = units;
         switch (scale)
         {
@@ -247,11 +248,33 @@ public final class DefaultValueDatabase
         case 12: u = "p" + units; break;
         default:
         }
+        if (u.length() >= 3)
+        {
+            String p = u.substring(0, 2).toUpperCase();
+            if (p.equals("KM")) p = "";
+            else if (p.equals("MM")) p = "k";
+            else if (p.equals("GM")) p = "M";
+            else if (p.equals("KU")) p = "m";
+            else if (p.equals("MU")) p = "";
+            else if (p.equals("GU")) p = "k";
+            else if (p.equals("KN")) p = "u";
+            else if (p.equals("MN")) p = "m";
+            else if (p.equals("GN")) p = "";
+            else if (p.equals("KP")) p = "n";
+            else if (p.equals("MP")) p = "u";
+            else if (p.equals("GP")) p = "m";
+            String newUnits = units.substring(1);
+            u = p + newUnits;
+        }
         return(u);
     }
     
     public Float getScaledLoLimit(ParametricRecord r)
     {
+        String units = r.getUnits();
+    	if (units == null) units = getDefaultUnits(r.getTestID());
+        if (units == null) return(r.getLoLimit());
+        if (units.equals("")) return(r.getLoLimit());
     	Float l = null;
     	if (r.getLoLimit() != null) l = r.getLoLimit();
     	else l = getDefaultLoLimit(r.getTestID());
@@ -261,6 +284,10 @@ public final class DefaultValueDatabase
 
     public Float getScaledHiLimit(ParametricRecord r)
     {
+        String units = r.getUnits();
+    	if (units == null) units = getDefaultUnits(r.getTestID());
+        if (units == null) return(r.getHiLimit());
+        if (units.equals("")) return(r.getHiLimit());
     	Float l = null;
     	if (r.getHiLimit() != null) l = r.getHiLimit();
     	else l = getDefaultHiLimit(r.getTestID());
@@ -270,9 +297,8 @@ public final class DefaultValueDatabase
 
     public String getScaledUnits(ParametricRecord r)
     {
-    	String units = null;
-    	if (r.getUnits() != null) units = r.getUnits();
-    	else units = getDefaultUnits(r.getTestID());
+    	String units = r.getUnits();
+    	if (units == null) units = getDefaultUnits(r.getTestID());
     	if (units == null) return("");
     	return(scaleUnits(units, findScale(r.getTestID())));
     }
@@ -280,12 +306,23 @@ public final class DefaultValueDatabase
     public Float getScaledResult(ParametricTestRecord r)
     {
     	if (r.result == null) return(null);
+    	String units = r.getUnits();
+    	if (units == null) units = getDefaultUnits(r.getTestID());
+    	if (units == null) return(r.result);
+    	if (units.equals("")) return(r.result);
     	return(scaleValue(r.result, findScale(r.getTestID())));
     }
     
     public FloatList getScaledResults(MultipleResultParametricRecord r)
     {
     	if (r.results == null) return(null);
+    	String units = r.getUnits();
+    	if (units == null) units = getDefaultUnits(r.getTestID());
+    	if (units == null) return(r.results);
+    	if (units.equals(""))
+    	{
+    	    return(r.results);
+    	}
     	float[] f = new float[r.results.size()];
         IntStream.range(0, f.length).forEach(i -> f[i] = scaleValue(r.results.get(i), findScale(r.getTestID())));	
     	return(new FloatList(f));

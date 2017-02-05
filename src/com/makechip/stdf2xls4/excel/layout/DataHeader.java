@@ -142,6 +142,7 @@ public class DataHeader
 				    ss.setCell(page, new Coord(cb.tstxy.tname.c, r), TEST_NAME_FMT_WRAP, "");
 				}
 				ss.mergeCells(page, cb.tstxy.tnameLabel.r, cb.tstxy.tnumLabel.r-1, cb.tstxy.tname.c, cb.tstxy.tname.c);
+				ss.setColumnWidth(page, cb.tstxy.tname.c, 10); // added
 			}
 			ss.setCell(page, cb.tstxy.tname, noWrapTestNames ? TEST_NAME_FMT : TEST_NAME_FMT_WRAP, hdr.testName);
 			ss.setCell(page, cb.tstxy.tnum, HEADER1_FMT, hdr.testNumber);	
@@ -157,7 +158,10 @@ public class DataHeader
                 if (mhdr.pin != null && mhdr.pin.length() > 1)
                 {
                     int width = getPinColWidth(mhdr.pin);	
-                    ss.setColumnWidth(page, cb.tstxy.pin.c, width);
+                    if (width > 10)
+                    {
+                        ss.setColumnWidth(page, cb.tstxy.pin.c, width);
+                    }
                 }
 				ss.setCell(page, cb.tstxy.pin, HEADER1_FMT, mhdr.pin);
 				ss.setCell(page, cb.tstxy.units, HEADER1_FMT, mhdr.units);

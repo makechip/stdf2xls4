@@ -176,7 +176,8 @@ public class TestRecordDatabase
 				final int a = i;
 				MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);
 				final FloatList sresults = dvd.getScaledResults(mpr);
-				IntStream.range(0, mpr.rtnIndex.size()).forEach(j -> {
+				IntList lst = (mpr.rtnIndex == null) ? dvd.getDefaultRtnIndex(r.getTestID()) : mpr.rtnIndex;
+				IntStream.range(0, lst.size()).forEach(j -> {
 				        Float rslt = mpr.results.get(j);
 			    	    int b = a;
 			    	    // Need to check limits and set testFlags so that only failing pins are flagged as failures.

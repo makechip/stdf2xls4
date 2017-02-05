@@ -445,11 +445,13 @@ public final class SpreadsheetWriter
     	{
     	    int digits = 5 + (int) (Math.log(p.result) / Math.log(10.0));
     	    ss.setColumnWidth(page, xy.c, (14 * digits)/10);
+    	    Log.msg("result = " + p.result + " increasing column width");
     	}
     	else if (p.result <= -1000.0) 
     	{
     	    int digits = 6 + (int) (Math.log(-p.result) / Math.log(10.0));
     	    ss.setColumnWidth(page, xy.c, (14 * digits)/10);
+    	    Log.msg("result = " + p.result + " increasing column width");
     	}
     }
     
