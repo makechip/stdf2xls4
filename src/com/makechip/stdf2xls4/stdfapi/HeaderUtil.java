@@ -3,6 +3,7 @@ package com.makechip.stdf2xls4.stdfapi;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class HeaderUtil
     public static final String LOT = "LOT #:";
     public static final String STEP = "STEP #:";
     public static final String TEMPERATURE = "TEMPERATURE:";
+    public static final String JOB_DATE = "Job Date";
     private final Map<String, String> header;
     private PageHeader hdr;
     private final List<String> legacyTags;
@@ -94,6 +96,9 @@ public class HeaderUtil
         	header.put(JOB, mir.jobRevisionNumber);
         	header.put(TESTER_TYPE, mir.testerType);
         	header.put(TEST_PROGRAM, mir.jobName);
+        	long d = mir.jobDate;
+            String jobDate = new Date(d * 1000L).toString();
+        	header.put(JOB_DATE, jobDate);
         }
         else if (r instanceof WaferInformationRecord)
         {

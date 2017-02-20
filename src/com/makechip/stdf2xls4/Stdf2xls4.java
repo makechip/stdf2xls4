@@ -24,9 +24,26 @@ package com.makechip.stdf2xls4;
  * 4.0.7 2/1/17:
  * Fixed bug that caused DatalogTestRecords to have ever-increasing duplicate numbers.
  * 
- * 4.0.8 2/4/17:
+ * 4.0.8 2/2/17:
+ * Fixed null-pointer issue caused by incorrect handling of default values
+ * 
+ * 4.0.9 2/4/17:
  * Fixed units where scaling created new units like "kUA"
  * Improved column widths for non-rotated sheets.
+ * 
+ * 4.1.0 2/13/17:
+ * Improved help message when running with no command line options
+ * Added -c option to allow up to 16384 columns.
+ *
+ * 4.1.1 2/17/17:
+ * Fixed major bug that caused only one pin to be output for MPRs.
+ * 
+ * 4.1.2 2/20/17:
+ * Fixed bug that showed up in 4.1.1 where values did not show up 
+ * for each pin in MPRs because only one spreadsheet coordinate
+ * was being used per MPR.
+ * Added job date back into header.
+ * Fixed label typo for "Y" header on wafersort spreadsheets. 
  * 
  */
 
@@ -45,7 +62,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.0.8";
+	public static final String VERSION = "4.1.2";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

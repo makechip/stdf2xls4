@@ -210,15 +210,15 @@ public class TestRecordDatabase
 			    	    	}
 			    	    }
 			            TestResult tr = new ParametricTestResult(getTestFlags(mpr.testFlags, fail), sresults.get(j));
-			            m2a.put(th.get(b), tr);
-                        Map<DeviceHeader, TestResult> m2b = m1b.get(th.get(b));
+			            TestHeader TH = th.get(b+j);
+			            m2a.put(TH, tr);
+                        Map<DeviceHeader, TestResult> m2b = m1b.get(TH);
                         if (m2b == null) 
                         {
                         	m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
-                        	m1b.put(th.get(b), m2b);
+                        	m1b.put(TH, m2b);
                         }
 			            m2b.put(dh, tr);	
-			            b++;	
 			        });
 			    i += sresults.size();
 			    if (i < th.size())

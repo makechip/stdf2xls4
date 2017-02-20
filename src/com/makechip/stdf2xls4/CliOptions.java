@@ -51,6 +51,7 @@ public class CliOptions
 	private static final String[] S_OPT = { "s", "sort", "sort by serial number or XY coordinates" };
 	private static final String[] B_OPT = { "b", "one-page", "Put all steps/wafers on one page - add column for step# or wafer#" };
 	private static final String[] P_OPT = { "p", "precision", "Specify precision used in result and limit values - must be > 1 and < 13" };
+	private static final String[] C_OPT = { "c", "columns", "Allow maximumn of 16384 columns instead of 1024" };
 	private static final String[] V_OPT = { "v", "dont-skip-search-fails", "Don't skip bogus verigy(AKA Advantest) search fails" };
 	private static final String[] R_OPT = { "r", "rotate", "Rotate the spreadsheet so test names go vertically instead of horizontally" };
 	private static final String[] Y_OPT = { "y", "dynamic-limits", "If a test has non-constant limits, show the limits on either side of each result" };
@@ -63,7 +64,6 @@ public class CliOptions
 	private OptionSpec<Void>    F;
 	private OptionSpec<Void>    D;
 	private OptionSpec<Void>    E;
-	private OptionSpec<Void>    C;
 	private OptionSpec<Void>    N;
 	private OptionSpec<Void>    O;
 	private OptionSpec<Void>    S;
@@ -75,6 +75,7 @@ public class CliOptions
 	private OptionSpec<Void>    G;
 	private OptionSpec<String>  M;
 	private OptionSpec<Integer> P;
+	private OptionSpec<Void> C;
 	public final File xlsName;
 	public final File logoFile;
 	public final List<Modifier> modifiers;
@@ -90,6 +91,7 @@ public class CliOptions
 	public final boolean dynamicLimits;
 	public final boolean gui;
 	public final boolean pinSuffix;
+	public final boolean maxExcelColumns;
 	public final char delimiter;
 	public final List<File> stdfFiles;
 	private boolean success;
@@ -155,6 +157,7 @@ public class CliOptions
 	    R = op.acceptsAll(asList(R_OPT[0], R_OPT[1]), R_OPT[2]);
 	    Y = op.acceptsAll(asList(Y_OPT[0], Y_OPT[1]), Y_OPT[2]);
 	    G = op.acceptsAll(asList(G_OPT[0], G_OPT[1]), G_OPT[2]);
+	    C = op.acceptsAll(asList(C_OPT[0], C_OPT[1]), C_OPT[2]);
 	    M = op.acceptsAll(asList(M_OPT[0], M_OPT[1]), M_OPT[2]).withRequiredArg().ofType(String.class);
 	    P = op.acceptsAll(asList(P_OPT[0], P_OPT[1]), P_OPT[2]).withRequiredArg().ofType(int.class);
 	    
@@ -167,6 +170,11 @@ public class CliOptions
 
 	    OptionSpec<File> files = op.nonOptions().describedAs("list of STDF files").ofType(File.class);
 	    
+	    if (args.length == 0) 
+	    {
+	        Log.msg("stdf2xls4 version " + Stdf2xls4.VERSION);
+	        Log.msg("Use --help to see list of options");
+	    }
 	    options = op.parse(args);
 	    
 	    pinSuffix = options.has(A);
@@ -177,6 +185,7 @@ public class CliOptions
 	    onePage = options.has(B);
 	    dontSkipSearchFails = options.has(V);
 	    rotate = options.has(R);
+	    maxExcelColumns = options.has(C);
 	    dynamicLimits = options.has(Y);
 	    dump = options.has(D);
 	    gui = options.has(G);

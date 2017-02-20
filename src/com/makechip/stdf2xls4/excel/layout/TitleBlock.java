@@ -49,9 +49,9 @@ public class TitleBlock
 	    dh = new DataHeader(cb, options.precision, options.rotate, options.noWrapTestNames, hdrs);
 	}
 	
-	public int getRC(String testName, long tnum, int dupNum)
+	public int getRC(String testName, long tnum, String pin, int dupNum)
 	{
-	    return(dh.getRC(testName, tnum, dupNum));
+	    return(dh.getRC(testName, tnum, pin, dupNum));
 	}
     
 	public void addBlock(Spreadsheet ss, int page)

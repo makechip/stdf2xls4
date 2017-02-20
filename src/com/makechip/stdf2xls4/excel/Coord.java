@@ -10,5 +10,11 @@ public class Coord
 		this.c = c;
 		this.r = r;
 	}
+	
+	@Override
+	public String toString()
+	{
+	    return("c = " + c + " r = " + r);
+	}
 
 }

@@ -37,6 +37,9 @@ public class ParametricTestHeader extends TestHeader
 		builder.append("]");
 		return builder.toString();
 	}
+	
+	@Override
+	public String getPin() { return(null); }
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

@@ -37,7 +37,7 @@ public class DataHeader
 	private int maxLength;
 	private int maxPinLength;
 	private final CornerBlock cb;
-	private Map<String, TLongObjectHashMap<TIntIntHashMap>> idlocs;
+	private Map<String, TLongObjectHashMap<HashMap<String, TIntIntHashMap>>> idlocs;
 	
 	public DataHeader(CornerBlock cb, int precision, boolean rot, boolean noWrapTestNames, List<TestHeader> hdrs)
 	{
@@ -51,31 +51,39 @@ public class DataHeader
 		idlocs = new HashMap<>();
 	}
 	
-	private void setMap(String tname, long tnum, int dupNum, Coord xy)
+	private void setMap(String tname, long tnum, String pin, int dupNum, Coord xy)
 	{
-	    TLongObjectHashMap<TIntIntHashMap> m1 = idlocs.get(tname);
+	    TLongObjectHashMap<HashMap<String, TIntIntHashMap>> m1 = idlocs.get(tname);
 	    if (m1 == null)
 	    {
-	        m1 = new TLongObjectHashMap<TIntIntHashMap>();
+	        m1 = new TLongObjectHashMap<>();
 	        idlocs.put(tname, m1);
 	    }
-	    TIntIntHashMap m2 = m1.get(tnum);
+	    HashMap<String, TIntIntHashMap> m2 = m1.get(tnum);
 	    if (m2 == null)
 	    {
-	        m2 = new TIntIntHashMap();
+	        m2 = new HashMap<String, TIntIntHashMap>();
 	        m1.put(tnum, m2);
 	    }
-	    if (rot) m2.put(dupNum, xy.r);
-	    else m2.put(dupNum, xy.c);
+	    TIntIntHashMap m3 = m2.get(pin);
+	    if (m3 == null)
+	    {
+	        m3 = new TIntIntHashMap(500, 0.7f, -1, -1);
+	        m2.put(pin, m3);
+	    }
+	    if (rot) m3.put(dupNum, xy.r);
+	    else m3.put(dupNum, xy.c);
 	}
 	
-	public int getRC(String testName, long tnum, int dupNum)
+	public int getRC(String testName, long tnum, String pin, int dupNum)
 	{
-	    TLongObjectHashMap<TIntIntHashMap> m1 = idlocs.get(testName);
+	    TLongObjectHashMap<HashMap<String, TIntIntHashMap>> m1 = idlocs.get(testName);
 	    if (m1 == null) return(-1);
-	    TIntIntHashMap m2 = m1.get(tnum);
+	    HashMap<String, TIntIntHashMap> m2 = m1.get(tnum);
 	    if (m2 == null) return(-1);
-	    int rc = m2.get(dupNum);
+	    TIntIntHashMap m3 = m2.get(pin);
+	    if (m3 == null) return(-1);
+	    int rc = m3.get(dupNum);
 	    return(rc);
 	}
 	
@@ -147,7 +155,7 @@ public class DataHeader
 			ss.setCell(page, cb.tstxy.tname, noWrapTestNames ? TEST_NAME_FMT : TEST_NAME_FMT_WRAP, hdr.testName);
 			ss.setCell(page, cb.tstxy.tnum, HEADER1_FMT, hdr.testNumber);	
 			ss.setCell(page, cb.tstxy.dupNum, HEADER1_FMT, hdr.dupNum);
-			setMap(hdr.testName, hdr.testNumber, hdr.dupNum, cb.tstxy.tname);
+			setMap(hdr.testName, hdr.testNumber, hdr.getPin(), hdr.dupNum, cb.tstxy.tname);
 			if (hdr instanceof MultiParametricTestHeader)
 			{
 				MultiParametricTestHeader mhdr = (MultiParametricTestHeader) hdr;	

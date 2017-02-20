@@ -51,7 +51,7 @@ public final class SpreadsheetWriter
 {
 	public static final int MAX_ROWS = 1000000;
 	public static final String DUMMY_SHEET_NAME = "STEP QXU Page 0 V0";
-	public static final int COLS_PER_PAGE = 200;
+	public static int COLS_PER_PAGE = 1024;
 	private final CliOptions options;
 	private final StdfAPI api;
 	private TIntObjectHashMap<TitleBlock> titles;
@@ -65,6 +65,7 @@ public final class SpreadsheetWriter
 		this.ss = ss;
 		titles = new TIntObjectHashMap<>();
         ss.openWorkbook(options.xlsName);
+        if (options.maxExcelColumns) COLS_PER_PAGE = 16384;
 	}
 	
     public void generate()
@@ -403,7 +404,7 @@ public final class SpreadsheetWriter
 		TestResult r = api.getRecord(hdr, dh, th);
    	    //int rc = options.rotate ? titleBlock.tstxy.unitsLabel.r + 1 + index : titleBlock.tstxy.unitsLabel.c + 1 + (index % COLS_PER_PAGE);
 		TitleBlock titleBlock = titles.get(page);
-		int rc = titleBlock.getRC(th.testName, th.testNumber, th.dupNum);
+		int rc = titleBlock.getRC(th.testName, th.testNumber, th.getPin(), th.dupNum);
 		if (rc < 0) return;
    	    Coord xy = options.rotate ? new Coord(currentRC, rc) : new Coord(rc, currentRC);
 		try
@@ -445,13 +446,11 @@ public final class SpreadsheetWriter
     	{
     	    int digits = 5 + (int) (Math.log(p.result) / Math.log(10.0));
     	    ss.setColumnWidth(page, xy.c, (14 * digits)/10);
-    	    Log.msg("result = " + p.result + " increasing column width");
     	}
     	else if (p.result <= -1000.0) 
     	{
     	    int digits = 6 + (int) (Math.log(-p.result) / Math.log(10.0));
     	    ss.setColumnWidth(page, xy.c, (14 * digits)/10);
-    	    Log.msg("result = " + p.result + " increasing column width");
     	}
     }
     
@@ -471,7 +470,6 @@ public final class SpreadsheetWriter
         	while (true)
         	{
         	    sname = SheetName.getExistingSheetName(api.wafersort(hdr), hdr, page+1, version);
-        	    Log.msg("existing sheet name = " + sname);
         	    if (sname == null) break;
         	    if (ss.initSheet(page, sname) == null) break;;
         	    PageHeader ph = getPageHeader(page);

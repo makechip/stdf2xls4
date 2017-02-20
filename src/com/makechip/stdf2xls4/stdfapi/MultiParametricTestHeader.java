@@ -43,6 +43,9 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 	    if (pin == null) return false;
 		return(pin.equals(HL_HDR));
 	}
+	
+	@Override
+	public String getPin() { return(pin); }
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
