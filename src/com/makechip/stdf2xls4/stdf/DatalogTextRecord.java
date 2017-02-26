@@ -25,6 +25,9 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
@@ -58,20 +61,48 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
  */
 public class DatalogTextRecord extends StdfRecord
 {
-    public final String text;
+    public static final String TEXT_DATA          = "TEXT_DATA";
+    public static final String SERIAL_MARKER      = "S/N";
+    public String text;
     
     /**
      * Constructor for initializing this record with binary stream data.
      * @param tdb The TestIdDatabase  is not used by this record, but is
      * required so STDF records have consistent constructor signatures.
-     * @param dvd The DefaultValueDatabase is used to get the CPU type.
      * @param data The binary stream data for this record.  The array should
      * not contain the first four bytes of the record.
      */
-    public DatalogTextRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public DatalogTextRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.DTR, dvd.getCpuType(), data);
-        text = getCn();
+        super(Record_t.DTR);
+        text = cpu.getCN(is);
+    }
+    
+    @Override
+    public boolean modify(Modifier m)
+    {
+        boolean rval = false;
+        switch (m.condition)
+        {
+        case EQUALS:
+            if (text.equals(m.oldValue)) 
+            {
+                text = (String) m.newValue;
+                rval = true;
+            }
+            break;
+        case CONTAINS:
+            if (text.contains((String) m.oldValue)) 
+            {
+                text = (String) m.newValue;
+                rval = true;
+            }
+            break;
+        default:
+            text = (String) m.newValue;
+            rval = true;
+        }
+        return(rval);
     }
     
     /**
@@ -80,32 +111,24 @@ public class DatalogTextRecord extends StdfRecord
      * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
      * @param text This field holds the TEXT_DAT field. It must not be null. The
      * maximum length of this String is 255 characters.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public DatalogTextRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, String text)
+    public DatalogTextRecord(Cpu_t cpu, String text)
     {
-    	this(tdb, dvd, getCnBytes(text));
+    	this(cpu, null, 0, new ByteInputStream(cpu.getCNBytes(text)));
     }
     
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		bytes = getCnBytes(text);
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("DatalogTextRecord [text=");
-		builder.append(text);
-		builder.append("]");
-		return builder.toString();
+		byte[] b = cpu.getCNBytes(text);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.DTR, b.length);
+		l.addAll(b);
+		return(l.toArray());
 	}
 
 	/* (non-Javadoc)
@@ -115,7 +138,7 @@ public class DatalogTextRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 119;
 		result = prime * result + text.hashCode();
 		return result;
 	}
@@ -127,8 +150,8 @@ public class DatalogTextRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
-		if (!super.equals(obj)) return false;
 		DatalogTextRecord other = (DatalogTextRecord) obj;
+		if (obj == null) return(false);
 		if (!text.equals(other.text)) return false;
 		if (!(obj instanceof DatalogTextRecord)) return false;
 		return true;

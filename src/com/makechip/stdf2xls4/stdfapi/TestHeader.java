@@ -2,6 +2,7 @@ package com.makechip.stdf2xls4.stdfapi;
 
 import com.makechip.stdf2xls4.stdf.TestID;
 
+
 public class TestHeader
 {
 
@@ -30,6 +31,8 @@ public class TestHeader
 	
 	public boolean isLoLimitHeader() { return(false); }
 	public boolean isHiLimitHeader() { return(false); }
+	
+	public String getPin() { return(null); }
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()

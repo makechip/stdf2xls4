@@ -104,18 +104,18 @@ public class EnumTests {
 	@Test
 	public void Data_t_test()
 	{
-		assertEquals(Data_t.U_1.numBytes, 1);
-		assertEquals(Data_t.U_2.numBytes, 2);
-		assertEquals(Data_t.U_4.numBytes, 4);
-		assertEquals(Data_t.I_1.numBytes, 1);
-		assertEquals(Data_t.I_2.numBytes, 2);
-		assertEquals(Data_t.I_4.numBytes, 4);
-		assertEquals(Data_t.R_4.numBytes, 4);
-		assertEquals(Data_t.R_8.numBytes, 8);
-		assertEquals(Data_t.C_N.numBytes, 1);
-		assertEquals(Data_t.B_N.numBytes, 1);
-		assertEquals(Data_t.D_N.numBytes, 1);
-		assertEquals(Data_t.N_N.numBytes, 1);
+		assertEquals(Data_t.U1.numBytes, 1);
+		assertEquals(Data_t.U2.numBytes, 2);
+		assertEquals(Data_t.U4.numBytes, 4);
+		assertEquals(Data_t.I1.numBytes, 1);
+		assertEquals(Data_t.I2.numBytes, 2);
+		assertEquals(Data_t.I4.numBytes, 4);
+		assertEquals(Data_t.R4.numBytes, 4);
+		assertEquals(Data_t.R8.numBytes, 8);
+		assertEquals(Data_t.CN.numBytes, 1);
+		assertEquals(Data_t.BN.numBytes, 1);
+		assertEquals(Data_t.DN.numBytes, 1);
+		assertEquals(Data_t.N1.numBytes, 1);
 	}
 	
 	@Test

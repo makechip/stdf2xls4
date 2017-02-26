@@ -26,9 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
-import java.util.Arrays;
-
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 
@@ -111,54 +110,130 @@ public class SiteDescriptionRecord extends StdfRecord
      */
     public final String equipID;
     
-    private final int[] siteNumbers;
+    public final IntList siteNumbers; // short
     
-    /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase is not used for this record.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
-     */
-    public SiteDescriptionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public SiteDescriptionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.SDR, dvd.getCpuType(), data);
-        headNumber = getU1((short) -1);
-        siteGroupNumber = getU1((short) -1);
-        short numSites = getU1((short) 0);
-        siteNumbers = new int[numSites];
-        Arrays.setAll(siteNumbers, p -> getU1((short) -1));
-        handlerType = getCn();
-        handlerID = getCn();
-        probeCardType = getCn();
-        probeCardID = getCn();
-        loadBoardType = getCn();
-        loadBoardID = getCn();
-        dibBoardType = getCn();
-        dibBoardID = getCn();
-        ifaceCableType = getCn();
-        ifaceCableID = getCn();
-        contactorType = getCn();
-        contactorID = getCn();
-        laserType = getCn();
-        laserID = getCn();
-        equipType = getCn();
-        equipID = getCn();
+        super(Record_t.SDR);
+        headNumber = cpu.getU1(is);
+        siteGroupNumber = cpu.getU1(is);
+        final int k = cpu.getU1(is);
+        int l = 3;
+       	siteNumbers = new IntList(Data_t.U1, cpu, k, is);
+       	l += k;
+        if (l < recLen)
+        {
+            handlerType = cpu.getCN(is);
+            l += 1 + handlerType.length();
+        }
+        else handlerType = null;
+        if (l < recLen)
+        {
+            handlerID = cpu.getCN(is);
+            l += 1 + handlerID.length();
+        }
+        else handlerID = null;
+        if (l < recLen)
+        {
+            probeCardType = cpu.getCN(is);
+            l += 1 + probeCardType.length();
+        }
+        else probeCardType = null;
+        if (l < recLen)
+        {
+            probeCardID = cpu.getCN(is);
+            l += 1 + probeCardID.length();
+        }
+        else probeCardID = null;
+        if (l < recLen)
+        {
+            loadBoardType = cpu.getCN(is);
+            l += 1 + loadBoardType.length();
+        }
+        else loadBoardType = null;
+        if (l < recLen)
+        {
+            loadBoardID = cpu.getCN(is);
+            l += 1 + loadBoardID.length();
+        }
+        else loadBoardID = null;
+        if (l < recLen)
+        {
+            dibBoardType = cpu.getCN(is);
+            l += 1 + dibBoardType.length();
+        }
+        else dibBoardType = null;
+        if (l < recLen)
+        {
+            dibBoardID = cpu.getCN(is);
+            l += 1 + dibBoardID.length();
+        }
+        else dibBoardID = null;
+        if (l < recLen)
+        {
+            ifaceCableType = cpu.getCN(is);
+            l += 1 + ifaceCableType.length();
+        }
+        else ifaceCableType = null;
+        if (l < recLen)
+        {
+            ifaceCableID = cpu.getCN(is);
+            l += 1 + ifaceCableID.length();
+        }
+        else ifaceCableID = null;
+        if (l < recLen)
+        {
+            contactorType = cpu.getCN(is);
+            l += 1 + contactorType.length();
+        }
+        else contactorType = null;
+        if (l < recLen)
+        {
+            contactorID = cpu.getCN(is);
+            l += 1 + contactorID.length();
+        }
+        else contactorID = null;
+        if (l < recLen)
+        {
+            laserType = cpu.getCN(is);
+            l += 1 + laserType.length();
+        }
+        else laserType = null;
+        if (l < recLen)
+        {
+            laserID = cpu.getCN(is);
+            l += 1 + laserID.length();
+        }
+        else laserID = null;
+        if (l < recLen)
+        {
+            equipType = cpu.getCN(is);
+            l += 1 + equipType.length();
+        }
+        else equipType = null;
+        if (l < recLen)
+        {
+            equipID = cpu.getCN(is);
+            l += 1 + equipID.length();
+        }
+        else equipID = null;
+        if (l != recLen) throw new RuntimeException("Record length error in SiteDescriptionRecord.");
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(headNumber, siteGroupNumber, siteNumbers, handlerType,
-		                handlerID, probeCardType, probeCardID, loadBoardType, loadBoardID,
-		                dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, contactorType,
-		                contactorID, laserType, laserID, equipType, equipID);
+		byte[] b = toBytes(cpu, headNumber, siteGroupNumber, siteNumbers.getArray(), handlerType, 
+				           handlerID, probeCardType, probeCardID, loadBoardType, 
+					       loadBoardID, dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, 
+					       contactorType, contactorID, laserType, laserID, equipType, equipID);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.SDR, b.length);
+		l.addAll(b);
+		return(l.toArray());
 	}
 	
 	private static byte[] toBytes(
+		Cpu_t cpu,
 		short headNumber,
 		short siteGroupNumber,
 		int[] siteNumbers,
@@ -180,33 +255,80 @@ public class SiteDescriptionRecord extends StdfRecord
 		String equipID)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteGroupNumber));
-		l.addAll(getU1Bytes((short) siteNumbers.length));
-		Arrays.stream(siteNumbers).forEach(p -> l.addAll(getU1Bytes((short) p)));
-		l.addAll(getCnBytes(handlerType));
-        l.addAll(getCnBytes(handlerID));
-        l.addAll(getCnBytes(probeCardType));
-        l.addAll(getCnBytes(probeCardID));
-        l.addAll(getCnBytes(loadBoardType));
-        l.addAll(getCnBytes(loadBoardID));
-        l.addAll(getCnBytes(dibBoardType));
-        l.addAll(getCnBytes(dibBoardID));
-        l.addAll(getCnBytes(ifaceCableType));
-        l.addAll(getCnBytes(ifaceCableID));
-        l.addAll(getCnBytes(contactorType));
-        l.addAll(getCnBytes(contactorID));
-        l.addAll(getCnBytes(laserType));
-        l.addAll(getCnBytes(laserID));
-        l.addAll(getCnBytes(equipType));
-        l.addAll(getCnBytes(equipID));
+		l.addAll(cpu.getU1Bytes(headNumber));
+		l.addAll(cpu.getU1Bytes(siteGroupNumber));
+		l.addAll(cpu.getU1Bytes((short) siteNumbers.length));
+		for (int i=0; i<siteNumbers.length; i++) l.addAll(cpu.getU1Bytes((short) siteNumbers[i]));
+		if (handlerType != null)
+		{
+		  l.addAll(cpu.getCNBytes(handlerType));
+		  if (handlerID != null)
+		  {
+            l.addAll(cpu.getCNBytes(handlerID));
+            if (probeCardType != null)
+            {
+              l.addAll(cpu.getCNBytes(probeCardType));
+              if (probeCardID != null)
+              {
+                l.addAll(cpu.getCNBytes(probeCardID));
+                if (loadBoardType != null)
+                {
+                  l.addAll(cpu.getCNBytes(loadBoardType));
+                  if (loadBoardID != null)
+                  {
+                    l.addAll(cpu.getCNBytes(loadBoardID));
+                    if (dibBoardType != null)
+                    {
+                      l.addAll(cpu.getCNBytes(dibBoardType));
+                      if (dibBoardID != null)
+                      {
+                        l.addAll(cpu.getCNBytes(dibBoardID));
+                        if (ifaceCableType != null)
+                        {
+                          l.addAll(cpu.getCNBytes(ifaceCableType));
+                          if (ifaceCableID != null)
+                          {
+                            l.addAll(cpu.getCNBytes(ifaceCableID));
+                            if (contactorType != null)
+                            {
+                              l.addAll(cpu.getCNBytes(contactorType));
+                              if (contactorID != null)
+                              {
+                                l.addAll(cpu.getCNBytes(contactorID));
+                                if (laserType != null)
+                                {
+                                  l.addAll(cpu.getCNBytes(laserType));
+                                  if (laserID != null)
+                                  {
+                                    l.addAll(cpu.getCNBytes(laserID));
+                                    if (equipType != null)
+                                    {
+                                      l.addAll(cpu.getCNBytes(equipType));
+                                      if (equipID != null)
+                                      {
+                                        l.addAll(cpu.getCNBytes(equipID));
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+		  }
+		}
         return(l.toArray());
 	}
 	
 	/**
      * This constructor is used to make a SiteDescriptionRecord with field values. 
-     * @param tdb The TestIdDatabase is not used for this record.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     * @param cpu  The CPU type.
 	 * @param headNumber The HEAD_NUM field.
 	 * @param siteGroupNumber The SITE_GRP field.
 	 * @param siteNumbers The SITE_NUM field; the length of the array is the SITE_CNT Field.
@@ -226,10 +348,11 @@ public class SiteDescriptionRecord extends StdfRecord
 	 * @param laserID The LASR_ID field.
 	 * @param equipType The EXTR_TYP field.
 	 * @param equipID The EXTR_ID field.
+	 * @throws StdfException 
+	 * @throws IOException 
 	 */
 	public SiteDescriptionRecord(
-	    TestIdDatabase tdb,
-	    DefaultValueDatabase dvd,
+		Cpu_t cpu,
 		short headNumber,
 		short siteGroupNumber,
 		int[] siteNumbers,
@@ -248,76 +371,84 @@ public class SiteDescriptionRecord extends StdfRecord
 		String laserType,
 		String laserID,
 		String equipType,
-		String equipID
-		)
+		String equipID)
 	{
-		this(tdb, dvd, toBytes(headNumber, siteGroupNumber, siteNumbers, handlerType,
-		                handlerID, probeCardType, probeCardID, loadBoardType, loadBoardID,
-		                dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, contactorType,
-		                contactorID, laserType, laserID, equipType, equipID));
+		this(cpu, null,
+			 getRecLen(siteNumbers, handlerType,
+		             handlerID, probeCardType, probeCardID, loadBoardType, loadBoardID,
+		             dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, contactorType,
+		             contactorID, laserType, laserID, equipType, equipID),
+			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, 
+					 siteNumbers, handlerType, handlerID, probeCardType, probeCardID, loadBoardType, 
+					 loadBoardID, dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, 
+					 contactorType, contactorID, laserType, laserID, equipType, equipID)));
 	}
 
-	/**
-	 * This method gets the SITE_NUM field.
-	 * @return A deep copy of the SITE_NUM array.
-	 */
-    public int[] getSiteNumbers()
+	private static int getRecLen(int[] siteNumbers, 
+			                     String handlerType,
+		                         String handlerID, 
+		                         String probeCardType, 
+		                         String probeCardID, 
+		                         String loadBoardType, 
+		                         String loadBoardID,
+		                         String dibBoardType, 
+		                         String dibBoardID, 
+		                         String ifaceCableType, 
+		                         String ifaceCableID, 
+		                         String contactorType,
+		                         String contactorID, 
+		                         String laserType, 
+		                         String laserID, 
+		                         String equipType, 
+		                         String equipID)
     {
-        return Arrays.copyOf(siteNumbers, siteNumbers.length);
+		int l = 3 + siteNumbers.length;
+        if (handlerType != null) l += 1 + handlerType.length(); else return(l);
+        if (handlerID != null) l += 1 + handlerID.length(); else return(l);
+        if (probeCardType != null) l += 1 + probeCardType.length(); else return(l);
+        if (probeCardID != null) l += 1 + probeCardID.length(); else return(l);
+        if (loadBoardType != null) l += 1 + loadBoardType.length(); else return(l);
+        if (loadBoardID != null) l += 1 + loadBoardID.length(); else return(l);
+        if (dibBoardType != null) l += 1 + dibBoardType.length(); else return(l);
+        if (dibBoardID != null) l += 1 + dibBoardID.length(); else return(l);
+        if (ifaceCableType != null) l += 1 + ifaceCableType.length(); else return(l);
+        if (ifaceCableID != null) l += 1 + ifaceCableID.length(); else return(l);
+        if (contactorType != null) l += 1 + contactorType.length(); else return(l);
+        if (contactorID != null) l += 1 + contactorID.length(); else return(l);
+        if (laserType != null) l += 1 + laserType.length(); else return(l);
+        if (laserID != null) l += 1 + laserID.length(); else return(l);
+        if (equipType != null) l += 1 + equipType.length(); else return(l);
+        if (equipID != null) l += 1 + equipID.length();
+		return(l);
     }
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("SiteDescriptionRecord [headNumber=").append(headNumber);
-		builder.append(", siteGroupNumber=").append(siteGroupNumber);
-		builder.append(", handlerType=").append(handlerType);
-		builder.append(", handlerID=").append(handlerID);
-		builder.append(", probeCardType=").append(probeCardType);
-		builder.append(", probeCardID=").append(probeCardID);
-		builder.append(", loadBoardType=").append(loadBoardType);
-		builder.append(", loadBoardID=").append(loadBoardID);
-		builder.append(", dibBoardType=").append(dibBoardType);
-		builder.append(", dibBoardID=").append(dibBoardID);
-		builder.append(", ifaceCableType=").append(ifaceCableType);
-		builder.append(", ifaceCableID=").append(ifaceCableID);
-		builder.append(", contactorType=").append(contactorType);
-		builder.append(", contactorID=").append(contactorID);
-		builder.append(", laserType=").append(laserType);
-		builder.append(", laserID=").append(laserID);
-		builder.append(", equipType=").append(equipType);
-		builder.append(", equipID=").append(equipID);
-		builder.append(", siteNumbers=").append(Arrays.toString(siteNumbers));
-		builder.append("]");
-		return builder.toString();
-	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + contactorID.hashCode();
-		result = prime * result + contactorType.hashCode();
-		result = prime * result + dibBoardID.hashCode();
-		result = prime * result + dibBoardType.hashCode();
-		result = prime * result + equipID.hashCode();
-		result = prime * result + equipType.hashCode();
-		result = prime * result + handlerID.hashCode();
-		result = prime * result + handlerType.hashCode();
+		int result = 1;
+		result = prime * result + ((contactorID == null) ? 0 : contactorID.hashCode());
+		result = prime * result + ((contactorType == null) ? 0 : contactorType.hashCode());
+		result = prime * result + ((dibBoardID == null) ? 0 : dibBoardID.hashCode());
+		result = prime * result + ((dibBoardType == null) ? 0 : dibBoardType.hashCode());
+		result = prime * result + ((equipID == null) ? 0 : equipID.hashCode());
+		result = prime * result + ((equipType == null) ? 0 : equipType.hashCode());
+		result = prime * result + ((handlerID == null) ? 0 : handlerID.hashCode());
+		result = prime * result + ((handlerType == null) ? 0 : handlerType.hashCode());
 		result = prime * result + headNumber;
-		result = prime * result + ifaceCableID.hashCode();
-		result = prime * result + ifaceCableType.hashCode();
-		result = prime * result + laserID.hashCode();
-		result = prime * result + laserType.hashCode();
-		result = prime * result + loadBoardID.hashCode();
-		result = prime * result + loadBoardType.hashCode();
-		result = prime * result + probeCardID.hashCode();
-		result = prime * result + probeCardType.hashCode();
+		result = prime * result + ((ifaceCableID == null) ? 0 : ifaceCableID.hashCode());
+		result = prime * result + ((ifaceCableType == null) ? 0 : ifaceCableType.hashCode());
+		result = prime * result + ((laserID == null) ? 0 : laserID.hashCode());
+		result = prime * result + ((laserType == null) ? 0 : laserType.hashCode());
+		result = prime * result + ((loadBoardID == null) ? 0 : loadBoardID.hashCode());
+		result = prime * result + ((loadBoardType == null) ? 0 : loadBoardType.hashCode());
+		result = prime * result + ((probeCardID == null) ? 0 : probeCardID.hashCode());
+		result = prime * result + ((probeCardType == null) ? 0 : probeCardType.hashCode());
 		result = prime * result + siteGroupNumber;
-		result = prime * result + Arrays.hashCode(siteNumbers);
+		result = prime * result + siteNumbers.hashCode();
 		return result;
 	}
 
@@ -325,32 +456,96 @@ public class SiteDescriptionRecord extends StdfRecord
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (!(obj instanceof SiteDescriptionRecord)) return false;
 		SiteDescriptionRecord other = (SiteDescriptionRecord) obj;
-		if (!contactorID.equals(other.contactorID)) return false;
-		if (!contactorType.equals(other.contactorType)) return false;
-		if (!dibBoardID.equals(other.dibBoardID)) return false;
-		if (!dibBoardType.equals(other.dibBoardType)) return false;
-		if (!equipID.equals(other.equipID)) return false;
-		if (!equipType.equals(other.equipType)) return false;
-		if (!handlerID.equals(other.handlerID)) return false;
-		if (!handlerType.equals(other.handlerType)) return false;
+		if (contactorID == null)
+		{
+			if (other.contactorID != null) return false;
+		} 
+		else if (!contactorID.equals(other.contactorID)) return false;
+		if (contactorType == null)
+		{
+			if (other.contactorType != null) return false;
+		} 
+		else if (!contactorType.equals(other.contactorType)) return false;
+		if (dibBoardID == null)
+		{
+			if (other.dibBoardID != null) return false;
+		} 
+		else if (!dibBoardID.equals(other.dibBoardID)) return false;
+		if (dibBoardType == null)
+		{
+			if (other.dibBoardType != null) return false;
+		} 
+		else if (!dibBoardType.equals(other.dibBoardType)) return false;
+		if (equipID == null)
+		{
+			if (other.equipID != null) return false;
+		} 
+		else if (!equipID.equals(other.equipID)) return false;
+		if (equipType == null)
+		{
+			if (other.equipType != null) return false;
+		} 
+		else if (!equipType.equals(other.equipType)) return false;
+		if (handlerID == null)
+		{
+			if (other.handlerID != null) return false;
+		} 
+		else if (!handlerID.equals(other.handlerID)) return false;
+		if (handlerType == null)
+		{
+			if (other.handlerType != null) return false;
+		} 
+		else if (!handlerType.equals(other.handlerType)) return false;
 		if (headNumber != other.headNumber) return false;
-		if (!ifaceCableID.equals(other.ifaceCableID)) return false;
-		if (!ifaceCableType.equals(other.ifaceCableType)) return false;
-		if (!laserID.equals(other.laserID)) return false;
-		if (!laserType.equals(other.laserType)) return false;
-		if (!loadBoardID.equals(other.loadBoardID)) return false;
-		if (!loadBoardType.equals(other.loadBoardType)) return false;
-		if (!probeCardID.equals(other.probeCardID)) return false;
-		if (!probeCardType.equals(other.probeCardType)) return false;
+		if (ifaceCableID == null)
+		{
+			if (other.ifaceCableID != null) return false;
+		} 
+		else if (!ifaceCableID.equals(other.ifaceCableID)) return false;
+		if (ifaceCableType == null)
+		{
+			if (other.ifaceCableType != null) return false;
+		} 
+		else if (!ifaceCableType.equals(other.ifaceCableType)) return false;
+		if (laserID == null)
+		{
+			if (other.laserID != null) return false;
+		} 
+		else if (!laserID.equals(other.laserID)) return false;
+		if (laserType == null)
+		{
+			if (other.laserType != null) return false;
+		} 
+		else if (!laserType.equals(other.laserType)) return false;
+		if (loadBoardID == null)
+		{
+			if (other.loadBoardID != null) return false;
+		} 
+		else if (!loadBoardID.equals(other.loadBoardID)) return false;
+		if (loadBoardType == null)
+		{
+			if (other.loadBoardType != null) return false;
+		} 
+		else if (!loadBoardType.equals(other.loadBoardType)) return false;
+		if (probeCardID == null)
+		{
+			if (other.probeCardID != null) return false;
+		} 
+		else if (!probeCardID.equals(other.probeCardID)) return false;
+		if (probeCardType == null)
+		{
+			if (other.probeCardType != null) return false;
+		} 
+		else if (!probeCardType.equals(other.probeCardType)) return false;
 		if (siteGroupNumber != other.siteGroupNumber) return false;
-		if (!Arrays.equals(siteNumbers, other.siteNumbers)) return false;
-		if (!super.equals(obj)) return false;
-		return true;
+		return(siteNumbers.equals(other.siteNumbers));
 	}
+
 
 }

@@ -26,15 +26,15 @@
 package com.makechip.stdf2xls4.stdf;
 
 import java.io.DataInputStream;
-import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileInputStream;
+//import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
+//import com.makechip.util.Log;
 import com.makechip.util.Log;
 
 /**
@@ -44,78 +44,11 @@ import com.makechip.util.Log;
  */
 public class StdfReader
 {
-    private final String filename;
     private List<StdfRecord> records;
-    private final DefaultValueDatabase dvd;
-    private final TestIdDatabase tdb;
     
-    /**
-     * This CTOR is used to read an STDF file when time-stamped files are not being used.
-     * @param tdb  The TestID database. Used for tracking test IDs.
-     * @param file An STDF file.
-     */
-    public StdfReader(TestIdDatabase tdb, File file)
+    public StdfReader()
     {
-        this(tdb, file, false);
-    }
-    
-    /**
-     * This CTOR is used to read a time-stamped STDF file.  See the stdf2xls4 user manual
-     * for information on time-stamped files.
-     * @param tdb The TestID database. Used for tracking test IDs.
-     * @param file An STDF file.
-     * @param timeStampedFilePerDevice Indicates that file time-stamps are to be tracked.
-     */
-    public StdfReader(TestIdDatabase tdb, File file, boolean timeStampedFilePerDevice)
-    {
-    	filename = file.toString();
-    	long timeStamp = timeStampedFilePerDevice ? getTimeStamp(filename) : 0L;
-    	this.tdb = tdb;
-    	dvd = new DefaultValueDatabase(timeStamp);
-    	dvd.clearDefaults();
-    	records = new ArrayList<>(100);
-    }
-    
-    /**
-     * Use this CTOR when reading an array of bytes.
-     * @param tdb The TestID database. Used for tracking test IDs.
-     */
-    public StdfReader(TestIdDatabase tdb)
-    {
-    	this(tdb, null, false);
-    }
-    
-    /**
-     * Use this CTOR when reading an array of bytes, and emulating a time-stamped file.
-     * @param tdb The TestID database. Used for tracking test IDs.
-     * @param timeStamp The time-stamp to be used.  See the stdf2xls4 user manual for
-     * valid time-stamp values.
-     */
-    public StdfReader(TestIdDatabase tdb, long timeStamp)
-    {
-    	this(tdb, new File("dummy_" + timeStamp + ".stdf"), true);
-    }
-    
-    private StdfRecord FARcheck(int len, byte[] bytes) throws StdfException
-    {
-       	if (len != 6) throw new StdfException("Malformed FAR record");
-       	if (bytes[2] != (byte)  0 || bytes[3] != (byte) 10) throw new StdfException("First STDF record is not a FAR");
-        int stdfVersion = (bytes[5] & 0xFF);
-        if (stdfVersion != 4) throw new StdfException("Unsupported STDF version: " + stdfVersion);
-        byte[] far = new byte[2];
-        far[0] = bytes[4];
-        far[1] = bytes[5];
-        return(Record_t.FAR.getInstance(tdb, dvd, far));
-    }
-    
-    private static long getTimeStamp(String name) // throws NumberFormatException
-    {
-    	int dotIndex = (name.toLowerCase().endsWith(".std")) ? name.length() - 4 : name.length() - 5;
-    	String stamp = name.substring(dotIndex - 14, dotIndex);
-    	Log.msg("stamp = " + stamp);
-    	long l = Long.parseLong(stamp);
-        Log.msg("stamp = " + l);	
-    	return(Long.parseLong(stamp));
+        records = new ArrayList<>();
     }
     
    /**
@@ -124,56 +57,30 @@ public class StdfReader
     * @throws IOException
     * @throws StdfException
     */
-   public StdfReader read() throws IOException, StdfException
-    {
-        try (DataInputStream rdr = new DataInputStream(new BufferedInputStream(new FileInputStream(filename), 1000000)))
-        {
-        	byte[] far = new byte[6];
-        	int len = rdr.read(far); 
-            records.add(FARcheck(len, far));
-        	while (rdr.available() >= 2)
-        	{
-                int recLen = dvd.getCpuType().getU2(rdr.readByte(), rdr.readByte());	
-                Record_t type = Record_t.getRecordType(rdr.readByte(), rdr.readByte());
-                byte[] record = new byte[recLen];
-                len = rdr.read(record);
-                String s = new String(record);
-                if (type == Record_t.DTR)
-                {
-                	s = s.substring(1);
-                    if (s.startsWith(StdfRecord.TEXT_DATA) && !s.contains(StdfRecord.SERIAL_MARKER)) type = Record_t.DTRX;
-                }
-                records.add(type.getInstance(tdb, dvd, record));
-        	}                
-        }
-        catch (IOException e) { throw new IOException(e.getMessage()); }
-        return(this);
-    }
-    
-   /**
-    * Use this method to convert an STDF byte stream into a list of STDF records.
-    * @param bytes A valid STDF byte stream.
-    * @throws StdfException
-    */
-    public void read(byte[] bytes) throws StdfException
-    {
-    	byte[] far = Arrays.copyOf(bytes, 6);
-    	int ptr = 6;
-    	records.add(FARcheck(6, far));
-    	while (ptr <= (bytes.length - 2))
-    	{
-    		int recLen = dvd.getCpuType().getU2(bytes[ptr++], bytes[ptr++]);
-    		Record_t type = Record_t.getRecordType(bytes[ptr++],  bytes[ptr++]);
-    		byte[] record = Arrays.copyOfRange(bytes, ptr, ptr+recLen);
-    		String s = new String(record);
-    		if (type == Record_t.DTR)
-    		{
-    			s = s.substring(1);
-    			if (s.startsWith(StdfRecord.TEXT_DATA) && !s.contains(StdfRecord.SERIAL_MARKER)) type = Record_t.DTRX;
-    		}
-    		records.add(type.getInstance(tdb, dvd, record));
-    		ptr += recLen;
-    	}
+   public StdfReader read(TestIdDatabase tdb, List<Modifier> modifiers, ByteInputStream is)
+   {
+	   Cpu_t cpu = Cpu_t.PC; // assume this for the first record. The FAR does not need this.
+	   int cnt = 0;
+	   while (is.available() >= 2)
+	   {
+		   int recLen = cpu.getU2(is);	
+		   short rtype = cpu.getU1(is);
+		   short stype = cpu.getU1(is);
+		   Record_t type = Record_t.getRecordType(rtype, stype);
+		   StdfRecord r = type.getInstance(cpu, tdb, recLen, is);
+		   if (type == Record_t.FAR) cpu = ((FileAttributesRecord) r).cpuType;
+		   else if (type == Record_t.PRR)tdb.clearIdDups(); 
+		   for (Modifier m : modifiers)
+		   {
+		       if (r.type == m.record) 
+		       {
+		           if (r.modify(m)) cnt++;
+		       }
+		   }
+		   records.add(r);
+	   }                
+	   if (cnt > 0) Log.msg("Modified " + cnt + " records");
+       return(this);
     }
     
     /**
@@ -185,15 +92,25 @@ public class StdfReader
     
     public static void main(String[] args)
     {
+    	TestIdDatabase tdb = new TestIdDatabase();
     	if (args.length != 1)
     	{
-    		Log.msg("usage: (old version) java com.makechip.stdf2xls4.stdf.StdfReader <stdfFile>");
+    		Log.msg("Usage: java com.makechip.stdf2xls4.stdf.StdfReader <stdfFile>");
     		System.exit(1);
     	}
-    	TestIdDatabase tdb = new TestIdDatabase();
-    	StdfReader rdr = new StdfReader(tdb, new File(args[0]));
-    	try { rdr.read(); } catch (Exception e) { Log.msg(e.getMessage()); }
-    	rdr.getRecords().stream().forEach(r -> Log.msg(r.toString()));
+    	try (DataInputStream is = new DataInputStream(new FileInputStream(args[0])))
+    	{
+            StdfReader rdr = new StdfReader();
+            byte[] b = new byte[is.available()];
+            is.readFully(b);
+            rdr.read(tdb, new ArrayList<Modifier>(), new ByteInputStream(b));
+            rdr.getRecords().stream().forEach(r -> Log.msg(r.toString()));
+    	} 
+    	catch (Exception e)
+		{
+    		Log.msg(e.getMessage());
+			e.printStackTrace();
+		} 
     }
 
 }

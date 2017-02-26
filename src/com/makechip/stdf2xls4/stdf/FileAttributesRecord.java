@@ -26,7 +26,6 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -39,26 +38,26 @@ public class FileAttributesRecord extends StdfRecord
 	/**
 	 * This field holds the STDF_VER value from a FileAttributesRecord.
 	 */
-    public final byte stdfVersion;
+    public final short stdfVersion;
     /**
      * This field holds the CPU_TYPE value from a FileAttributesRecord.
      */
     public final Cpu_t cpuType;
     
     /**
-     * Constructor for initializing this record with binary stream data.
-     * @param tdb The TestIdDatabase  is not used by this record, but is
-     * required so STDF records have consistent constructor signatures.
-     * @param dvd This CTOR sets the CPU type in the DefaultValueDatabase.
-     * @param data The binary stream data for this record.  The array should
-     * not contain the first four bytes of the record. 
+     * CTOR for a FileAttributesRecord.
+     * @param cpu  The CPU type.  For this record only, cpu may be null.
+     * @param recLen
+     * @param is
+     * @throws IOException
+     * @throws StdfException
      */
-    public FileAttributesRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public FileAttributesRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.FAR, Cpu_t.getCpuType(data[0]), data);
-        cpuType = Cpu_t.getCpuType(data[0]);
-        dvd.setCpuType(cpuType);
-        stdfVersion = (byte) (data[1] & 0xFF);
+        super(Record_t.FAR);
+        short c = (short) (0xFF & is.readByte());
+        cpuType = Cpu_t.getCpuType((byte) c);
+        stdfVersion = (short) (0xFF & is.readByte());
     }
     
     /**
@@ -67,44 +66,35 @@ public class FileAttributesRecord extends StdfRecord
      * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
      * @param stdfVersion This value should always be 4.
      * @param cpuType The CPU type.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public FileAttributesRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, int stdfVersion, Cpu_t cpuType)
+    public FileAttributesRecord(Cpu_t cpu, int stdfVersion)
     {
-    	this(tdb, dvd, toBytes(cpuType, (byte) stdfVersion));
+    	this(cpu, null, 0, new ByteInputStream(toBytes(cpu, stdfVersion)));
     }
     
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("FileAttributesRecord [stdfVersion=");
-		builder.append(stdfVersion);
-		builder.append(", cpuType=");
-		builder.append(cpuType);
-		builder.append("]");
-		return builder.toString();
-	}
-
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		bytes = toBytes(cpuType, stdfVersion);
+		byte[] b = toBytes(cpu, stdfVersion);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.FAR, b.length);
+		l.addAll(b);
+		return(l.toArray());
 	}
+
 	
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
-	private static byte[] toBytes(Cpu_t cpuType, byte stdfVersion)
+	private static byte[] toBytes(Cpu_t cpu, int stdfVersion)
 	{
 		TByteArrayList l = new TByteArrayList();
-        l.add(cpuType.type);
-        l.add(stdfVersion);
+        l.add(cpu.type);
+        l.add((byte) stdfVersion);
         return(l.toArray());
 	}
 
@@ -115,7 +105,7 @@ public class FileAttributesRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 97;
 		result = prime * result + cpuType.hashCode();
 		result = prime * result + stdfVersion;
 		return result;
@@ -132,7 +122,6 @@ public class FileAttributesRecord extends StdfRecord
 		FileAttributesRecord other = (FileAttributesRecord) obj;
 		if (cpuType != other.cpuType) return false;
 		if (stdfVersion != other.stdfVersion) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

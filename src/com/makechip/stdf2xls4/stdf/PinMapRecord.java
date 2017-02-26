@@ -26,9 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-import gnu.trove.map.hash.TIntObjectHashMap;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 
@@ -45,7 +44,7 @@ public class PinMapRecord extends StdfRecord
     /**
      *  The CHAN_TYP field.
      */
-    public final int channelType;
+    public final Integer channelType;
     /**
      *  The CHAN_NAM field.
      */
@@ -61,84 +60,68 @@ public class PinMapRecord extends StdfRecord
     /**
      *  The HEAD_NUM field.
      */
-    public final short headNumber;
+    public final Short headNumber;
     /**
      *  The SITE_NUM field.
      */
-    public final short siteNumber;
+    public final Short siteNumber;
     
     /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase is not used for this record.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
+     * 
+     * @param cpu
+     * @param recLen
+     * @param is
+     * @throws IOException
+     * @throws StdfException
      */
-    public PinMapRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public PinMapRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.PMR, dvd.getCpuType(), data);
-        pmrIdx = getU2(-1);
-        channelType = getU2(-1);
-        channelName = getCn();
-        physicalPinName = getCn();
-        logicalPinName = getCn();
-        headNumber = getU1((short) -1);
-        siteNumber = getU1((short) 1);
-        TIntObjectHashMap<String> m1 = dvd.chanMap.get(siteNumber);
-        if (m1 == null)
+        super(Record_t.PMR);
+        pmrIdx = cpu.getU2(is);
+        int l = Data_t.U2.numBytes;
+        if (l < recLen)
         {
-        	m1 = new TIntObjectHashMap<>();
-        	dvd.chanMap.put(siteNumber, m1);
-        	m1.put(pmrIdx, channelName);
+            channelType = cpu.getU2(is);
+            l += Data_t.U2.numBytes;
         }
-        else
+        else channelType = null;
+        if (l < recLen)
         {
-        	String name = m1.get(pmrIdx);
-        	if (name == null) m1.put(pmrIdx, channelName);
-        	//else
-        	//{
-        	//	if (!name.equals(channelName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + channelName);
-        	//}
+            channelName = cpu.getCN(is);
+            l += 1 + channelName.length();
         }
-        TIntObjectHashMap<String> m2 = dvd.physMap.get(siteNumber);
-        if (m2 == null)
+        else channelName = null;
+        if (l < recLen)
         {
-        	m2 = new TIntObjectHashMap<>();
-        	dvd.physMap.put(siteNumber, m2);
-        	m2.put(siteNumber, physicalPinName);
+            physicalPinName = cpu.getCN(is);
+            l += 1 + physicalPinName.length();
         }
-        else
+        else physicalPinName = null;
+        if (l < recLen)
         {
-        	String name = m2.get(pmrIdx);
-        	if (name == null) m2.put(pmrIdx, physicalPinName);
-        	//else
-        	//{
-        	//	if (!name.equals(physicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + physicalPinName);
-        	//}
+            logicalPinName = cpu.getCN(is);
+            l += 1 + logicalPinName.length();
         }
-        TIntObjectHashMap<String> m3 = dvd.logMap.get(siteNumber);
-        if (m3 == null)
+        else logicalPinName = null;
+        if (l < recLen)
         {
-        	m3 = new TIntObjectHashMap<>();
-        	dvd.logMap.put(siteNumber, m3);
-        	m3.put(pmrIdx, logicalPinName);
+            headNumber = cpu.getU1(is);
+            l++;
         }
-        else
+        else headNumber = null;
+        if (l < recLen)
         {
-        	String name = m3.get(pmrIdx);
-        	if (name == null) m3.put(pmrIdx, logicalPinName);
-        	//else
-        	//{
-        	//	if (!name.equals(logicalPinName)) Log.fatal("Inconsistent pin map detected: " + name + " vs " + logicalPinName);
-        	//}
+            siteNumber = cpu.getU1(is);
+            l++;
         }
+        else siteNumber = null;
+        if (l != recLen) throw new RuntimeException("Record length error in PinMapRecord.");
     }
     
     /**
      * 
      * This constructor is used to make a PinGroupRecord with field values. 
-     * @param tdb The TestIdDatabase is not used for this record.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     * @param cpu    The cpu type.
      * @param pmrIdx The PMR_INDX field.
      * @param channelType The CHAN_TYP field.
      * @param channelName The CHAN_NAM field.
@@ -146,94 +129,165 @@ public class PinMapRecord extends StdfRecord
      * @param logicalPinName  The LOG_PIN field.
      * @param headNumber The HEAD_NUM field.
      * @param siteNumber The SITE_NUM field.
+     * @throws StdfException 
+     * @throws IOException 
      */
     public PinMapRecord(
-    	TestIdDatabase tdb,
-        DefaultValueDatabase dvd,
+    	Cpu_t cpu,
         int pmrIdx,
-        int channelType,
+        Integer channelType,
         String channelName,
         String physicalPinName,
         String logicalPinName,
-        short headNumber,
-        short siteNumber)
+        Short headNumber,
+        Short siteNumber)
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), pmrIdx, channelType, channelName, 
-    			               physicalPinName, logicalPinName, headNumber, siteNumber));
+    	this(cpu, null,
+    		 getRecLen(channelType, channelName, physicalPinName, logicalPinName, headNumber, siteNumber),
+    		 new ByteInputStream(toBytes(cpu, pmrIdx, channelType, channelName, 
+    				             physicalPinName, logicalPinName, headNumber, siteNumber)));
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, pmrIdx, channelType, channelName, physicalPinName, logicalPinName, headNumber, siteNumber);	
-	}
-	
-	private static byte[] toBytes(
-        Cpu_t cpuType,
-        int pmrIdx,
-        int channelType,
-        String channelName,
-        String physicalPinName,
-        String logicalPinName,
-        short headNumber,
-        short siteNumber)
-	{
-		TByteArrayList l = new TByteArrayList();
-		l.addAll(cpuType.getU2Bytes(pmrIdx));
-		l.addAll(cpuType.getU2Bytes(channelType));
-		l.addAll(getCnBytes(channelName));
-		l.addAll(getCnBytes(physicalPinName));
-		l.addAll(getCnBytes(logicalPinName));
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteNumber));
+		byte[] b = toBytes(cpu, pmrIdx, channelType, channelName, physicalPinName, logicalPinName, headNumber, siteNumber);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.PMR, b.length);
+		l.addAll(b);
 		return(l.toArray());
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("PinMapRecord [pmrIdx=").append(pmrIdx);
-		builder.append(", channelType=").append(channelType);
-		builder.append(", channelName=").append(channelName);
-		builder.append(", physicalPinName=").append(physicalPinName);
-		builder.append(", logicalPinName=").append(logicalPinName);
-		builder.append(", headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append("]");
-		return builder.toString();
+	
+	private static byte[] toBytes(
+        Cpu_t cpu,
+        int pmrIdx,
+        Integer channelType,
+        String channelName,
+        String physicalPinName,
+        String logicalPinName,
+        Short headNumber,
+        Short siteNumber)
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(cpu.getU2Bytes(pmrIdx));
+		if (channelType != null)
+		{
+			l.addAll(cpu.getU2Bytes(channelType));
+			if (channelName != null)
+			{
+		        l.addAll(cpu.getCNBytes(channelName));
+		        if (physicalPinName != null)
+		        {
+		            l.addAll(cpu.getCNBytes(physicalPinName));
+		            if (logicalPinName != null)
+		            {
+		                l.addAll(cpu.getCNBytes(logicalPinName));
+		                if (headNumber != null)
+		                {
+		                    l.addAll(cpu.getU1Bytes(headNumber));
+		                    if (siteNumber != null)
+		                    {
+		                        l.addAll(cpu.getU1Bytes(siteNumber));
+		                    }
+		                }
+		            }
+		        }
+			}
+		}
+		return(l.toArray());
 	}
 
+    private static int getRecLen(Integer channelType, 
+    		                     String channelName, 
+    		                     String physicalPinName, 
+    		                     String logicalPinName, 
+    		                     Short headNumber, 
+    		                     Short siteNumber)
+    {
+    	int l = 2;
+        if (channelType != null)
+        {
+        	l += Data_t.U2.numBytes;
+        	if (channelName != null)
+        	{
+        		l += 1 + channelName.length();
+        		if (physicalPinName != null)
+        		{
+        			l += 1 + physicalPinName.length();
+        			if (logicalPinName != null)
+        			{
+        				l += 1 + logicalPinName.length();
+        				if (headNumber != null)
+        				{
+        					l++;
+        					if (siteNumber != null) l++;
+        				}
+        			}
+        		}
+        	}
+        }
+    	return(l);
+    }
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + channelName.hashCode();
-		result = prime * result + channelType;
-		result = prime * result + headNumber;
-		result = prime * result + logicalPinName.hashCode();
-		result = prime * result + physicalPinName.hashCode();
+		int result = 1;
+		result = prime * result + ((channelName == null) ? 0 : channelName.hashCode());
+		result = prime * result + ((channelType == null) ? 0 : channelType.hashCode());
+		result = prime * result + ((headNumber == null) ? 0 : headNumber.hashCode());
+		result = prime * result + ((logicalPinName == null) ? 0 : logicalPinName.hashCode());
+		result = prime * result + ((physicalPinName == null) ? 0 : physicalPinName.hashCode());
 		result = prime * result + pmrIdx;
-		result = prime * result + siteNumber;
+		result = prime * result + ((siteNumber == null) ? 0 : siteNumber.hashCode());
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 		if (this == obj) return true;
-		if (obj == null) return(false);
-		if (getClass() != obj.getClass()) return false;
+		if (obj == null) return false;
+		if (!(obj instanceof PinMapRecord)) return false;
 		PinMapRecord other = (PinMapRecord) obj;
-		if (!channelName.equals(other.channelName)) return false;
-		if (channelType != other.channelType) return false;
-		if (headNumber != other.headNumber) return false;
-		if (!logicalPinName.equals(other.logicalPinName)) return false;
-		if (!physicalPinName.equals(other.physicalPinName)) return false;
+		if (channelName == null)
+		{
+			if (other.channelName != null) return false;
+		} 
+		else if (!channelName.equals(other.channelName)) return false;
+		if (channelType == null)
+		{
+			if (other.channelType != null) return false;
+		} 
+		else if (!channelType.equals(other.channelType)) return false;
+		if (headNumber == null)
+		{
+			if (other.headNumber != null) return false;
+		} 
+		else if (!headNumber.equals(other.headNumber)) return false;
+		if (logicalPinName == null)
+		{
+			if (other.logicalPinName != null) return false;
+		} 
+		else if (!logicalPinName.equals(other.logicalPinName)) return false;
+		if (physicalPinName == null)
+		{
+			if (other.physicalPinName != null) return false;
+		} 
+		else if (!physicalPinName.equals(other.physicalPinName)) return false;
 		if (pmrIdx != other.pmrIdx) return false;
-		if (siteNumber != other.siteNumber) return false;
-		if (!super.equals(obj)) return false;
+		if (siteNumber == null)
+		{
+			if (other.siteNumber != null) return false;
+		} 
+		else if (!siteNumber.equals(other.siteNumber)) return false;
 		return true;
 	}
 

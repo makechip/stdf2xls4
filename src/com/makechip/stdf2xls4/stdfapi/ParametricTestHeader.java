@@ -1,29 +1,24 @@
 package com.makechip.stdf2xls4.stdfapi;
 
-import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 
 public class ParametricTestHeader extends TestHeader
 {
 	public final String units;
-	public final float loLimit;
-	public final float hiLimit;
-	public final boolean noLoLimit;
-	public final boolean noHiLimit;
+	public final Float loLimit;
+	public final Float hiLimit;
 
-	public ParametricTestHeader(TestID id, String units, float loLimit, float hiLimit)
+	public ParametricTestHeader(TestID id, String units, Float loLimit, Float hiLimit)
 	{
         this(id.testName, id.testNumber, id.dupNum, units, loLimit, hiLimit);	
 	}
 	
-	public ParametricTestHeader(String testName, long testNumber, int dupNum, String units, float loLimit, float hiLimit)
+	public ParametricTestHeader(String testName, long testNumber, int dupNum, String units, Float loLimit, Float hiLimit)
 	{
 		super(testName, testNumber, dupNum);
 		this.units = units;
 		this.loLimit = loLimit;
 		this.hiLimit = hiLimit;
-		this.noLoLimit = loLimit == StdfRecord.MISSING_FLOAT;
-		this.noHiLimit = hiLimit == StdfRecord.MISSING_FLOAT;
 	}
 
 	/* (non-Javadoc)
@@ -36,14 +31,15 @@ public class ParametricTestHeader extends TestHeader
 		builder.append("ParametricTestHeader [units=").append(units);
 		builder.append(", loLimit=").append(loLimit);
 		builder.append(", hiLimit=").append(hiLimit);
-		builder.append(", noLoLimit=").append(noLoLimit);
-		builder.append(", noHiLimit=").append(noHiLimit);
 		builder.append(", testName=").append(testName);
 		builder.append(", testNumber=").append(testNumber);
 		builder.append(", dupNum=").append(dupNum);
 		builder.append("]");
 		return builder.toString();
 	}
+	
+	@Override
+	public String getPin() { return(null); }
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -53,10 +49,8 @@ public class ParametricTestHeader extends TestHeader
 	{
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Float.floatToIntBits(hiLimit);
-		result = prime * result + Float.floatToIntBits(loLimit);
-		result = prime * result + (noHiLimit ? 1231 : 1237);
-		result = prime * result + (noLoLimit ? 1231 : 1237);
+		result = prime * result + ((hiLimit == null) ? 0 : Float.floatToIntBits(hiLimit));
+		result = prime * result + ((loLimit == null) ? 0 : Float.floatToIntBits(loLimit));
 		result = prime * result + ((units == null) ? 0 : units.hashCode());
 		return result;
 	}
@@ -70,10 +64,18 @@ public class ParametricTestHeader extends TestHeader
 		if (this == obj) return true;
 		if (!(obj instanceof ParametricTestHeader)) return false;
 		ParametricTestHeader other = (ParametricTestHeader) obj;
-		if (Float.floatToIntBits(hiLimit) != Float.floatToIntBits(other.hiLimit)) return false;
-		if (Float.floatToIntBits(loLimit) != Float.floatToIntBits(other.loLimit)) return false;
-		if (noHiLimit != other.noHiLimit) return false;
-		if (noLoLimit != other.noLoLimit) return false;
+		if (loLimit == null)
+		{
+			if (other.loLimit != null) return false;
+		}
+		else if (other.loLimit == null) return false;
+		else if (Float.floatToIntBits(loLimit) != Float.floatToIntBits(other.loLimit)) return false;
+		if (hiLimit == null)
+		{
+			if (other.hiLimit != null) return false;
+		}
+		else if (other.hiLimit == null) return false;
+		else if (Float.floatToIntBits(hiLimit) != Float.floatToIntBits(other.hiLimit)) return false;
 		if (!units.equals(other.units)) return false;
 		if (!super.equals(obj)) return false;
 		return true;

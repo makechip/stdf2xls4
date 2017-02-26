@@ -1,0 +1,70 @@
+\documentclass[letterpaper]{article}
+\usepackage[pdftex]{graphicx}
+\usepackage{tp}
+\usepackage{unitsdef}
+\usepackage{pifont}
+\usepackage{sectsty}
+\usepackage{amsmath}
+\usepackage{eso-pic}
+\usepackage[T1]{fontenc}
+\usepackage{varioref}
+\usepackage{caption}
+\usepackage{textcomp}
+\usepackage{float}
+\usepackage{epsfig}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+%%\usepackage{ulem}
+\pagestyle{plain}
+\renewcommand{\arraystretch}{1.4}
+\begin{document}
+\usefont{T1}{ua1}{m}{n}\selectfont
+\newcommand{\tfont}{\usefont{T1}{ua1}{m}{n}\selectfont\footnotesize}
+\newcommand{\bfont}{\usefont{T1}{ua1}{b}{n}\selectfont\tiny}
+\newcommand{\xfont}{\usefont{T1}{ua1}{m}{n}\selectfont\scriptsize}
+\newcommand{\lfont}{\usefont{T1}{ua1}{m}{n}\selectfont\large}
+\newcommand{\device}{ADC0801}
+\renewcommand{\captionfont}{\it }
+\newcommand{\dsname}{Test Program}
+\renewcommand{\date}{December 12, 2014}
+\newcommand{\ver}{V1.0}
+\renewcommand{\partnum}{ADC0801}
+\newcommand{\tablecap}{\hline\end{tabular}\end{table}\end{center}}
+\renewcommand{\customer}{Micross Components}
+\renewcommand{\versionhistory}{
+\vspace*{1in}
+\begin{center}
+\begin{table}[H]\caption*{Revision History}
+\centering
+\xfont\begin{tabular}[H]{|c|c|c|c|}
+\hline
+{\bf Version} & {\bf Author} & {\bf Date} & {\bf Changes}\\
+\hline
+\hline
+1.0 & Eric West & 12/12/14 & Initial version \\
+\hline
+\end{tabular}
+\end{table}
+\end{center}
+}
+\maketitle
+\setcounter{tocdepth}{2}
+\tableofcontents
+\clearpage
+\makebg
+
+\section{Introduction}
+
+
+\section{Getting the program}
+git clone https://github.com/makechip/stdf2xls4
+
+\section{Installation}
+
+
+
+
+
+
+
+\end{document}

@@ -20,13 +20,10 @@ public class OptionsTest
 		assertFalse(options.dump);
 		assertTrue(options.noWrapTestNames);
 		assertFalse(options.noOverwrite);
-		assertFalse(options.showDuplicates);
 		assertFalse(options.onePage);
-		assertFalse(options.forceHdr);
 		assertEquals(3, options.precision);
 		assertFalse(options.dontSkipSearchFails);
 		assertFalse(options.rotate);
-		assertFalse(options.msMode);
 		assertFalse(options.dynamicLimits);
 		assertEquals(1, options.stdfFiles.size());
 	}

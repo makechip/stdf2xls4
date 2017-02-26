@@ -24,7 +24,7 @@ public class DeviceHeader implements Comparable<DeviceHeader>
 		this.fail = fail;
 		this.abnormalEOT = abnormalEOT;
 		this.noPassFailIndication = noPassFailIndication;
-		this.temperature = temperature;
+		this.temperature = (temperature == null) ? "?" : temperature;
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ public class DeviceHeader implements Comparable<DeviceHeader>
 		StringBuilder sb = new StringBuilder();
 		sb.append(snxy.toString()).append(" hwBin: " + hwBin).append(" swBin: " + swBin);
 	    sb.append(" temp = ").append(temperature);
-	    if (fail) sb.append(" FAIL"); else sb.append("PASS");
+	    if (fail) sb.append(" FAIL"); else sb.append(" PASS");
 	    if (abnormalEOT) sb.append(" abnormalEOT");
 	    if (noPassFailIndication) sb.append(" no pass/fail indication");
 		return(sb.toString());

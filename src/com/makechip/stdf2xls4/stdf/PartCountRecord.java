@@ -26,8 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 
@@ -52,44 +52,66 @@ public class PartCountRecord extends StdfRecord
 	/**
 	 *  This is the RTST_CNT field.
 	 */
-    public final long partsReTested;
+    public final Long partsReTested;
 	/**
 	 *  This is the ABRT_CNT field.
 	 */
-    public final long aborts;
+    public final Long aborts;
 	/**
 	 *  This is the GOOD_CNT field.
 	 */
-    public final long good;
+    public final Long good;
 	/**
 	 *  This is the FUNC_CNT field.
 	 */
-    public final long functional;
+    public final Long functional;
     
     /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase.  This parameter is not used.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
+     * 
+     * @param cpu
+     * @param recLen
+     * @param is
+     * @throws IOException
+     * @throws StdfException
      */
-    public PartCountRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public PartCountRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.PCR, dvd.getCpuType(), data);
-        headNumber = getU1((short) -1);
-        siteNumber = getU1((short) -1);
-        partsTested = getU4(-1);
-        partsReTested = getU4(4294967295L);
-        aborts = getU4(4294967295L);
-        good = getU4(4294967295L);
-        functional = getU4(4294967295L);
+        super(Record_t.PCR);
+        headNumber = cpu.getU1(is);
+        siteNumber = cpu.getU1(is);
+        partsTested = cpu.getU4(is);
+        int l = 6;
+        if (l < recLen)
+        {
+        	partsReTested = cpu.getU4(is);
+        	l += Data_t.U4.numBytes;
+        }
+        else partsReTested = null;
+        if (l < recLen)
+        {
+            aborts = cpu.getU4(is);
+        	l += Data_t.U4.numBytes;
+        }
+        else aborts = null;
+        if (l < recLen)
+        {
+            good = cpu.getU4(is);
+        	l += Data_t.U4.numBytes;
+        }
+        else good = null;
+        if (l < recLen)
+        {
+            functional = cpu.getU4(is);
+        	l += Data_t.U4.numBytes;
+        }
+        else functional = null;
+        if (l != recLen) throw new RuntimeException("Record length error in PartCountRecord");
     }
     
     /**
      * 
      * This constructor is used to make a ParametricTestRecord with field values.
-     * @param tdb The TestIdDatabase is needed to get the TestID.
-     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+     * @param cpu The cpu type.
      * @param headNumber The HEAD_NUM field.
      * @param siteNumber The SITE_NUM field.
      * @param partsTested The PART_CNT field.
@@ -97,66 +119,87 @@ public class PartCountRecord extends StdfRecord
      * @param aborts The ABRT_CNT field.
      * @param good The GOOD_CNT field.
      * @param functional The FUNC_CNT field.
+     * @throws StdfException 
+     * @throws IOException 
      */
     public PartCountRecord(
-    		TestIdDatabase tdb, DefaultValueDatabase dvd,
+    		Cpu_t cpu,
     		short headNumber,
     		short siteNumber,
     		long partsTested,
-    		long partsReTested,
-    		long aborts,
-    		long good,
-    		long functional)
+    		Long partsReTested,
+    		Long aborts,
+    		Long good,
+    		Long functional)
     {
-    	this(tdb,  dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional));
+    	this(cpu, null,
+    		getRecLen(partsReTested, aborts, good, functional),
+    		new ByteInputStream(toBytes(cpu, headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional)));
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
- 	@Override
-	protected void toBytes()
+	@Override
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional);	
+   		byte[] b = toBytes(cpu, headNumber, siteNumber, partsTested, 
+    				       partsReTested, aborts, good, functional);
+   		TByteArrayList l = getHeaderBytes(cpu,Record_t.PCR, b.length);
+   		l.addAll(b);
+		return(l.toArray());
 	}
-	
+
 	private static byte[] toBytes(
-    	Cpu_t cpuType,
+    	Cpu_t cpu,
     	short headNumber,
     	short siteNumber,
     	long partsTested,
-    	long partsReTested,
-    	long aborts,
-    	long good,
-    	long functional)
+    	Long partsReTested,
+    	Long aborts,
+    	Long good,
+    	Long functional)
 	{
 	    TByteArrayList l = new TByteArrayList();
-	    l.addAll(getU1Bytes(headNumber));
-	    l.addAll(getU1Bytes(siteNumber));
-	    l.addAll(cpuType.getU4Bytes(partsTested));
-	    l.addAll(cpuType.getU4Bytes(partsReTested));
-	    l.addAll(cpuType.getU4Bytes(aborts));
-	    l.addAll(cpuType.getU4Bytes(good));
-	    l.addAll(cpuType.getU4Bytes(functional));
+	    l.addAll(cpu.getU1Bytes(headNumber));
+	    l.addAll(cpu.getU1Bytes(siteNumber));
+	    l.addAll(cpu.getU4Bytes(partsTested));
+	    if (partsReTested != null)
+	    {
+	        l.addAll(cpu.getU4Bytes(partsReTested));
+	        if (aborts != null)
+	        {
+	            l.addAll(cpu.getU4Bytes(aborts));
+	            if (good != null)
+	            {
+	                l.addAll(cpu.getU4Bytes(good));
+	                if (functional != null)
+	                {
+	                    l.addAll(cpu.getU4Bytes(functional));
+	                }
+	            }
+	        }
+	    }
 	    return(l.toArray());
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
+	private static int getRecLen(Long partsReTested, Long aborts, Long good, Long functional)
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("PartCountRecord [headNumber="); builder.append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", partsTested=").append(partsTested);
-		builder.append(", partsReTested=").append(partsReTested);
-		builder.append(", aborts=").append(aborts);
-		builder.append(", good=").append(good);
-		builder.append(", functional=").append(functional);
-		builder.append("]");
-		return builder.toString();
+		int l = 6;
+		if (partsReTested != null)
+		{
+			l += Data_t.U4.numBytes;
+			if (aborts != null)
+			{
+				l += Data_t.U4.numBytes;
+				if (good != null)
+				{
+					l += Data_t.U4.numBytes;
+					if (functional != null)
+					{
+						l += Data_t.U4.numBytes;
+					}
+				}
+			}
+		}
+		return(l);
 	}
 
 	/* (non-Javadoc)
@@ -166,12 +209,12 @@ public class PartCountRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + (int) (aborts ^ (aborts >>> 32));
-		result = prime * result + (int) (functional ^ (functional >>> 32));
-		result = prime * result + (int) (good ^ (good >>> 32));
+		int result = 1;
+		result = prime * result + ((aborts == null) ? 0 : aborts.hashCode());
+		result = prime * result + ((functional == null) ? 0 : functional.hashCode());
+		result = prime * result + ((good == null) ? 0 : good.hashCode());
 		result = prime * result + headNumber;
-		result = prime * result + (int) (partsReTested ^ (partsReTested >>> 32));
+		result = prime * result + ((partsReTested == null) ? 0 : partsReTested.hashCode());
 		result = prime * result + (int) (partsTested ^ (partsTested >>> 32));
 		result = prime * result + siteNumber;
 		return result;
@@ -184,16 +227,32 @@ public class PartCountRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof PartCountRecord)) return false;
 		PartCountRecord other = (PartCountRecord) obj;
-		if (aborts != other.aborts) return false;
-		if (functional != other.functional) return false;
-		if (good != other.good) return false;
+		if (aborts == null)
+		{
+			if (other.aborts != null) return false;
+		} 
+		else if (!aborts.equals(other.aborts)) return false;
+		if (functional == null)
+		{
+			if (other.functional != null) return false;
+		} 
+		else if (!functional.equals(other.functional)) return false;
+		if (good == null)
+		{
+			if (other.good != null) return false;
+		} 
+		else if (!good.equals(other.good)) return false;
 		if (headNumber != other.headNumber) return false;
-		if (partsReTested != other.partsReTested) return false;
+		if (partsReTested == null)
+		{
+			if (other.partsReTested != null) return false;
+		} 
+		else if (!partsReTested.equals(other.partsReTested)) return false;
 		if (partsTested != other.partsTested) return false;
 		if (siteNumber != other.siteNumber) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

@@ -2,7 +2,6 @@ package com.makechip.stdf2xls4.stdf;
 
 import java.util.IdentityHashMap;
 
-import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.util.factory.IdentityFactoryIO;
 import com.makechip.util.factory.IdentityFactoryLON;
 

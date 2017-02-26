@@ -51,15 +51,16 @@ public class AuditTrailRecord extends StdfRecord
      *  @param tdb The TestIdDatabase.  This value is not used by the AuditTrailRecord.
      *         It is provided so that all StdfRecord classes have the same argument signatures,
      *         so that function references can be used to refer to the constructors of StdfRecords.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public AuditTrailRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.ATR, dvd.getCpuType(), data);
-        date = getU4(0);
-        cmdLine = getCn();
+        super(Record_t.ATR);
+        date = cpu.getU4(is);
+        cmdLine = cpu.getCN(is);
     }
     
     /**
@@ -67,38 +68,34 @@ public class AuditTrailRecord extends StdfRecord
      * the field values back into binary stream data.
      * @param tdb The TestIdDatabase. This value is not used, but is needed so that
      * this constructor can call the previous constructor to avoid code duplication.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type.
      * @param date The MOD_TIM value expressed as milliseconds from January 1, 1970, 00:00:00 GMT.
      * @param cmdLine The CMD_LINE value that holds the command line of the program that adds this record.
      *        Note: cmdLine may NOT be null.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public AuditTrailRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, final long date, final String cmdLine)
+    public AuditTrailRecord(Cpu_t cpu, final long date, final String cmdLine)
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), date, cmdLine));
+    	this(cpu, null, 0, new ByteInputStream(toBytes(cpu, date, cmdLine)));
     }
     
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "AuditTrailRecord [date=" + date + ", cmdLine=" + cmdLine + "]";
-	}
-
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		bytes = toBytes(cpuType, date, cmdLine);
+		byte[] a = toBytes(cpu, date, cmdLine);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.ATR, a.length);
+		l.addAll(a);
+		return(l.toArray());
 	}
 	
-	private static byte[] toBytes(Cpu_t cpuType, long date, String cmdLine)
+	private static byte[] toBytes(Cpu_t cpu, long date, String cmdLine)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(cpuType.getU4Bytes(date));
-		l.addAll(getCnBytes(cmdLine));
+		l.addAll(cpu.getU4Bytes(date));
+		l.addAll(cpu.getCNBytes(cmdLine));
 		return(l.toArray());
 	}
 
@@ -109,7 +106,7 @@ public class AuditTrailRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 101;
 		result = prime * result + cmdLine.hashCode();
 		result = prime * result + (int) (date ^ (date >>> 32));
 		return result;
@@ -126,7 +123,6 @@ public class AuditTrailRecord extends StdfRecord
 		AuditTrailRecord other = (AuditTrailRecord) obj;
 		if (!cmdLine.equals(other.cmdLine)) return false;
 		if (date != other.date) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

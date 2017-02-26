@@ -26,8 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
@@ -55,19 +55,19 @@ public class WaferResultsRecord extends StdfRecord
     /**
      *  The RTST_CNT field.
      */
-    public final long retestCount;
+    public final Long retestCount;
     /**
      *  The ABRT_CNT field.
      */
-    public final long abortCount;
+    public final Long abortCount;
     /**
      * The GOOD_CNT field.
      */
-    public final long passCount;
+    public final Long passCount;
     /**
      *  The FUNC_CNT field.
      */
-    public final long functionalCount;
+    public final Long functionalCount;
     /**
      *  The WAFER_ID field.
      */
@@ -93,53 +93,122 @@ public class WaferResultsRecord extends StdfRecord
      */
     public final String execWaferDesc;
     
-    /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase.  This parameter is not used.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
-     */
-    public WaferResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public WaferResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.WRR, dvd.getCpuType(), data);
-        headNumber = getU1((short) -1);
-        siteGroupNumber = getU1((short) 255);
-        finishDate = getU4(-1L);
-        partCount = getU4(-1L);
-        retestCount = getU4(4294967295L);
-        abortCount = getU4(4294967295L);
-        passCount = getU4(4294967295L);
-        functionalCount = getU4(4294967295L);
-        waferID = getCn();
-        fabWaferID = getCn();
-        waferFrameID = getCn();
-        waferMaskID = getCn();
-        userWaferDesc = getCn();
-        execWaferDesc = getCn();
+        super(Record_t.WRR);
+        headNumber = cpu.getU1(is);
+        siteGroupNumber = cpu.getU1(is);
+        finishDate = cpu.getU4(is);
+        partCount = cpu.getU4(is);
+        int l = 10;
+        if (l < recLen)
+        {
+            retestCount = cpu.getU4(is);
+            l += Data_t.U4.numBytes;
+        }
+        else retestCount = null;
+        if (l < recLen)
+        {
+            abortCount = cpu.getU4(is);
+            l += Data_t.U4.numBytes;
+        }
+        else abortCount = null;
+        if (l < recLen)
+        {
+            passCount = cpu.getU4(is);
+            l += Data_t.U4.numBytes;
+        }
+        else passCount = null;
+        if (l < recLen)
+        {
+            functionalCount = cpu.getU4(is);
+            l += Data_t.U4.numBytes;
+        }
+        else functionalCount = null;
+        if (l < recLen)
+        {
+            waferID = cpu.getCN(is);
+            l += 1 + waferID.length();
+        }
+        else waferID = null;
+        if (l < recLen)
+        {
+            fabWaferID = cpu.getCN(is);
+            l += 1 + fabWaferID.length();
+        }
+        else fabWaferID = null;
+        if (l < recLen)
+        {
+            waferFrameID = cpu.getCN(is);
+            l += 1 + waferFrameID.length();
+        }
+        else waferFrameID = null;
+        if (l < recLen)
+        {
+            waferMaskID = cpu.getCN(is);
+            l += 1 + waferMaskID.length();
+        }
+        else waferMaskID = null;
+        if (l < recLen)
+        {
+            userWaferDesc = cpu.getCN(is);
+            l += 1 + userWaferDesc.length();
+        }
+        else userWaferDesc = null;
+        if (l < recLen)
+        {
+            execWaferDesc = cpu.getCN(is);
+            l += 1 + execWaferDesc.length();
+        }
+        else execWaferDesc = null;
+        if (l != recLen) throw new RuntimeException("Record length error in WaferResultsRecord.");
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, headNumber, siteGroupNumber, finishDate, partCount, retestCount,
-	    		        abortCount, passCount, functionalCount, waferID, fabWaferID,
-	    		        waferFrameID, waferMaskID, userWaferDesc, execWaferDesc);	
+		byte[] b = toBytes(cpu, headNumber, siteGroupNumber, finishDate, partCount, retestCount, abortCount, passCount, 
+				           functionalCount, waferID, fabWaferID, waferFrameID, waferMaskID, userWaferDesc, execWaferDesc);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.WRR, b.length);
+		l.addAll(b);
+		return(l.toArray());
 	}
 	
+	private static int getRecLen(
+        Long retestCount,
+        Long abortCount,
+        Long passCount,
+        Long functionalCount,
+        String waferID,
+        String fabWaferID,
+        String waferFrameID,
+        String waferMaskID,
+        String userWaferDesc,
+        String execWaferDesc)
+	{
+		int l = 10;
+	    if (retestCount != null) l += Data_t.U4.numBytes; else return(l);
+	    if (abortCount != null) l += Data_t.U4.numBytes; else return(l);
+	    if (passCount != null) l += Data_t.U4.numBytes; else return(l);
+	    if (functionalCount != null) l += Data_t.U4.numBytes; else return(l);
+	    if (waferID != null) l += 1 + waferID.length(); else return(l);
+	    if (fabWaferID != null) l += 1 + fabWaferID.length(); else return(l);
+	    if (waferFrameID != null) l += 1 + waferFrameID.length(); else return(l);
+	    if (waferMaskID != null) l += 1 + waferMaskID.length(); else return(l);
+	    if (userWaferDesc != null) l += 1 + userWaferDesc.length(); else return(l);
+	    if (execWaferDesc != null) l += 1 + execWaferDesc.length();
+		return(l);
+	}
 	private static byte[] toBytes(
-		Cpu_t cpuType,
+		Cpu_t cpu,
         short headNumber,
         short siteGroupNumber,
         long finishDate,
         long partCount,
-        long retestCount,
-        long abortCount,
-        long passCount,
-        long functionalCount,
+        Long retestCount,
+        Long abortCount,
+        Long passCount,
+        Long functionalCount,
         String waferID,
         String fabWaferID,
         String waferFrameID,
@@ -148,27 +217,26 @@ public class WaferResultsRecord extends StdfRecord
         String execWaferDesc)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteGroupNumber));
-		l.addAll(cpuType.getU4Bytes(finishDate));
-		l.addAll(cpuType.getU4Bytes(partCount));
-		l.addAll(cpuType.getU4Bytes(retestCount));
-		l.addAll(cpuType.getU4Bytes(abortCount));
-		l.addAll(cpuType.getU4Bytes(passCount));
-		l.addAll(cpuType.getU4Bytes(functionalCount));
-		l.addAll(getCnBytes(waferID));
-		l.addAll(getCnBytes(fabWaferID));
-		l.addAll(getCnBytes(waferFrameID));
-		l.addAll(getCnBytes(waferMaskID));
-		l.addAll(getCnBytes(userWaferDesc));
-		l.addAll(getCnBytes(execWaferDesc));
+		l.addAll(cpu.getU1Bytes(headNumber));
+		l.addAll(cpu.getU1Bytes(siteGroupNumber));
+		l.addAll(cpu.getU4Bytes(finishDate));
+		l.addAll(cpu.getU4Bytes(partCount));
+		if (retestCount != null) l.addAll(cpu.getU4Bytes(retestCount)); else return(l.toArray());
+		if (abortCount != null) l.addAll(cpu.getU4Bytes(abortCount));
+		if (passCount != null) l.addAll(cpu.getU4Bytes(passCount));
+		if (functionalCount != null) l.addAll(cpu.getU4Bytes(functionalCount));
+		if (waferID != null) l.addAll(cpu.getCNBytes(waferID));
+		if (fabWaferID != null) l.addAll(cpu.getCNBytes(fabWaferID));
+		if (waferFrameID != null) l.addAll(cpu.getCNBytes(waferFrameID));
+		if (waferMaskID != null) l.addAll(cpu.getCNBytes(waferMaskID));
+		if (userWaferDesc != null) l.addAll(cpu.getCNBytes(userWaferDesc));
+		if (execWaferDesc != null) l.addAll(cpu.getCNBytes(execWaferDesc));
 		return(l.toArray());
 	}
 	
 	/**
      * This constructor is used to make a ParametricTestRecord with field values.
-     * @param tdb The TestIdDatabase is not used in this class.
-     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+     * @param cpu              The CPU type.
 	 * @param headNumber       The HEAD_NUM field.
 	 * @param siteGroupNumber  The SITE_GRP field.
 	 * @param finishDate       The FINISH_T field.
@@ -183,18 +251,19 @@ public class WaferResultsRecord extends StdfRecord
 	 * @param waferMaskID      The MASK_ID field.
 	 * @param userWaferDesc    The USR_DESC field.
 	 * @param execWaferDesc    The EXC_DESC field.
+	 * @throws StdfException 
+	 * @throws IOException 
 	 */
 	public WaferResultsRecord(
-		TestIdDatabase tdb,
-		DefaultValueDatabase dvd,
+		Cpu_t cpu,
         short headNumber,
         short siteGroupNumber,
         long finishDate,
         long partCount,
-        long retestCount,
-        long abortCount,
-        long passCount,
-        long functionalCount,
+        Long retestCount,
+        Long abortCount,
+        Long passCount,
+        Long functionalCount,
         String waferID,
         String fabWaferID,
         String waferFrameID,
@@ -202,35 +271,13 @@ public class WaferResultsRecord extends StdfRecord
         String userWaferDesc,
         String execWaferDesc)
     {
-		this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteGroupNumber, finishDate, partCount, retestCount,
-	    		        abortCount, passCount, functionalCount, waferID, fabWaferID,
-	    		        waferFrameID, waferMaskID, userWaferDesc, execWaferDesc));
+		this(cpu, null,
+			 getRecLen(retestCount, abortCount, passCount, functionalCount, waferID, 
+					   fabWaferID, waferFrameID, waferMaskID, userWaferDesc, execWaferDesc),
+			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, 
+					 finishDate, partCount, retestCount, abortCount, passCount, functionalCount, 
+					 waferID, fabWaferID, waferFrameID, waferMaskID, userWaferDesc, execWaferDesc)));
     }
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("WaferResultsRecord [headNumber=").append(headNumber);
-		builder.append(", siteGroupNumber=").append(siteGroupNumber);
-		builder.append(", finishDate=").append(finishDate);
-		builder.append(", partCount=").append(partCount);
-		builder.append(", retestCount=").append(retestCount);
-		builder.append(", abortCount=").append(abortCount);
-		builder.append(", passCount=").append(passCount);
-		builder.append(", functionalCount=").append(functionalCount);
-		builder.append(", waferID=").append(waferID);
-		builder.append(", fabWaferID=").append(fabWaferID);
-		builder.append(", waferFrameID=").append(waferFrameID);
-		builder.append(", waferMaskID=").append(waferMaskID);
-		builder.append(", userWaferDesc=").append(userWaferDesc);
-		builder.append(", execWaferDesc=").append(execWaferDesc);
-		builder.append("]");
-		return builder.toString();
-	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -239,21 +286,21 @@ public class WaferResultsRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + (int) (abortCount ^ (abortCount >>> 32));
-		result = prime * result + execWaferDesc.hashCode();
-		result = prime * result + fabWaferID.hashCode();
+		int result = 1;
+		result = prime * result + ((abortCount == null) ? 0 : abortCount.hashCode());
+		result = prime * result + ((execWaferDesc == null) ? 0 : execWaferDesc.hashCode());
+		result = prime * result + ((fabWaferID == null) ? 0 : fabWaferID.hashCode());
 		result = prime * result + (int) (finishDate ^ (finishDate >>> 32));
-		result = prime * result + (int) (functionalCount ^ (functionalCount >>> 32));
+		result = prime * result + ((functionalCount == null) ? 0 : functionalCount.hashCode());
 		result = prime * result + headNumber;
 		result = prime * result + (int) (partCount ^ (partCount >>> 32));
-		result = prime * result + (int) (passCount ^ (passCount >>> 32));
-		result = prime * result + (int) (retestCount ^ (retestCount >>> 32));
+		result = prime * result + ((passCount == null) ? 0 : passCount.hashCode());
+		result = prime * result + ((retestCount == null) ? 0 : retestCount.hashCode());
 		result = prime * result + siteGroupNumber;
-		result = prime * result + userWaferDesc.hashCode();
-		result = prime * result + waferFrameID.hashCode();
-		result = prime * result + waferID.hashCode();
-		result = prime * result + waferMaskID.hashCode();
+		result = prime * result + ((userWaferDesc == null) ? 0 : userWaferDesc.hashCode());
+		result = prime * result + ((waferFrameID == null) ? 0 : waferFrameID.hashCode());
+		result = prime * result + ((waferID == null) ? 0 : waferID.hashCode());
+		result = prime * result + ((waferMaskID == null) ? 0 : waferMaskID.hashCode());
 		return result;
 	}
 
@@ -264,25 +311,64 @@ public class WaferResultsRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof WaferResultsRecord)) return false;
 		WaferResultsRecord other = (WaferResultsRecord) obj;
-		if (abortCount != other.abortCount) return false;
-		if (!execWaferDesc.equals(other.execWaferDesc)) return false;
-		if (!fabWaferID.equals(other.fabWaferID)) return false;
+		if (abortCount == null)
+		{
+			if (other.abortCount != null) return false;
+		} 
+		else if (!abortCount.equals(other.abortCount)) return false;
+		if (execWaferDesc == null)
+		{
+			if (other.execWaferDesc != null) return false;
+		} 
+		else if (!execWaferDesc.equals(other.execWaferDesc)) return false;
+		if (fabWaferID == null)
+		{
+			if (other.fabWaferID != null) return false;
+		} 
+		else if (!fabWaferID.equals(other.fabWaferID)) return false;
 		if (finishDate != other.finishDate) return false;
-		if (functionalCount != other.functionalCount) return false;
+		if (functionalCount == null)
+		{
+			if (other.functionalCount != null) return false;
+		} 
+		else if (!functionalCount.equals(other.functionalCount)) return false;
 		if (headNumber != other.headNumber) return false;
 		if (partCount != other.partCount) return false;
-		if (passCount != other.passCount) return false;
-		if (retestCount != other.retestCount) return false;
+		if (passCount == null)
+		{
+			if (other.passCount != null) return false;
+		} 
+		else if (!passCount.equals(other.passCount)) return false;
+		if (retestCount == null)
+		{
+			if (other.retestCount != null) return false;
+		} 
+		else if (!retestCount.equals(other.retestCount)) return false;
 		if (siteGroupNumber != other.siteGroupNumber) return false;
-		if (!userWaferDesc.equals(other.userWaferDesc)) return false;
-		if (!waferFrameID.equals(other.waferFrameID)) return false;
-		if (!waferID.equals(other.waferID)) return false;
-		if (!waferMaskID.equals(other.waferMaskID)) return false;
-		if (!super.equals(obj)) return false;
+		if (userWaferDesc == null)
+		{
+			if (other.userWaferDesc != null) return false;
+		} 
+		else if (!userWaferDesc.equals(other.userWaferDesc)) return false;
+		if (waferFrameID == null)
+		{
+			if (other.waferFrameID != null) return false;
+		} 
+		else if (!waferFrameID.equals(other.waferFrameID)) return false;
+		if (waferID == null)
+		{
+			if (other.waferID != null) return false;
+		} 
+		else if (!waferID.equals(other.waferID)) return false;
+		if (waferMaskID == null)
+		{
+			if (other.waferMaskID != null) return false;
+		} 
+		else if (!waferMaskID.equals(other.waferMaskID)) return false;
 		return true;
 	}
-
 
 }

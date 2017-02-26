@@ -2,8 +2,6 @@ package com.makechip.stdf2xls4.stdfapi;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +31,7 @@ public class HeaderUtil
     public static final String LOT = "LOT #:";
     public static final String STEP = "STEP #:";
     public static final String TEMPERATURE = "TEMPERATURE:";
+    public static final String JOB_DATE = "Job Date";
     private final Map<String, String> header;
     private PageHeader hdr;
     private final List<String> legacyTags;
@@ -60,9 +59,19 @@ public class HeaderUtil
 	{
 		if (hdr == null)
 		{
-			hdr = new PageHeader(Collections.unmodifiableMap(new HashMap<>(header)));
+			hdr = new PageHeader(header);
 		}
 		return(hdr);
+	}
+	
+	void setStartDate(String startDate)
+	{
+	    if (startDate != null) header.put("START_DATE", startDate);
+	}
+	
+	void setStopDate(String stopDate)
+	{
+	    if (stopDate != null) header.put("STOP_DATE", stopDate);
 	}
 	
 	void setHeader(StdfRecord r)

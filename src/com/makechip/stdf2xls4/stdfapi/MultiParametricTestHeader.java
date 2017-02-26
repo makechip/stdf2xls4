@@ -1,6 +1,5 @@
 package com.makechip.stdf2xls4.stdfapi;
 
-import com.makechip.stdf2xls4.stdf.StdfRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.TestID.PinTestID;
 
@@ -10,12 +9,12 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 	public static final String HL_HDR = "HiLimit";
 	public final String pin;
 
-	public MultiParametricTestHeader(PinTestID id, String units, float loLimit, float hiLimit)
+	public MultiParametricTestHeader(PinTestID id, String units, Float loLimit, Float hiLimit)
 	{
 		this(id.testName, id.testNumber, id.dupNum, ((PinTestID) id).pin, units, loLimit, hiLimit);
 	}
 	
-	public MultiParametricTestHeader(String tname, long tnum, int dupNum, String pin, String units, float loLimit, float hiLimit)
+	public MultiParametricTestHeader(String tname, long tnum, int dupNum, String pin, String units, Float loLimit, Float hiLimit)
 	{
 	    super(tname, tnum, dupNum, units, loLimit, hiLimit);	
 	    this.pin = pin;
@@ -23,7 +22,7 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 	
 	public MultiParametricTestHeader(String tname, long tnum, int dupNum, String units, Limit_t limit)
 	{
-	    this(tname, tnum, dupNum, limit.name, units, StdfRecord.MISSING_FLOAT, StdfRecord.MISSING_FLOAT);	
+	    this(tname, tnum, dupNum, limit.name, units, null, null);	
 	}
 	
 	public MultiParametricTestHeader(TestID id, String units, Limit_t limit)
@@ -34,14 +33,19 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 	@Override
 	public boolean isLoLimitHeader()
 	{
+	    if (pin == null) return false;
 		return(pin.equals(LL_HDR));
 	}
 	
 	@Override
 	public boolean isHiLimitHeader()
 	{
+	    if (pin == null) return false;
 		return(pin.equals(HL_HDR));
 	}
+	
+	@Override
+	public String getPin() { return(pin); }
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -54,8 +58,6 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 		builder.append(", ").append("units=").append(units);
 		builder.append(", ").append("loLimit=").append(loLimit);
 		builder.append(", hiLimit=").append(hiLimit);
-		builder.append(", noLoLimit=").append(noLoLimit);
-		builder.append(", noHiLimit=").append(noHiLimit);
 		builder.append(", ");
 		if (testName != null)
 		{
@@ -76,7 +78,7 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 	{
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + pin.hashCode();
+		result = (pin == null) ?  prime * result : prime * result + pin.hashCode();
 		return result;
 	}
 
@@ -89,7 +91,10 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 		if (this == obj) return true;
 		if (!(obj instanceof MultiParametricTestHeader)) return false;
 		MultiParametricTestHeader other = (MultiParametricTestHeader) obj;
-		if (!pin.equals(other.pin)) return false;
+		if (pin != null)
+		{
+		    if (!pin.equals(other.pin)) return false;
+		}
 		if (!super.equals(obj)) return false;
 		return true;
 	}

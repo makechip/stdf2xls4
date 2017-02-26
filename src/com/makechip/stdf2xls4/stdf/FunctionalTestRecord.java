@@ -26,21 +26,28 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
+
+import static com.makechip.stdf2xls4.stdf.enums.Data_t.*;
 /**
  *  This class holds the fields for an STDF FunctionalTestRecord.
  *  @author eric
  */
 public class FunctionalTestRecord extends TestRecord
 {
+	/**
+	 *  This is the TEST_NUM field.
+	 */
+    public final long testNumber;
 	/**
 	 *  This is the HEAD_NUM field.
 	 */
@@ -60,31 +67,31 @@ public class FunctionalTestRecord extends TestRecord
 	/**
 	 *  This is the CYCL_CNT field.
 	 */
-    public final long cycleCount;    // cycle count is invalid if CYCLE_CNT_INVALID is set
+    public final Long cycleCount;    // cycle count is invalid if CYCLE_CNT_INVALID is set
 	/**
 	 *  This is the REL_VADDR field.
 	 */
-    public final long relVaddr;      // relVaddr is invalid if REL_VADDR_INVALID is set
+    public final Long relVaddr;      // relVaddr is invalid if REL_VADDR_INVALID is set
 	/**
 	 *  This is the REPT_CNT field.
 	 */
-    public final long rptCnt;        // rptCnt is invalid if REPEAT_CNT_INVALID is set
+    public final Long rptCnt;        // rptCnt is invalid if REPEAT_CNT_INVALID is set
 	/**
 	 *  This is the NUM_FAIL field.
 	 */
-    public final long numFail;       // numFail is invalid if NUM_FAIL_INVALID is set
+    public final Long numFail;       // numFail is invalid if NUM_FAIL_INVALID is set
 	/**
 	 *  This is the XFAIL_AD field.
 	 */
-    public final int xFailAddr;     // xFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
+    public final Integer xFailAddr;     // xFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
 	/**
 	 *  This is the YFAIL_AD field.
 	 */
-    public final int yFailAddr;     // yFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
+    public final Integer yFailAddr;     // yFailAddr is invalid if XY_FAIL_ADDR_INVALID is set
 	/**
 	 *  This is the VECT_OFF field.
 	 */
-    public final short vecOffset;   // vecOffset is invalid if VEC_OFFSET_INVALID is set
+    public final Short vecOffset;   // vecOffset is invalid if VEC_OFFSET_INVALID is set
 	/**
 	 *  This is the VECT_NAM field.
 	 */
@@ -97,6 +104,10 @@ public class FunctionalTestRecord extends TestRecord
 	 *  This is the OP_CODE field.
 	 */
     public final String vecOpCode;
+    /**
+     *  This is the TEST_TXT field.
+     */
+    public final String testName;
 	/**
 	 *  This is the ALARM_ID field.
 	 */
@@ -112,21 +123,22 @@ public class FunctionalTestRecord extends TestRecord
 	/**
 	 *  This is the PATG_NUM field.
 	 */
-    public final short patGenNum;
+    public final Short patGenNum;
     /**
-     *  This field holds the TEST_NUM and TEST_TXT fields.
+     *  The test ID. Not a standard STDF field.
+     *  Combines the test name, test number, and
+     *  potentially a duplicate number to uniquely identify
+     *  this test.
      */
     public final TestID id;
-    private final int numFailPinBits;
-    private final int numEnCompBits;
-    
-    private final int[] rtnIndex;
-    private final byte[] rtnState;
-    private final int[] pgmIndex;
-    private final byte[] pgmState;
-    private final byte[] failPin;
-    private final byte[] enComps;
-    private final boolean missing;
+    public final IntList rtnIndex; // int
+    public final int numFailPinBits;
+    public final IntList rtnState; // byte
+    public final IntList pgmIndex; // int
+    public final IntList pgmState;  // byte
+    public final IntList failPin; // byte
+    public final int numEnCompBits;
+    public final IntList enComps; // byte
     
     /**
      * Constructor to create an FTR record from the binary data stream.
@@ -136,107 +148,174 @@ public class FunctionalTestRecord extends TestRecord
      * @param data Binary stream data.  This array should not contain
      * the first four bytes of the record.
      */
-    public FunctionalTestRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public FunctionalTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.FTR, dvd.getCpuType(), data);
-        long testNumber = getU4(MISSING_LONG);
-        headNumber = getU1(MISSING_SHORT);
-        siteNumber = getU1(MISSING_SHORT);
-        EnumSet<TestFlag_t> s = TestFlag_t.getBits(getByte());
+        super(Record_t.FTR);
+        int l = 7;
+        testNumber = cpu.getU4(is); 
+        headNumber = cpu.getU1(is); 
+        siteNumber = cpu.getU1(is); 
+        EnumSet<TestFlag_t> s = TestFlag_t.getBits(cpu.getI1(is));
         testFlags = Collections.unmodifiableSet(s);
-        boolean missingData = ptr >= getSize();
-        optFlags = missingData ? dvd.foptDefaults.get(testNumber) : Collections.unmodifiableSet(FTROptFlag_t.getBits(getByte()));
-        if (!missingData)
+        if (l >= recLen) optFlags =  null; 
+        else
         {
-        	if (dvd.foptDefaults.get(testNumber) == null) dvd.foptDefaults.put(testNumber, optFlags);
+        	optFlags = Collections.unmodifiableSet(FTROptFlag_t.getBits(cpu.getI1(is))); 
+        	l++;
         }
-        if (missingData)
+        if (l >= recLen) cycleCount = null; 
+        else
         {
-        	missing = true;
-        	cycleCount = MISSING_INT;
-        	relVaddr = MISSING_INT;
-        	rptCnt = MISSING_INT;
-        	numFail = MISSING_INT;
-        	xFailAddr = MISSING_INT;
-        	yFailAddr = MISSING_INT;
-        	vecOffset = MISSING_SHORT;
-        	rtnIndex = new int[0];
-        	rtnState = new byte[0];
-        	pgmIndex = new int[0];
-        	pgmState = new byte[0];
-        	numFailPinBits = 0;
-        	failPin = new byte[0];
-        	vecName = "";
-        	timeSetName = "";
-        	vecOpCode = "";
-        	String testName = dvd.tnameDefaults.get(testNumber);
-        	if (testName == null) testName = "";
-        	id = TestID.createTestID(tdb, testNumber, testName);
-        	alarmName = "";
-        	progTxt = "";
-        	rsltTxt = "";
-        	patGenNum = dvd.pgDefaults.get(testNumber);
-        	numEnCompBits = 0;
-        	enComps = dvd.ecDefaults.get(testNumber);
+        	cycleCount = cpu.getU4(is); 
+        	l += U4.numBytes;
+        }
+        if (l >= recLen) relVaddr = null; 
+        else
+        {
+        	relVaddr = cpu.getU4(is); 
+        	l += U4.numBytes;
+        }
+        if (l >= recLen) rptCnt = null; 
+        else
+        {
+        	rptCnt = cpu.getU4(is); 
+        	l += U4.numBytes;
+        }
+        if (l >= recLen)  numFail = null; 
+        else
+        { 
+        	numFail = cpu.getU4(is); 
+        	l += U4.numBytes;
+        }
+        if (l >= recLen) xFailAddr = null; 
+        else
+        {
+        	xFailAddr = cpu.getI4(is); 
+        	l += I4.numBytes;
+        }
+        if (l >= recLen) yFailAddr = null; 
+        else
+        {
+        	yFailAddr = cpu.getI4(is); 
+        	l += I4.numBytes;
+        }
+        if (l >= recLen) vecOffset = null; 
+        else
+        {
+        	vecOffset = cpu.getI2(is); 
+        	l += I2.numBytes;
+        }
+        final int j = (l < recLen) ? cpu.getU2(is) : 0;
+        if (l < recLen) l += U2.numBytes;
+        final int k = (l < recLen) ? cpu.getU2(is) : 0;
+        if (l < recLen) l += U2.numBytes;
+        if (j > 0)
+        {
+            rtnIndex = new IntList(Data_t.U2, cpu, j, is);
+            l += rtnIndex.size() * U2.numBytes;
+        }
+        else rtnIndex = null;
+        if (j > 0 && l < recLen) // j is the number of nibbles
+        {
+            rtnState = new IntList(Data_t.N1, cpu, j, is);
+            l += (j+1)/2;
+        }
+        else rtnState = null;
+        if (k > 0)
+        {
+            pgmIndex = new IntList(Data_t.U2, cpu, j, is);
+            l += pgmIndex.size() * U2.numBytes;
+        }
+        else pgmIndex = null;
+        if (k > 0 && l < recLen)
+        {
+            pgmState = new IntList(Data_t.N1, cpu, j, is);
+            l += (k+1)/2;
+        }
+        else pgmState = null;
+        if (l < recLen)
+        {
+        	numFailPinBits = cpu.getU2(is);
+        	l += U2.numBytes;
+        	failPin = new IntList(cpu.getDN(numFailPinBits, is));
+        	l += failPin.size();
         }
         else
         {
-        	missing = false;
-            cycleCount = getU4(MISSING_INT);
-            relVaddr = getU4(MISSING_INT);
-            rptCnt = getU4(MISSING_INT);
-            numFail = getU4(MISSING_INT);
-            xFailAddr = getI4(MISSING_INT);
-            yFailAddr = getI4(MISSING_INT);
-            vecOffset = getI2(MISSING_SHORT);
-            int j = getU2(0);
-            int k = getU2(0);
-            rtnIndex = new int[j];
-            for (int i=0; i<j; i++) rtnIndex[i] = getU2(MISSING_INT);
-            rtnState = getNibbles(j); 
-            pgmIndex = new int[k];
-            for (int i=0; i<k; i++) pgmIndex[i] = getU2(MISSING_INT);
-            pgmState = getNibbles(k);
-            MutableInt numBits = new MutableInt();
-            failPin = getDn(numBits);
-            numFailPinBits = numBits.n;
-            vecName = getCn();
-            timeSetName = getCn();
-            vecOpCode = getCn(); 
-            String testName = getCn();
-            if (!testName.equals(MISSING_STRING))
-            {
-        	    if (dvd.tnameDefaults.get(testNumber) == null) dvd.tnameDefaults.put(testNumber, testName);
-            }
-            else testName = dvd.tnameDefaults.get(testNumber);
-            if (testName == null) testName = "";
-            id = TestID.createTestID(tdb, testNumber, testName);
-            alarmName = getCn();
-            progTxt = getCn();
-            rsltTxt = getCn();
-            short p = getU1(MISSING_SHORT);
-            if (p != MISSING_SHORT)
-            {
-            	if (dvd.pgDefaults.get(testNumber) == MISSING_SHORT) dvd.pgDefaults.put(testNumber, p);
-            }
-            else p = dvd.pgDefaults.get(testNumber);
-            patGenNum = p;
-            numBits.n = 0;
-            byte[] ec = getDn(numBits); 
-            numEnCompBits = numBits.n;
-            if (ec.length != 0)
-            {
-            	if (dvd.ecDefaults.get(testNumber) == null) dvd.ecDefaults.put(testNumber, ec);
-            }
-            else ec = dvd.ecDefaults.get(testNumber);
-            enComps = ec;
+        	failPin = null;
+        	numFailPinBits = 0;
         }
+        if (l < recLen)
+        {
+            vecName = cpu.getCN(is);
+            l += vecName.length() + 1;
+        }
+        else vecName = null;
+        if (l < recLen)
+        {
+        	timeSetName = cpu.getCN(is);
+        	l += timeSetName.length() + 1;
+        }
+        else timeSetName = null;
+        if (l < recLen)
+        {
+        	vecOpCode = cpu.getCN(is);
+        	l += vecOpCode.length() + 1;
+        }
+        else vecOpCode = null; 
+        if (l < recLen)
+        {
+        	testName = cpu.getCN(is);
+        	id = TestID.createTestID(tdb, testNumber, testName);
+        	l += testName.length() + 1;
+        }
+        else 
+        {
+        	id = null;
+        	testName = null;
+        }
+        if (l < recLen)
+        {
+        	alarmName = cpu.getCN(is);
+        	l += alarmName.length() + 1;
+        }
+        else alarmName = null;
+        if (l < recLen)
+        {
+        	progTxt = cpu.getCN(is);
+        	l += progTxt.length() + 1;
+        }
+        else progTxt = null;
+        if (l < recLen)
+        {
+        	rsltTxt = cpu.getCN(is);
+        	l += rsltTxt.length() + 1;
+        }
+        else rsltTxt = null;
+        if (l < recLen)
+        {
+        	patGenNum = cpu.getU1(is);
+        	l++;
+        }
+        else patGenNum = null;
+        if (l < recLen)
+        {
+        	numEnCompBits = cpu.getU2(is);
+        	l += U2.numBytes;
+        	enComps = new IntList(cpu.getDN(numEnCompBits, is));
+        	l += enComps.size();
+        }
+        else
+        {
+        	enComps = null;
+        	numEnCompBits = 0;
+        }
+        if (l != recLen) throw new RuntimeException("FTR record length incorrect - recLen = " + recLen + " actual = " + l); 
     }
     
     /**
      * This constructor is used to generate a FunctionalTestRecord with field values.
      * @param tdb TestIdDatabase is for generating the TestID.
-     * @param dvd The DefaultValueDatabase is for Supplying the CPU type and default values.
      * @param testNumber The TEST_NUM field.
      * @param headNumber The HEAD_NUM field.
      * @param siteNumber The SITE_NUM field.
@@ -265,190 +344,224 @@ public class FunctionalTestRecord extends TestRecord
      * @param patGenNum  The PATG_NUM field.
      * @param numEnCompBits The number of bits in the SPIN_MAP field.
      * @param enComps    The SPIN_MAP field.
+     * @throws StdfException 
+     * @throws IOException 
      */
      public FunctionalTestRecord(
-        TestIdDatabase tdb,
-        DefaultValueDatabase dvd,
+        final Cpu_t cpu,
+        final TestIdDatabase tdb,
         final long testNumber,
         final short headNumber,
         final short siteNumber,
         final byte testFlags,
-        final byte optFlags,
-        final long cycleCount,
-        final long relVaddr,
-        final long rptCnt,
-        final long numFail,
-        final int xFailAddr,
-        final int yFailAddr,
-        final short vecOffset,
+        final Byte optFlags,
+        final Long cycleCount,
+        final Long relVaddr,
+        final Long rptCnt,
+        final Long numFail,
+        final Integer xFailAddr,
+        final Integer yFailAddr,
+        final Short vecOffset,
         final int[] rtnIndex,
-        final byte[] rtnState,
+        final int[] rtnState,
         final int[] pgmIndex,
-        final byte[] pgmState,
-        final int numFailPinBits,
-        final byte[] failPin,
+        final int[] pgmState,
+        final Integer numFailPinBits,
+        final int[] failPin,
         final String vecName,
         final String timeSetName,
         final String vecOpCode,
-        String label,
+        final String testName,
         final String alarmName,
         final String progTxt,
         final String rsltTxt,
-        final short patGenNum,
-        final int numEnCompBits,
-        final byte[] enComps)
+        final Short patGenNum,
+        final Integer numEnCompBits,
+        final int[] enComps)
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), testNumber, headNumber, siteNumber, TestFlag_t.getBits(testFlags), 
-    		 FTROptFlag_t.getBits(optFlags), cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
+    	this(cpu, tdb,
+    		 getRecLen(testNumber, headNumber, siteNumber, testFlags, 
+    		 optFlags, cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
     		 vecOffset, rtnIndex, rtnState, pgmIndex, pgmState, numFailPinBits, failPin, vecName, timeSetName, vecOpCode, 
-    		 label, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, enComps));
+    		 testName, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, enComps),
+    		 new ByteInputStream(toBytes(cpu, testNumber, headNumber, siteNumber, testFlags, 
+    		 optFlags, cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
+    		 vecOffset, rtnIndex, rtnState, pgmIndex, pgmState, numFailPinBits, failPin, vecName, timeSetName, vecOpCode, 
+    		 testName, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, enComps)));
     }
     
-    /**
-     * This constructor is used to generate a FunctionalTestRecord with field values.
-     * Use this for the case when omitting optional data.
-     * @param tdb TestIdDatabase is for generating the TestID.
-     * @param dvd The DefaultValueDatabase is for Supplying the CPU type and default values.
-     * @param testNumber The TEST_NUM field.
-     * @param headNumber The HEAD_NUM field.
-     * @param siteNumber The SITE_NUM field.
-     * @param testFlags  The TEST_FLG field.
-     */
-     public FunctionalTestRecord(
-        TestIdDatabase tdb,
-        DefaultValueDatabase dvd,
-        final long testNumber,
-        final short headNumber,
-        final short siteNumber,
-        final byte testFlags)
-    {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), testNumber, headNumber, siteNumber, TestFlag_t.getBits(testFlags)));
-    }
     
-    @Override
-    protected void toBytes()
-    {
-    	if (missing)
-    	{
-    		bytes = toBytes(cpuType, id.testNumber, headNumber, siteNumber, testFlags);
-    	}
-    	else
-    	{
-    		bytes = toBytes(
-    				cpuType,
-    				id.testNumber,
-    				headNumber,
-    				siteNumber,
-    				testFlags,
-    				optFlags,
-    				cycleCount,
-    				relVaddr,
-    				rptCnt,
-    				numFail,
-    				xFailAddr,
-    				yFailAddr,
-    				vecOffset,
-    				rtnIndex,
-    				rtnState,
-    				pgmIndex,
-    				pgmState,
-    				numFailPinBits,
-    				failPin,
-    				vecName,
-    				timeSetName,
-    				vecOpCode,
-    				id.testName,
-    				alarmName,
-    				progTxt,
-    				rsltTxt,
-    				patGenNum,
-    				numEnCompBits,
-    				enComps);
-    	}
-    }
+	@Override
+	public byte[] getBytes(Cpu_t cpu)
+	{
+		byte tflags = (byte) testFlags.stream().mapToInt(b -> b.bit).sum();
+		Byte oflags = null;
+		if (optFlags != null)
+		{
+			byte o = (byte) optFlags.stream().mapToInt(b -> b.bit).sum();
+			oflags = new Byte(o);
+		}
+		int[] ri = (rtnIndex == null) ? null : rtnIndex.getArray();
+		int[] rs = (rtnState == null) ? null : rtnState.getArray();
+		int[] pi = (pgmIndex == null) ? null : pgmIndex.getArray();
+		int[] ps = (pgmState == null) ? null : pgmState.getArray();
+		int[] fp = (failPin == null) ? null : failPin.getArray();
+		int[] ec = (enComps == null) ? null : enComps.getArray();
+    	byte[] b = toBytes(cpu, testNumber, headNumber, siteNumber, tflags, oflags, 
+    			           cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
+    			           vecOffset, ri, rs, pi, ps, numFailPinBits, fp, vecName, timeSetName, 
+    			           vecOpCode, testName, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, ec);
+    	TByteArrayList l = getHeaderBytes(cpu, Record_t.FTR, b.length);
+    	l.addAll(b);
+		return(l.toArray());
+	}
     
     private static byte[] toBytes(
-        Cpu_t cpuType,
+        Cpu_t cpu,
         final long testNumber,
         final short headNumber,
         final short siteNumber,
-        final Set<TestFlag_t> testFlags,
-        final Set<FTROptFlag_t> optFlags,
-        final long cycleCount,
-        final long relVaddr,
-        final long rptCnt,
-        final long numFail,
-        final int xFailAddr,
-        final int yFailAddr,
-        final short vecOffset,
+        final byte testFlags,
+        final Byte optFlags,
+        final Long cycleCount,
+        final Long relVaddr,
+        final Long rptCnt,
+        final Long numFail,
+        final Integer xFailAddr,
+        final Integer yFailAddr,
+        final Short vecOffset,
         final int[] rtnIndex,
-        final byte[] rtnState,
+        final int[] rtnState,
         final int[] pgmIndex,
-        final byte[] pgmState,
-        final int numFailPinBits,
-        final byte[] failPin,
+        final int[] pgmState,
+        final Integer numFailPinBits,
+        final int[] failPin,
         final String vecName,
         final String timeSetName,
         final String vecOpCode,
-        String label,
+        final String testName,
         final String alarmName,
         final String progTxt,
         final String rsltTxt,
-        final short patGenNum,
-        final int numEnCompBits,
-        final byte[] enComps)
+        final Short patGenNum,
+        final Integer numEnCompBits,
+        final int[] enComps)
     {
         TByteArrayList list = new TByteArrayList();
-        list.addAll(cpuType.getU4Bytes(testNumber));
-        list.addAll(getU1Bytes(headNumber));
-        list.addAll(getU1Bytes(siteNumber));
-        byte b = 0;
-        for (TestFlag_t t : testFlags) b |= t.bit;
-        list.add(b);
-        b = 0;
-        for (FTROptFlag_t t : optFlags) b |= t.bit;
-        list.add(b);
-        list.addAll(cpuType.getU4Bytes(cycleCount));
-        list.addAll(cpuType.getU4Bytes(relVaddr));
-        list.addAll(cpuType.getU4Bytes(rptCnt));
-        list.addAll(cpuType.getU4Bytes(numFail));
-        list.addAll(cpuType.getI4Bytes(xFailAddr));
-        list.addAll(cpuType.getI4Bytes(yFailAddr));
-        list.addAll(cpuType.getI2Bytes(vecOffset));
-        list.addAll(cpuType.getU2Bytes(rtnIndex.length));
-        list.addAll(cpuType.getU2Bytes(pgmIndex.length));
-        for (int i=0; i<rtnIndex.length; i++) list.addAll(cpuType.getU2Bytes(rtnIndex[i]));
-        list.addAll(getNibbleBytes(rtnState));
-        for (int i=0; i<pgmIndex.length; i++) list.addAll(cpuType.getU2Bytes(pgmIndex[i]));
-        list.addAll(getNibbleBytes(pgmState));
-        list.addAll(cpuType.getDnBytes(numFailPinBits, failPin));
-        list.addAll(getCnBytes(vecName));
-        list.addAll(getCnBytes(timeSetName));
-        list.addAll(getCnBytes(vecOpCode));
-        list.addAll(getCnBytes(label));
-        list.addAll(getCnBytes(alarmName));
-        list.addAll(getCnBytes(progTxt));
-        list.addAll(getCnBytes(rsltTxt));
-        list.addAll(getU1Bytes(patGenNum));
-        list.addAll(cpuType.getDnBytes(numEnCompBits, enComps));
+        list.addAll(cpu.getU4Bytes(testNumber));
+        list.addAll(cpu.getU1Bytes(headNumber));
+        list.addAll(cpu.getU1Bytes(siteNumber));
+        list.add(testFlags);
+        if (optFlags != null) list.add(optFlags);
+        else return(list.toArray());
+        if (cycleCount != null) list.addAll(cpu.getU4Bytes(cycleCount));
+        else return(list.toArray());
+        if (relVaddr != null) list.addAll(cpu.getU4Bytes(relVaddr));
+        else return(list.toArray());
+        if (rptCnt != null) list.addAll(cpu.getU4Bytes(rptCnt));
+        else return(list.toArray());
+        if (numFail != null) list.addAll(cpu.getU4Bytes(numFail));
+        else return(list.toArray());
+        if (xFailAddr != null) list.addAll(cpu.getI4Bytes(xFailAddr));
+        else return(list.toArray());
+        if (yFailAddr != null) list.addAll(cpu.getI4Bytes(yFailAddr));
+        else return(list.toArray());
+        if (vecOffset != null) list.addAll(cpu.getI2Bytes(vecOffset));
+        else return(list.toArray());
+        if (rtnIndex != null) list.addAll(cpu.getU2Bytes(rtnIndex.length));
+        else return(list.toArray());
+        if (pgmIndex != null) list.addAll(cpu.getU2Bytes(pgmIndex.length));
+        else return(list.toArray());
+        IntStream.range(0, rtnIndex.length).forEach(p -> list.addAll(cpu.getU2Bytes(rtnIndex[p])));
+        if (rtnState != null) 
+        {
+        	final int len = (rtnState.length + 1) / 2;
+        	IntStream.range(0, len).forEach(p -> StdfRecord.addNibbles(cpu, rtnState, list, p, len));
+        }
+        else return(list.toArray());
+        IntStream.range(0,  pgmIndex.length).forEach(p -> list.addAll(cpu.getU2Bytes(pgmIndex[p])));
+        if (pgmState != null) 
+        {
+        	final int len = (pgmState.length + 1) / 2;
+        	IntStream.range(0, len).forEach(p -> StdfRecord.addNibbles(cpu, pgmState, list, p, len));
+        }
+        else return(list.toArray());
+        if (failPin != null) list.addAll(cpu.getDNBytes(numFailPinBits, failPin));
+        else return(list.toArray());
+        if (vecName != null) list.addAll(cpu.getCNBytes(vecName));
+        else return(list.toArray());
+        if (timeSetName != null) list.addAll(cpu.getCNBytes(timeSetName));
+        else return(list.toArray());
+        if (vecOpCode != null) list.addAll(cpu.getCNBytes(vecOpCode));
+        else return(list.toArray());
+        if (testName != null) list.addAll(cpu.getCNBytes(testName));
+        else return(list.toArray());
+        if (alarmName != null) list.addAll(cpu.getCNBytes(alarmName));
+        else return(list.toArray());
+        if (progTxt != null) list.addAll(cpu.getCNBytes(progTxt));
+        else return(list.toArray());
+        if (rsltTxt != null) list.addAll(cpu.getCNBytes(rsltTxt));
+        else return(list.toArray());
+        if (patGenNum != null) list.addAll(cpu.getU1Bytes(patGenNum));
+        else return(list.toArray());
+        if (enComps != null) list.addAll(cpu.getDNBytes(numEnCompBits, enComps));
         return(list.toArray());
     }
   
-    private static byte[] toBytes(
-        Cpu_t cpuType,
+    private static int getRecLen(
         final long testNumber,
         final short headNumber,
         final short siteNumber,
-        final Set<TestFlag_t> testFlags)
+        final byte testFlags,
+        final Byte optFlags,
+        final Long cycleCount,
+        final Long relVaddr,
+        final Long rptCnt,
+        final Long numFail,
+        final Integer xFailAddr,
+        final Integer yFailAddr,
+        final Short vecOffset,
+        final int[] rtnIndex,
+        final int[] rtnState,
+        final int[] pgmIndex,
+        final int[] pgmState,
+        final Integer numFailPinBits,
+        final int[] failPin,
+        final String vecName,
+        final String timeSetName,
+        final String vecOpCode,
+        final String testName,
+        final String alarmName,
+        final String progTxt,
+        final String rsltTxt,
+        final Short patGenNum,
+        final Integer numEnCompBits,
+        final int[] enComps)
     {
-        TByteArrayList list = new TByteArrayList();
-        list.addAll(cpuType.getU4Bytes(testNumber));
-        list.addAll(getU1Bytes(headNumber));
-        list.addAll(getU1Bytes(siteNumber));
-        byte b = 0;
-        for (TestFlag_t t : testFlags) b |= t.bit;
-        list.add(b);
-        return(list.toArray());
+    	int l = U4.numBytes + U1.numBytes + U1.numBytes + 1;
+        if (optFlags != null) l++; else return(l);
+        if (cycleCount != null) l += U4.numBytes; else return(l);
+        if (relVaddr != null) l += U4.numBytes; else return(l);
+        if (rptCnt != null) l += U4.numBytes; else return(l);
+        if (numFail != null) l+= U4.numBytes; else return(l);
+        if (xFailAddr != null) l += I4.numBytes; else return(l);
+        if (yFailAddr != null) l += I4.numBytes; else return(l);
+        if (vecOffset != null) l += I2.numBytes; else return(l);
+        if (rtnIndex != null) l += U2.numBytes * (1 + rtnIndex.length); else return(l);
+        if (rtnState != null) l += ((rtnState.length+1) / 2); else return(l);
+        if (pgmIndex != null) l += U2.numBytes * (1 + pgmIndex.length); else return(l);
+        if (pgmState != null) l += ((pgmState.length+1) / 2); else return(l);
+        if (failPin != null) l += U2.numBytes + failPin.length; else return(l);
+        if (vecName != null) l += 1 + vecName.length(); else return(l);
+        if (timeSetName != null) l += 1 + timeSetName.length(); else return(l);
+        if (vecOpCode != null) l += 1 + vecOpCode.length(); else return(l);
+        if (testName != null) l += 1 + testName.length(); else return(l);
+        if (alarmName != null) l += 1 + alarmName.length(); else return(l);
+        if (progTxt != null) l += 1 + progTxt.length(); else return(l);
+        if (rsltTxt != null) l += 1 + rsltTxt.length(); else return(l);
+        if (patGenNum != null) l += U1.numBytes; else return(l);
+        if (enComps != null) l += U2.numBytes + enComps.length;
+    	return(l);
     }
   
     /**
@@ -487,79 +600,6 @@ public class FunctionalTestRecord extends TestRecord
      */
     public boolean fail() { return(testFlags.contains(TestFlag_t.FAIL)); }
     
-    /**
-     * Get the array of PMR indexes. 
-     * @return A copy of the PMR index (RTN_INDX) array.
-     */
-    public int[] getRtnIndex() { return(Arrays.copyOf(rtnIndex, rtnIndex.length)); }
-    /**
-     * Get the array of returned states.
-     * @return A copy of the RTN_STAT array.
-     */
-    public byte[] getRtnState() { return(Arrays.copyOf(rtnState, rtnState.length)); }
-    /**
-     * Get the array of programmed state indexes.
-     * @return A copy of the PGM_INDX array.
-     */
-    public int[] getPgmIndex() { return(Arrays.copyOf(pgmIndex, pgmIndex.length)); }
-    /**
-     * Get the array of programmed state indexes. 
-     * @return A copy of the PGM_STAT array.
-     */
-    public byte[] getPgmState() { return(Arrays.copyOf(pgmState, pgmState.length)); }
-    /**
-     * Get the failing pin bit-field. Note: use the numFailPinBits field to
-     * determine the exact number of bits in this field.
-     * @return A copy of the failPin (FAIL_PIN) array.
-     */
-    public byte[] getFailPin() { return(Arrays.copyOf(failPin, failPin.length)); }
-    /**
-     * Get the bit map of enabled comparators. Note: use the numEnCompBits to
-     * determine the exace number of bits in this field.
-     * @return A copy of the enComps (SPIN_MAP) array.
-     */
-    public byte[] getEnComps() { return(Arrays.copyOf(enComps, enComps.length)); }
-
-
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("FunctionalTestRecord [testFlags=").append(testFlags);
-		builder.append(", optFlags=").append(optFlags);
-		builder.append(", cycleCount=").append(cycleCount);
-		builder.append(", relVaddr=").append(relVaddr);
-		builder.append(", rptCnt=").append(rptCnt);
-		builder.append(", numFail=").append(numFail);
-		builder.append(", xFailAddr=").append(xFailAddr);
-		builder.append(", yFailAddr=").append(yFailAddr);
-		builder.append(", vecOffset=").append(vecOffset);
-		builder.append(", vecName=").append(vecName);
-		builder.append(", timeSetName=").append(timeSetName);
-		builder.append(", vecOpCode=").append(vecOpCode);
-		builder.append(", alarmName=").append(alarmName);
-		builder.append(", progTxt=").append(progTxt);
-		builder.append(", rsltTxt=").append(rsltTxt);
-		builder.append(", patGenNum=").append(patGenNum);
-		builder.append(", numFailPinBits=").append(numFailPinBits);
-		builder.append(", numEnCompBits=").append(numEnCompBits);
-		builder.append(", rtnIndex=").append(Arrays.toString(rtnIndex));
-		builder.append(", rtnState=").append(Arrays.toString(rtnState));
-		builder.append(", pgmIndex=").append(Arrays.toString(pgmIndex));
-		builder.append(", pgmState=").append(Arrays.toString(pgmState));
-		builder.append(", failPin=").append(Arrays.toString(failPin));
-		builder.append(", enComps=").append(Arrays.toString(enComps));
-		builder.append(", id=").append(id);
-		builder.append(", headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append("]");
-		return builder.toString();
-	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -567,34 +607,35 @@ public class FunctionalTestRecord extends TestRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + alarmName.hashCode();
-		result = prime * result + (int) (cycleCount ^ (cycleCount >>> 32));
-		result = prime * result + Arrays.hashCode(enComps);
-		result = prime * result + Arrays.hashCode(failPin);
+		int result = 1;
+		result = prime * result + ((alarmName == null) ? 0 : alarmName.hashCode());
+		result = prime * result + ((cycleCount == null) ? 0 : cycleCount.hashCode());
+		result = prime * result + ((enComps == null) ? 0 : enComps.hashCode());
+		result = prime * result + ((failPin == null) ? 0 : failPin.hashCode());
 		result = prime * result + headNumber;
-		result = prime * result + id.hashCode();
 		result = prime * result + numEnCompBits;
-		result = prime * result + (int) (numFail ^ (numFail >>> 32));
+		result = prime * result + ((numFail == null) ? 0 : numFail.hashCode());
 		result = prime * result + numFailPinBits;
-		result = prime * result + optFlags.hashCode();
-		result = prime * result + patGenNum;
-		result = prime * result + Arrays.hashCode(pgmIndex);
-		result = prime * result + Arrays.hashCode(pgmState);
-		result = prime * result + progTxt.hashCode();
-		result = prime * result + (int) (relVaddr ^ (relVaddr >>> 32));
-		result = prime * result + (int) (rptCnt ^ (rptCnt >>> 32));
-		result = prime * result + rsltTxt.hashCode();
-		result = prime * result + Arrays.hashCode(rtnIndex);
-		result = prime * result + Arrays.hashCode(rtnState);
+		result = prime * result + ((optFlags == null) ? 0 : optFlags.hashCode());
+		result = prime * result + ((patGenNum == null) ? 0 : patGenNum.hashCode());
+		result = prime * result + ((pgmIndex == null) ? 0 : pgmIndex.hashCode());
+		result = prime * result + ((pgmState == null) ? 0 : pgmState.hashCode());
+		result = prime * result + ((progTxt == null) ? 0 : progTxt.hashCode());
+		result = prime * result + ((relVaddr == null) ? 0 : relVaddr.hashCode());
+		result = prime * result + ((rptCnt == null) ? 0 : rptCnt.hashCode());
+		result = prime * result + ((rsltTxt == null) ? 0 : rsltTxt.hashCode());
+		result = prime * result + ((rtnIndex == null) ? 0 : rtnIndex.hashCode());
+		result = prime * result + ((rtnState == null) ? 0 : rtnState.hashCode());
 		result = prime * result + siteNumber;
-		result = prime * result + testFlags.hashCode();
-		result = prime * result + timeSetName.hashCode();
-		result = prime * result + vecName.hashCode();
-		result = prime * result + vecOffset;
-		result = prime * result + vecOpCode.hashCode();
-		result = prime * result + xFailAddr;
-		result = prime * result + yFailAddr;
+		result = prime * result + ((testFlags == null) ? 0 : testFlags.hashCode());
+		result = prime * result + ((testName == null) ? 0 : testName.hashCode());
+		result = prime * result + (int) (testNumber ^ (testNumber >>> 32));
+		result = prime * result + ((timeSetName == null) ? 0 : timeSetName.hashCode());
+		result = prime * result + ((vecName == null) ? 0 : vecName.hashCode());
+		result = prime * result + ((vecOffset == null) ? 0 : vecOffset.hashCode());
+		result = prime * result + ((vecOpCode == null) ? 0 : vecOpCode.hashCode());
+		result = prime * result + ((xFailAddr == null) ? 0 : xFailAddr.hashCode());
+		result = prime * result + ((yFailAddr == null) ? 0 : yFailAddr.hashCode());
 		return result;
 	}
 
@@ -605,47 +646,157 @@ public class FunctionalTestRecord extends TestRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
-		if (!super.equals(obj)) return false;
+		if (obj == null) return false;
 		if (!(obj instanceof FunctionalTestRecord)) return false;
 		FunctionalTestRecord other = (FunctionalTestRecord) obj;
-		if (!alarmName.equals(other.alarmName)) return false;
-		if (cycleCount != other.cycleCount) return false;
-		if (!Arrays.equals(enComps, other.enComps)) return false;
-		if (!Arrays.equals(failPin, other.failPin)) return false;
+		if (alarmName == null)
+		{
+			if (other.alarmName != null) return false;
+		} 
+		else if (!alarmName.equals(other.alarmName)) return false;
+		if (cycleCount == null)
+		{
+			if (other.cycleCount != null) return false;
+		} 
+		else if (!cycleCount.equals(other.cycleCount)) return false;
+		if (enComps == null)
+		{
+			if (other.enComps != null) return false;
+		} 
+		else if (!enComps.equals(other.enComps)) return false;
+		if (failPin == null)
+		{
+			if (other.failPin != null) return false;
+		} 
+		else if (!failPin.equals(other.failPin)) return false;
 		if (headNumber != other.headNumber) return false;
-		if (id != other.id) return false;
 		if (numEnCompBits != other.numEnCompBits) return false;
-		if (numFail != other.numFail) return false;
+		if (numFail == null)
+		{
+			if (other.numFail != null) return false;
+		} 
+		else if (!numFail.equals(other.numFail)) return false;
 		if (numFailPinBits != other.numFailPinBits) return false;
-		if (!optFlags.equals(other.optFlags)) return false;
-		if (patGenNum != other.patGenNum) return false;
-		if (!Arrays.equals(pgmIndex, other.pgmIndex)) return false;
-		if (!Arrays.equals(pgmState, other.pgmState)) return false;
-		if (!progTxt.equals(other.progTxt)) return false;
-		if (relVaddr != other.relVaddr) return false;
-		if (rptCnt != other.rptCnt) return false;
-		if (!rsltTxt.equals(other.rsltTxt)) return false;
-		if (!Arrays.equals(rtnIndex, other.rtnIndex)) return false;
-		if (!Arrays.equals(rtnState, other.rtnState)) return false;
+		if (optFlags == null)
+		{
+			if (other.optFlags != null) return false;
+		} 
+		else if (!optFlags.equals(other.optFlags)) return false;
+		if (patGenNum == null)
+		{
+			if (other.patGenNum != null) return false;
+		} 
+		else if (!patGenNum.equals(other.patGenNum)) return false;
+		if (pgmIndex == null)
+		{
+			if (other.pgmIndex != null) return false;
+		} 
+		else if (!pgmIndex.equals(other.pgmIndex)) return false;
+		if (pgmState == null)
+		{
+			if (other.pgmState != null) return false;
+		} 
+		else if (!pgmState.equals(other.pgmState)) return false;
+		if (progTxt == null)
+		{
+			if (other.progTxt != null) return false;
+		} 
+		else if (!progTxt.equals(other.progTxt)) return false;
+		if (relVaddr == null)
+		{
+			if (other.relVaddr != null) return false;
+		} 
+		else if (!relVaddr.equals(other.relVaddr)) return false;
+		if (rptCnt == null)
+		{
+			if (other.rptCnt != null) return false;
+		} 
+		else if (!rptCnt.equals(other.rptCnt)) return false;
+		if (rsltTxt == null)
+		{
+			if (other.rsltTxt != null) return false;
+		} 
+		else if (!rsltTxt.equals(other.rsltTxt)) return false;
+		if (rtnIndex == null)
+		{
+			if (other.rtnIndex != null) return false;
+		} 
+		else if (!rtnIndex.equals(other.rtnIndex)) return false;
+		if (rtnState == null)
+		{
+			if (other.rtnState != null) return false;
+		} 
+		else if (!rtnState.equals(other.rtnState)) return false;
 		if (siteNumber != other.siteNumber) return false;
-		if (!testFlags.equals(other.testFlags)) return false;
-		if (!timeSetName.equals(other.timeSetName)) return false;
-		if (!vecName.equals(other.vecName)) return false;
-		if (vecOffset != other.vecOffset) return false;
-		if (!vecOpCode.equals(other.vecOpCode)) return false;
-		if (xFailAddr != other.xFailAddr) return false;
-		if (yFailAddr != other.yFailAddr) return false;
+		if (testFlags == null)
+		{
+			if (other.testFlags != null) return false;
+		} 
+		else if (!testFlags.equals(other.testFlags)) return false;
+		if (testName == null)
+		{
+			if (other.testName != null) return false;
+		} 
+		else if (!testName.equals(other.testName)) return false;
+		if (testNumber != other.testNumber) return false;
+		if (timeSetName == null)
+		{
+			if (other.timeSetName != null) return false;
+		} 
+		else if (!timeSetName.equals(other.timeSetName)) return false;
+		if (vecName == null)
+		{
+			if (other.vecName != null) return false;
+		} 
+		else if (!vecName.equals(other.vecName)) return false;
+		if (vecOffset == null)
+		{
+			if (other.vecOffset != null) return false;
+		} 
+		else if (!vecOffset.equals(other.vecOffset)) return false;
+		if (vecOpCode == null)
+		{
+			if (other.vecOpCode != null) return false;
+		} 
+		else if (!vecOpCode.equals(other.vecOpCode)) return false;
+		if (xFailAddr == null)
+		{
+			if (other.xFailAddr != null) return false;
+		} 
+		else if (!xFailAddr.equals(other.xFailAddr)) return false;
+		if (yFailAddr == null)
+		{
+			if (other.yFailAddr != null) return false;
+		} 
+		else if (!yFailAddr.equals(other.yFailAddr)) return false;
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getTestId()
-	 */
 	@Override
-	public TestID getTestId()
+	public long getTestNumber()
+	{
+		return(testNumber);
+	}
+
+	@Override
+	public String getTestName()
+	{
+		return(testName);
+	}
+
+	@Override
+	public Set<TestFlag_t> getTestFlags()
+	{
+		return(testFlags);
+	}
+
+	@Override
+	public TestID getTestID()
 	{
 		return(id);
 	}
+
+
 
    
 }

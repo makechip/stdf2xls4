@@ -26,7 +26,6 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -54,79 +53,72 @@ public class WaferInformationRecord extends StdfRecord
      */
     public final String waferID;
     
-   /**
-    *  Constructor used by the STDF reader to load binary data into this class.
-    *  @param tdb The TestIdDatabase.  This parameter is not used.
-    *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-    *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-    *         REC_SUB values are not included in this array.
-    */
-   public WaferInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+   public WaferInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.WIR, dvd.getCpuType(), data);
-        headNumber = getU1((short) -1);
-        siteGroupNumber = getU1((short) 255);
-        startDate = getU4(-1);
-        waferID = getCn();
+        super(Record_t.WIR);
+        headNumber = cpu.getU1(is);
+        siteGroupNumber = cpu.getU1(is);
+        startDate = cpu.getU4(is);
+        int l = 6;
+        if (l < recLen)
+        {
+            waferID = cpu.getCN(is);
+            l += 1 + waferID.length();
+        }
+        else waferID = null;
+        if (l != recLen) throw new RuntimeException("Record length error in WaferInformationRecord.");
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, headNumber, siteGroupNumber, startDate, waferID);	
+		byte[] b = toBytes(cpu, headNumber, siteGroupNumber, startDate, waferID);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.WIR, b.length);
+		l.addAll(b);
+		return(l.toArray());
+	}
+
+	private static int getRecLen(String waferID)
+	{
+		int l = 6;
+		if (waferID != null) l += 1 + waferID.length();
+		return(l);
 	}
 	
 	private static byte[] toBytes(
-		Cpu_t cpuType,
+		Cpu_t cpu,
 		short headNumber,
 		short siteGroupNumber,
 		long startDate,
 		String waferID)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteGroupNumber));
-		l.addAll(cpuType.getU4Bytes(startDate));
-		l.addAll(getCnBytes(waferID));
+		l.addAll(cpu.getU1Bytes(headNumber));
+		l.addAll(cpu.getU1Bytes(siteGroupNumber));
+		l.addAll(cpu.getU4Bytes(startDate));
+		l.addAll(cpu.getCNBytes(waferID));
 		return(l.toArray());
 	}
 	
 	/**
      * This constructor is used to make a ParametricTestRecord with field values.
-     * @param tdb The TestIdDatabase is not used in this class.
-     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
+     * @param cpu  The CPU type.
 	 * @param headNumber      The HEAD_NUM field.
 	 * @param siteGroupNumber The SITE_GRP field.
 	 * @param startDate       The START_T field.
 	 * @param waferID         The WAFER_ID field.
+	 * @throws StdfException 
+	 * @throws IOException 
 	 */
 	public WaferInformationRecord(
-		TestIdDatabase tdb,
-		DefaultValueDatabase dvd,
+		Cpu_t cpu,
 		short headNumber,
 		short siteGroupNumber,
 		long startDate,
 		String waferID)
 	{
-		this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteGroupNumber, startDate, waferID));
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("WaferInformationRecord [headNumber=").append(headNumber);
-		builder.append(", siteGroupNumber=").append(siteGroupNumber);
-		builder.append(", startDate=").append(startDate);
-		builder.append(", waferID=").append(waferID);
-		builder.append("]");
-		return builder.toString();
+		this(cpu, null, getRecLen(waferID),
+			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, startDate, waferID)));
 	}
 
 	/* (non-Javadoc)
@@ -136,11 +128,11 @@ public class WaferInformationRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 1;
 		result = prime * result + headNumber;
 		result = prime * result + siteGroupNumber;
 		result = prime * result + (int) (startDate ^ (startDate >>> 32));
-		result = prime * result + waferID.hashCode();
+		result = prime * result + ((waferID == null) ? 0 : waferID.hashCode());
 		return result;
 	}
 
@@ -151,13 +143,17 @@ public class WaferInformationRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof WaferInformationRecord)) return false;
 		WaferInformationRecord other = (WaferInformationRecord) obj;
 		if (headNumber != other.headNumber) return false;
 		if (siteGroupNumber != other.siteGroupNumber) return false;
 		if (startDate != other.startDate) return false;
-		if (!waferID.equals(other.waferID)) return false;
-		if (!super.equals(obj)) return false;
+		if (waferID == null)
+		{
+			if (other.waferID != null) return false;
+		} 
+		else if (!waferID.equals(other.waferID)) return false;
 		return true;
 	}
 

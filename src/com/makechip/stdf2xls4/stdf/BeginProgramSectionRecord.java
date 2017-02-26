@@ -25,6 +25,9 @@
 
 package com.makechip.stdf2xls4.stdf;
 
+import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
@@ -42,14 +45,14 @@ public class BeginProgramSectionRecord extends StdfRecord
      * Constructor to create a BPS record from the binary data stream.
      * @param tdb This parameter is not used; it is provided in order to
      * keep a consistent constructor signature for all StdfRecords.
-     * @param dvd The DefaultValueDatabase is used to get the CPU type.
      * @param data Binary stream data.  This array should not contain
      * the first four bytes of the record.
      */
-    public BeginProgramSectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public BeginProgramSectionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.BPS, dvd.getCpuType(), data);
-        seqName = getCn();
+        super(Record_t.BPS);
+        if (recLen > 0) seqName = cpu.getCN(is);
+        else seqName = null;
     }
     
     /**
@@ -57,32 +60,26 @@ public class BeginProgramSectionRecord extends StdfRecord
      * @param tdb The TestIdDatabase is needed because this CTOR calls the above CTOR.
      * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
      * @param seqName The SEQ_NAME field. (Must not be null).
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public BeginProgramSectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, String seqName)
+    public BeginProgramSectionRecord(Cpu_t cpu, String seqName)
     {
-    	this(tdb, dvd, getCnBytes(seqName));
+    	this(cpu, null, getRecLen(seqName), new ByteInputStream(cpu.getCNBytes(seqName)));
     }
     
-    /* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
-	public String toString()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("BeginProgramSectionRecord [seqName=");
-		builder.append(seqName);
-		builder.append("]");
-		return builder.toString();
+		byte[] b = cpu.getCNBytes(seqName);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.BPS, b.length);
+		l.addAll(b);
+		return(l.toArray());
 	}
-
-    /* (non-Javadoc)
-	 * @see com.makechip.strf2xls4.stdf.StdfRecord#toBytes()
-	 */
-	@Override
-	protected void toBytes()
+	
+	private static int getRecLen(String seqName)
 	{
-	    bytes = getCnBytes(seqName);	
+		return(1 + seqName.length());
 	}
 
 	/* (non-Javadoc)
@@ -92,7 +89,7 @@ public class BeginProgramSectionRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 107;
 		result = prime * result + seqName.hashCode();
 		return result;
 	}
@@ -107,7 +104,6 @@ public class BeginProgramSectionRecord extends StdfRecord
 		if (!(obj instanceof BeginProgramSectionRecord)) return false;
 		BeginProgramSectionRecord other = (BeginProgramSectionRecord) obj;
 		if (!seqName.equals(other.seqName)) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

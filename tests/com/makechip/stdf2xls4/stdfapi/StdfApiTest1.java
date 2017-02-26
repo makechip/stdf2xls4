@@ -46,7 +46,7 @@ public class StdfApiTest1
 		assertEquals(phdr.get("DEVICE NUMBER:"), "1360PD1196-001(5962-878201RA)AD7226TQ/883B");
 		assertEquals(phdr.get("TEMPERATURE:"), "25c");
 		assertEquals(phdr.get("LOADBOARD:"), "151341");
-		Set<DeviceHeader> dh = api.getDeviceHeaders(phdr);
+		List<DeviceHeader> dh = api.getDeviceHeaders(phdr);
 		assertEquals(dh.size(), 1);
 		DeviceHeader[] dha = dh.toArray(new DeviceHeader[1]);
 		DeviceHeader dhdr = dha[0];

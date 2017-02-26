@@ -39,4 +39,10 @@ public class ParametricTestResult extends TestResult
     	this.result = result;
     }
     
+    @Override
+    public String toString()
+    {
+        return(super.toString() + ": " + result);
+    }
+    
 }

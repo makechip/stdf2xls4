@@ -26,8 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 
@@ -40,106 +40,164 @@ public class WaferConfigurationRecord extends StdfRecord
     /**
      * The WAFR_SIZ field.
      */
-    public final float waferSize;
+    public final Float waferSize;
     /**
      * The DIE_HT field.
      */
-    public final float dieHeight;
+    public final Float dieHeight;
     /**
      *  The DIE_WID field.
      */
-    public final float dieWidth;
+    public final Float dieWidth;
     /**
      * The WF_UNITS field.
      */
-    public final short units;
+    public final Short units;
     /**
      * The WF_FLAT field.
      */
-    public final char flatOrient;
+    public final Character flatOrient;
     /**
      * The CENTER_X field.
      */
-    public final short centerX;
+    public final Short centerX;
     /**
      *  The CENTER_Y field.
      */
-    public final short centerY;
+    public final Short centerY;
     /**
      *  The POS_X field.
      */
-    public final char posX;
+    public final Character posX;
     /**
      * The POS_Y field.
      */
-    public final char posY;
+    public final Character posY;
     
-    /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase.  This value is not used by the TestSynopsisRecord.
-     *         It is provided so that all StdfRecord classes have the same argument signatures,
-     *         so that function references can be used to refer to the constructors of StdfRecords.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
-     */
-    public WaferConfigurationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public WaferConfigurationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.WCR, dvd.getCpuType(), data);
-        waferSize = getR4(0.0f);
-        dieHeight = getR4(0.0f);
-        dieWidth = getR4(0.0f);
-        units = getU1((short) 0);
-        String c = getFixedLengthString(1);
-        flatOrient = c.charAt(0);
-        centerX = getI2((short) -32768);
-        centerY = getI2((short) -32768);
-        c = getFixedLengthString(1);
-        posX = c.charAt(0);
-        c = getFixedLengthString(1);
-        posY = c.charAt(0);
+        super(Record_t.WCR);
+        int l = 0;
+        if (l < recLen)
+        {
+            waferSize = cpu.getR4(is);
+            l += Data_t.R4.numBytes;
+        } 
+        else  waferSize = null;
+        if (l < recLen)
+        {
+            dieHeight = cpu.getR4(is);
+            l += Data_t.R4.numBytes;
+        } 
+        else dieHeight = null;
+        if (l < recLen)
+        {
+            dieWidth = cpu.getR4(is);
+            l += Data_t.R4.numBytes;
+        } 
+        else dieWidth = null;
+        if (l < recLen)
+        {
+            units = cpu.getU1(is);
+            l += Data_t.U1.numBytes;
+        } 
+        else units = null;
+        if (l < recLen)
+        {
+            flatOrient = (char) cpu.getI1(is);
+            l += Data_t.I1.numBytes;
+        } 
+        else flatOrient = null;
+        if (l < recLen)
+        {
+            centerX = cpu.getI2(is);
+            l += Data_t.I2.numBytes;
+        } 
+        else centerX = null;
+        if (l < recLen)
+        {
+            centerY = cpu.getI2(is);
+            l += Data_t.I2.numBytes;
+        } 
+        else centerY = null;
+        if (l < recLen)
+        {
+            posX = (char) cpu.getI1(is);
+            l += Data_t.I1.numBytes;
+        } 
+        else posX = null;
+        if (l < recLen)
+        {
+            posY = (char) cpu.getI1(is);
+            l += Data_t.I1.numBytes;
+        } 
+        else posY = null;
+        if (l != recLen) throw new RuntimeException("Record length error in WaferConfigurationRecord: l = " + l + " recLen = " + recLen);
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, waferSize, dieHeight, dieWidth, units, flatOrient, centerX, centerY, posX, posY);	
+		byte[] b = toBytes(cpu, waferSize, dieHeight, dieWidth, units, 
+				           flatOrient, centerX, centerY, posX, posY);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.WCR, b.length);
+		l.addAll(b);
+		return(l.toArray());
 	}
 	
+	private static int getRecLen(
+        Float waferSize,
+        Float dieHeight,
+        Float dieWidth,
+        Short units,
+        Character flatOrient,
+        Short centerX,
+        Short centerY,
+        Character posX,
+        Character posY)
+	{
+		int l = 0;
+		if (waferSize != null) l += Data_t.R4.numBytes; else return(l);
+		if (dieHeight != null) l += Data_t.R4.numBytes; else return(l);
+		if (dieWidth != null) l += Data_t.R4.numBytes; else return(l);
+		if (units != null) l++; else return(l);
+		if (flatOrient != null) l++; else return(l);
+		if (centerX != null) l += Data_t.I2.numBytes; else return(l);
+		if (centerY != null) l += Data_t.I2.numBytes; else return(l);
+		if (posX != null) l++; else return(l);
+		if (posY != null) l++;
+		return(l);
+	}
+
 	private static byte[] toBytes(
-		Cpu_t cpuType,
-        float waferSize,
-        float dieHeight,
-        float dieWidth,
-        short units,
-        char flatOrient,
-        short centerX,
-        short centerY,
-        char posX,
-        char posY)
+		Cpu_t cpu,
+        Float waferSize,
+        Float dieHeight,
+        Float dieWidth,
+        Short units,
+        Character flatOrient,
+        Short centerX,
+        Short centerY,
+        Character posX,
+        Character posY)
 	{
 	    TByteArrayList l = new TByteArrayList();
-	    l.addAll(cpuType.getR4Bytes(waferSize));
-	    l.addAll(cpuType.getR4Bytes(dieHeight));
-	    l.addAll(cpuType.getR4Bytes(dieWidth));
-	    l.addAll(getU1Bytes(units));
-	    l.addAll(getFixedLengthStringBytes("" + flatOrient));
-	    l.addAll(cpuType.getI2Bytes(centerX));
-	    l.addAll(cpuType.getI2Bytes(centerY));
-	    l.addAll(getFixedLengthStringBytes("" + posX));
-	    l.addAll(getFixedLengthStringBytes("" + posY));
+	    if (waferSize != null) l.addAll(cpu.getR4Bytes(waferSize)); else return(l.toArray());
+	    if (dieHeight != null) l.addAll(cpu.getR4Bytes(dieHeight)); else return(l.toArray());
+	    if (dieWidth != null) l.addAll(cpu.getR4Bytes(dieWidth)); else return(l.toArray());
+	    if (units != null) l.addAll(cpu.getU1Bytes(units)); else return(l.toArray());
+	    if (flatOrient != null) l.addAll(cpu.getI1Bytes((byte) flatOrient.charValue())); else return(l.toArray());
+	    if (centerX != null) l.addAll(cpu.getI2Bytes(centerX)); else return(l.toArray());
+	    if (centerY != null) l.addAll(cpu.getI2Bytes(centerY)); else return(l.toArray());
+	    if (posX != null) l.addAll(cpu.getI1Bytes((byte) posX.charValue())); else return(l.toArray());
+	    if (posY != null) l.addAll(cpu.getI1Bytes((byte) posY.charValue()));
 	    return(l.toArray());
 	}
 	
 	/**
      * This constructor is used to generate binary Stream data.  It can be used to convert
      * the field values back into binary stream data.
-     * @param tdb The TestIdDatabase. This value is not used, but is needed so that
-     * this constructor can call the previous constructor to avoid code duplication.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type.
+     * @param cpu  The CPU type.
 	 * @param waferSize The WAFR_SIZ field.
 	 * @param dieHeight The DIE_HT field.
 	 * @param dieWidth  The DIE_WID field.
@@ -149,43 +207,25 @@ public class WaferConfigurationRecord extends StdfRecord
 	 * @param centerY   The CENTER_Y field.
 	 * @param posX      The POS_X field.
 	 * @param posY      The POS_Y field.
+	 * @throws StdfException 
+	 * @throws IOException 
 	 */
 	public WaferConfigurationRecord(
-		TestIdDatabase tdb,
-		DefaultValueDatabase dvd,
-        float waferSize,
-        float dieHeight,
-        float dieWidth,
-        short units,
-        char flatOrient,
-        short centerX,
-        short centerY,
-        char posX,
-        char posY)
+	    Cpu_t cpu,
+        Float waferSize,
+        Float dieHeight,
+        Float dieWidth,
+        Short units,
+        Character flatOrient,
+        Short centerX,
+        Short centerY,
+        Character posX,
+        Character posY)
     {
-		this(tdb, dvd, toBytes(dvd.getCpuType(), waferSize, dieHeight, dieWidth, 
-				               units, flatOrient, centerX, centerY, posX, posY));
+		this(cpu, null, getRecLen(waferSize, dieHeight, dieWidth, units, flatOrient, centerX, centerY, posX, posY),
+			 new ByteInputStream(toBytes(cpu, waferSize, dieHeight, dieWidth, units, 
+				                 flatOrient, centerX, centerY, posX, posY)));
     }
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("WaferConfigurationRecord [waferSize=").append(waferSize);
-		builder.append(", dieHeight=").append(dieHeight);
-		builder.append(", dieWidth=").append(dieWidth);
-		builder.append(", units=").append(units);
-		builder.append(", flatOrient=").append(flatOrient);
-		builder.append(", centerX=").append(centerX);
-		builder.append(", centerY=").append(centerY);
-		builder.append(", posX=").append(posX);
-		builder.append(", posY=").append(posY);
-		builder.append("]");
-		return builder.toString();
-	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -194,16 +234,16 @@ public class WaferConfigurationRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + centerX;
-		result = prime * result + centerY;
-		result = prime * result + Float.floatToIntBits(dieHeight);
-		result = prime * result + Float.floatToIntBits(dieWidth);
-		result = prime * result + flatOrient;
-		result = prime * result + posX;
-		result = prime * result + posY;
-		result = prime * result + units;
-		result = prime * result + Float.floatToIntBits(waferSize);
+		int result = 1;
+		result = prime * result + ((centerX == null) ? 0 : centerX.hashCode());
+		result = prime * result + ((centerY == null) ? 0 : centerY.hashCode());
+		result = prime * result + ((dieHeight == null) ? 0 : dieHeight.hashCode());
+		result = prime * result + ((dieWidth == null) ? 0 : dieWidth.hashCode());
+		result = prime * result + ((flatOrient == null) ? 0 : flatOrient.hashCode());
+		result = prime * result + ((posX == null) ? 0 : posX.hashCode());
+		result = prime * result + ((posY == null) ? 0 : posY.hashCode());
+		result = prime * result + ((units == null) ? 0 : units.hashCode());
+		result = prime * result + ((waferSize == null) ? 0 : waferSize.hashCode());
 		return result;
 	}
 
@@ -214,18 +254,54 @@ public class WaferConfigurationRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof WaferConfigurationRecord)) return false;
 		WaferConfigurationRecord other = (WaferConfigurationRecord) obj;
-		if (centerX != other.centerX) return false;
-		if (centerY != other.centerY) return false;
-		if (Float.floatToIntBits(dieHeight) != Float.floatToIntBits(other.dieHeight)) return false;
-		if (Float.floatToIntBits(dieWidth) != Float.floatToIntBits(other.dieWidth)) return false;
-		if (flatOrient != other.flatOrient) return false;
-		if (posX != other.posX) return false;
-		if (posY != other.posY) return false;
-		if (units != other.units) return false;
-		if (Float.floatToIntBits(waferSize) != Float.floatToIntBits(other.waferSize)) return false;
-		if (!super.equals(obj)) return false;
+		if (centerX == null)
+		{
+			if (other.centerX != null) return false;
+		} 
+		else if (!centerX.equals(other.centerX)) return false;
+		if (centerY == null)
+		{
+			if (other.centerY != null) return false;
+		} 
+		else if (!centerY.equals(other.centerY)) return false;
+		if (dieHeight == null)
+		{
+			if (other.dieHeight != null) return false;
+		} 
+		else if (!dieHeight.equals(other.dieHeight)) return false;
+		if (dieWidth == null)
+		{
+			if (other.dieWidth != null) return false;
+		} 
+		else if (!dieWidth.equals(other.dieWidth)) return false;
+		if (flatOrient == null)
+		{
+			if (other.flatOrient != null) return false;
+		} 
+		else if (!flatOrient.equals(other.flatOrient)) return false;
+		if (posX == null)
+		{
+			if (other.posX != null) return false;
+		} 
+		else if (!posX.equals(other.posX)) return false;
+		if (posY == null)
+		{
+			if (other.posY != null) return false;
+		} 
+		else if (!posY.equals(other.posY)) return false;
+		if (units == null)
+		{
+			if (other.units != null) return false;
+		} 
+		else if (!units.equals(other.units)) return false;
+		if (waferSize == null)
+		{
+			if (other.waferSize != null) return false;
+		} 
+		else if (!waferSize.equals(other.waferSize)) return false;
 		return true;
 	}
 

@@ -26,7 +26,6 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -55,7 +54,7 @@ public class HardwareBinRecord extends StdfRecord
     /**
      * This is the HBIN_PF field of the HardwareBinRecord.
      */
-    public final char pf;
+    public final Character pf;
     /**
      * This is the HBIN_NAM field of the HardwareBinRecord.
      */
@@ -66,83 +65,88 @@ public class HardwareBinRecord extends StdfRecord
      *  @param tdb The TestIdDatabase.  This value is not used by the HardwareBinRecord.
      *         It is provided so that all StdfRecord classes have the same argument signatures,
      *         so that function references can be used to refer to the constructors of StdfRecords.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public HardwareBinRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public HardwareBinRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.HBR, dvd.getCpuType(), data);
-        headNumber = getU1((short) 0);
-        siteNumber = getU1((short) 0);
-        hwBin = getU2(-1);
-        binCnt = getU4(0);
-        pf = getFixedLengthString(1).charAt(0);
-        binName = getCn();
+        super(Record_t.HBR);
+        headNumber = cpu.getU1(is);
+        siteNumber = cpu.getU1(is);
+        hwBin = cpu.getU2(is);
+        binCnt = cpu.getU4(is);
+        int l = 8;
+        if (recLen > 8) 
+        {
+        	pf = (char) cpu.getI1(is); 
+        	l++;
+        }
+        else pf = null;
+        if (recLen > 9) 
+        {
+        	binName = cpu.getCN(is);
+        	l += 1 + binName.length();
+        }
+        else binName = null;
+        if (l != recLen) throw new RuntimeException("Record length error in HardwareBinRecord: l = " + l + " recLen = " + recLen);
     }
     
     /**
      * This constructor is used to generate binary Stream data.  It can be used to convert
      * the field values back into binary stream data.
-     * @param tdb The TestIdDatabase. This value is not used, but is needed so that
-     * this constructor can call the previous constructor to avoid code duplication.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type.
+     * @param cpu         The CPU type.
      * @param headNumber  The HEAD_NUM field.
      * @param siteNumber  The SITE_NUM field.
      * @param hwBin       The HBIN_NUM field.
      * @param binCnt      The HBIN_CNT field.
      * @param pf          The HBIN_PF field.
      * @param binName     The HBIN_NAM field.
+     * @throws StdfException 
+     * @throws IOException 
      */
     public HardwareBinRecord(
-    	TestIdDatabase tdb,
-    	DefaultValueDatabase dvd,
+    	Cpu_t cpu,
     	short headNumber, 
     	short siteNumber, 
     	int hwBin, 
     	long binCnt, 
-    	char pf, 
+    	Character pf, 
     	String binName)
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, hwBin, binCnt, pf, binName));
+    	this(cpu, null, getRecLen(pf, binName),
+    		 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, hwBin, binCnt, pf, binName)));
     }
     
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		bytes = toBytes(cpuType, headNumber, siteNumber, hwBin, binCnt, pf, binName);
-	}
-	
-	private static byte[] toBytes(Cpu_t cpuType, short headNumber, short siteNumber, int hwBin, long binCnt, char pf, String binName)
-	{
-		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteNumber));
-		l.addAll(cpuType.getU2Bytes(hwBin));
-		l.addAll(cpuType.getU4Bytes(binCnt));
-		l.addAll(getFixedLengthStringBytes("" + pf));
-		l.addAll(getCnBytes(binName));
+		byte[] b = toBytes(cpu, headNumber, siteNumber, hwBin, binCnt, pf, binName);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.HBR, b.length);
+		l.addAll(b);
 		return(l.toArray());
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
+	private static int getRecLen(Character pf, String binName)
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("HardwareBinRecord [headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", hwBin=").append(hwBin);
-		builder.append(", binCnt=").append(binCnt);
-		builder.append(", pf=").append(pf);
-		builder.append(", binName=").append(binName);
-		builder.append("]");
-		return builder.toString();
+		int l = 8;
+		if (pf != null) l++;
+		if (binName != null) l += 1 + binName.length();
+		return(l);
+	}
+	
+	private static byte[] toBytes(Cpu_t cpu, short headNumber, short siteNumber, int hwBin, long binCnt, Character pf, String binName)
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(cpu.getU1Bytes(headNumber));
+		l.addAll(cpu.getU1Bytes(siteNumber));
+		l.addAll(cpu.getU2Bytes(hwBin));
+		l.addAll(cpu.getU4Bytes(binCnt));
+		if (pf != null) l.add((byte) pf.charValue()); else return(l.toArray());
+		if (binName != null) l.addAll(cpu.getCNBytes(binName));
+		return(l.toArray());
 	}
 
 	/* (non-Javadoc)
@@ -152,7 +156,7 @@ public class HardwareBinRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 157;
 		result = prime * result + (int) (binCnt ^ (binCnt >>> 32));
 		result = prime * result + binName.hashCode();
 		result = prime * result + headNumber;
@@ -169,6 +173,7 @@ public class HardwareBinRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof HardwareBinRecord)) return false;
 		HardwareBinRecord other = (HardwareBinRecord) obj;
 		if (binCnt != other.binCnt) return false;
@@ -177,7 +182,6 @@ public class HardwareBinRecord extends StdfRecord
 		if (hwBin != other.hwBin) return false;
 		if (pf != other.pf) return false;
 		if (siteNumber != other.siteNumber) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

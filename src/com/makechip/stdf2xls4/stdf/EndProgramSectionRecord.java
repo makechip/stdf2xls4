@@ -24,6 +24,7 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
@@ -37,45 +38,50 @@ public class EndProgramSectionRecord extends StdfRecord
      * Constructor for initializing this record with binary stream data.
      * @param tdb The TestIdDatabase  is not used by this record, but is
      * required so STDF records have consistent constructor signatures.
-     * @param dvd The DefaultValueDatabase is used to get the CPU type.
      * @param data The binary stream data for this record.  The array should
      * not contain the first four bytes of the record. For this specific
      * record, the array should have a length of zero because the EndProgramSectionRecord
      * has no data fields.
      */
-    public EndProgramSectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public EndProgramSectionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.EPS, dvd.getCpuType(), data);
+        super(Record_t.EPS);
     }
     
     /**
      * Constructor for initializing this record with field values.
      * @param tdb The TestIdDatabase is needed because this CTOR calls the above CTOR.
      * @param dvd The DefaultValueDatabase is needed because this CTOR calls the above CTOR.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public EndProgramSectionRecord(TestIdDatabase tdb, DefaultValueDatabase dvd)
+    public EndProgramSectionRecord(Cpu_t cpu)
     {
-    	this(tdb, dvd, new byte[0]);
+    	this(cpu, null, 0, null);
     }
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("EndProgramSectionRecord []");
-		return builder.toString();
-	}
 
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
 	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = new byte[0];	
+		return(getHeaderBytes(cpu, Record_t.EPS, 0).toArray());
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if (o == this) return true;
+		if (o == null) return false;
+		if (o instanceof EndProgramSectionRecord) return true;
+		return false;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return(19733321);
 	}
     
 }

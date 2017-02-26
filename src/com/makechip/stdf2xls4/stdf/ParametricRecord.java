@@ -24,11 +24,7 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
-import gnu.trove.map.hash.TObjectByteHashMap;
-import gnu.trove.map.hash.TObjectFloatHashMap;
-
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.Set;
 
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
@@ -44,6 +40,10 @@ import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
  */
 public abstract class ParametricRecord extends TestRecord 
 {
+	/**
+	 *  This is the TEST_NUM field.
+	 */
+	public final long testNumber;
 	/**
 	 *  This is the HEAD_NUM field of the ParametricTestRecord and MultipleResultParametricRecord.
 	 */
@@ -68,150 +68,27 @@ public abstract class ParametricRecord extends TestRecord
 	 * @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
 	 */
-	protected ParametricRecord(Record_t type, Cpu_t cpuType, byte[] data)
+	protected ParametricRecord(Cpu_t cpu, Record_t type, int recLen, ByteInputStream is)
 	{
-		super(type, cpuType, data);
-		getU4(MISSING_LONG); // skip over test number;
-		headNumber = getU1(MISSING_SHORT);
-		siteNumber = getU1(MISSING_SHORT);
-    	testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(getByte()));
-    	paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(getByte()));
+		super(type);
+		testNumber = cpu.getU4(is); // skip over test number;
+		headNumber = cpu.getU1(is);
+		siteNumber = cpu.getU1(is);
+    	testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(cpu.getI1(is)));
+    	paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(cpu.getI1(is)));
 		
 	}
 	
-	/**
-	 * Helper function for setting a byte value, and getting/setting the default value.
-	 * @param missingValue  Value to use if the field is missing from the binary stream.
-	 * @param streamValue The value from the stream.
-	 * @param id The test ID; used to locate the default value.
-	 * @param map The default value map.
-	 * @return The byte value which will either be the stream value, or the value from the default value map.
-	 */
-	protected byte setByte(byte missingValue, byte streamValue, TestID id, TObjectByteHashMap<TestID> map)
+	protected ParametricRecord(Record_t type, long testNumber, short headNumber, short siteNumber, byte testFlags, byte paramFlags)
 	{
-		byte rval = missingValue;
-		if (streamValue != missingValue)
-		{
-			rval = streamValue;
-			if (map.get(id) == missingValue) map.put(id, rval);
-		}
-		else rval = map.get(id);
-		return(rval);
+		super(type);
+		this.testNumber = testNumber;
+		this.headNumber = headNumber;
+		this.siteNumber = siteNumber;
+		this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));
+		this.paramFlags = Collections.unmodifiableSet(ParamFlag_t.getBits(paramFlags));
 	}
 	
-	/**
-	 * Helper function for setting a float value, and getting/setting the default value.
-	 * @param missingValue  Value to use if the field is missing from the binary stream.
-	 * @param streamValue The value from the stream.
-	 * @param id The test ID; used to locate the default value.
-	 * @param map The default value map.
-	 * @return The byte value which will either be the stream value, or the value from the default value map.
-	 */
-	protected float setFloat(float missingValue, float streamValue, TestID id, TObjectFloatHashMap<TestID> map)
-	{
-		float rval = missingValue;
-		if (streamValue != missingValue)
-		{
-			rval = streamValue;
-			if (map.get(id) == missingValue) map.put(id, rval);
-		}
-		else rval = map.get(id);
-		return(rval);
-	}
-	
-	/**
-	 * Helper function for setting a String value, and getting/setting the default value.
-	 * @param missingValue  Value to use if the field is missing from the binary stream.
-	 * @param streamValue The value from the stream.
-	 * @param id The test ID; used to locate the default value.
-	 * @param map The default value map.
-	 * @return The byte value which will either be the stream value, or the value from the default value map.
-	 */
-	protected String setString(String missingValue, String streamValue, TestID id, IdentityHashMap<TestID, String> map)
-	{
-		String rval = missingValue;
-		if (!streamValue.equals(missingValue))
-		{
-			rval = streamValue;
-			if (map.get(id) == null) map.put(id, rval);
-		}
-		else rval = map.get(id);
-		return(rval);
-	}
-
-	/**
-	 * Function used to determine scaled values.
-	 * @param value  The value to scale so that it can be displayed in a "0.000" format.
-	 * @param scale The value obtained from the findScale() method.
-	 * @return  The scaled value.
-	 */
-    protected float scaleValue(float value, int scale)
-    {
-        if (value == MISSING_FLOAT) return(value);
-        switch (scale)
-        {
-        case -9: value /= 1E9f; break;
-        case -6: value /= 1E6f; break;
-        case -3: value /= 1E3f; break;
-        case  3: value *= 1E3f; break;
-        case  6: value *= 1E6f; break;
-        case  9: value *= 1E9f; break;
-        case 12: value *= 1E12f; break;
-        default:
-        }
-        return(value);
-    }
-   
-    /**
-     * This function scales units.  It adds one of the following prefixes
-     * to the units value: p, n, i, m, k, M, G.
-     * @param units The units value from the UNITS field.
-     * @param scale  The scale value from the findScale() method.
-     * @return The scaled units String.
-     */
-    protected String scaleUnits(String units, int scale)
-    {
-        String u = units;
-        switch (scale)
-        {
-        case -9: u = "G" + units; break;
-        case -6: u = "M" + units; break;
-        case -3: u = "k" + units; break;
-        case  3: u = "m" + units; break;
-        case  6: u = "u" + units; break;
-        case  9: u = "n" + units; break;
-        case 12: u = "p" + units; break;
-        default:
-        } 
-        return(u);
-    }
-
-    /**
-     * This method finds the scale magnitude based upon the upper and lower
-     * limits used by the first instance of this record.
-     * @param dvd The defaultValueDatabase.
-     * @return The scale exponent.
-     */
-    protected int findScale(DefaultValueDatabase dvd, TestID id)
-    {
-        float llim = (float) Math.abs(dvd.loLimDefaults.get(id));
-        float hlim = (float) Math.abs(dvd.hiLimDefaults.get(id));
-        float val = 0.0f;
-        if (getOptFlags().contains(OptFlag_t.NO_LO_LIMIT)) val = hlim;
-        else if (getOptFlags().contains(OptFlag_t.NO_HI_LIMIT)) val = llim;
-        else val = (hlim > llim) ? hlim : llim;
-        int scale = 0;
-        if (val <= 1.0E-9f) scale = 12;
-        else if (val <= 1.0E-6f) scale = 9;
-        else if (val <= 0.001f) scale = 6;
-        else if (val <= 1.0f) scale = 3;
-        else if (val <= 1000.0f) scale = 0;
-        else if (val <= 1000000.0f) scale = -3;
-        else if (val <= 1E9f) scale = -6;
-        else scale = -9;
-        return(scale);
-    }
-
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getAlarmName()
 	 */
@@ -225,27 +102,27 @@ public abstract class ParametricRecord extends TestRecord
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getResScal()
 	 */
-	public abstract byte getResScal();
+	public abstract Byte getResScal();
 	
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getLlmScal()
 	 */
-	public abstract byte getLlmScal();
+	public abstract Byte getLlmScal();
 	
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getHlmScal()
 	 */
-	public abstract byte getHlmScal();
+	public abstract Byte getHlmScal();
 	
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getLoLimit()
 	 */
-	public abstract float getLoLimit();
+	public abstract Float getLoLimit();
 	
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getHiLimit()
 	 */
-	public abstract float getHiLimit();
+	public abstract Float getHiLimit();
 	
 	/* (non-Javadoc)
 	 * @see com.makechip.stdf2xls4.stdf.TestRecord#getUnits()
@@ -269,6 +146,8 @@ public abstract class ParametricRecord extends TestRecord
 	{
 		return(!getOptFlags().contains(OptFlag_t.NO_HI_LIMIT) && !getOptFlags().contains(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID));
 	}
+	
+	public abstract TestID getTestID();
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -277,11 +156,12 @@ public abstract class ParametricRecord extends TestRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 1;
 		result = prime * result + headNumber;
 		result = prime * result + paramFlags.hashCode();
 		result = prime * result + siteNumber;
 		result = prime * result + testFlags.hashCode();
+		result = prime * result + (int) (testNumber ^ (testNumber >>> 32));
 		return result;
 	}
 
@@ -292,13 +172,14 @@ public abstract class ParametricRecord extends TestRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof ParametricRecord)) return false;
 		ParametricRecord other = (ParametricRecord) obj;
 		if (headNumber != other.headNumber) return false;
 		if (!paramFlags.equals(other.paramFlags)) return false;
 		if (siteNumber != other.siteNumber) return false;
 		if (!testFlags.equals(other.testFlags)) return false;
-		if (!super.equals(obj)) return false;
+		if (testNumber != other.testNumber) return false;
 		return true;
 	}
 

@@ -26,10 +26,9 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
 import java.util.Arrays;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
@@ -38,88 +37,87 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
  */
 public class RetestDataRecord extends StdfRecord
 {
-    private final int[] retestBins;
+    public final IntList retestBins;
     
     /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase is not used for this record.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
+     * 
+     * @param cpu
+     * @param recLen
+     * @param is
+     * @throws IOException
+     * @throws StdfException
      */
-   public RetestDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public RetestDataRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.RDR, dvd.getCpuType(), data);
-        int k = getU2(0);
-        retestBins = new int[k];
-        Arrays.setAll(retestBins, p -> getU2(-1));
+        super(Record_t.RDR);
+        int k = cpu.getU2(is);
+        if (k > 0) retestBins = new IntList(Data_t.U2, cpu, k, is);
+        else retestBins = null;
     }
     
     /**
      * This constructor is used to make a PinGroupRecord with field values. 
-     * @param tdb The TestIdDatabase is not used for this record.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     * @ param cpu The cpu type.
      * @param retestBins The RTST_BIN field.  The NUM_BINS field is just the length of this array.
+     * @throws StdfException 
+     * @throws IOException 
      */
-    public RetestDataRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, int[] retestBins)
+    public RetestDataRecord(Cpu_t cpu, int[] retestBins)
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), retestBins));
+    	this(cpu, null, getRecLen(retestBins), new ByteInputStream(toBytes(cpu, retestBins)));
     }
 
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, retestBins);	
+		int[] r = (retestBins == null) ? null : retestBins.getArray();
+		byte[] b = toBytes(cpu, r);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.RDR, b.length);
+		l.addAll(b);
+		return(l.toArray());
+	}
+
+	private static int getRecLen(int[] retestBins)
+	{
+		if (retestBins == null) return(2);
+		return(2 + Data_t.U2.numBytes * retestBins.length);
 	}
 	
-	private static byte[] toBytes(Cpu_t cpuType, int[] retestBins)	
+	private static byte[] toBytes(Cpu_t cpu, int[] retestBins)	
 	{
 	    TByteArrayList l = new TByteArrayList();	
-	    l.addAll(cpuType.getU2Bytes(retestBins.length));
-	    Arrays.stream(retestBins).forEach(p -> l.addAll(cpuType.getU2Bytes(p)));
+	    if (retestBins == null) l.addAll(cpu.getU2Bytes(0)); else l.addAll(cpu.getU2Bytes(retestBins.length));
+	    Arrays.stream(retestBins).forEach(p -> l.addAll(cpu.getU2Bytes(p)));
 	    return(l.toArray());
 	}
     
-    /**
-     *  This method returns the RTST_BIN field.
-     * @return the retestBins A deep copy of the RTST_BIN array.
-     */
-    public int[] getRetestBins()
-    {
-        return Arrays.copyOf(retestBins, retestBins.length);
-    }
-
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
-	public String toString() 
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("RetestDataRecord [retestBins=").append(Arrays.toString(retestBins));
-		builder.append("]");
-		return builder.toString();
-	}
-
-	@Override
-	public int hashCode() 
+	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + Arrays.hashCode(retestBins);
+		int result = 1;
+		result = prime * result + ((retestBins == null) ? 0 : retestBins.hashCode());
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
-	public boolean equals(Object obj) 
+	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
 		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
+		if (!(obj instanceof RetestDataRecord)) return false;
 		RetestDataRecord other = (RetestDataRecord) obj;
-		if (!Arrays.equals(retestBins, other.retestBins)) return false;
-		if (!super.equals(obj)) return false;
-		return true;
+		if (retestBins == null)
+		{
+			if (other.retestBins != null) return(false);
+		}
+		return(retestBins.equals(other.retestBins));
 	}
 
     

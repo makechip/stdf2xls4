@@ -27,8 +27,8 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Date;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
+import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 /**
@@ -44,7 +44,7 @@ public class MasterResultsRecord extends StdfRecord
     /**
      *  This is the DISP_COD field of the MasterResultsRecord.
      */
-    public final String dispCode;
+    public final Character dispCode;
     /**
      * This is the USR_DESC field of the MasterResultsRecord.
      */
@@ -56,63 +56,80 @@ public class MasterResultsRecord extends StdfRecord
     
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase.  This value is not used by the HardwareBinRecord.
-     *         It is provided so that all StdfRecord classes have the same argument signatures,
-     *         so that function references can be used to refer to the constructors of StdfRecords.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
      */
-   public MasterResultsRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+   public MasterResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.MRR, dvd.getCpuType(), data);
-        finishDate = getU4(0);
-        String s = getFixedLengthString(1);
-        if (s.equals(MISSING_STRING)) dispCode = " "; else dispCode = s;
-        lotDesc = getCn();
-        execDesc = getCn();
+        super(Record_t.MRR);
+        finishDate = cpu.getU4(is);
+        int l = Data_t.U4.numBytes;
+        if (l < recLen) dispCode = (char) cpu.getI1(is); else dispCode = null;
+        l++;
+        if (l < recLen)
+        {
+            lotDesc = cpu.getCN(is);
+            l += 1 + lotDesc.length();
+        }
+        else lotDesc = null;
+        if (l < recLen)
+        {
+            execDesc = cpu.getCN(is);
+            l += 1 + execDesc.length();
+        }
+        else execDesc = null;
+        if (l != recLen) throw new RuntimeException("Record length error in MasterResultsRecord.");
     }
     
    /**
     * This constructor is used to generate binary stream data from the field values.
     * @param tdb The TestIdDatabase. This value is not used, but is needed so that
      * this constructor can call the previous constructor to avoid code duplication.
-    * @param dvd The DefaultValueDatabase is used to access the CPU type.
     * @param finishDate The FINISH_T field.
     * @param dispCode The DISP_COD field.
     * @param lotDesc The LOT_DESC field.
     * @param execDesc The EXC_DESC field.
+ * @throws StdfException 
+ * @throws IOException 
     */
     public MasterResultsRecord(
-    	TestIdDatabase tdb,
-    	DefaultValueDatabase dvd,
+    	Cpu_t cpu,
     	long finishDate, 
-    	char dispCode, 
+    	Character dispCode, 
     	String lotDesc, 
     	String execDesc)
     {
-    	this(tdb, dvd, toBytes(dvd.getCpuType(), finishDate, "" + dispCode, lotDesc, execDesc));
+    	this(cpu, null, getRecLen(dispCode, lotDesc, execDesc),
+    	     new ByteInputStream(toBytes(cpu, finishDate, dispCode, lotDesc, execDesc)));
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf#toBytes()
-	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, finishDate, dispCode, lotDesc, execDesc);	
-	}
-	
-	private static byte[] toBytes(Cpu_t cpuType, long finishDate, String dispCode, String lotDesc, String execDesc)
-	{
-		TByteArrayList l = new TByteArrayList();
-		l.addAll(cpuType.getU4Bytes(finishDate));
-		l.addAll(getFixedLengthStringBytes(dispCode));
-		l.addAll(getCnBytes(lotDesc));
-		l.addAll(getCnBytes(execDesc));
+		byte[] b = toBytes(cpu, finishDate, dispCode, lotDesc, execDesc);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.MRR, b.length);
+		l.addAll(b);
 		return(l.toArray());
 	}
 
+	
+	private static byte[] toBytes(Cpu_t cpu, long finishDate, Character dispCode, String lotDesc, String execDesc)
+	{
+		TByteArrayList l = new TByteArrayList();
+		l.addAll(cpu.getU4Bytes(finishDate));
+		if (dispCode != null) l.addAll(cpu.getI1Bytes((byte) dispCode.charValue())); else return(l.toArray());
+		if (lotDesc != null) l.addAll(cpu.getCNBytes(lotDesc)); else return(l.toArray());
+		if (execDesc != null) l.addAll(cpu.getCNBytes(execDesc));
+		return(l.toArray());
+	}
+
+	private static int getRecLen(Character dispCode, String lotDesc, String execDesc)
+	{
+	    int l = Data_t.U4.numBytes;	
+	    if (dispCode != null) l++; else return(l);
+	    if (lotDesc != null) l += 1 + lotDesc.length(); else return(l);
+	    if (execDesc != null) l += 1 + execDesc.length();
+	    return(l);
+	}
+	
     /**
      * This method returns the String form of the FINISH_T date.
      * @return the finishDate
@@ -123,28 +140,13 @@ public class MasterResultsRecord extends StdfRecord
     }
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("MasterResultsRecord [finishDate=").append(getFinishDate());
-		builder.append(", dispCode=").append(dispCode);
-		builder.append(", lotDesc=").append(lotDesc);
-		builder.append(", execDesc=").append(execDesc);
-		builder.append("]");
-		return builder.toString();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 19;
 		result = prime * result + dispCode.hashCode();
 		result = prime * result + execDesc.hashCode();
 		result = prime * result + (int) (finishDate ^ (finishDate >>> 32));
@@ -159,13 +161,13 @@ public class MasterResultsRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof MasterResultsRecord)) return false;
 		MasterResultsRecord other = (MasterResultsRecord) obj;
 		if (!dispCode.equals(other.dispCode)) return false;
 		if (!execDesc.equals(other.execDesc)) return false;
 		if (finishDate != other.finishDate) return false;
 		if (!lotDesc.equals(other.lotDesc)) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

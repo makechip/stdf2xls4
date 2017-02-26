@@ -28,13 +28,11 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.makechip.util.Log;
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 
 /**
  *  This class is used to generate STDF files.
@@ -48,6 +46,7 @@ public class StdfWriter
     private RetestDataRecord rdr;
     private List<SiteDescriptionRecord> sdrs;
     private List<StdfRecord> records;
+    private final Cpu_t cpu;
     
     /**
      * Constructor for an StdfWriter. 
@@ -59,12 +58,14 @@ public class StdfWriter
      * @param sdrs List of SiteDescriptionRecords (may be null).
      */
     public StdfWriter(
+    	Cpu_t cpu,
     	FileAttributesRecord far,
     	List<AuditTrailRecord> atrs,
     	MasterInformationRecord mir,
     	RetestDataRecord rdr,
     	List<SiteDescriptionRecord> sdrs)
     {
+    	this.cpu = cpu;
         this.far = far;
         this.atrs = atrs;
         this.mir = mir;
@@ -95,18 +96,8 @@ public class StdfWriter
     public byte[] getBytes()
     {
     	TByteArrayList l = new TByteArrayList();
-   		records.stream().map(p -> p.getBytes()).forEach(p -> l.addAll(p));
+   		records.stream().map(p -> p.getBytes(cpu)).forEach(p -> l.addAll(p));
         return(l.toArray());	
-    }
-    
-    /**
-     * Write out the records contained in this Writer.
-     * @param f The file where the records will be written.
-     * @throws IOException
-     */
-    public void write(File f) throws IOException
-    {
-    	write(f.getAbsolutePath());
     }
     
     /**
@@ -114,17 +105,14 @@ public class StdfWriter
      * @param filename The name of the file where the records will be written.
      * @throws IOException
      */
-    public void write(String filename) throws IOException
+    public void write(DataOutputStream os) throws IOException
     {
-    	Log.msg("records.size() = " + records.size());
-    	int cnt = 0;
-    	try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename)))
-    	{
-    		for (StdfRecord r : records) { r.writeStdf(dos); cnt++; }
-    		dos.close();
+    	for (StdfRecord r : records) 
+    	{ 
+    		byte[] b = r.getBytes(cpu);
+    		os.write(b);
     	}
-    	catch (IOException e) { throw new IOException(e); }
-    	Log.msg("Records written = " + cnt);
+    	os.close();
     }
 
 	/* (non-Javadoc)

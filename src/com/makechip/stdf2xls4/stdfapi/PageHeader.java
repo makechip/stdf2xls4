@@ -33,6 +33,12 @@ public class PageHeader
 		return(hdrMap.keySet());
 	}
 	
+	void setDates(String startDate, String stopDate)
+	{
+	    hdrMap.put("START_DATE", startDate);
+	    hdrMap.put("STOP_DATE", stopDate);
+	}
+	
 	@Override
 	public String toString()
 	{

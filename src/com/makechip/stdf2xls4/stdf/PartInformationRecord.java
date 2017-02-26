@@ -26,7 +26,7 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
+import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 
@@ -45,61 +45,32 @@ public class PartInformationRecord extends StdfRecord
      */
     public final short siteNumber;
     
-    /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase.  This parameter is not used.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
-     */
-    public PartInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public PartInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.PIR, dvd.getCpuType(), data);
-        headNumber = getU1((short) -1);
-        siteNumber = getU1((short) -1);
+        super(Record_t.PIR);
+        headNumber = cpu.getU1(is);
+        siteNumber = cpu.getU1(is);
     }
     
-    /**
-     * 
-     * This constructor is used to make a ParametricTestRecord with field values.
-     * @param tdb The TestIdDatabase is needed to get the TestID.
-     * @param dvd The DefaultValueDatabase is used to convert numbers into bytes.
-     * @param headNumber The HEAD_NUM field.
-     * @param siteNumber The SITE_NUM field.
-     */
-    public PartInformationRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, short headNumber, short siteNumber)
+    public PartInformationRecord(Cpu_t cpu, short headNumber, short siteNumber)
     {
-        this(tdb, dvd, toBytes(headNumber, siteNumber));
+        this(cpu, null, 2, new ByteInputStream(toBytes(cpu, headNumber, siteNumber)));
     }
     
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
-	@Override
-	protected void toBytes()
-	{
-	    bytes = toBytes(headNumber, siteNumber);	
-	}
-	
-	private static byte[] toBytes(short headNumber, short siteNumber)
+	private static byte[] toBytes(Cpu_t cpu, short headNumber, short siteNumber)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteNumber));
+		l.addAll(cpu.getU1Bytes(headNumber));
+		l.addAll(cpu.getU1Bytes(siteNumber));
 		return(l.toArray());
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
-	public String toString()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("PartInformationRecord [headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append("]");
-		return builder.toString();
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.PIR, 2);
+	    l.addAll(toBytes(cpu, headNumber, siteNumber));
+	    return(l.toArray());
 	}
 
 	/* (non-Javadoc)
@@ -109,7 +80,7 @@ public class PartInformationRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 37;
 		result = prime * result + headNumber;
 		result = prime * result + siteNumber;
 		return result;
@@ -122,11 +93,11 @@ public class PartInformationRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof PartInformationRecord)) return false;
 		PartInformationRecord other = (PartInformationRecord) obj;
 		if (headNumber != other.headNumber) return false;
 		if (siteNumber != other.siteNumber) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
 

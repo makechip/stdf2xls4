@@ -26,7 +26,6 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
-
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -51,103 +50,105 @@ public class SoftwareBinRecord extends StdfRecord
     /**
      *  This is the SBIN_CNT field.
      */
-    public final int count;
+    public final long count;
     /**
      *  This is the SBIN_PF field.
      */
-    public final String pf;
+    public final Character pf;
     /**
      *  This is the SBIN_NAM field.
      */
     public final String binName;
     
-    /**
-     *  Constructor used by the STDF reader to load binary data into this class.
-     *  @param tdb The TestIdDatabase is not used for this record.
-     *  @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
-     *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
-     *         REC_SUB values are not included in this array.
-     */
-    public SoftwareBinRecord(TestIdDatabase tdb, DefaultValueDatabase dvd, byte[] data)
+    public SoftwareBinRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
     {
-        super(Record_t.SBR, dvd.getCpuType(), data);
-        headNumber = getU1((short) -1);
-        siteNumber = getU1((short) -1);
-        swBinNumber = getU2(-1);
-        count = getU2(0);
-        String s = getFixedLengthString(1);
-        pf = (s.equals(MISSING_STRING)) ? " " : s;
-        binName = getCn();
+        super(Record_t.SBR);
+        headNumber = cpu.getU1(is);
+        siteNumber = cpu.getU1(is);
+        swBinNumber = cpu.getU2(is);
+        count = cpu.getU4(is);
+        int l = 8;
+        if (l < recLen)
+        {
+            pf = (char) cpu.getI1(is);
+            l++;
+        }
+        else pf = null;
+        if (l < recLen)
+        {
+            binName = cpu.getCN(is);
+            l += 1 + binName.length();
+        }
+        else binName = null;
+        if (l != recLen) throw new RuntimeException("Record length error in SoftwareBinRecord l = " + l + " recLen = " + recLen + " binName = " + binName);
     }
 
-	/* (non-Javadoc)
-	 * @see com.makechip.stdf2xls4.stdf.StdfRecord#toBytes()
-	 */
 	@Override
-	protected void toBytes()
+	public byte[] getBytes(Cpu_t cpu)
 	{
-	    bytes = toBytes(cpuType, headNumber, siteNumber, swBinNumber, count, pf.charAt(0), binName);	
+		byte[] b = toBytes(cpu, headNumber, siteNumber, swBinNumber, count, pf, binName);
+		TByteArrayList l = getHeaderBytes(cpu, Record_t.SBR, b.length);
+		l.addAll(b);
+		return(l.toArray());
 	}
 	
 	private static byte[] toBytes(
-		Cpu_t cpuType, 
+		Cpu_t cpu, 
 		short headNumber, 
 		short siteNumber, 
 		int swBinNumber, 
-		int count, 
-		char pf, 
+		long count, 
+		Character pf, 
 		String binName)
 	{
 		TByteArrayList l = new TByteArrayList();
-		l.addAll(getU1Bytes(headNumber));
-		l.addAll(getU1Bytes(siteNumber));
-		l.addAll(cpuType.getU2Bytes(swBinNumber));
-		l.addAll(cpuType.getU2Bytes(count));
-		l.addAll(getFixedLengthStringBytes("" + pf));
-		l.addAll(getCnBytes(binName));
+		l.addAll(cpu.getU1Bytes(headNumber));
+		l.addAll(cpu.getU1Bytes(siteNumber));
+		l.addAll(cpu.getU2Bytes(swBinNumber));
+		l.addAll(cpu.getU4Bytes(count));
+		if (pf != null)
+		{
+			l.addAll(cpu.getI1Bytes((byte) pf.charValue()));
+		    if (binName != null)
+		    {
+		    	l.addAll(cpu.getCNBytes(binName));
+		    }
+		}
 		return(l.toArray());
+	}
+
+	private static int getRecLen(Character pf, String binName)
+	{
+		int l = 8;
+		if (pf != null) l++; else return(l);
+		if (binName != null) l += 1 + binName.length();
+		return(l);
 	}
 	
 	/**
 	 * 
      * This constructor is used to make a SoftwareBinRecord with field values. 
-     * @param tdb The TestIdDatabase is not used for this record.
-     * @param dvd The DefaultValueDatabase is used to access the CPU type, and convert bytes to numbers.
+     * @param cpu  The CPU type.
 	 * @param headNumber The HEAD_NUM field.
 	 * @param siteNumber The SITE_NUM field.
 	 * @param swBinNumber The SBIN_NUM field.
 	 * @param count    The SBIN_CNT field.
 	 * @param pf       The SBIN_PF field.
 	 * @param binName  The SBIN_NAM field.
+	 * @throws StdfException 
+	 * @throws IOException 
 	 */
 	public SoftwareBinRecord(
-			TestIdDatabase tdb,
-			DefaultValueDatabase dvd,
+			Cpu_t cpu,
 			short headNumber, 
 			short siteNumber, 
 			int swBinNumber, 
-			int count, 
+			long count, 
 			char pf, 
 			String binName)
 	{
-		this(tdb, dvd, toBytes(dvd.getCpuType(), headNumber, siteNumber, swBinNumber, count, pf, binName));
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("SoftwareBinRecord [headNumber=").append(headNumber);
-		builder.append(", siteNumber=").append(siteNumber);
-		builder.append(", swBinNumber=").append(swBinNumber);
-		builder.append(", count=").append(count);
-		builder.append(", pf=").append(pf);
-		builder.append(", binName=").append(binName);
-		builder.append("]");
-		return builder.toString();
+		this(cpu, null, getRecLen(pf, binName),
+			 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, swBinNumber, count, pf, binName)));
 	}
 
 	/* (non-Javadoc)
@@ -157,11 +158,11 @@ public class SoftwareBinRecord extends StdfRecord
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + binName.hashCode();
-		result = prime * result + count;
+		int result = 1;
+		result = prime * result + ((binName == null) ? 0 : binName.hashCode());
+		result = prime * result + (int) (count ^ (count >>> 32));
 		result = prime * result + headNumber;
-		result = prime * result + pf.hashCode();
+		result = prime * result + ((pf == null) ? 0 : pf.hashCode());
 		result = prime * result + siteNumber;
 		result = prime * result + swBinNumber;
 		return result;
@@ -174,17 +175,25 @@ public class SoftwareBinRecord extends StdfRecord
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
+		if (obj == null) return false;
 		if (!(obj instanceof SoftwareBinRecord)) return false;
 		SoftwareBinRecord other = (SoftwareBinRecord) obj;
-		if (!binName.equals(other.binName)) return false;
+		if (binName == null)
+		{
+			if (other.binName != null) return false;
+		} 
+		else if (!binName.equals(other.binName)) return false;
 		if (count != other.count) return false;
 		if (headNumber != other.headNumber) return false;
-		if (!pf.equals(other.pf)) return false;
+		if (pf == null)
+		{
+			if (other.pf != null) return false;
+		} 
+		else if (!pf.equals(other.pf)) return false;
 		if (siteNumber != other.siteNumber) return false;
 		if (swBinNumber != other.swBinNumber) return false;
-		if (!super.equals(obj)) return false;
 		return true;
 	}
-    
+
     
 }
