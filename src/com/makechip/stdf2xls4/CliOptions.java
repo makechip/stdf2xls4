@@ -189,7 +189,6 @@ public class CliOptions
 	    dynamicLimits = options.has(Y);
 	    dump = options.has(D);
 	    gui = options.has(G);
-	    Log.msg("gui = " + gui);
 	    xlsName = options.has(X) ? options.valueOf(X) : null;
 	    useJxl = options.has(J);
 	    precision = options.has(P) ? options.valueOf(P) : 3;
@@ -219,7 +218,6 @@ public class CliOptions
 	    
 	    if (!options.has(H) && !gui)
 	    {
-	    	Log.msg("gui = " + gui);
 	    	if (stdfFiles == null || stdfFiles.size() == 0)
 	    	{
 	    		sout.write("Error: No STDF files have been specified");

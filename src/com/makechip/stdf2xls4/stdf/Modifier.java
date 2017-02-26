@@ -4,7 +4,6 @@ import com.makechip.stdf2xls4.stdf.enums.Condition_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.descriptors.FieldDescriptor;
-import com.makechip.util.Log;
 
 public class Modifier
 {
@@ -30,7 +29,6 @@ public class Modifier
 	 */
 	public Modifier(String mod)
 	{
-	    Log.msg("modifier = " + mod);
 	    int l = mod.length();
 	    if (mod.charAt(0) != 'R' || mod.charAt(1) != '=')
 	    {
@@ -43,7 +41,6 @@ public class Modifier
 	        r += mod.charAt(j);
 	        j++;
 	    }
-	    Log.msg("R = " + r);
 		record = Enum.valueOf(Record_t.class, r);
 		if (record == null) error("Invalid modifier string: Invalid record type: " + r);
 		while (mod.charAt(j) != 'F' && j < l) j++;
@@ -58,7 +55,6 @@ public class Modifier
 	        f += mod.charAt(j);
 	        j++;
 	    }
-	    Log.msg("F = " + f);
 		field = FieldDescriptor.getDescriptor(record, f);
 		if (field == null) error("Invalid modifier String: Invalid field name: " + f);
 		while (mod.charAt(j) != 'C' && j < l) j++;
@@ -73,7 +69,6 @@ public class Modifier
 	        c += mod.charAt(j);
 	        j++;
 	    }
-	    Log.msg("C = " + c);
 		condition = Enum.valueOf(Condition_t.class, c);
 		if (condition == null) error("Invalid modifier string: Invalid condition: " + c);
 		while (mod.charAt(j) != 'V' && j < l) j++;
@@ -92,7 +87,6 @@ public class Modifier
 	    }
 		Data_t dt = field.getType();
 		oldValue = getValue(dt, v);
-		Log.msg("oldValue = " + oldValue);
 		while (mod.charAt(j) != 'N' && j < l) j++;
 	    if (mod.charAt(j) != 'N' || mod.charAt(j+1) != '=')
 	    {
@@ -108,7 +102,6 @@ public class Modifier
 	        j++;
 	    }
 		newValue = getValue(dt, n);
-		Log.msg("newValue = " + newValue);
 	}
 	
 	/* (non-Javadoc)

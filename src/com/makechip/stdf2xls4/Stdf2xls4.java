@@ -42,8 +42,9 @@ package com.makechip.stdf2xls4;
  * Fixed bug that showed up in 4.1.1 where values did not show up 
  * for each pin in MPRs because only one spreadsheet coordinate
  * was being used per MPR.
- * Added job date back into header.
+ * Added start and stop dates to page header
  * Fixed label typo for "Y" header on wafersort spreadsheets. 
+ * Removed all debug print statements
  * 
  */
 

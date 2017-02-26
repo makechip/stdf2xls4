@@ -79,7 +79,7 @@ public class StdfReader
 		   }
 		   records.add(r);
 	   }                
-	   Log.msg("Modified " + cnt + " records");
+	   if (cnt > 0) Log.msg("Modified " + cnt + " records");
        return(this);
     }
     

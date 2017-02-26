@@ -2,8 +2,6 @@ package com.makechip.stdf2xls4.stdfapi;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,9 +59,19 @@ public class HeaderUtil
 	{
 		if (hdr == null)
 		{
-			hdr = new PageHeader(Collections.unmodifiableMap(header));
+			hdr = new PageHeader(header);
 		}
 		return(hdr);
+	}
+	
+	void setStartDate(String startDate)
+	{
+	    if (startDate != null) header.put("START_DATE", startDate);
+	}
+	
+	void setStopDate(String stopDate)
+	{
+	    if (stopDate != null) header.put("STOP_DATE", stopDate);
 	}
 	
 	void setHeader(StdfRecord r)
@@ -96,9 +104,6 @@ public class HeaderUtil
         	header.put(JOB, mir.jobRevisionNumber);
         	header.put(TESTER_TYPE, mir.testerType);
         	header.put(TEST_PROGRAM, mir.jobName);
-        	long d = mir.jobDate;
-            String jobDate = new Date(d * 1000L).toString();
-        	header.put(JOB_DATE, jobDate);
         }
         else if (r instanceof WaferInformationRecord)
         {

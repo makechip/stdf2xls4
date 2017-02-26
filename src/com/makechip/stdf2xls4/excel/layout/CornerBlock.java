@@ -15,7 +15,7 @@ public class CornerBlock
 	public static final String LABEL_WAFER = "Wafer";
 	public static final String LABEL_STEP = "Step";
 	public static final String LABEL_X = "X";
-	public static final String LABEL_Y = "X";
+	public static final String LABEL_Y = "Y";
 	public static final String LABEL_SN = "S/N";
 	public static final String LABEL_DUP = "Duplicate";
 	public static final String LABEL_HW_BIN = "HW Bin";

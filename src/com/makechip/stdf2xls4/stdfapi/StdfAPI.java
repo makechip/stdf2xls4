@@ -3,6 +3,8 @@ package com.makechip.stdf2xls4.stdfapi;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -51,6 +53,8 @@ public final class StdfAPI
     private final Map<PageHeader, Boolean> wafersortMap;
 	private final List<File> stdfFiles;
 	public final boolean timeStampedFiles;
+	private String startDate;
+	private String stopDate;
 
 //	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 //	{
@@ -136,8 +140,34 @@ public final class StdfAPI
 	// Create headers and TestResultDatabase
 	public void initialize()
 	{
+	    List<Long> jobDates = new ArrayList<>();
 		HashMap<PageHeader, List<List<StdfRecord>>> devList = new HashMap<>();
 		// load the stdf records; group records by device	
+		if (options.xlsName != null)
+		{
+		    stdfFiles.stream().forEach(file ->
+		    {
+		        StdfReader rdr = new StdfReader();
+		        try (DataInputStream is = new DataInputStream(new FileInputStream(file)))
+		        {
+		            byte[] b = new byte[is.available()];
+		            is.readFully(b);
+		            rdr.read(tiddb, options.modifiers, new ByteInputStream(b));
+		        }
+		        catch (IOException e)
+		        {
+		            Log.warning("Error reading file: " + file.getName());	
+		            Log.msg(e.getMessage());
+		        }
+				MasterInformationRecord mir = (MasterInformationRecord) rdr.getRecords().stream().
+						filter(r -> r instanceof MasterInformationRecord).findFirst().orElse(null);
+				if (mir != null) jobDates.add(mir.jobDate);
+		    });
+		    Collections.sort(jobDates);
+		    startDate = new Date(jobDates.get(0) * 1000L).toString();
+		    int n = jobDates.size() - 1;
+		    stopDate = new Date(jobDates.get(n) * 1000L).toString();
+		}
 		stdfFiles.stream().forEach(file ->
 		{
             long timeStamp = timeStampedFiles ? getTimeStamp(file.getName()) : 0L;
@@ -192,6 +222,8 @@ public final class StdfAPI
 				// Create page headers:
 				//list.stream().forEach(l -> createHeaders(new HeaderUtil(), devList, l));
 				HeaderUtil hdr = new HeaderUtil();
+				hdr.setStartDate(startDate);
+				hdr.setStopDate(stopDate);
 				records.stream().forEach(r -> hdr.setHeader(r));
 				for(List<StdfRecord> x : list)
 				{
