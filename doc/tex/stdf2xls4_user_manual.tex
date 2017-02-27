@@ -77,7 +77,7 @@ directory.  Optionally a script can be made to actually run the jar file if desi
 
 \subsection{Generating a Spreadsheet}
 \begin{verbatim}
-java [-mx<M>] -jar <path_to_stdf2xls4_jar_file> [options] -x <spreadhseet_file> <stdf_files>
+java [-mx<M>] -jar <path_to_stdf2xls4_jar_file> [options] -x <spreadsheet_file> <stdf_files>
 \end{verbatim}
 \begin{itemize}
 \item <M> is the amount of memory to allocate to the java virtual machine for example, 4G, 500M, 12G.
@@ -105,7 +105,7 @@ followed by multiple characters.
 This option tells the program that if a test name of a ParametricTestRecord has
 a character <char> in it then the characters following <char> are to be interpreted
 as a pin name for that test.  If <char> is not specified, then by default '@' will be used.
-The pin name is displayed on a separate row ro column in the test header.
+The pin name is displayed on a separate row or column in the test header.
 \item -b or --one-page\\
 Normally STDF files from different wafers or test steps are displayed in different spreadsheets.
 This option will combine them all on one page with an additional row or column for the test
@@ -125,8 +125,12 @@ Prints a summary of the command line options.
 This option specified to use the JExcel library instead of the Apache POI library
 for spreadsheet generation.  Sometimes the Apache library for "xls" format is problematic.
 The JExcel library can be tried to see if it resolves any formatting problems.  Note
-that this option has no effect when using "xlsx" or xml format, and xml format is
+that this option has no effect when using "xlsx" or XML format, and XML format is
 recommended anyways.
+\item -l <file> or --logo <file>\\
+This option specifies a logo (PNG file) to include in the upper left
+corner of the spreadsheet.  The logo should have an aspect ratio of
+about 290(W) to 120(H).  It will be scaled to fit within the required area.
 \item -m or --modifier\\
 This is an experimental feature that can modify STDF fields on the fly as the STDF is loaded.
 Currently it is only enabled for DatalogTextRecords. This option has the form of:\\
@@ -163,8 +167,8 @@ Verigy (AKA Advantest) testers can output bogus test data as tests related to se
 these will be ignored.  This option will include them in the spreadsheet.
 \item -x <file.xls[x]> or --xls-name <file.xlsx[x]>\\
 This options specifies the name of the spreadsheet file and is required (unless using the -d option).
-If the suffix of the filename is ".xlsx" then the newer xml format will be used for the spreadsheet.
-Otherwise the older ".xls" format will be used.  In the futute the xls format may be deprecated.
+If the suffix of the filename is ".xlsx" then the newer XML format will be used for the spreadsheet.
+Otherwise the older ".xls" format will be used.  In the future the xls format may be deprecated.
 \item -y or --dynamic limits\\
 If this option is used, then the high and low limits of all parametric tests are
 searched, and if they vary by more than 0.1\percent then the corresponding test will use dynamic limit
@@ -185,7 +189,7 @@ must not exceed 255 characters.
 
 \section{Support for Generic Data per Device}
 Arbitrary data for each device may be mapped to the spreadsheet as a test result along
-with the rest of the test data.  To get this innformation into the STDF file, print a 
+with the rest of the test data.  To get this information into the STDF file, print a 
 text field to the datalogger using the format:
 \begin{verbatim}
 TEXT_DATA : test_name : value [(units)] [ : test_number [ : site_number [ : head_number ]]]
