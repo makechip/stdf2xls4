@@ -31,21 +31,21 @@
 %\def_{\let\@next\relax\ifmmode\@sub\else\let\@next\@@sub\fi\@next}
 %\makeatother
 
-\newcommand{\customer}{XXX}
-\newcommand{\partnum}{XXX}
+\newcommand{\customer}{stdf2xls4}
+\newcommand{\partnum}{stdf2xls4}
 \renewcommand{\date}{XXXXXX}
 
 \newcommand{\lT}{\symbol{"3C}}
 \newcommand{\gT}{\symbol{"3E}}
-\usefont{T1}{ua1}{m}{n}\selectfont
-\allsectionsfont{\usefont{T1}{ua1}{m}{n}\selectfont}
-\renewcommand{\bfseries}{\usefont{T1}{ua1}{b}{n}\selectfont}
-\newcommand{\tf}{\usefont{T1}{ua1}{b}{sl}\selectfont}
-\renewcommand{\bf}{\usefont{T1}{ua1}{b}{n}\selectfont}
-\newcommand{\nf}{\usefont{T1}{ua1}{m}{n}\selectfont}
+\usefont{T1}{phv}{m}{n}\selectfont
+\allsectionsfont{\usefont{T1}{phv}{m}{n}\selectfont}
+\renewcommand{\bfseries}{\usefont{T1}{phv}{b}{n}\selectfont}
+\newcommand{\tf}{\usefont{T1}{phv}{b}{sl}\selectfont}
+\renewcommand{\bf}{\usefont{T1}{phv}{b}{n}\selectfont}
+\newcommand{\nf}{\usefont{T1}{phv}{m}{n}\selectfont}
 \definecolor{mcblue}{rgb}{0.3203125,0.48046875,0.73828125}
-\usefont{T1}{ua1}{m}{n}\selectfont
-\allsectionsfont{\usefont{T1}{ua1}{m}{n}\selectfont}
+\usefont{T1}{phv}{m}{n}\selectfont
+\allsectionsfont{\usefont{T1}{phv}{m}{n}\selectfont}
 %% top starts at 1" + \voffset + \topmargin + \headheight + \headsep
 \setlength\voffset{0pt}
 \setlength\topmargin{1.0in}
@@ -69,7 +69,7 @@
 
 \newcommand{\makebg}
 {
-    \usefont{T1}{ua1}{m}{n}\selectfont
+    \usefont{T1}{phv}{m}{n}\selectfont
     \def\tm{1.1in}
     \setlength\topmargin{0in}
     \setlength\textheight{8.5in}
@@ -79,9 +79,9 @@
         \begin{tikzpicture}(0,0)(22,28)
             \path [help lines, color=white] (0,0) grid (22,28);
             \shade[left color=mcblue, right color=white] (\lm,9.9in) rectangle (\rm,10.0in);
-            \node[color=mcblue,anchor=base west] (b) at (\lm,10.04in) { \normalsize \partnum\  };
+            \node[color=mcblue,anchor=base west] (b) at (\lm,10.04in) { \normalsize stdf2xls4  };
             \shade[left color=mcblue, right color=white] (2.54,2) rectangle (19.05,2.05);
-            \node[color=mcblue,anchor=west] (c) at (2.54,1.8) { \footnotesize \copyright 2012 makechip.com };
+            \node[color=mcblue,anchor=west] (c) at (2.54,1.8) { \footnotesize \copyright 2017 makechip.com };
             \node[color=mcblue,anchor=east] (d) at (19.05,1.8) { \footnotesize \partnum\ Page \pagenum };
         \end{tikzpicture}
     }
@@ -89,7 +89,7 @@
 
 \renewcommand{\maketitle}%
 {%
-    \usefont{T1}{ua1}{m}{n}\selectfont
+    \usefont{T1}{phv}{m}{n}\selectfont
     \AddToShipoutPicture*%
     {%
         \setlength{\unitlength}{1cm}
@@ -98,15 +98,11 @@
             \node[color=mcblue,anchor=west] (e) at (2.54,9.7in) {\scalebox{1.5}{\Huge\bf makechip.com}};
             \shade[left color=mcblue, right color=white] (\lm,9.2in) rectangle (\rm,9.3in);
             \shade[left color=mcblue, right color=white] (2.54,2) rectangle (19.05,2.05);
-            \node[color=mcblue,anchor=west] (c) at (2.54,1.8) { \footnotesize \copyright 2010 makechip.com };
+            \node[color=mcblue,anchor=west] (c) at (2.54,1.8) { \footnotesize \copyright 2017 makechip.com };
             \node[color=mcblue,anchor=east] (d) at (19.05,1.8) { \footnotesize \partnum\ Page \pagenum };
         \end{tikzpicture}%
     }
-    {\centering {\large \partnum\  Test Description}\\
-    \vspace{0.1in}
-    {\large For}\\
-    \vspace{0.1in}
-    {\large \customer}\\
+    {\centering {\large stdf2xls4 User Manual}\\
     \vspace{0.1in}
     {\large \date}\\
     }
