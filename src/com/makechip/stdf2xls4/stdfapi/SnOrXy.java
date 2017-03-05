@@ -28,9 +28,16 @@ import com.makechip.util.Identity;
 
 public abstract class SnOrXy implements Identity
 {
+    public final int dupNum;
+    
+    protected SnOrXy(int dupNum)
+    {
+        this.dupNum = dupNum;
+    }
     
     protected SnOrXy()
     {
+        dupNum = 0;
     }
     
     /**

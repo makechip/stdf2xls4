@@ -25,118 +25,70 @@
 package com.makechip.util.factory;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.map.hash.TShortObjectHashMap;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import com.makechip.util.Identity;
 import com.makechip.util.Log;
 
 
-public final class IdentityFactoryONNZ<K, V extends Identity>
+public final class IdentityFactorySSN<V extends Identity>
 {
-    private HashMap<K, TIntObjectHashMap<TIntObjectHashMap<HashMap<Boolean, V>>>> map;
+    private TShortObjectHashMap<TShortObjectHashMap<TIntObjectHashMap<V>>> map;
     private Class<V> valueClass;
-    private Class<K> keyClass;
-    private final K nullKey = null;
 
-    public IdentityFactoryONNZ(Class<K> keyClass, Class<V> valueClass)
+    public IdentityFactorySSN(Class<V> valueClass)
     {
-    	this.keyClass = keyClass;
         this.valueClass = valueClass;
-        map = new HashMap<K, TIntObjectHashMap<TIntObjectHashMap<HashMap<Boolean, V>>>>();
-    }
-    
-    public List<V> getValues()
-    {
-    	List<V> list = new ArrayList<>();
-    	for (K k : map.keySet())
-    	{
-    		TIntObjectHashMap<TIntObjectHashMap<HashMap<Boolean, V>>> m1 = map.get(k);
-    		for (int i : m1.keys())
-    		{
-    			TIntObjectHashMap<HashMap<Boolean, V>> m2 = m1.get(i);
-    			for (int j : m2.keys())
-    			{
-    				Map<Boolean, V> m3 = m2.get(j);
-    				for (V v : m3.values()) list.add(v);
-    			}
-    		}
-    	}
-    	return(list);
+        map = new TShortObjectHashMap<TShortObjectHashMap<TIntObjectHashMap<V>>>();
     }
 
     public int getInstanceCount()
     {
         int sum = 0;
-        for (K k : map.keySet())
+        for (short l : map.keys()) 
         {
-        	TIntObjectHashMap<TIntObjectHashMap<HashMap<Boolean, V>>> m1 = map.get(k);
-        	for (int k2 : m1.keys())
-        	{
-        	    TIntObjectHashMap<HashMap<Boolean, V>> m2 = m1.get(k2);
-        	    for (int k3 : m2.keys())
-        	    {
-        	        HashMap<Boolean, V> m3 = m2.get(k3);
-        	        sum += m3.size();
-        	    }
-        	}
+        	TShortObjectHashMap<TIntObjectHashMap<V>> m = map.get(l);
+        	for(TIntObjectHashMap<V> o : m.values()) sum += o.size();
         }
         return(sum);
     }
 
-    public V getExistingValue(K p0, int p1, int p2, boolean p3)
+    public V getExistingValue(short p1, short p2, int p3)
     {
-       	TIntObjectHashMap<TIntObjectHashMap<HashMap<Boolean, V>>> m0 = map.get(p0);
-       	if (m0 != null)
-       	{
-       		TIntObjectHashMap<HashMap<Boolean, V>> m1 = m0.get(p1);
-        	if (m1 != null)
-        	{
-            	HashMap<Boolean, V> m2 = m1.get(p2);
-            	if (m2 != null) 
-            	{
-            		V v = m2.get(p3);
-            		return(v);
-            	}
-        	}
-       	}
+        TShortObjectHashMap<TIntObjectHashMap<V>> m = map.get(p1);
+        if (m != null) 
+        {
+        	TIntObjectHashMap<V> m2 = m.get(p2);
+        	if (m2 != null) return(m2.get(p3));
+        }
         return(null);
     }
         
-    public V getValue(K p0, int p1, int p2, boolean p3)
+    public V getValue(short p1, short p2, int p3)
     {
-        if (p0 == null) p0 = nullKey;
-       	TIntObjectHashMap<TIntObjectHashMap<HashMap<Boolean, V>>> m0 = map.get(p0);
-       	if (m0 == null)
-       	{
-       		m0 = new TIntObjectHashMap<TIntObjectHashMap<HashMap<Boolean, V>>>();
-       		map.put(p0,  m0);
-       	}
-        TIntObjectHashMap<HashMap<Boolean, V>> m1 = m0.get(p1);
-        if (m1 == null)
+        TShortObjectHashMap<TIntObjectHashMap<V>> m = map.get(p1);
+        if (m == null)
         {
-            m1 = new TIntObjectHashMap<HashMap<Boolean, V>>();
-            m0.put(p1, m1);
+            m = new TShortObjectHashMap<TIntObjectHashMap<V>>();
+            map.put(p1, m);
         }
-        HashMap<Boolean, V> m2 = m1.get(p2);
+        TIntObjectHashMap<V> m2 = m.get(p2);
         if (m2 == null)
         {
-            m2 = new HashMap<>();
-            m1.put(p2, m2);
+        	m2 = new TIntObjectHashMap<V>();
+        	m.put(p2,  m2);
         }
         V v = m2.get(p3);
         if (v == null)
         {
             try
             {
-                Constructor<V> ctor = valueClass.getDeclaredConstructor(keyClass, int.class, int.class, boolean.class);
+                Constructor<V> ctor = valueClass.getDeclaredConstructor(long.class, short.class, short.class);
                 ctor.setAccessible(true);
-                v = ctor.newInstance(p0, p1, p2, p3);
+                v = ctor.newInstance(p1, p2, p3);
             }
             catch (NoSuchMethodException e1)
             {

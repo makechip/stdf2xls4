@@ -41,6 +41,7 @@ public class HSSFSpreadsheet implements Spreadsheet
 	private static Map<Format_t, TIntObjectHashMap<CellStyle>> map = new EnumMap<>(Format_t.class);
     private static Map<Font_t, TIntObjectHashMap<Map<Color_t, Font>>> cache = new EnumMap<>(Font_t.class);
     private List<Sheet[]> groups;
+    private boolean createSheetCalled = false;
 
 	public HSSFSpreadsheet()
 	{
@@ -230,6 +231,7 @@ public class HSSFSpreadsheet implements Spreadsheet
 			    setDummyCell(page, new Coord(i, fmt.ordinal()), fmt, "");
 		    });
 		});
+		createSheetCalled = true;
 	}
 	
 	@Override
@@ -419,14 +421,17 @@ public class HSSFSpreadsheet implements Spreadsheet
         //}
         //int index = wb.getSheetIndex(dummySheet);
         //wb.removeSheetAt(index);
-        groups.stream().forEach(dummies ->
+        if (createSheetCalled)
         {
-            Arrays.stream(dummies).forEach(sheet ->
+            groups.stream().forEach(dummies ->
             {
-        	    int index = wb.getSheetIndex(sheet);
-        	    wb.removeSheetAt(index);
+                Arrays.stream(dummies).forEach(sheet ->
+                {
+                    int index = wb.getSheetIndex(sheet);
+                    wb.removeSheetAt(index);
+                });
             });
-        });
+        }
         try
         {
             file.delete();

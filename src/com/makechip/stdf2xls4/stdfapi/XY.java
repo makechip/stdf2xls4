@@ -25,37 +25,24 @@
 package com.makechip.stdf2xls4.stdfapi;
 
 import com.makechip.util.Immutable;
-
-import gnu.trove.map.hash.TShortObjectHashMap;
+import com.makechip.util.factory.IdentityFactorySSN;
 
 public final class XY extends SnOrXy implements Comparable<XY>, Immutable
 {
-    private static TShortObjectHashMap<TShortObjectHashMap<XY>> map = new TShortObjectHashMap<TShortObjectHashMap<XY>>();
+    private static IdentityFactorySSN<XY> map;
     private final short x;
     private final short y;
     
-    private XY(short x, short y)
+    private XY(short x, short y, int dupNum)
     {
-        super();
+        super(dupNum);
         this.x = x;
         this.y = y;
     }
     
-    public static XY getXY(short x, short y)
+    public static XY getXY(short x, short y, int dupNum)
     {
-        TShortObjectHashMap<XY> m1 = map.get(x);
-        if (m1 == null)
-        {
-            m1 = new TShortObjectHashMap<XY>();
-            map.put(x, m1);
-        }
-        XY xy = m1.get(y);
-        if (xy == null)
-        {
-            xy = new XY(x, y);
-            m1.put(y, xy);
-        }
-        return(xy);
+        return(map.getValue(x, y, dupNum));
     }
     
     @Override
@@ -86,9 +73,7 @@ public final class XY extends SnOrXy implements Comparable<XY>, Immutable
     @Override
     public int getInstanceCount()
     {
-        int i = 0;
-        for (TShortObjectHashMap<XY> m1 : map.values()) i+= m1.size();
-        return(i);
+        return(map.getInstanceCount());
     }
 
     @Override

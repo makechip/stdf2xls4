@@ -25,22 +25,22 @@
 package com.makechip.stdf2xls4.stdfapi;
 
 import com.makechip.util.Immutable;
-import com.makechip.util.factory.IdentityFactoryO;
+import com.makechip.util.factory.IdentityFactoryON;
 
 public class SN extends SnOrXy implements Immutable, Comparable<SN>
 {
-    private static IdentityFactoryO<String, SN> map = new IdentityFactoryO<String, SN>(String.class, SN.class);
+    private static IdentityFactoryON<String, SN> map = new IdentityFactoryON<String, SN>(String.class, SN.class);
     public final String serialNumber;
     
-    protected SN(String serialNumber)
+    protected SN(String serialNumber, int dupNum)
     {
-        super();
+        super(dupNum);
         this.serialNumber = serialNumber;
     }
     
-    public static SN getSN(String serialNumber)
+    public static SN getSN(String serialNumber, int dupNum)
     {
-        return(map.getValue(serialNumber.trim()));
+        return(map.getValue(serialNumber.trim(), dupNum));
     }
     
     @Override

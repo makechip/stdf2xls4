@@ -65,6 +65,11 @@ public final class SpreadsheetWriter
 		this.ss = ss;
 		titles = new TIntObjectHashMap<>();
         ss.openWorkbook(options.xlsName);
+        for (int i=0; i<ss.getNumberOfSheets(); i++)
+        {
+            String sname = ss.getSheetName(i);
+            SheetName.getSheet(sname);
+        }
         if (options.maxExcelColumns) COLS_PER_PAGE = 16384;
 	}
 	
@@ -155,8 +160,8 @@ public final class SpreadsheetWriter
         if (oldOpts.contains("-r") && !options.rotate) throw optionError(true, "-r");
         if (!oldOpts.contains("-r") && options.rotate) throw optionError(false, "-r");
     	// -y dynamicLimits = error
-        if (oldOpts.contains("-y") && !options.rotate) throw optionError(true, "-r");
-        if (!oldOpts.contains("-y") && options.rotate) throw optionError(false, "-r");
+        if (oldOpts.contains("-y") && !options.dynamicLimits) throw optionError(true, "-y");
+        if (!oldOpts.contains("-y") && options.dynamicLimits) throw optionError(false, "-y");
     	// -n noWrapTestNames mismatch = warning
         if (oldOpts.contains("-n") && !options.noWrapTestNames)
         {
@@ -192,7 +197,7 @@ public final class SpreadsheetWriter
     		String text = ss.getCellContents(page, titleBlock.tstxy.tnameLabel);
     		if (text.equals(CornerBlock.LABEL_TEST_NAME)) return(true);
     	}
-    	return(false);
+    	return(true);
     }
     
     private void setStatus(int page, Coord xy, TestResult r)
@@ -405,7 +410,7 @@ public final class SpreadsheetWriter
    	    //int rc = options.rotate ? titleBlock.tstxy.unitsLabel.r + 1 + index : titleBlock.tstxy.unitsLabel.c + 1 + (index % COLS_PER_PAGE);
 		TitleBlock titleBlock = titles.get(page);
 		int rc = titleBlock.getRC(th.testName, th.testNumber, th.getPin(), th.dupNum);
-		if (rc < 0) return;
+		if (rc < 0) return; // returning here...
    	    Coord xy = options.rotate ? new Coord(currentRC, rc) : new Coord(rc, currentRC);
 		try
 		{
@@ -471,7 +476,10 @@ public final class SpreadsheetWriter
         	{
         	    sname = SheetName.getExistingSheetName(api.wafersort(hdr), hdr, page+1, version);
         	    if (sname == null) break;
-        	    if (ss.initSheet(page, sname) == null) break;;
+        	    if (ss.initSheet(page, sname) != null) 
+        	    {
+        	        break;
+        	    }
         	    PageHeader ph = getPageHeader(page);
         	    if (ph.equals(hdr)) break;
         	    version++;
@@ -484,7 +492,10 @@ public final class SpreadsheetWriter
         	else // note: an existing sheet might have a titleblock that is incompatible with the current titleblock.
         	{
     	        //List<TestHeader> list = getTestHeaders(ws[page]);
-    	        TitleBlock titleBlock = new TitleBlock(hdr, options.logoFile, sname.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, null);
+        	    List<TestHeader> list = options.rotate ? api.getTestHeaders(hdr) : getTestHeaders(hdr, page);
+    	        TitleBlock titleBlock = new TitleBlock(hdr, options.logoFile, sname.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, list);
+    	        titles.put(page, titleBlock);
+    	        titleBlock.addBlock(ss, page);
         		if (!checkRegistration(page, LegendBlock.HEIGHT, titleBlock.tstxy.tnameLabel)) 
         		{
         			ss.close(options.xlsName);

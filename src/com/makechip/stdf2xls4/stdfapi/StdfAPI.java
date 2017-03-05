@@ -33,6 +33,10 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 import com.makechip.util.Log;
 
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.map.hash.TShortIntHashMap;
+import gnu.trove.map.hash.TShortObjectHashMap;
+
 /**
  * This is not a general purpose API for STDF.  It is mainly to
  * process the STDF records into structures that are usable for
@@ -55,6 +59,8 @@ public final class StdfAPI
 	public final boolean timeStampedFiles;
 	private String startDate;
 	private String stopDate;
+	private HashMap<PageHeader, TObjectIntHashMap<String>> snDupMap;
+	private HashMap<PageHeader, TShortObjectHashMap<TShortIntHashMap>> xyDupMap;
 
 //	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 //	{
@@ -66,6 +72,8 @@ public final class StdfAPI
 	public StdfAPI(final CliOptions options)
 	{
 		tiddb = new TestIdDatabase();
+		snDupMap = new HashMap<>();
+		xyDupMap = new HashMap<>();
 		this.options = options;
 		if (options.dynamicLimits) dynamicLimitMap = new HashMap<>(); else dynamicLimitMap = null;
 		this.stdfFiles = options.stdfFiles;
@@ -303,7 +311,32 @@ public final class StdfAPI
 		if (wafersortMap.get(hdr))
 		{
 		    if (timeStampedFiles) snxy = TimeXY.getTimeXY(dvd.timeStamp, prr.xCoord, prr.yCoord);	
-		    else snxy = XY.getXY(prr.xCoord, prr.yCoord);
+		    else 
+		    {
+		        if (options.noOverwrite)
+		        {
+		            TShortObjectHashMap<TShortIntHashMap> m1 = xyDupMap.get(hdr);
+		            if (m1 == null)
+		            {
+		                m1 = new TShortObjectHashMap<>();
+		                xyDupMap.put(hdr, m1);
+		            }
+		            TShortIntHashMap m2 = m1.get(prr.xCoord);
+		            if (m2 == null)
+		            {
+		                m2 = new TShortIntHashMap(100, 0.7f, (short) 0, 0);
+		                m1.put(prr.xCoord, m2);
+		            }
+		            int xyDupNum = m2.get(prr.yCoord);
+		            snxy = XY.getXY(prr.xCoord, prr.yCoord, xyDupNum);
+		            xyDupNum++;
+		            m2.put(prr.yCoord, xyDupNum);
+		        }
+		        else
+		        {
+		            snxy = XY.getXY(prr.xCoord, prr.yCoord, 0);
+		        }
+		    }
 		}
 		else
 		{
@@ -317,11 +350,51 @@ public final class StdfAPI
 				st.nextToken(); // burn "TEXT_DATA"
 				st.nextToken(); // burn "S/N"
 				String sn = st.nextToken();
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(dvd.timeStamp, sn) : SN.getSN(sn);
+				if (timeStampedFiles)
+				{
+				    snxy = TimeSN.getTimeSN(dvd.timeStamp, sn); 
+				}
+				else
+				{
+				    if (options.noOverwrite)
+				    {
+				        TObjectIntHashMap<String> m1 = snDupMap.get(hdr);
+				        if (m1 == null)
+				        {
+				            m1 = new TObjectIntHashMap<String>(100, 0.7f, 0);
+				            snDupMap.put(hdr, m1);
+				        }
+				        int snDupNum = m1.get(sn);
+				        snxy = SN.getSN(sn, snDupNum);
+				        snDupNum++;
+				        m1.put(sn, snDupNum);
+				    }
+				    else snxy = SN.getSN(sn, 0);
+				}
 			}
 			else
 			{
-				snxy = timeStampedFiles ? TimeSN.getTimeSN(dvd.timeStamp, prr.partID) : SN.getSN(prr.partID);
+			    if (timeStampedFiles)
+			    {
+				    snxy = TimeSN.getTimeSN(dvd.timeStamp, prr.partID); 
+			    }
+			    else
+			    {
+				    if (options.noOverwrite)
+				    {
+				        TObjectIntHashMap<String> m1 = snDupMap.get(hdr);
+				        if (m1 == null)
+				        {
+				            m1 = new TObjectIntHashMap<String>(100, 0.7f, 0);
+				            snDupMap.put(hdr, m1);
+				        }
+				        int snDupNum = m1.get(prr.partID);
+				        snxy = SN.getSN(prr.partID, snDupNum);
+				        snDupNum++;
+				        m1.put(prr.partID, snDupNum);
+				    }
+				    else snxy = SN.getSN(prr.partID, 0);
+			    }
 			}
 		}
 		List<TestRecord> l = null;

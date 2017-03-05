@@ -16,6 +16,7 @@ public final class SheetName implements Identity, Immutable
 	public final int version;
 	public final String name;
 	public final int page;
+	private static final String nullKey = "NONE";
 	private static IdentityFactoryONNZ<String, SheetName> map = new IdentityFactoryONNZ<>(String.class, SheetName.class);
 
 	private SheetName(String name, int page, int version, boolean wafersort)
@@ -28,7 +29,9 @@ public final class SheetName implements Identity, Immutable
 	
 	public static SheetName getSheet(boolean wafersort, PageHeader hdr, int page, int version)
 	{
-        return(map.getValue(getWaferOrStepName(wafersort, hdr), page, version, wafersort));
+	    String waferOrStep = getWaferOrStepName(wafersort, hdr);
+	    if (waferOrStep == null) waferOrStep = nullKey;
+        return(map.getValue(waferOrStep, page, version, wafersort));
 	}
 	
 	public static SheetName getSheet(String sheetName)
@@ -38,6 +41,7 @@ public final class SheetName implements Identity, Immutable
 	    String prefix = st.nextToken();
 	    boolean wafersort = prefix.contains("WAFER");
 	    String waferOrStep = st.nextToken();
+	    if (waferOrStep.equals("null")) waferOrStep = null;
 	    st.nextToken(); // burn "Page";
 	    String pnum = st.nextToken();
 	    String vnum = st.nextToken();
@@ -47,19 +51,23 @@ public final class SheetName implements Identity, Immutable
 	    int v = 0;
 	    try { v = Integer.parseInt(vnum.substring(1)); }
 	    catch (Exception e) { throw new RuntimeException(e.getMessage()); }
+	    if (waferOrStep == null) waferOrStep = nullKey; // null keys don't work
 	    return(map.getValue(waferOrStep, p, v, wafersort));
 	}
 	
 	public static SheetName getExistingSheetName(boolean wafersort, PageHeader hdr, int page, int version)
 	{
-        return(map.getExistingValue(getWaferOrStepName(wafersort, hdr), page, version, wafersort));
+	    String waferOrStep = getWaferOrStepName(wafersort, hdr);
+	    if (waferOrStep == null) waferOrStep = nullKey;
+        return(map.getExistingValue(waferOrStep, page, version, wafersort));
 	}
 
     private static String getWaferOrStepName(boolean wsort, PageHeader hdr)
     {
+        if (hdr == null) return(null);
     	return(wsort ? hdr.get(HeaderUtil.WAFER_ID) : hdr.get(HeaderUtil.STEP));
     }
-
+    
 	@Override
 	public int getInstanceCount()
 	{

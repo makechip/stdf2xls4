@@ -133,7 +133,8 @@ public class CliOptions
 	    sb.append(options.has(E) ? "-e " : ""); 	
 	    sb.append(options.has(C) ? "-c " : ""); 	
 	    sb.append(options.has(N) ? "-n " : ""); 	
-	    sb.append(options.has(O) ? "-s " : ""); 	
+	    sb.append(options.has(O) ? "-o " : ""); 	
+	    sb.append(options.has(S) ? "-s " : ""); 	
 	    sb.append(options.has(B) ? "-b " : ""); 	
 	    sb.append(options.has(T) ? "-t " : ""); 	
 	    sb.append(options.has(V) ? "-v " : ""); 	
@@ -200,7 +201,7 @@ public class CliOptions
 	    String defaultFile = System.getenv("STDF2XLS_LOGO_FILE");
 	    logoFile = options.has(L) ? options.valueOf(L) : (defaultFile != null ? new File(defaultFile) : null);
 	    success = true;
-	    
+	     
 	    if (options.has(H))
 	    {
 	    	try { op.printHelpOn(sout); }
@@ -261,7 +262,6 @@ public class CliOptions
 	    	for (char c : suffixChars) Log.msg_("" + c + " ");
 	    	throw new RuntimeException("Invalid arguments");
 	    }
-	   
 	}
 	
 	public String getMessage() { return(sout.toString()); }

@@ -46,6 +46,7 @@ public class XSSFSpreadsheet implements Spreadsheet
     private static Map<Font_t, TIntObjectHashMap<Map<Color_t, Font>>> cache = new EnumMap<>(Font_t.class);
     private static Map<Color_t, XSSFColor> colorMap = new EnumMap<>(Color_t.class);
     private List<Sheet[]> groups;
+    boolean createSheetCalled = false;
 
 	public XSSFSpreadsheet()
 	{
@@ -173,7 +174,7 @@ public class XSSFSpreadsheet implements Spreadsheet
 	public void setCell(int page, Coord xy, Format_t format, long value)
 	{
 		Cell c = getCell(page, xy, Cell_t.STRING);
-		c.setCellValue(value);
+		c.setCellValue("" + value);
 		c.setCellStyle(getFormat(format));
 	}
 
@@ -228,6 +229,7 @@ public class XSSFSpreadsheet implements Spreadsheet
 			    setDummyCell(page, new Coord(i, fmt.ordinal()), fmt, "");
 		    });
 		});
+		createSheetCalled = true;
 	}
 	
 	@Override
@@ -428,14 +430,17 @@ public class XSSFSpreadsheet implements Spreadsheet
         //}
         //int index = wb.getSheetIndex(dummySheet);
         //wb.removeSheetAt(index);
-        groups.stream().forEach(dummies ->
+        if (createSheetCalled)
         {
-            Arrays.stream(dummies).forEach(sheet ->
+            groups.stream().forEach(dummies ->
             {
-        	    int index = wb.getSheetIndex(sheet);
-        	    wb.removeSheetAt(index);
+                Arrays.stream(dummies).forEach(sheet ->
+                {
+                    int index = wb.getSheetIndex(sheet);
+                    wb.removeSheetAt(index);
+                });
             });
-        });
+        }
         try
         {
             file.delete();
