@@ -251,20 +251,24 @@ public final class DefaultValueDatabase
         if (u.length() >= 3)
         {
             String p = u.substring(0, 2).toUpperCase();
-            if (p.equals("KM")) p = "";
-            else if (p.equals("MM")) p = "k";
-            else if (p.equals("GM")) p = "M";
-            else if (p.equals("KU")) p = "m";
-            else if (p.equals("MU")) p = "";
-            else if (p.equals("GU")) p = "k";
-            else if (p.equals("KN")) p = "u";
-            else if (p.equals("MN")) p = "m";
-            else if (p.equals("GN")) p = "";
-            else if (p.equals("KP")) p = "n";
-            else if (p.equals("MP")) p = "u";
-            else if (p.equals("GP")) p = "m";
-            String newUnits = units.substring(1);
-            u = p + newUnits;
+            boolean fix = false;
+            if (p.equals("KM")) { p = ""; fix = true; }
+            else if (p.equals("MM")) { p = "k"; fix = true; }
+            else if (p.equals("GM")) { p = "M"; fix = true; }
+            else if (p.equals("KU")) { p = "m"; fix = true; }
+            else if (p.equals("MU")) { p = ""; fix = true; }
+            else if (p.equals("GU")) { p = "k"; fix = true; }
+            else if (p.equals("KN")) { p = "u"; fix = true; }
+            else if (p.equals("MN")) { p = "m"; fix = true; }
+            else if (p.equals("GN")) { p = ""; fix = true; }
+            else if (p.equals("KP")) { p = "n"; fix = true; }
+            else if (p.equals("MP")) { p = "u"; fix = true; }
+            else if (p.equals("GP")) { p = "m"; fix = true; }
+            if (fix)
+            {
+                String newUnits = units.substring(1);
+                u = p + newUnits;
+            }
         }
         return(u);
     }

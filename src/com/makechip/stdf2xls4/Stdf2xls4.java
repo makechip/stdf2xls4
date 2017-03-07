@@ -46,6 +46,12 @@ package com.makechip.stdf2xls4;
  * Fixed label typo for "Y" header on wafersort spreadsheets. 
  * Removed all debug print statements
  * 
+ * 4.1.3 3/5/17:
+ * Fixed --no-overwrite option
+ * 
+ * 4.1.4 3/6/17:
+ * Fixed bug in units scaling algorithm.
+ * 
  */
 
 import java.io.IOException;
@@ -63,7 +69,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.1.3";
+	public static final String VERSION = "4.1.4";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)
