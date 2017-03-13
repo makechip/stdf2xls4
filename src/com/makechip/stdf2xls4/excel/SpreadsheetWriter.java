@@ -281,8 +281,8 @@ public final class SpreadsheetWriter
     				ss.setCell(page, getDevCoord(titleBlock.devxy.tstamp), cs, ((TimeXY) dh.snxy).getTimeStamp());
     			}
     		}
-    		ss.setCell(page, getDevCoord(titleBlock.devxy.x), cs, dh.snxy.getX());
-    		ss.setCell(page, getDevCoord(titleBlock.devxy.yOrSn), cs, dh.snxy.getY());
+    		ss.setCell(page, getDevCoord(titleBlock.devxy.x), cs, (long) dh.snxy.getX());
+    		ss.setCell(page, getDevCoord(titleBlock.devxy.yOrSn), cs, (long) dh.snxy.getY());
     	}
     	else // FT
     	{
@@ -334,8 +334,19 @@ public final class SpreadsheetWriter
         				currentRC = rc;
         				return;
         			}
-        			short x = (short) ss.getCellValue(page, titleBlock.devxy.x);
-        			short y = (short) ss.getCellValue(page, titleBlock.devxy.yOrSn);
+        			String xx = ss.getCellContents(page, titleBlock.devxy.x);
+        			String yy = ss.getCellContents(page, titleBlock.devxy.yOrSn);
+        			short x = (short) 0;
+        			short y = (short) 0;
+        			try
+        			{
+        			    x = Short.parseShort(xx);
+        			    y = Short.parseShort(yy);
+        			}
+        			catch (Exception e)
+        			{
+        			    Log.msg("Unable to parse X-Y coordinate");
+        			}
         			if (options.onePage)
         			{
         				String waf = ss.getCellContents(page, titleBlock.devxy.wafOrStep);

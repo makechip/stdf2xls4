@@ -86,7 +86,7 @@ public final class IdentityFactorySSN<V extends Identity>
         {
             try
             {
-                Constructor<V> ctor = valueClass.getDeclaredConstructor(long.class, short.class, short.class);
+                Constructor<V> ctor = valueClass.getDeclaredConstructor(short.class, short.class, int.class);
                 ctor.setAccessible(true);
                 v = ctor.newInstance(p1, p2, p3);
             }

@@ -29,7 +29,7 @@ import com.makechip.util.factory.IdentityFactorySSN;
 
 public final class XY extends SnOrXy implements Comparable<XY>, Immutable
 {
-    private static IdentityFactorySSN<XY> map;
+    private static IdentityFactorySSN<XY> map = new IdentityFactorySSN<XY>(XY.class);
     private final short x;
     private final short y;
     
