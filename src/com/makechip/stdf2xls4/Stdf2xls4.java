@@ -55,6 +55,9 @@ package com.makechip.stdf2xls4;
  * 4.1.5 3/13/17
  * Fixed missing initialization of IdentityFactory in XY.java
  * 
+ * 4.1.6 3/22/17
+ * Fixed deletion of dummy sheets when sheet index was less than 0.
+ * 
  */
 
 import java.io.IOException;
@@ -72,7 +75,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.1.5";
+	public static final String VERSION = "4.1.6";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

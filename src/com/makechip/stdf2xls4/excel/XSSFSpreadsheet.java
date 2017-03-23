@@ -437,7 +437,7 @@ public class XSSFSpreadsheet implements Spreadsheet
                 Arrays.stream(dummies).forEach(sheet ->
                 {
                     int index = wb.getSheetIndex(sheet);
-                    wb.removeSheetAt(index);
+                    if (index >= 0) wb.removeSheetAt(index);
                 });
             });
         }
