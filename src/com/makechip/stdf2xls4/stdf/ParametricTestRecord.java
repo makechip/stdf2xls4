@@ -132,7 +132,7 @@ public class ParametricTestRecord extends ParametricRecord
             l += 1 + testName.length();
     	}
     	else testName = null;
-    	id = TestID.createTestID(tdb, testNumber, testName);
+    	id = TestID.createTestID(tdb, testNumber, siteNumber, headNumber, testName);
         if (l < recLen)
         {
             alarmName = cpu.getCN(is);

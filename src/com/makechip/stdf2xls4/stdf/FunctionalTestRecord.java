@@ -266,7 +266,7 @@ public class FunctionalTestRecord extends TestRecord
         if (l < recLen)
         {
         	testName = cpu.getCN(is);
-        	id = TestID.createTestID(tdb, testNumber, testName);
+        	id = TestID.createTestID(tdb, testNumber, siteNumber, headNumber, testName);
         	l += testName.length() + 1;
         }
         else 

@@ -114,7 +114,7 @@ public class PinMapRecord extends StdfRecord
             siteNumber = cpu.getU1(is);
             l++;
         }
-        else siteNumber = null;
+        else siteNumber = 1;
         if (l != recLen) throw new RuntimeException("Record length error in PinMapRecord.");
     }
     

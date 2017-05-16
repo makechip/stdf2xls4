@@ -333,9 +333,22 @@ public final class DefaultValueDatabase
         if (units == null) return(r.getLoLimit());
         if (units.equals("")) return(r.getLoLimit());
     	Float l = null;
-    	if (r.getLoLimit() != null) l = r.getLoLimit();
-    	else l = getDefaultLoLimit(r.getTestID());
-    	if (l == null) return(null);
+    	Log.msg_("id = " + r.getTestID());
+    	if (r.getLoLimit() != null) 
+    	{
+    	    l = r.getLoLimit();
+    	    Log.msg("    record limit = " + l);
+    	}
+    	else 
+    	{
+    	    l = getDefaultLoLimit(r.getTestID());
+    	    Log.msg("    default limit = " + l);
+    	}
+    	if (l == null) 
+    	{
+    	    Log.msg("    limit is null");
+    	    return(null);
+    	}
     	return(scaleValue(l, findScale(r.getTestID())));
     }
 
@@ -358,6 +371,7 @@ public final class DefaultValueDatabase
     	String units = r.getUnits();
     	if (units == null) units = getDefaultUnits(r.getTestID());
     	if (units == null) return("");
+    	if (units.equals("")) return("");
     	return(scaleUnits(units, findScale(r.getTestID())));
     }
 

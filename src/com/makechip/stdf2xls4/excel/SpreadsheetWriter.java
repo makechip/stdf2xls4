@@ -225,6 +225,7 @@ public final class SpreadsheetWriter
     {
     	List<DeviceHeader> devs = api.getDeviceHeaders(hdr);
     	List<TestHeader> tests = api.getTestHeaders(hdr);
+    	for (TestHeader th : tests) Log.msg(th.toString());
     	int size = options.rotate ? devs.size() : tests.size();
     	final int pages = (size % COLS_PER_PAGE == 0) ? size / COLS_PER_PAGE : 1 + size / COLS_PER_PAGE;
     	IntStream.range(0, pages).forEach(page -> writeResultsOnPage(hdr, page));

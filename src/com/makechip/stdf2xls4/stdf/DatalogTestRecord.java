@@ -118,7 +118,7 @@ public class DatalogTestRecord extends TestRecord
         siteNumber = sn;
         headNumber = hn;
         testNumber = new Long(tnum.trim());
-        id = TestID.createTestID(tdb, testNumber, testName);
+        id = TestID.createTestID(tdb, testNumber, siteNumber, headNumber, testName);
         StringTokenizer st2 = new StringTokenizer(valueUnitsOpt, "\" \t()"); 
         String v = st2.nextToken();
         if (st2.hasMoreTokens()) units = st2.nextToken(); else units = "";

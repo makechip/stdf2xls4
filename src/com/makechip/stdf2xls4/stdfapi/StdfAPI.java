@@ -19,6 +19,7 @@ import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.ByteInputStream;
 import com.makechip.stdf2xls4.stdf.DatalogTestRecord;
 import com.makechip.stdf2xls4.stdf.DatalogTextRecord;
+import com.makechip.stdf2xls4.stdf.FunctionalTestRecord;
 import com.makechip.stdf2xls4.stdf.MasterInformationRecord;
 import com.makechip.stdf2xls4.stdf.ParametricRecord;
 import com.makechip.stdf2xls4.stdf.PartResultsRecord;
@@ -33,6 +34,7 @@ import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 import com.makechip.util.Log;
 
+import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.map.hash.TShortIntHashMap;
 import gnu.trove.map.hash.TShortObjectHashMap;
@@ -214,17 +216,52 @@ public final class StdfAPI
 				// Group records by device:
 				//List<List<StdfRecord>> list = records.stream().collect(splitBySeparator(r -> r instanceof PartResultsRecord));
 				
+				TIntObjectHashMap<List<StdfRecord>> listmap = new TIntObjectHashMap<>();
 				List<List<StdfRecord>> list = new ArrayList<>();
-				List<StdfRecord> w = new ArrayList<>();
 				for (StdfRecord r : records)
 				{
 				    if (r instanceof PartResultsRecord)
 				    {
-				        w.add(r);
-				        list.add(w);
-				        w = new ArrayList<>();
+				        PartResultsRecord prr = (PartResultsRecord) r;
+				        int site = prr.siteNumber;
+				        List<StdfRecord> l = listmap.get(site);
+				        if (l == null)
+				        {
+				            l = new ArrayList<>();
+				            listmap.put(site, l);
+				        }
+				        l.add(r);
+				        list.add(l);
+				        l = new ArrayList<>();
+				        listmap.put(site, l);
 				    }
-				    else w.add(r);
+				    else 
+				    {
+				        if (r instanceof FunctionalTestRecord)
+				        {
+				            FunctionalTestRecord ftr = (FunctionalTestRecord) r;
+				            int site = ftr.siteNumber;
+				            List<StdfRecord> l = listmap.get(site);
+				            if (l == null)
+				            {
+				                l = new ArrayList<>();
+				                listmap.put(site, l);
+				            }
+				            l.add(r);
+				        }
+				        else if (r instanceof ParametricRecord)
+				        {
+				            ParametricRecord pr = (ParametricRecord) r;
+				            int site = pr.siteNumber;
+				            List<StdfRecord> l = listmap.get(site);
+				            if (l == null)
+				            {
+				                l = new ArrayList<>();
+				                listmap.put(site, l);
+				            }
+				            l.add(r);
+				        }
+				    }
 				}
 				
 				// Create page headers:

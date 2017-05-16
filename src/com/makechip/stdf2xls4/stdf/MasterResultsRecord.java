@@ -62,8 +62,12 @@ public class MasterResultsRecord extends StdfRecord
         super(Record_t.MRR);
         finishDate = cpu.getU4(is);
         int l = Data_t.U4.numBytes;
-        if (l < recLen) dispCode = (char) cpu.getI1(is); else dispCode = null;
-        l++;
+        if (l < recLen) 
+        {
+            dispCode = (char) cpu.getI1(is); 
+            l++;
+        }
+        else dispCode = null;
         if (l < recLen)
         {
             lotDesc = cpu.getCN(is);
