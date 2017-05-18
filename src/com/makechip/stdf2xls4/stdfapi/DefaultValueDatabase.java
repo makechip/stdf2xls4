@@ -142,6 +142,10 @@ public final class DefaultValueDatabase
     void loadDefaults(ParametricRecord r)
     {
     	TestID id = r.getTestID();
+    	if (id.testName.equals("PLL_REG_1_V36"))
+    	{
+    	    Log.msg("loadDefaults(): PLL_REG_1_V36: lolim = " + r.getLoLimit() + " hilim = " + r.getHiLimit());
+    	}
     	if (optDefaults.get(id) == null && r.getOptFlags() != null) optDefaults.put(id, r.getOptFlags());
     	if (resScalDefaults.get(id) == null && r.getResScal() != null) resScalDefaults.put(id, r.getResScal());
     	if (llmScalDefaults.get(id) == null && r.getLlmScal() != null) llmScalDefaults.put(id, r.getLlmScal());
