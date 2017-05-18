@@ -336,7 +336,6 @@ public class TestRecordDatabase
 		    else
 		    {
 		        ParametricTestHeader pth = new ParametricTestHeader(ptr.getTestID(), sunits, sLoLimit, sHiLimit);
-		        Log.msg("pth = " + pth);
 		        list.add(pth);
 		    }
 		    if (hasDynamicLimits(hdr, ptr.getTestID())) list.add(new MultiParametricTestHeader(ptr.getTestID(), sunits, Limit_t.HI_LIMIT));

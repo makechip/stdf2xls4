@@ -55,16 +55,14 @@ public class TestID implements Identity, Immutable
      */
     public final int dupNum;
     
-    public final short siteNumber;
+    public short siteNumber;
     
-    public final short headNumber;
+    public short headNumber;
    
-    protected TestID(long testNumber, short siteNumber, short headNumber, String testName, int dupNum)
+    protected TestID(long testNumber, String testName, int dupNum)
     {
         this.testNumber = testNumber;
         this.testName = testName;
-        this.siteNumber = siteNumber;
-        this.headNumber = headNumber;
         this.dupNum = dupNum;    	
     }
     
@@ -78,19 +76,26 @@ public class TestID implements Identity, Immutable
     public static TestID createTestID(TestIdDatabase tdb, long testNum, short siteNum, short headNum, String testName)
     {
     	// 1. check testName and testNumber
-    	TestID id = tdb.idMap.getExistingValue(testNum, siteNum, headNum, testName, 0);
+    	TestID id = tdb.idMap.getExistingValue(testNum, testName, 0);
     	if (id == null || tdb.testIdDupMap.get(id) == null)
     	{
-    		if (id == null) id = tdb.idMap.getValue(testNum, siteNum, headNum, testName, 0);
-    		tdb.addDupNum(id, siteNum, headNum, 0);
+    		if (id == null) id = tdb.idMap.getValue(testNum, testName, 0);
+    		id.siteNumber = siteNum;
+    		id.headNumber = headNum;
+    		tdb.testIdDupMap.put(id, 0);
     		return(id);
     	}
         // 2. Need duplicate ID
-    	Integer dnum = tdb.getDupNum(id, siteNum, headNum);
-    	dnum++;
-    	TestID d = tdb.idMap.getValue(testNum, siteNum, headNum, testName, dnum);
-    	tdb.addDupNum(id, siteNum, headNum, dnum);
-    	return(d);
+    	if (id.siteNumber == siteNum && id.headNumber == headNum)
+    	{
+    	    Integer dnum = tdb.testIdDupMap.get(id);
+    	    dnum++;
+    	    id = tdb.idMap.getValue(testNum, testName, dnum);
+    	    id.siteNumber = siteNum;
+    	    id.headNumber = headNum;
+    	    tdb.testIdDupMap.put(id, dnum);
+    	}
+    	return(id);
     }
     
     /**
@@ -139,9 +144,11 @@ public class TestID implements Identity, Immutable
        
         private PinTestID(TestID id, String pin)
         {
-        	super(id.testNumber, id.siteNumber, id.headNumber, id.testName, id.dupNum);
+        	super(id.testNumber, id.testName, id.dupNum);
         	this.pin = pin;
         	this.id = id;
+        	this.siteNumber = id.siteNumber;
+        	this.headNumber = id.headNumber;
         }
         
         /**

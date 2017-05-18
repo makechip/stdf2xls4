@@ -16,7 +16,6 @@ import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.PinMapRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
-import com.makechip.util.Log;
 
 public final class DefaultValueDatabase
 {
@@ -63,6 +62,12 @@ public final class DefaultValueDatabase
     
     public Float getDefaultLoLimit(TestID id)
     {
+        if (id.testName.equals("PLL_REG_1_V36"))
+        {
+            Float b = loLimDefaults.get(id);
+    	    if (b == null) b = nloLimDefaults.get(id.testNumber);
+    	    return(b);
+        }
     	Float b = loLimDefaults.get(id);
     	if (b == null) b = nloLimDefaults.get(id.testNumber);
     	return(b);
@@ -142,10 +147,6 @@ public final class DefaultValueDatabase
     void loadDefaults(ParametricRecord r)
     {
     	TestID id = r.getTestID();
-    	if (id.testName.equals("PLL_REG_1_V36"))
-    	{
-    	    Log.msg("loadDefaults(): PLL_REG_1_V36: lolim = " + r.getLoLimit() + " hilim = " + r.getHiLimit());
-    	}
     	if (optDefaults.get(id) == null && r.getOptFlags() != null) optDefaults.put(id, r.getOptFlags());
     	if (resScalDefaults.get(id) == null && r.getResScal() != null) resScalDefaults.put(id, r.getResScal());
     	if (llmScalDefaults.get(id) == null && r.getLlmScal() != null) llmScalDefaults.put(id, r.getLlmScal());
@@ -326,7 +327,6 @@ public final class DefaultValueDatabase
                 u = p + newUnits;
             }
         }
-        Log.msg("units = " + u);
         return(u);
     }
     
@@ -334,35 +334,37 @@ public final class DefaultValueDatabase
     {
         String units = r.getUnits();
     	if (units == null) units = getDefaultUnits(r.getTestID());
-        if (units == null) return(r.getLoLimit());
-        if (units.equals("")) return(r.getLoLimit());
+        if (units == null) 
+        {
+            if (r.getLoLimit() == null) return(getDefaultLoLimit(r.getTestID()));
+            return(r.getLoLimit());
+        }
+        if (units.equals("")) 
+        {
+            if (r.getLoLimit() == null) return(getDefaultLoLimit(r.getTestID()));
+            return(r.getLoLimit());
+        }
     	Float l = null;
-    	Log.msg_("id = " + r.getTestID());
-    	if (r.getLoLimit() != null) 
-    	{
-    	    l = r.getLoLimit();
-    	    Log.msg("    record limit = " + l);
-    	}
-    	else 
-    	{
-    	    l = getDefaultLoLimit(r.getTestID());
-    	    Log.msg("    default limit = " + l);
-    	}
-    	if (l == null) 
-    	{
-    	    Log.msg("    limit is null");
-    	    return(null);
-    	}
+    	if (r.getLoLimit() != null) l = r.getLoLimit();
+    	else l = getDefaultLoLimit(r.getTestID());
+    	if (l == null) return(null);
     	return(scaleValue(l, findScale(r.getTestID())));
     }
 
     public Float getScaledHiLimit(ParametricRecord r)
     {
-        Log.msg("TEST = " + r.getTestName());
         String units = r.getUnits();
     	if (units == null) units = getDefaultUnits(r.getTestID());
-        if (units == null) return(r.getHiLimit());
-        if (units.equals("")) return(r.getHiLimit());
+        if (units == null) 
+        {
+            if (r.getHiLimit() == null) return(getDefaultHiLimit(r.getTestID()));
+            return(r.getHiLimit());
+        }
+        if (units.equals("")) 
+        {
+            if (r.getHiLimit() == null) return(getDefaultHiLimit(r.getTestID()));
+            return(r.getHiLimit());
+        }
     	Float l = null;
     	if (r.getHiLimit() != null) l = r.getHiLimit();
     	else l = getDefaultHiLimit(r.getTestID());
