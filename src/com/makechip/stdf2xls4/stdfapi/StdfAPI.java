@@ -261,6 +261,32 @@ public final class StdfAPI
 				            }
 				            l.add(r);
 				        }
+				        else if (r instanceof DatalogTestRecord)
+				        {
+				            DatalogTestRecord pr = (DatalogTestRecord) r;
+				            int site = pr.siteNumber;
+				            List<StdfRecord> l = listmap.get(site);
+				            if (l == null)
+				            {
+				                l = new ArrayList<>();
+				                listmap.put(site, l);
+				            }
+				            l.add(r);
+				        }
+				        else if (r instanceof DatalogTextRecord)
+				        { // Note: DTR serial numbers generally are not used in multisite mode
+				        	DatalogTextRecord dtr = (DatalogTextRecord) r;
+				        	if (isSn(dtr))
+				        	{
+				        		List<StdfRecord> l = listmap.get(1);
+				        		if (l == null)
+				        		{
+				        			l = new ArrayList<>();
+				        			listmap.put(1, l);
+				        		}
+				        		l.add(r);
+				        	}
+				        }
 				    }
 				}
 				
