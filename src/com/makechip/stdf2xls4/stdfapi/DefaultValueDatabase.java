@@ -16,6 +16,7 @@ import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.PinMapRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
+import com.makechip.util.Log;
 
 public final class DefaultValueDatabase
 {
@@ -208,6 +209,7 @@ public final class DefaultValueDatabase
         Float loLimit = getDefaultLoLimit(id);
         Float hiLimit = getDefaultHiLimit(id);
         float val = 0.0f;
+        if (hiLimit == null && loLimit == null) return(0);
         if (loLimit == null) val = Math.abs(hiLimit);
         else if (hiLimit == null) val = Math.abs(loLimit);
         else val = (Math.abs(hiLimit) > Math.abs(loLimit)) ? Math.abs(hiLimit) : Math.abs(loLimit);
