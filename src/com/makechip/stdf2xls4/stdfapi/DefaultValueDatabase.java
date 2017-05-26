@@ -16,7 +16,6 @@ import com.makechip.stdf2xls4.stdf.ParametricTestRecord;
 import com.makechip.stdf2xls4.stdf.PinMapRecord;
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
-import com.makechip.util.Log;
 
 public final class DefaultValueDatabase
 {

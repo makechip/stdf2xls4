@@ -338,14 +338,6 @@ public final class StdfAPI
 	    return(r);
 	}
 
-//	private void createHeaders(HeaderUtil hdr, HashMap<PageHeader, List<List<StdfRecord>>> devList, List<StdfRecord> l)
-//	{
-//		l.stream().forEach(r -> hdr.setHeader(r));
-//		List<List<StdfRecord>> dl = devList.get(hdr.getHeader());
-//		if (dl == null) devList.put(hdr.getHeader(), dl = new ArrayList<>());
-//		//dl.add(l);
-//	}
-	
 	private void mapTests(DefaultValueDatabase dvd, boolean sortDevices, PageHeader hdr, List<List<StdfRecord>> devList)
 	{
 		wafersortMap.put(hdr, hdr.contains(HeaderUtil.WAFER_ID));
