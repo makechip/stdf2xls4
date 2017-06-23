@@ -61,6 +61,21 @@ package com.makechip.stdf2xls4;
  * 4.1.7 4/26/17
  * Fixed another bug in units scaling
  * 
+ * 4.1.8 5/18/17
+ * Fixed Missing data issue with MRR and PMR records; Fixed all known multi-site issues. 
+ * 
+ * 4.1.9 5/25/17
+ * Fixed issue with serial number not being used when it is in a datalog text record.
+ * 
+ * 4.1.10 5/25/17
+ * Fixed issue with differing number of tests in multiple STDF files, and some tests missing high and low limits.
+ * 
+ * 4.1.11 5/25/17 
+ * Fixed version error in 4.1.10 jar file
+ * 
+ * 4.1.12 6/23/17
+ * Added feature to handle case when MPR has no rtnIndex array, and there is no default value for this field.
+ * 
  */
 
 import java.io.IOException;
@@ -78,7 +93,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.1.11";
+	public static final String VERSION = "4.1.12";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

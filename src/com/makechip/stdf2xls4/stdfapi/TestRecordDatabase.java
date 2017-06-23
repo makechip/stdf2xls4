@@ -176,7 +176,8 @@ public class TestRecordDatabase
 				final int a = i;
 				MultipleResultParametricRecord mpr = MultipleResultParametricRecord.class.cast(r);
 				final FloatList sresults = dvd.getScaledResults(mpr);
-				IntList lst = (mpr.rtnIndex == null) ? dvd.getDefaultRtnIndex(r.getTestID()) : mpr.rtnIndex;
+				//IntList lst = (mpr.rtnIndex == null) ? dvd.getDefaultRtnIndex(r.getTestID()) : mpr.rtnIndex;
+				FloatList lst = mpr.results;
 				IntStream.range(0, lst.size()).forEach(j -> {
 				        Float rslt = mpr.results.get(j);
 			    	    int b = a;
@@ -347,10 +348,20 @@ public class TestRecordDatabase
 	        sHiLimit = dvd.getScaledHiLimit(mpr);
 			if (hasDynamicLimits(hdr, mpr.getTestID())) list.add(new MultiParametricTestHeader(mpr.getTestID(), sunits, Limit_t.LO_LIMIT));
 			IntList rtn = (mpr.rtnIndex == null) ? dvd.getDefaultRtnIndex(mpr.id) : mpr.rtnIndex;
-			if (rtn == null) Log.msg("RTN_INDEX is NULL test number is " + r.getTestID().testNumber);
-			rtn.stream().mapToObj(x -> dvd.getPinName(mpr.siteNumber, mpr.headNumber, x)).forEach(pin -> { 
-				 				  PinTestID pid = TestID.PinTestID.getTestID(tdb, mpr.getTestID(), pin); 
-				  				  list.add(new MultiParametricTestHeader(pid, sunits, sLoLimit, sHiLimit)); });
+			if (rtn == null) 
+			{
+			    Log.msg("RTN_INDEX is NULL test number is " + r.getTestID().testNumber);
+			    FloatList fl = mpr.results;
+			    fl.stream().forEach(x -> { PinTestID pid = TestID.PinTestID.getTestID(tdb, mpr.getTestID(), "");
+			        list.add(new MultiParametricTestHeader(pid, sunits, sLoLimit, sHiLimit));
+			    });
+			   }
+			else
+			{
+			    rtn.stream().mapToObj(x -> dvd.getPinName(mpr.siteNumber, mpr.headNumber, x)).forEach(pin -> { 
+				     				  PinTestID pid = TestID.PinTestID.getTestID(tdb, mpr.getTestID(), pin); 
+				  	    			  list.add(new MultiParametricTestHeader(pid, sunits, sLoLimit, sHiLimit)); });
+			}
 		    if (hasDynamicLimits(hdr, mpr.getTestID())) list.add(new MultiParametricTestHeader(mpr.getTestID(), sunits, Limit_t.HI_LIMIT));
 		    break;
 		case DTRX: 
