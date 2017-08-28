@@ -81,6 +81,11 @@ package com.makechip.stdf2xls4;
  * date in the MIR.  If there is one STDF file per device, this will
  * give the test date for each device.
  * 
+ * 4.2.1 8/27/17
+ * Fixed two bugs in the timestamp.  The month was off by one because
+ * Calandar.java starts counting months from 0, not 1.  Also the hour
+ * was derived from a 12-hour clock, and now it is derived from a 24-hour clock.
+ * 
  */
 
 import java.io.IOException;
@@ -98,7 +103,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.2.0";
+	public static final String VERSION = "4.2.1";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

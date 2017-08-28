@@ -208,9 +208,9 @@ public final class StdfAPI
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(d);
 				String year = "" + cal.get(Calendar.YEAR);
-				String month = cal.get(Calendar.MONTH) < 10 ? "0" + cal.get(Calendar.MONTH) : "" + cal.get(Calendar.MONTH);
+				String month = cal.get(Calendar.MONTH) < 9 ? "0" + (cal.get(Calendar.MONTH)+1) : "" + (cal.get(Calendar.MONTH)+1);
 				String day = cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + cal.get(Calendar.DAY_OF_MONTH) : "" + cal.get(Calendar.DAY_OF_MONTH);
-				String hour = cal.get(Calendar.HOUR) < 10 ? "0" + cal.get(Calendar.HOUR) : "" + cal.get(Calendar.HOUR);
+				String hour = cal.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + cal.get(Calendar.HOUR_OF_DAY) : "" + cal.get(Calendar.HOUR_OF_DAY);
 				String minute = cal.get(Calendar.MINUTE) < 10 ? "0" + cal.get(Calendar.MINUTE) : "" + cal.get(Calendar.MINUTE);
 				String second = cal.get(Calendar.SECOND) < 10 ? "0" + cal.get(Calendar.SECOND) : "" + cal.get(Calendar.SECOND);
 				String ts = year + month + day + hour + minute + second;
