@@ -219,7 +219,7 @@ public final class SpreadsheetWriter
         String s = text.trim();
         if (options.timestamps)
         {
-            if (options.rotate && s.length() < 15) ss.setColumnWidth(page, xy.c, 22);
+            if (options.rotate && s.length() < 15) ss.setColumnWidth(page, xy.c, 16);
             else ss.setColumnWidth(page, xy.c, (14 * s.length())/10);
         }
         else
@@ -476,7 +476,7 @@ public final class SpreadsheetWriter
     	    if (options.timestamps)
     	    {
     	        if (digits > 15 || !options.rotate) ss.setColumnWidth(page, xy.c, (14 * digits)/10);
-    	        else ss.setColumnWidth(page, xy.c, 22);
+    	        else ss.setColumnWidth(page, xy.c, 16);
     	    }
     	    else ss.setColumnWidth(page, xy.c, (14 * digits)/10);
     	}
@@ -486,10 +486,11 @@ public final class SpreadsheetWriter
     	    if (options.timestamps)
     	    {
     	        if (digits > 15 || !options.rotate) ss.setColumnWidth(page, xy.c, (14 * digits)/10);
-    	        else if (options.rotate && digits < 15) ss.setColumnWidth(page, xy.c, 22);
+    	        else ss.setColumnWidth(page, xy.c, 16);
     	    }
-    	    else ss.setColumnWidth(page, xy.c, 22);
+    	    else ss.setColumnWidth(page, xy.c, (14 * digits)/10);
     	}
+    	else if (options.rotate && options.timestamps) ss.setColumnWidth(page, xy.c, 16);
     }
     
     private void openSheet(PageHeader hdr)
