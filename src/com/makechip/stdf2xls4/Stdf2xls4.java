@@ -60,7 +60,7 @@ package com.makechip.stdf2xls4;
  * 
  * 4.1.7 4/26/17
  * Fixed another bug in units scaling
- * 
+ *
  * 4.1.8 5/18/17
  * Fixed Missing data issue with MRR and PMR records; Fixed all known multi-site issues. 
  * 
@@ -75,6 +75,11 @@ package com.makechip.stdf2xls4;
  * 
  * 4.1.12 6/23/17
  * Added feature to handle case when MPR has no rtnIndex array, and there is no default value for this field.
+ * 
+ * 4.2.0 8/27/17
+ * Removed timestamped files option, and replaced with using the test
+ * date in the MIR.  If there is one STDF file per device, this will
+ * give the test date for each device.
  * 
  */
 
@@ -93,7 +98,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.1.12";
+	public static final String VERSION = "4.2.0";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

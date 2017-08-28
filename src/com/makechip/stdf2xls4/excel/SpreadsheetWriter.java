@@ -217,7 +217,15 @@ public final class SpreadsheetWriter
    private void setText(int page, Coord xy, Format_t format, String text)
     {
         String s = text.trim();
-        ss.setColumnWidth(page, xy.c, (14 * s.length())/10);
+        if (options.timestamps)
+        {
+            if (options.rotate && s.length() < 15) ss.setColumnWidth(page, xy.c, 22);
+            else ss.setColumnWidth(page, xy.c, (14 * s.length())/10);
+        }
+        else
+        {
+            ss.setColumnWidth(page, xy.c, (14 * s.length())/10);
+        }
         ss.setCell(page, xy, format, text.trim());
     }
     
@@ -307,7 +315,10 @@ public final class SpreadsheetWriter
     	ss.setCell(page, getDevCoord(titleBlock.devxy.hwBin), cs, dh.hwBin);
     	ss.setCell(page, getDevCoord(titleBlock.devxy.swBin), cs, dh.swBin);
     	ss.setCell(page, getDevCoord(titleBlock.devxy.temp), cs, dh.temperature);
-    	if (options.rotate) ss.mergeCells(page, titleBlock.devxy.temp.r, titleBlock.devxy.temp.r+1, currentRC, currentRC);
+    	if (options.rotate) 
+    	{
+    	    ss.mergeCells(page, titleBlock.devxy.temp.r, titleBlock.devxy.temp.r+1, currentRC, currentRC);
+    	}
     	if (dh.fail) ss.setCell(page, getDevCoord(titleBlock.devxy.rslt), STATUS_FAIL_FMT, "FAIL");
     	else ss.setCell(page, getDevCoord(titleBlock.devxy.rslt), cs, "PASS");
     }
@@ -462,12 +473,22 @@ public final class SpreadsheetWriter
     	if (p.result >= 10000.0) 
     	{
     	    int digits = 5 + (int) (Math.log(p.result) / Math.log(10.0));
-    	    ss.setColumnWidth(page, xy.c, (14 * digits)/10);
+    	    if (options.timestamps)
+    	    {
+    	        if (digits > 15 || !options.rotate) ss.setColumnWidth(page, xy.c, (14 * digits)/10);
+    	        else ss.setColumnWidth(page, xy.c, 22);
+    	    }
+    	    else ss.setColumnWidth(page, xy.c, (14 * digits)/10);
     	}
     	else if (p.result <= -1000.0) 
     	{
     	    int digits = 6 + (int) (Math.log(-p.result) / Math.log(10.0));
-    	    ss.setColumnWidth(page, xy.c, (14 * digits)/10);
+    	    if (options.timestamps)
+    	    {
+    	        if (digits > 15 || !options.rotate) ss.setColumnWidth(page, xy.c, (14 * digits)/10);
+    	        else if (options.rotate && digits < 15) ss.setColumnWidth(page, xy.c, 22);
+    	    }
+    	    else ss.setColumnWidth(page, xy.c, 22);
     	}
     }
     

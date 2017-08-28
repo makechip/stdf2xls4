@@ -3,6 +3,7 @@ package com.makechip.stdf2xls4.stdfapi;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
 import com.makechip.util.Log;
+import com.makechip.util.ValuePair;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
@@ -80,7 +82,7 @@ public final class StdfAPI
 		if (options.dynamicLimits) dynamicLimitMap = new HashMap<>(); else dynamicLimitMap = null;
 		this.stdfFiles = options.stdfFiles;
 		new ArrayList<StdfRecord>();
-		timeStampedFiles = !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
+		timeStampedFiles = options.timestamps; // !stdfFiles.stream().filter(p -> !hasTimeStamp(p)).findFirst().isPresent();
 		wafersortMap = new HashMap<>();
 	}
 	
@@ -89,9 +91,9 @@ public final class StdfAPI
 		return(wafersortMap.get(hdr));
 	}
 	
-	private void checkLimits(PageHeader hdr, Map<TestID, Float> llmap, Map<TestID, Float> ulmap, List<List<StdfRecord>> list)
+	private void checkLimits(PageHeader hdr, Map<TestID, Float> llmap, Map<TestID, Float> ulmap, List<ValuePair<DefaultValueDatabase, List<StdfRecord>>> list)
 	{
-		list.stream().flatMap(p -> p.stream()).
+		list.stream().flatMap(p -> p.value2.stream()).
 			filter(r -> r instanceof ParametricRecord).
 			map(s -> ParametricRecord.class.cast(s)).forEach(q -> checkLimit(q, llmap, ulmap, hdr));
 	}
@@ -151,7 +153,7 @@ public final class StdfAPI
 	public void initialize()
 	{
 	    List<Long> jobDates = new ArrayList<>();
-		HashMap<PageHeader, List<List<StdfRecord>>> devList = new HashMap<>();
+		HashMap<PageHeader, List<ValuePair<DefaultValueDatabase, List<StdfRecord>>>> devList = new HashMap<>();
 		// load the stdf records; group records by device	
 		if (options.xlsName != null)
 		{
@@ -180,7 +182,7 @@ public final class StdfAPI
 		}
 		stdfFiles.stream().forEach(file ->
 		{
-            long timeStamp = timeStampedFiles ? getTimeStamp(file.getName()) : 0L;
+            //long timeStamp = timeStampedFiles ? getTimeStamp(file.getName()) : 0L;
 			StdfReader rdr = new StdfReader();
 			try (DataInputStream is = new DataInputStream(new FileInputStream(file)))
 			{
@@ -202,6 +204,19 @@ public final class StdfAPI
 				// check tester type;
 				MasterInformationRecord mir = (MasterInformationRecord) rdr.getRecords().stream().
 						filter(r -> r instanceof MasterInformationRecord).findFirst().orElse(null);
+				Date d = new Date(mir.testDate * 1000L);
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(d);
+				String year = "" + cal.get(Calendar.YEAR);
+				String month = cal.get(Calendar.MONTH) < 10 ? "0" + cal.get(Calendar.MONTH) : "" + cal.get(Calendar.MONTH);
+				String day = cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + cal.get(Calendar.DAY_OF_MONTH) : "" + cal.get(Calendar.DAY_OF_MONTH);
+				String hour = cal.get(Calendar.HOUR) < 10 ? "0" + cal.get(Calendar.HOUR) : "" + cal.get(Calendar.HOUR);
+				String minute = cal.get(Calendar.MINUTE) < 10 ? "0" + cal.get(Calendar.MINUTE) : "" + cal.get(Calendar.MINUTE);
+				String second = cal.get(Calendar.SECOND) < 10 ? "0" + cal.get(Calendar.SECOND) : "" + cal.get(Calendar.SECOND);
+				String ts = year + month + day + hour + minute + second;
+				long timeStamp = 0L;
+				try { timeStamp = Long.parseLong(ts); }
+				catch (Exception e) { Log.fatal("Unknown timeStamp"); }
 				boolean fusionCx = mir.testerType.equalsIgnoreCase("fusion_cx") || mir.testerType.equalsIgnoreCase("CTX");
 				DefaultValueDatabase dvd = new DefaultValueDatabase(fusionCx, timeStamp);
 				// Set up pin maps:
@@ -298,13 +313,13 @@ public final class StdfAPI
 				records.stream().forEach(r -> hdr.setHeader(r));
 				for(List<StdfRecord> x : list)
 				{
-				    List<List<StdfRecord>> l1 = devList.get(hdr.getHeader());
+				    List<ValuePair<DefaultValueDatabase, List<StdfRecord>>> l1 = devList.get(hdr.getHeader());
 				    if (l1 == null)
 				    {
-				        l1 = new ArrayList<List<StdfRecord>>();
+				        l1 = new ArrayList<ValuePair<DefaultValueDatabase, List<StdfRecord>>>();
 				        devList.put(hdr.getHeader(), l1);
 				    }
-				    l1.add(x);
+				    l1.add(new ValuePair<>(dvd, x));
 				}
 				// check for dynamic limits:
 				if (options.dynamicLimits)
@@ -314,13 +329,14 @@ public final class StdfAPI
 				}	
 				tdb = new TestRecordDatabase(options, tiddb, dynamicLimitMap);
 				// now build TestRecord database:
-				for (PageHeader p : devList.keySet())
-				{
-				    List<List<StdfRecord>> l = devList.get(p);
-				    mapTests(dvd, options.sort, p, l);
-				}
 			}
 		});
+		for (PageHeader p : devList.keySet())
+		{
+		    List<ValuePair<DefaultValueDatabase, List<StdfRecord>>> l = devList.get(p);
+		    mapTests(options.sort, p, l);
+		}
+		//tdb.dump();
 	}
 	
 	private StdfRecord convertDtrs(StdfRecord r)
@@ -338,15 +354,16 @@ public final class StdfAPI
 	    return(r);
 	}
 
-	private void mapTests(DefaultValueDatabase dvd, boolean sortDevices, PageHeader hdr, List<List<StdfRecord>> devList)
+	private void mapTests(boolean sortDevices, PageHeader hdr, List<ValuePair<DefaultValueDatabase, List<StdfRecord>>> devList)
 	{
 		wafersortMap.put(hdr, hdr.contains(HeaderUtil.WAFER_ID));
-		devList.stream().forEach(p -> buildList(dvd, sortDevices, hdr, p));
+		devList.stream().forEach(p -> buildList(sortDevices, hdr, p));
 	}
 	
-	private void buildList(DefaultValueDatabase dvd, boolean sortDevices, PageHeader hdr, List<StdfRecord> list)
+	private void buildList(boolean sortDevices, PageHeader hdr, ValuePair<DefaultValueDatabase, List<StdfRecord>> list)
 	{
-		PartResultsRecord prr = list.stream()
+	    DefaultValueDatabase dvd = list.value1;
+		PartResultsRecord prr = list.value2.stream()
 			.filter(p -> p instanceof PartResultsRecord)
 			.map(s -> PartResultsRecord.class.cast(s))
 			.findFirst()
@@ -361,7 +378,7 @@ public final class StdfAPI
 		SnOrXy snxy = null;
 		if (timeStampedFiles)
 		{
-			mir = (MasterInformationRecord) list.stream().filter(p -> p instanceof MasterInformationRecord).findFirst().orElse(null);
+			mir = (MasterInformationRecord) list.value2.stream().filter(p -> p instanceof MasterInformationRecord).findFirst().orElse(null);
 		}
 		if (wafersortMap.get(hdr))
 		{
@@ -396,7 +413,7 @@ public final class StdfAPI
 		else
 		{
 			// first check if the SN is in a text record
-			StdfRecord rt = list.stream().filter(p -> p instanceof DatalogTextRecord)
+			StdfRecord rt = list.value2.stream().filter(p -> p instanceof DatalogTextRecord)
 					.filter(p -> isSn((DatalogTextRecord) p)).findFirst().orElse(null);
 			if (rt != null)
 			{
@@ -407,6 +424,7 @@ public final class StdfAPI
 				String sn = st.nextToken();
 				if (timeStampedFiles)
 				{
+				    Log.msg("timeStamp = " + dvd.timeStamp + " sn = " + sn);
 				    snxy = TimeSN.getTimeSN(dvd.timeStamp, sn); 
 				}
 				else
@@ -455,14 +473,14 @@ public final class StdfAPI
 		List<TestRecord> l = null;
 		if (options.dontSkipSearchFails)
 		{
-		    l = list.stream()
+		    l = list.value2.stream()
 			.filter(p -> p instanceof TestRecord)
 			.map(p -> TestRecord.class.cast(p))
 			.collect(Collectors.toList());
 		}
 		else
 		{
-		    l = list.stream()
+		    l = list.value2.stream()
 			.filter(p -> p instanceof TestRecord)
 			.filter(p -> !((TestRecord) p).getTestID().testName.endsWith("Search Failed")) 
 			.map(p -> TestRecord.class.cast(p))
@@ -480,17 +498,17 @@ public final class StdfAPI
 		return(r.text.contains(DatalogTextRecord.TEXT_DATA) && r.text.contains(":") && r.text.contains(DatalogTextRecord.SERIAL_MARKER));
 	}
 	
-    private boolean hasTimeStamp(File name)
-    {
-    	String s = name.toString().toLowerCase();
-    	int dotIndex = (s.endsWith(".std")) ? s.length() - 4 : (s.endsWith(".stdf")) ? s.length() - 5 : 0;
-    	if (dotIndex < 1) return(false);
-    	long timeStamp = 0L;
-    	try { timeStamp = Long.parseLong(s.substring(dotIndex - 14, dotIndex)); }
-    	catch (Exception e) { return(false); }
-    	if (timeStamp < 19000000000000L || timeStamp > 22000000000000L) return(false); // the timestamp must belong to recent centuries
-    	return(true);
-    }
+//    private boolean hasTimeStamp(File name)
+//    {
+//    	String s = name.toString().toLowerCase();
+//    	int dotIndex = (s.endsWith(".std")) ? s.length() - 4 : (s.endsWith(".stdf")) ? s.length() - 5 : 0;
+//    	if (dotIndex < 1) return(false);
+//    	long timeStamp = 0L;
+//    	try { timeStamp = Long.parseLong(s.substring(dotIndex - 14, dotIndex)); }
+//    	catch (Exception e) { return(false); }
+//    	if (timeStamp < 19000000000000L || timeStamp > 22000000000000L) return(false); // the timestamp must belong to recent centuries
+//    	return(true);
+//    }
     
     public Set<PageHeader> getPageHeaders()
     {
@@ -533,16 +551,16 @@ public final class StdfAPI
     	return(tdb.toString());
     }
 
-    private long getTimeStamp(String name)
-    {
-    	int dotIndex = (name.toLowerCase().endsWith(".std")) ? name.length() - 4 : name.length() - 5;
-    	int bIndex = dotIndex - 14;
-    	String stamp = name.substring(bIndex, dotIndex);
-    	long timeStamp = 0L;
-    	try { timeStamp = Long.parseLong(stamp); }
-    	catch (Exception e) { Log.fatal("Program bug: timeStamp is in filename, but will not parse correctly"); }
-    	return(timeStamp);
-    }
+//    private long getTimeStamp(String name)
+//    {
+//    	int dotIndex = (name.toLowerCase().endsWith(".std")) ? name.length() - 4 : name.length() - 5;
+//    	int bIndex = dotIndex - 14;
+//    	String stamp = name.substring(bIndex, dotIndex);
+//    	long timeStamp = 0L;
+//    	try { timeStamp = Long.parseLong(stamp); }
+//    	catch (Exception e) { Log.fatal("Program bug: timeStamp is in filename, but will not parse correctly"); }
+//    	return(timeStamp);
+//    }
     
    
 }

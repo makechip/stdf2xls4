@@ -52,13 +52,14 @@ public class CliOptions
 	private static final String[] B_OPT = { "b", "one-page", "Put all steps/wafers on one page - add column for step# or wafer#" };
 	private static final String[] P_OPT = { "p", "precision", "Specify precision used in result and limit values - must be > 1 and < 13" };
 	private static final String[] C_OPT = { "c", "columns", "Allow maximumn of 16384 columns instead of 1024" };
-	private static final String[] V_OPT = { "v", "dont-skip-search-fails", "Don't skip bogus verigy(AKA Advantest) search fails" };
+	private static final String[] V_OPT = { "v", "dont-skip-search-fails", "Don't skip bogus Verigy(AKA Advantest) search fails" };
 	private static final String[] R_OPT = { "r", "rotate", "Rotate the spreadsheet so test names go vertically instead of horizontally" };
 	private static final String[] Y_OPT = { "y", "dynamic-limits", "If a test has non-constant limits, show the limits on either side of each result" };
 	private static final String[] G_OPT = { "g", "gui", "Enable graphical user interface" }; 
 	private static final String[] H_OPT = { "h", "help", "show this help text" }; 
 	private static final String[] A_OPT = { "a", "pin-suffix", "Assume test names for ParametricTestRecords have the pin name following the character delimiter" };
 	private static final String[] L_OPT = { "l", "logo", "Specify a logo file for the spreadsheet" };
+	private static final String[] T_OPT = { "t", "timestamps", "output timestamp per device (only makes sense if you have one STDF file per device)" }; 
 	private OptionSpec<String>  A;
 	private OptionSpec<Void>    J;
 	private OptionSpec<Void>    F;
@@ -92,6 +93,7 @@ public class CliOptions
 	public final boolean gui;
 	public final boolean pinSuffix;
 	public final boolean maxExcelColumns;
+	public final boolean timestamps;
 	public final char delimiter;
 	public final List<File> stdfFiles;
 	private boolean success;
@@ -159,6 +161,7 @@ public class CliOptions
 	    Y = op.acceptsAll(asList(Y_OPT[0], Y_OPT[1]), Y_OPT[2]);
 	    G = op.acceptsAll(asList(G_OPT[0], G_OPT[1]), G_OPT[2]);
 	    C = op.acceptsAll(asList(C_OPT[0], C_OPT[1]), C_OPT[2]);
+	    T = op.acceptsAll(asList(T_OPT[0], T_OPT[1]), T_OPT[2]);
 	    M = op.acceptsAll(asList(M_OPT[0], M_OPT[1]), M_OPT[2]).withRequiredArg().ofType(String.class);
 	    P = op.acceptsAll(asList(P_OPT[0], P_OPT[1]), P_OPT[2]).withRequiredArg().ofType(int.class);
 	    
@@ -190,6 +193,7 @@ public class CliOptions
 	    dynamicLimits = options.has(Y);
 	    dump = options.has(D);
 	    gui = options.has(G);
+	    timestamps = options.has(T);
 	    xlsName = options.has(X) ? options.valueOf(X) : null;
 	    useJxl = options.has(J);
 	    precision = options.has(P) ? options.valueOf(P) : 3;

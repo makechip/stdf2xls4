@@ -46,6 +46,25 @@ public class TestRecordDatabase
 		this.options = options;
 	}
 	
+	public void dump()
+	{
+	    for (PageHeader ph : devMap.keySet())
+	    {
+	        Map<DeviceHeader, Map<TestHeader, TestResult>> phm = devMap.get(ph);
+	        for (DeviceHeader dh : phm.keySet())
+	        {
+	            Map<TestHeader, TestResult> thm = phm.get(dh);
+	            for (TestHeader th : thm.keySet())
+	            {
+	                TestResult tr = thm.get(th);
+	                Log.msg(dh.toString());
+	                Log.msg("    " + th.toString() + " " + tr.toString());
+	            }
+	        }
+	    }
+	    Log.msg("END TDB DUMP ===================================================");
+	}
+	
 	public void addRecords(DefaultValueDatabase dvd, boolean sortDevices, PageHeader hdr, DeviceHeader dh, List<TestRecord> list)
 	{
 		final Map<DeviceHeader, Map<TestHeader, TestResult>> m1a = 
