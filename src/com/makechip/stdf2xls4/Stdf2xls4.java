@@ -85,6 +85,7 @@ package com.makechip.stdf2xls4;
  * Fixed two bugs in the timestamp.  The month was off by one because
  * Calandar.java starts counting months from 0, not 1.  Also the hour
  * was derived from a 12-hour clock, and now it is derived from a 24-hour clock.
+ * Also corrected timezone issue.
  * 
  */
 

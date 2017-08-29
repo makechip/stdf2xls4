@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -204,9 +205,13 @@ public final class StdfAPI
 				// check tester type;
 				MasterInformationRecord mir = (MasterInformationRecord) rdr.getRecords().stream().
 						filter(r -> r instanceof MasterInformationRecord).findFirst().orElse(null);
-				Date d = new Date(mir.testDate * 1000L);
+				long timeInms = mir.testDate * 1000L;
+				Date d = new Date(timeInms);
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(d);
+				TimeZone tz = TimeZone.getDefault();
+				int offset = tz.getOffset(timeInms);
+				cal.add(Calendar.SECOND, -offset / 1000);
 				String year = "" + cal.get(Calendar.YEAR);
 				String month = cal.get(Calendar.MONTH) < 9 ? "0" + (cal.get(Calendar.MONTH)+1) : "" + (cal.get(Calendar.MONTH)+1);
 				String day = cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + cal.get(Calendar.DAY_OF_MONTH) : "" + cal.get(Calendar.DAY_OF_MONTH);
