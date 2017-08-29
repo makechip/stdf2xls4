@@ -144,6 +144,18 @@ public final class StdfAPI
         }
 	}
 	
+	public Calendar convertTz(long timeInSeconds)
+	{
+        long timeInms = timeInSeconds * 1000L;
+        Date d = new Date(timeInms);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(d);
+        TimeZone tz = TimeZone.getDefault();
+        int offset = tz.getOffset(timeInms);
+        cal.add(Calendar.SECOND, -offset / 1000);
+        return(cal);
+	}
+	
 	// Find out if tester is fusionCx
 	// if (sortByTimeStamp && allFilesHaveTimeStampe) use TreeMaps instead of LinkedHashMaps
 	// Create DatalogTestRecords
@@ -177,9 +189,11 @@ public final class StdfAPI
 				if (mir != null) jobDates.add(mir.jobDate);
 		    });
 		    Collections.sort(jobDates);
-		    startDate = new Date(jobDates.get(0) * 1000L).toString();
+		    Calendar cal1 = convertTz(jobDates.get(0));
 		    int n = jobDates.size() - 1;
-		    stopDate = new Date(jobDates.get(n) * 1000L).toString();
+		    Calendar cal2 = convertTz(jobDates.get(n));
+		    startDate = cal1.getTime().toString();
+		    stopDate = cal2.getTime().toString();
 		}
 		stdfFiles.stream().forEach(file ->
 		{
@@ -205,13 +219,7 @@ public final class StdfAPI
 				// check tester type;
 				MasterInformationRecord mir = (MasterInformationRecord) rdr.getRecords().stream().
 						filter(r -> r instanceof MasterInformationRecord).findFirst().orElse(null);
-				long timeInms = mir.testDate * 1000L;
-				Date d = new Date(timeInms);
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(d);
-				TimeZone tz = TimeZone.getDefault();
-				int offset = tz.getOffset(timeInms);
-				cal.add(Calendar.SECOND, -offset / 1000);
+				Calendar cal = convertTz(mir.testDate);
 				String year = "" + cal.get(Calendar.YEAR);
 				String month = cal.get(Calendar.MONTH) < 9 ? "0" + (cal.get(Calendar.MONTH)+1) : "" + (cal.get(Calendar.MONTH)+1);
 				String day = cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + cal.get(Calendar.DAY_OF_MONTH) : "" + cal.get(Calendar.DAY_OF_MONTH);

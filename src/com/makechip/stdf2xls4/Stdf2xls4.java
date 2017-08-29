@@ -87,6 +87,9 @@ package com.makechip.stdf2xls4;
  * was derived from a 12-hour clock, and now it is derived from a 24-hour clock.
  * Also corrected timezone issue.
  * 
+ * 4.2.2 8/29/17
+ * Fixed timezone issue with start and stop dates in the page header.
+ * 
  */
 
 import java.io.IOException;
@@ -104,7 +107,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.2.1";
+	public static final String VERSION = "4.2.2";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)
