@@ -88,12 +88,13 @@ public class TestID implements Identity, Immutable
         // 2. Need duplicate ID
     	if (id.siteNumber == siteNum && id.headNumber == headNum)
     	{
+    	    TestID oldid = id;
     	    Integer dnum = tdb.testIdDupMap.get(id);
     	    dnum++;
     	    id = tdb.idMap.getValue(testNum, testName, dnum);
     	    id.siteNumber = siteNum;
     	    id.headNumber = headNum;
-    	    tdb.testIdDupMap.put(id, dnum);
+    	    tdb.testIdDupMap.put(oldid, dnum);
     	}
     	return(id);
     }

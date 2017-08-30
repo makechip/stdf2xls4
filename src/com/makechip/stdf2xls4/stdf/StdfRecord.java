@@ -79,10 +79,14 @@ public abstract class StdfRecord
 	    	for (Field f : fs)
 	    	{
 	    		f.setAccessible(true);
-	    		Object o = f.get(this);
-	    		String name = f.getName();
-	    		String obj = (o == null) ? "null" : o.toString();
-	    		sb.append("    ").append(name).append(" = ").append(obj).append(Log.eol);
+	    		int mods = f.getModifiers();
+	    		if (!java.lang.reflect.Modifier.isStatic(mods))
+	    		{
+	    		    Object o = f.get(this);
+	    		    String name = f.getName();
+	    		    String obj = (o == null) ? "null" : o.toString();
+	    		    sb.append("    ").append(name).append(" = ").append(obj).append(Log.eol);
+	    		}
 	    	}
 	    }
 	    catch (Exception e)

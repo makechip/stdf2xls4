@@ -90,6 +90,13 @@ package com.makechip.stdf2xls4;
  * 4.2.2 8/29/17
  * Fixed timezone issue with start and stop dates in the page header.
  * 
+ * 4.2.3 8/30/17
+ * Removed printing of static fields from StdfRecord toString method.
+ * Fixed broken DatalogTestRecords. Due to an incorrect default site number
+ * the datalog test records did not show up in the spreadsheet.
+ * Fixed bug in TestID creation.  Duplicates greater than 1 were
+ * getting assigned a duplicate value of 1. 
+ * 
  */
 
 import java.io.IOException;
@@ -107,7 +114,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.2.2";
+	public static final String VERSION = "4.2.3";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

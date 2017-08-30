@@ -144,6 +144,7 @@ public class TestRecordDatabase
 			         Map<TestHeader, TestResult> m2a)
 	{
 		List<TestHeader> th = getTestHeader(dvd, hdr, r);
+		if (r instanceof DatalogTestRecord) Log.msg("Found DatalogTestRecord: th.size = " + th.size());
 		if (th.size() == 1)
 		{
 			TestHeader h = th.get(0);

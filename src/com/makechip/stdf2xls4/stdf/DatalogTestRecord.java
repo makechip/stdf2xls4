@@ -95,7 +95,7 @@ public class DatalogTestRecord extends TestRecord
         testName = st.nextToken();
         String valueUnitsOpt = st.nextToken();
         String tnum = "0";
-        short sn = (short) 0;
+        short sn = (short) 1;
         short hn = (short) 0;
         if (st.hasMoreTokens())
         {
@@ -113,7 +113,7 @@ public class DatalogTestRecord extends TestRecord
         		}
         		else hn = (short) 0;
         	}
-        	else sn =  (short) 0;
+        	else sn =  (short) 1;
         }
         siteNumber = sn;
         headNumber = hn;

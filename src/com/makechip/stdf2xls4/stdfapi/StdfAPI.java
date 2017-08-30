@@ -437,7 +437,6 @@ public final class StdfAPI
 				String sn = st.nextToken();
 				if (timeStampedFiles)
 				{
-				    Log.msg("timeStamp = " + dvd.timeStamp + " sn = " + sn);
 				    snxy = TimeSN.getTimeSN(dvd.timeStamp, sn); 
 				}
 				else
@@ -498,7 +497,7 @@ public final class StdfAPI
 			.filter(p -> !((TestRecord) p).getTestID().testName.endsWith("Search Failed")) 
 			.map(p -> TestRecord.class.cast(p))
 			.collect(Collectors.toList());
-		}
+		} // no datalog test records in list
 		String temperature = hdr.get(HeaderUtil.TEMPERATURE);
 		if (temperature == null && mir != null) temperature = mir.temperature;
 		DeviceHeader dh = new DeviceHeader(snxy, hwBin, swBin, fail, abnormalEOT, noPassFailIndication,temperature);
