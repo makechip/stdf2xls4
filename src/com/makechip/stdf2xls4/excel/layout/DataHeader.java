@@ -24,7 +24,6 @@ import com.makechip.stdf2xls4.excel.layout.CornerBlock;
 import com.makechip.stdf2xls4.stdfapi.MultiParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
-
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -126,7 +125,7 @@ public class DataHeader
 		        measurer.setPosition(nextPos);
 		    }
 		    if (lineCnt < 5) lineCnt = 5;
-			int defRowHeight = ss.getRowHeight(page, cb.tstxy.tnameLabel.r);
+			int defRowHeight = 255; //ss.getRowHeight(page, cb.tstxy.tnameLabel.r);
 			int newHeight = ((1+lineCnt) * defRowHeight) / 5;
 			for (int i=cb.tstxy.tnameLabel.r; i<cb.tstxy.tnumLabel.r; i++)
 			{
