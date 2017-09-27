@@ -100,6 +100,9 @@ package com.makechip.stdf2xls4;
  * 4.2.4 8/31/17
  * Fixed bug in data header row height calculation.
  * 
+ * 4.2.5 9/26/17
+ * Fixed bug where individual MPR failures did not get highlighted in red.
+ * 
  */
 
 import java.io.IOException;
@@ -117,7 +120,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.2.4";
+	public static final String VERSION = "4.2.5";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

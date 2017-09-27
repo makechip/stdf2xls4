@@ -208,26 +208,28 @@ public class TestRecordDatabase
 			    	    // 3. if (result == loLimit) is it a pass?
 			    	    // 4. if (result == hiLimit) is it a pass?
 			    	    boolean fail = false;
-			    	    if (mpr.loLimit != null)
+			    	    Float fl = (mpr.loLimit == null) ? dvd.getDefaultLoLimit(mpr.id) : mpr.loLimit;
+			    	    if (fl != null)
 			    	    {
 			    	        if (mpr.paramFlags.contains(ParamFlag_t.LO_LIMIT_EQ_PASS)) 
 			    	        {
-			    	        	if (rslt < mpr.loLimit) fail = true;
+			    	        	if (rslt < fl) fail = true;
 			    	        }
 			    	        else
 			    	        {
-			    	        	if (rslt <= mpr.loLimit) fail = true;
+			    	        	if (rslt <= fl) fail = true;
 			    	        }
 			    	    }
-			    	    if (mpr.hiLimit != null)
+			    	    Float fh = (mpr.hiLimit == null) ? dvd.getDefaultHiLimit(mpr.id) : mpr.hiLimit;
+			    	    if (fh != null)
 			    	    {
 			    	    	if (mpr.paramFlags.contains(ParamFlag_t.HI_LIMIT_EQ_PASS))
 			    	    	{
-			    	    		if (rslt > mpr.hiLimit) fail = true;
+			    	    		if (rslt > fh) fail = true;
 			    	    	}
 			    	    	else
 			    	    	{
-			    	    		if (rslt >= mpr.hiLimit) fail = true;
+			    	    		if (rslt >= fh) fail = true;
 			    	    	}
 			    	    }
 			            TestResult tr = new ParametricTestResult(getTestFlags(mpr.testFlags, fail), sresults.get(j));
