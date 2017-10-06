@@ -157,7 +157,7 @@ public final class StdfAPI
 	}
 	
 	// Find out if tester is fusionCx
-	// if (sortByTimeStamp && allFilesHaveTimeStampe) use TreeMaps instead of LinkedHashMaps
+	// if (sortByTimeStamp && allFilesHaveTimeStamps) use TreeMaps instead of LinkedHashMaps
 	// Create DatalogTestRecords
 	// Set up pinMaps
 	// locate default values
@@ -500,7 +500,7 @@ public final class StdfAPI
 		} // no datalog test records in list
 		String temperature = hdr.get(HeaderUtil.TEMPERATURE);
 		if (temperature == null && mir != null) temperature = mir.temperature;
-		DeviceHeader dh = new DeviceHeader(snxy, hwBin, swBin, fail, abnormalEOT, noPassFailIndication,temperature);
+		DeviceHeader dh = new DeviceHeader(snxy, hwBin, swBin, fail, abnormalEOT, noPassFailIndication,temperature, timeStampedFiles);
 		tdb.addRecords(dvd, sortDevices, hdr, dh, l);
 	}
 	

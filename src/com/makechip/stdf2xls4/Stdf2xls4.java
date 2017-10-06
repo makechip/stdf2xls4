@@ -103,6 +103,9 @@ package com.makechip.stdf2xls4;
  * 4.2.5 9/26/17
  * Fixed bug where individual MPR failures did not get highlighted in red.
  * 
+ * 4.2.6 10/5/17
+ * When -t option is used, data is sorted by timestamp
+ * 
  */
 
 import java.io.IOException;
@@ -120,7 +123,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.2.5";
+	public static final String VERSION = "4.2.6";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

@@ -9,6 +9,7 @@ public class DeviceHeader implements Comparable<DeviceHeader>
 	public final boolean abnormalEOT;
 	public final boolean noPassFailIndication;
 	public final String temperature;
+	public final boolean timeStamps;
 
 	public DeviceHeader(SnOrXy snxy, 
 			            int hwBin, 
@@ -16,7 +17,8 @@ public class DeviceHeader implements Comparable<DeviceHeader>
 			            boolean fail, 
 			            boolean abnormalEOT, 
 			            boolean noPassFailIndication, 
-			            String temperature)
+			            String temperature,
+			            boolean timeStamps)
 	{
 		this.snxy = snxy;
 		this.hwBin = hwBin;
@@ -25,6 +27,7 @@ public class DeviceHeader implements Comparable<DeviceHeader>
 		this.abnormalEOT = abnormalEOT;
 		this.noPassFailIndication = noPassFailIndication;
 		this.temperature = (temperature == null) ? "?" : temperature;
+		this.timeStamps = timeStamps;
 	}
 	
 	@Override
@@ -85,7 +88,11 @@ public class DeviceHeader implements Comparable<DeviceHeader>
 			{
 		        TimeSN a = TimeSN.class.cast(snxy);
 		        TimeSN b = TimeSN.class.cast(o.snxy);
-		        return(a.compareTo(b));
+			    if (timeStamps && o.timeStamps)
+			    {
+			        return (int) (a.getTimeStamp() - b.getTimeStamp());
+			    }
+			    return(a.compareTo(b));
 			}
 		}
 		else if (snxy instanceof XY)
@@ -103,6 +110,10 @@ public class DeviceHeader implements Comparable<DeviceHeader>
             {
             	TimeXY a = TimeXY.class.cast(snxy);
             	TimeXY b = TimeXY.class.cast(o.snxy);
+            	if (timeStamps && o.timeStamps)
+            	{
+            	    return (int) (a.getTimeStamp() - b.getTimeStamp());
+            	}
             	return(a.compareTo(b));
             }
 		}
