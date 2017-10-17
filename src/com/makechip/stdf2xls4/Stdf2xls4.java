@@ -106,6 +106,10 @@ package com.makechip.stdf2xls4;
  * 4.2.6 10/5/17
  * When -t option is used, data is sorted by timestamp
  * 
+ * 4.2.7 10/17/17
+ * Made legacy header parsing more forgiving to silently
+ * ignore headers with incorrect format.
+ * 
  */
 
 import java.io.IOException;
@@ -123,7 +127,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.2.6";
+	public static final String VERSION = "4.2.7";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

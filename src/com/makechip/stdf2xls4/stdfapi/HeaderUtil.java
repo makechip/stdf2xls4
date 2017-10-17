@@ -84,11 +84,15 @@ public class HeaderUtil
             {
                 String s = t.substring(HEADER_TAG.length()).trim();
                 StringTokenizer st = new StringTokenizer(s, ":");
-                if (!st.hasMoreTokens()) throw new RuntimeException("Invalid header item: " + t);
-                String label = st.nextToken();
-                if (!st.hasMoreTokens()) throw new RuntimeException("Invalid header item: " + t);
-                String value = st.nextToken();
-                header.put(label.trim(), value.trim());
+                if (st.hasMoreTokens()) 
+                {
+                     String label = st.nextToken();
+                     if (st.hasMoreTokens())
+                     {
+                         String value = st.nextToken();
+                         header.put(label.trim(), value.trim());
+                     }
+                }
             }
             else
             {
