@@ -166,21 +166,26 @@ public class TestRecordDatabase
 			{
 				TestHeader h = th.get(i);
 				ParametricRecord pr = ParametricRecord.class.cast(r);
-				TestResult tr = new LoLimitResult(pr.getLoLimit());
-				m2a.put(h, tr);
-                Map<DeviceHeader, TestResult> m2b = m1b.get(h);
-                if (m2b == null)
-                {
-                	m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
-                	m1b.put(h,  m2b);
-                }
-			    m2b.put(dh, tr);	
+				if (pr.getLoLimit() != null)
+				{
+				    TestResult tr = new LoLimitResult(pr.getLoLimit());
+				    m2a.put(h, tr);
+                    Map<DeviceHeader, TestResult> m2b = m1b.get(h);
+                    if (m2b == null)
+                    {
+                	    m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
+                	    m1b.put(h,  m2b);
+                    }
+                    Log.msg("adding lo limit result");
+			        m2b.put(dh, tr);	
+				}
 				i++;
 			}
 			if (r.type == Record_t.PTR)
 			{
 				TestHeader h = th.get(i);
 				TestResult tr = getTestResult(dvd, r);
+				Log.msg("PTR results = " + tr + ": " + ((ParametricTestResult) tr).result);
 				m2a.put(h,  tr);
                 Map<DeviceHeader, TestResult> m2b = m1b.get(h);
                 if (m2b == null)
@@ -190,6 +195,8 @@ public class TestRecordDatabase
                 }
 			    m2b.put(dh, tr);	
 			    i++;
+			    Log.msg("HEADERS: dh = " + dh + " th = " + h);
+			    Log.msg("FINAL RESULT = " + getRecord(hdr, dh, h));
 			}
 			else
 			{
@@ -251,18 +258,24 @@ public class TestRecordDatabase
 			        else throw new RuntimeException("Program Bug - expected HiLimitHeader, but got " + h.getClass().getSimpleName());
 			    }
 			}
-			if (hlh != null)
+			if (th.get(i).isHiLimitHeader())
 			{
-				ParametricRecord pr = ParametricRecord.class.cast(r);
-				TestResult tr = new HiLimitResult(pr.getHiLimit());
-				m2a.put(th.get(i), tr);
-                Map<DeviceHeader, TestResult> m2b = m1b.get(hlh); 
-                if (m2b == null)
-                {
-                	m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
-                	m1b.put(hlh,  m2b);
-                }
-			    m2b.put(dh, tr);	
+			    TestHeader h = th.get(i);
+			    if (h.isHiLimitHeader()) 
+			    {
+			        hlh = h;
+			        ParametricRecord pr = ParametricRecord.class.cast(r);
+			        TestResult tr = new HiLimitResult(pr.getHiLimit());
+			        m2a.put(th.get(i), tr);
+			        Map<DeviceHeader, TestResult> m2b = m1b.get(hlh); 
+			        if (m2b == null)
+			        {
+			            m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
+			            m1b.put(hlh,  m2b);
+			        }
+			        Log.msg("adding hi limit result");
+			        m2b.put(dh, tr);	
+			    }
 			}
 		}
 	}
@@ -287,6 +300,7 @@ public class TestRecordDatabase
 		if (m1 == null) return(null);
 		Map<TestHeader, TestResult> m2 = m1.get(dh);
 		if (m2 == null) return(null);
+		Log.msg("devMap.size = " + devMap.size() + " m1.size = " + m1.size() + " m2.size = " + m2.size());
 		return(m2.get(id));
 	}
 	

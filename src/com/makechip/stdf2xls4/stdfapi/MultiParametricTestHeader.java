@@ -2,6 +2,7 @@ package com.makechip.stdf2xls4.stdfapi;
 
 import com.makechip.stdf2xls4.stdf.TestID;
 import com.makechip.stdf2xls4.stdf.TestID.PinTestID;
+import com.makechip.util.Log;
 
 public class MultiParametricTestHeader extends ParametricTestHeader
 {
@@ -23,6 +24,7 @@ public class MultiParametricTestHeader extends ParametricTestHeader
 	public MultiParametricTestHeader(String tname, long tnum, int dupNum, String units, Limit_t limit)
 	{
 	    this(tname, tnum, dupNum, limit.name, units, null, null);	
+	    Log.msg("HEADER = " + limit.name);
 	}
 	
 	public MultiParametricTestHeader(TestID id, String units, Limit_t limit)

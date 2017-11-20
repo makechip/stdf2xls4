@@ -430,6 +430,8 @@ public final class SpreadsheetWriter
     private void setResult(int index, int page, TestHeader th, PageHeader hdr, DeviceHeader dh)
     {
 		TestResult r = api.getRecord(hdr, dh, th);
+        if (r == null) Log.msg("NULL RESULT: dh = " + dh + " th = " + th);
+		Log.msg("test header = " + th + "result = " + r);
    	    //int rc = options.rotate ? titleBlock.tstxy.unitsLabel.r + 1 + index : titleBlock.tstxy.unitsLabel.c + 1 + (index % COLS_PER_PAGE);
 		TitleBlock titleBlock = titles.get(page);
 		int rc = titleBlock.getRC(th.testName, th.testNumber, th.getPin(), th.dupNum);

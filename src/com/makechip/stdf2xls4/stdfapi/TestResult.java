@@ -40,13 +40,17 @@ public class TestResult
     public TestResult(final Set<TestFlag_t> flags)
     {
     	this.flags = EnumSet.noneOf(TestFlag_t.class);
-    	flags.stream().forEach(s -> this.flags.add(s));
-    	if (flags.contains(ABORT)) error = Error_t.ABORT;
-    	else if (flags.contains(NO_PASS_FAIL)) error = Error_t.INVALID;
-    	else if (flags.contains(UNRELIABLE)) error = Error_t.UNRELIABLE;
-    	else if (flags.contains(ALARM)) error = Error_t.ALARM;
-    	else if (flags.contains(TIMEOUT)) error = Error_t.TIMEOUT;
-    	else if (flags.contains(FAIL)) error = Error_t.FAIL;
+    	if (flags != null)
+    	{
+    	    flags.stream().forEach(s -> this.flags.add(s));
+    	    if (flags.contains(ABORT)) error = Error_t.ABORT;
+    	    else if (flags.contains(NO_PASS_FAIL)) error = Error_t.INVALID;
+    	    else if (flags.contains(UNRELIABLE)) error = Error_t.UNRELIABLE;
+    	    else if (flags.contains(ALARM)) error = Error_t.ALARM;
+    	    else if (flags.contains(TIMEOUT)) error = Error_t.TIMEOUT;
+    	    else if (flags.contains(FAIL)) error = Error_t.FAIL;
+    	    else error = Error_t.PASS;
+    	}
     	else error = Error_t.PASS;
     }
     
