@@ -18,7 +18,7 @@ public class OptionsTest
 		assertTrue(options.isOptionsValid());
 		assertEquals(new File("x.xls"), options.xlsName);
 		assertFalse(options.dump);
-		assertTrue(options.noWrapTestNames);
+		assertFalse(options.noWrapTestNames);
 		assertFalse(options.noOverwrite);
 		assertFalse(options.onePage);
 		assertEquals(3, options.precision);
@@ -35,7 +35,7 @@ public class OptionsTest
 		assertTrue(options.isOptionsValid());
 	    assertEquals(null, options.xlsName);
 	    assertTrue(options.dump);
-	    assertFalse(options.noWrapTestNames);
+	    assertTrue(options.noWrapTestNames);
 		assertEquals(5, options.precision);
 	}
 	
@@ -61,9 +61,9 @@ public class OptionsTest
 	@Test
 	public void test5()
 	{
-		CliOptions options = new CliOptions(new String[] { "-d" });
-		assertFalse(options.isOptionsValid());
-		assertEquals("Error: No STDF files have been specified", options.getMessage());
+
+		try { new CliOptions(new String[] { "-d" }); assertTrue(false); }
+		catch (Exception e) { assertTrue(true); }
 		
 	}
 	
@@ -73,7 +73,6 @@ public class OptionsTest
 		CliOptions options = new CliOptions(new String[] { "-d", "x.std" });
 		assertFalse(options.isOptionsValid());
 		assertEquals("Error: The following STDF files are not found: x.std", options.getMessage());
-		
 		CliOptions.main(new String[] { } );
 	}
 	

@@ -274,9 +274,8 @@ public class CliOptions
 	
 	public static void main(String[] args)
 	{
-	    CliOptions options = new CliOptions(new String[] { "-x", "x.xlsx", "-m", "\"R:DTR F:TEXT_DAT C:EQUALS: V:STEP #: 2.00\\ N:STEP #: 2.00\"", "x.stdf" });	
+	    CliOptions options = new CliOptions(new String[] { "-x", "x.xlsx", "x.stdf" });	
 	    Log.msg("options = " + options);
-	    Log.msg("mods = " + options.modifiers);
 	}
 	
 }
