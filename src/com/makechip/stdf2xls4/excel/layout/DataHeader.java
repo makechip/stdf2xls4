@@ -24,6 +24,7 @@ import com.makechip.stdf2xls4.excel.layout.CornerBlock;
 import com.makechip.stdf2xls4.stdfapi.MultiParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
+
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -148,7 +149,6 @@ public class DataHeader
 				{
 				    ss.setCell(page, new Coord(cb.tstxy.tname.c, r), TEST_NAME_FMT_WRAP, "");
 				}
-				ss.mergeCells(page, cb.tstxy.tnameLabel.r, cb.tstxy.tnumLabel.r-1, cb.tstxy.tname.c, cb.tstxy.tname.c);
 				ss.setColumnWidth(page, cb.tstxy.tname.c, 10); // added
 			}
 			ss.setCell(page, cb.tstxy.tname, noWrapTestNames ? TEST_NAME_FMT : TEST_NAME_FMT_WRAP, hdr.testName);

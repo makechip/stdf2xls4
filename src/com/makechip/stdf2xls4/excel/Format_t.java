@@ -12,6 +12,7 @@ import static com.makechip.stdf2xls4.excel.Color_t.SKY_BLUE;
 import static com.makechip.stdf2xls4.excel.Color_t.TURQUOISE;
 import static com.makechip.stdf2xls4.excel.Color_t.WHITE;
 import static com.makechip.stdf2xls4.excel.Color_t.YELLOW;
+import static com.makechip.stdf2xls4.excel.Color_t.VERY_LIGHT_YELLOW;
 import static com.makechip.stdf2xls4.excel.Font_t.*;
 import static jxl.format.VerticalAlignment.*;
 
@@ -38,6 +39,7 @@ public enum Format_t
     HEADER4_FMTR(ARIAL_BOLD,               8, Alignment.CENTRE, BOTTOM, false, WHITE,        BLACK, THIN, BLACK),
     HEADER5_FMT(ARIAL_BOLD,                8, Alignment.CENTRE, CENTRE, false, WHITE,        BLACK, THIN, BLACK),
     PASS_VALUE_FMT(COURIER_NORMAL,        10, Alignment.RIGHT,  CENTRE, false, WHITE,        BLACK, THIN, BLACK),
+    LIMIT_VALUE_FMT(COURIER_NORMAL,       10, Alignment.RIGHT,  CENTRE, false, VERY_LIGHT_YELLOW, BLACK, THIN, BLACK),
     FAIL_VALUE_FMT(COURIER_NORMAL,        10, Alignment.RIGHT,  CENTRE, false, RED,          BLACK, THIN, BLACK),
     INVALID_VALUE_FMT(COURIER_NORMAL,     10, Alignment.RIGHT,  CENTRE, false, AQUA,         BLACK, THIN, BLACK),
     UNRELIABLE_VALUE_FMT(COURIER_NORMAL,  10, Alignment.RIGHT,  CENTRE, false, LIGHT_BLUE,   BLACK, THIN, BLACK),

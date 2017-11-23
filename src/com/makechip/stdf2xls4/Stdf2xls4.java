@@ -110,7 +110,8 @@ package com.makechip.stdf2xls4;
  * Made legacy header parsing more forgiving to silently
  * ignore headers with incorrect format.
  * 
- * 4.2.8
+ * 4.2.8 11/23/17
+ * Fixed some bugs with dynamic limits
  * 
  */
 

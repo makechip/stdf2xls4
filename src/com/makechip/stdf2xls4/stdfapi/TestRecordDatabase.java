@@ -79,11 +79,20 @@ public class TestRecordDatabase
 	
 	private boolean hasDynamicLimits(PageHeader hdr, TestID id)
 	{
-		if (dynamicLimitMap == null) return(false);
+		if (dynamicLimitMap == null) 
+		{
+		    return(false);
+		}
 	    Map<TestID, Boolean> m = dynamicLimitMap.get(hdr);
-	    if (m == null) return(false);
+	    if (m == null) 
+	    {
+	        return(false);
+	    }
 	    Boolean b = m.get(id);
-	    if (b == null) return(false);
+	    if (b == null) 
+	    {
+	        return(false);
+	    }
 	    return(b.booleanValue());
 	}
 	
@@ -135,6 +144,8 @@ public class TestRecordDatabase
 		return(tr);		
 	}
 	
+	//private boolean lastWasLimit = false;
+	
 	private void add(DefaultValueDatabase dvd,
 			         boolean sortDevices, 
 			         PageHeader hdr, 
@@ -144,7 +155,6 @@ public class TestRecordDatabase
 			         Map<TestHeader, TestResult> m2a)
 	{
 		List<TestHeader> th = getTestHeader(dvd, hdr, r);
-		if (r instanceof DatalogTestRecord) Log.msg("Found DatalogTestRecord: th.size = " + th.size());
 		if (th.size() == 1)
 		{
 			TestHeader h = th.get(0);
@@ -176,16 +186,16 @@ public class TestRecordDatabase
                 	    m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
                 	    m1b.put(h,  m2b);
                     }
-                    Log.msg("adding lo limit result");
 			        m2b.put(dh, tr);	
+			        i++;
+			        //lastWasLimit = true;
+			        //Log.msg("LoLimit id = " + pr.getTestID() + " limit = " + pr.getLoLimit());
 				}
-				i++;
 			}
 			if (r.type == Record_t.PTR)
 			{
 				TestHeader h = th.get(i);
 				TestResult tr = getTestResult(dvd, r);
-				Log.msg("PTR results = " + tr + ": " + ((ParametricTestResult) tr).result);
 				m2a.put(h,  tr);
                 Map<DeviceHeader, TestResult> m2b = m1b.get(h);
                 if (m2b == null)
@@ -194,9 +204,8 @@ public class TestRecordDatabase
                 	m1b.put(h, m2b);
                 }
 			    m2b.put(dh, tr);	
+			    //if (lastWasLimit) Log.msg("dyValue id = " + r.getTestID() + " result = " + ((ParametricTestRecord) r).result); 
 			    i++;
-			    Log.msg("HEADERS: dh = " + dh + " th = " + h);
-			    Log.msg("FINAL RESULT = " + getRecord(hdr, dh, h));
 			}
 			else
 			{
@@ -273,8 +282,10 @@ public class TestRecordDatabase
 			            m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
 			            m1b.put(hlh,  m2b);
 			        }
-			        Log.msg("adding hi limit result");
 			        m2b.put(dh, tr);	
+			        //Log.msg("HiLimit id = " + pr.getTestID() + " limit = " + pr.getHiLimit());
+			        //Log.msg("");
+			        //lastWasLimit = false;
 			    }
 			}
 		}
@@ -297,11 +308,17 @@ public class TestRecordDatabase
 	public TestResult getRecord(PageHeader hdr, DeviceHeader dh, TestHeader id)
 	{
 		Map<DeviceHeader, Map<TestHeader, TestResult>> m1 = devMap.get(hdr);
-		if (m1 == null) return(null);
+		if (m1 == null) 
+		{
+		    return(null);
+		}
 		Map<TestHeader, TestResult> m2 = m1.get(dh);
-		if (m2 == null) return(null);
-		Log.msg("devMap.size = " + devMap.size() + " m1.size = " + m1.size() + " m2.size = " + m2.size());
-		return(m2.get(id));
+		if (m2 == null) 
+		{
+		    return(null);
+		}
+		TestResult tr = m2.get(id);
+		return tr;
 	}
 	
 	public TestResult getRecord(PageHeader hdr, TestHeader id, DeviceHeader dh)
@@ -386,7 +403,6 @@ public class TestRecordDatabase
 			IntList rtn = (mpr.rtnIndex == null) ? dvd.getDefaultRtnIndex(mpr.id) : mpr.rtnIndex;
 			if (rtn == null) 
 			{
-			    Log.msg("RTN_INDEX is NULL test number is " + r.getTestID().testNumber);
 			    FloatList fl = mpr.results;
 			    fl.stream().forEach(x -> { PinTestID pid = TestID.PinTestID.getTestID(tdb, mpr.getTestID(), "");
 			        list.add(new MultiParametricTestHeader(pid, sunits, sLoLimit, sHiLimit));

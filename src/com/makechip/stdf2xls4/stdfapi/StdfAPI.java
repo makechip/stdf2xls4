@@ -94,7 +94,6 @@ public final class StdfAPI
 	
 	private void checkLimits(PageHeader hdr, Map<TestID, Float> llmap, Map<TestID, Float> ulmap, List<ValuePair<DefaultValueDatabase, List<StdfRecord>>> list)
 	{
-	    Log.msg("checkLimits: " + hdr);
 		list.stream().flatMap(p -> p.value2.stream()).
 			filter(r -> r instanceof ParametricRecord).
 			map(s -> ParametricRecord.class.cast(s)).forEach(q -> checkLimit(q, llmap, ulmap, hdr));
@@ -115,10 +114,8 @@ public final class StdfAPI
         	if (ll1 == null) ll.put(r.getTestID(), r.getLoLimit());
         	else
         	{
-        	    Log.msg_("curLoLim = " + rlim + " ll1 = " + ll1 + " " + r.getTestName());
         		if (rlim < (ll1 - Math.abs(0.001 * ll1)) || rlim > (ll1 + Math.abs(0.001 * ll1)))
         		{
-        		    Log.msg(" LO LIMIT IS DYNAMIC");
         			if (m1 == null)
         			{
         				m1 = new IdentityHashMap<>();
@@ -126,7 +123,6 @@ public final class StdfAPI
         			}
         			m1.put(r.getTestID(), true);
         		}
-        		else Log.msg("");
         	}
         }
         if (r.getHiLimit() != null)
@@ -136,10 +132,8 @@ public final class StdfAPI
             if (ul1 == null) ul.put(r.getTestID(), r.getHiLimit());
             else
             {
-        	    Log.msg_("curHiLim = " + rlim + " ul1 = " + ul1 + " " + r.getTestName());
             	if (rlim < (ul1 - Math.abs(0.001 * ul1)) || rlim > (ul1 + Math.abs(0.001 * ul1)))
             	{
-        		    Log.msg(" HI LIMIT IS DYNAMIC");
             		if (m1 == null)
             		{
             			m1 = new IdentityHashMap<>();
@@ -147,7 +141,6 @@ public final class StdfAPI
             		}
             		m1.put(r.getTestID(), true);
             	}
-        		else Log.msg("");
             }
         }
 	}

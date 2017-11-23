@@ -49,8 +49,8 @@ public class ParametricTestHeader extends TestHeader
 	{
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((hiLimit == null) ? 0 : Float.floatToIntBits(hiLimit));
-		result = prime * result + ((loLimit == null) ? 0 : Float.floatToIntBits(loLimit));
+//		result = prime * result + ((hiLimit == null) ? 0 : Float.floatToIntBits(hiLimit));
+//		result = prime * result + ((loLimit == null) ? 0 : Float.floatToIntBits(loLimit));
 		result = prime * result + ((units == null) ? 0 : units.hashCode());
 		return result;
 	}
@@ -64,18 +64,18 @@ public class ParametricTestHeader extends TestHeader
 		if (this == obj) return true;
 		if (!(obj instanceof ParametricTestHeader)) return false;
 		ParametricTestHeader other = (ParametricTestHeader) obj;
-		if (loLimit == null)
-		{
-			if (other.loLimit != null) return false;
-		}
-		else if (other.loLimit == null) return false;
-		else if (Float.floatToIntBits(loLimit) != Float.floatToIntBits(other.loLimit)) return false;
-		if (hiLimit == null)
-		{
-			if (other.hiLimit != null) return false;
-		}
-		else if (other.hiLimit == null) return false;
-		else if (Float.floatToIntBits(hiLimit) != Float.floatToIntBits(other.hiLimit)) return false;
+//		if (loLimit == null)
+//		{
+//			if (other.loLimit != null) return false;
+//		}
+//		else if (other.loLimit == null) return false;
+//		else if (Float.floatToIntBits(loLimit) != Float.floatToIntBits(other.loLimit)) return false;
+//		if (hiLimit == null)
+//		{
+//			if (other.hiLimit != null) return false;
+//		}
+//		else if (other.hiLimit == null) return false;
+//		else if (Float.floatToIntBits(hiLimit) != Float.floatToIntBits(other.hiLimit)) return false;
 		if (!units.equals(other.units)) return false;
 		if (!super.equals(obj)) return false;
 		return true;

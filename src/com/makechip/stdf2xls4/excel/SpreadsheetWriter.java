@@ -14,6 +14,7 @@ import static com.makechip.stdf2xls4.excel.Format_t.INVALID_VALUE_FMT;
 import static com.makechip.stdf2xls4.excel.Format_t.PASS_VALUE_FMT;
 import static com.makechip.stdf2xls4.excel.Format_t.TIMEOUT_VALUE_FMT;
 import static com.makechip.stdf2xls4.excel.Format_t.UNRELIABLE_VALUE_FMT;
+import static com.makechip.stdf2xls4.excel.Format_t.LIMIT_VALUE_FMT;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ import com.makechip.stdf2xls4.excel.layout.LegendBlock;
 import com.makechip.stdf2xls4.stdfapi.DatalogTestResult;
 import com.makechip.stdf2xls4.stdfapi.DeviceHeader;
 import com.makechip.stdf2xls4.stdfapi.HeaderUtil;
+import com.makechip.stdf2xls4.stdfapi.HiLimitResult;
+import com.makechip.stdf2xls4.stdfapi.LoLimitResult;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
 import com.makechip.stdf2xls4.stdfapi.ParametricTestResult;
 import com.makechip.stdf2xls4.stdfapi.SnOrXy;
@@ -71,6 +74,7 @@ public final class SpreadsheetWriter
             SheetName.getSheet(sname);
         }
         if (options.maxExcelColumns) COLS_PER_PAGE = 16384;
+        sheetInitMap = new HashMap<>();
 	}
 	
     public void generate()
@@ -430,13 +434,13 @@ public final class SpreadsheetWriter
     private void setResult(int index, int page, TestHeader th, PageHeader hdr, DeviceHeader dh)
     {
 		TestResult r = api.getRecord(hdr, dh, th);
-        if (r == null) Log.msg("NULL RESULT: dh = " + dh + " th = " + th);
-		Log.msg("test header = " + th + "result = " + r);
    	    //int rc = options.rotate ? titleBlock.tstxy.unitsLabel.r + 1 + index : titleBlock.tstxy.unitsLabel.c + 1 + (index % COLS_PER_PAGE);
 		TitleBlock titleBlock = titles.get(page);
 		int rc = titleBlock.getRC(th.testName, th.testNumber, th.getPin(), th.dupNum);
 		if (rc < 0) return; // returning here...
    	    Coord xy = options.rotate ? new Coord(currentRC, rc) : new Coord(rc, currentRC);
+   	    //if (r instanceof LoLimitResult) Log.msg("lo result = " + ((ParametricTestResult) r).result + " rc = " + rc);
+   	    //if (r instanceof HiLimitResult) Log.msg("hi result = " + ((ParametricTestResult) r).result + " rc = " + rc);
 		try
 		{
 		    if (r != null)
@@ -465,7 +469,11 @@ public final class SpreadsheetWriter
     
     private void setValue(int page, Coord xy, ParametricTestResult p)
     {
-    	if (p.pass()) ss.setCell(page, xy, PASS_VALUE_FMT, options.precision, p.result);
+        if (p instanceof LoLimitResult || p instanceof HiLimitResult)
+        {
+            ss.setCell(page, xy, LIMIT_VALUE_FMT, options.precision, p.result);
+        }
+        else if (p.pass()) ss.setCell(page, xy, PASS_VALUE_FMT, options.precision, p.result);
     	else if (p.noPassFail()) ss.setCell(page, xy, INVALID_VALUE_FMT, options.precision, p.result);
     	else if (p.unreliable()) ss.setCell(page, xy, UNRELIABLE_VALUE_FMT, options.precision, p.result);
     	else if (p.alarm()) ss.setCell(page, xy, ALARM_VALUE_FMT, options.precision, p.result);
@@ -494,6 +502,8 @@ public final class SpreadsheetWriter
     	}
     	else if (options.rotate && options.timestamps) ss.setColumnWidth(page, xy.c, 16);
     }
+    
+    private Map<PageHeader, Boolean> sheetInitMap;
     
     private void openSheet(PageHeader hdr)
     {
@@ -531,7 +541,7 @@ public final class SpreadsheetWriter
         	    List<TestHeader> list = options.rotate ? api.getTestHeaders(hdr) : getTestHeaders(hdr, page);
     	        TitleBlock titleBlock = new TitleBlock(hdr, options.logoFile, sname.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, list);
     	        titles.put(page, titleBlock);
-    	        titleBlock.addBlock(ss, page);
+    	        if (!sheetInitMap.containsKey(hdr)) titleBlock.addBlock(ss, page);
         		if (!checkRegistration(page, LegendBlock.HEIGHT, titleBlock.tstxy.tnameLabel)) 
         		{
         			ss.close(options.xlsName);
@@ -548,6 +558,7 @@ public final class SpreadsheetWriter
     	TitleBlock titleBlock = new TitleBlock(hdr, options.logoFile, name.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, list);
     	titles.put(page, titleBlock);
     	titleBlock.addBlock(ss, page);
+    	sheetInitMap.put(hdr, true);
     }
     
     private List<TestHeader> getTestHeaders(PageHeader hdr, int pageIndex)
