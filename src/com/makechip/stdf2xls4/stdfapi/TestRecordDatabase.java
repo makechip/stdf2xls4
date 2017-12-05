@@ -267,25 +267,28 @@ public class TestRecordDatabase
 			        else throw new RuntimeException("Program Bug - expected HiLimitHeader, but got " + h.getClass().getSimpleName());
 			    }
 			}
-			if (th.get(i).isHiLimitHeader())
+			if (i < th.size())
 			{
-			    TestHeader h = th.get(i);
-			    if (h.isHiLimitHeader()) 
+			    if (th.get(i).isHiLimitHeader())
 			    {
-			        hlh = h;
-			        ParametricRecord pr = ParametricRecord.class.cast(r);
-			        TestResult tr = new HiLimitResult(pr.getHiLimit());
-			        m2a.put(th.get(i), tr);
-			        Map<DeviceHeader, TestResult> m2b = m1b.get(hlh); 
-			        if (m2b == null)
+			        TestHeader h = th.get(i);
+			        if (h.isHiLimitHeader()) 
 			        {
-			            m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
-			            m1b.put(hlh,  m2b);
+			            hlh = h;
+			            ParametricRecord pr = ParametricRecord.class.cast(r);
+			            TestResult tr = new HiLimitResult(pr.getHiLimit());
+			            m2a.put(th.get(i), tr);
+			            Map<DeviceHeader, TestResult> m2b = m1b.get(hlh); 
+			            if (m2b == null)
+			            {
+			                m2b = sortDevices ? new TreeMap<>() : new LinkedHashMap<>();
+			                m1b.put(hlh,  m2b);
+			            }
+			            m2b.put(dh, tr);	
+			            //Log.msg("HiLimit id = " + pr.getTestID() + " limit = " + pr.getHiLimit());
+			            //Log.msg("");
+			            //lastWasLimit = false;
 			        }
-			        m2b.put(dh, tr);	
-			        //Log.msg("HiLimit id = " + pr.getTestID() + " limit = " + pr.getHiLimit());
-			        //Log.msg("");
-			        //lastWasLimit = false;
 			    }
 			}
 		}

@@ -66,6 +66,8 @@ public final class StdfAPI
 	private String stopDate;
 	private HashMap<PageHeader, TObjectIntHashMap<String>> snDupMap;
 	private HashMap<PageHeader, TShortObjectHashMap<TShortIntHashMap>> xyDupMap;
+	private String defaultTemp;
+	private String defaultStep;
 
 //	private Collector<StdfRecord, List<List<StdfRecord>>, List<List<StdfRecord>>> splitBySeparator(Predicate<StdfRecord> sep) 
 //	{
@@ -232,6 +234,8 @@ public final class StdfAPI
 				try { timeStamp = Long.parseLong(ts); }
 				catch (Exception e) { Log.fatal("Unknown timeStamp"); }
 				boolean fusionCx = mir.testerType.equalsIgnoreCase("fusion_cx") || mir.testerType.equalsIgnoreCase("CTX");
+				defaultTemp = mir.temperature;
+				defaultStep = mir.stepCode;
 				DefaultValueDatabase dvd = new DefaultValueDatabase(fusionCx, timeStamp);
 				// Set up pin maps:
 				rdr.getRecords().stream().filter(r -> r instanceof PinMapRecord).forEach(r -> dvd.setPinName((PinMapRecord) r));	
@@ -321,7 +325,7 @@ public final class StdfAPI
 				
 				// Create page headers:
 				//list.stream().forEach(l -> createHeaders(new HeaderUtil(), devList, l));
-				HeaderUtil hdr = new HeaderUtil();
+				HeaderUtil hdr = new HeaderUtil(defaultStep, defaultTemp);
 				hdr.setStartDate(startDate);
 				hdr.setStopDate(stopDate);
 				records.stream().forEach(r -> hdr.setHeader(r));

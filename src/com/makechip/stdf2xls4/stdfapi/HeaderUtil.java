@@ -36,9 +36,11 @@ public class HeaderUtil
     private PageHeader hdr;
     private final List<String> legacyTags;
 
-	HeaderUtil()
+	HeaderUtil(String defaultStep, String defaultTemp)
 	{
 		header = new LinkedHashMap<>();
+		header.put(TEMPERATURE, defaultTemp);
+		header.put(STEP, defaultStep);
 		legacyTags = new ArrayList<>();
 		legacyTags.add(CUSTOMER);
 		legacyTags.add(DEVICE_NUMBER);
