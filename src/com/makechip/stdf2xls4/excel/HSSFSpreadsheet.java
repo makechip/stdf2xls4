@@ -465,4 +465,11 @@ public class HSSFSpreadsheet implements Spreadsheet
 		Sheet s = wb.getSheetAt(page);
 		return(s.getSheetName());
 	}
+
+    @Override
+    public int getNumMergedCells(int page)
+    {
+		Sheet s = wb.getSheetAt(page);
+        return s.getNumMergedRegions();
+    }
 }

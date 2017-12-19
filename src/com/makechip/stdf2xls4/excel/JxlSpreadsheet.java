@@ -307,4 +307,11 @@ public class JxlSpreadsheet implements Spreadsheet
 	
 	public String getSheetName(int page) { return(ws[page].getName()); }
 
+    @Override
+    public int getNumMergedCells(int page)
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 }

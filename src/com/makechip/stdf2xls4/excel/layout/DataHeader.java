@@ -87,7 +87,7 @@ public class DataHeader
 	    return(rc);
 	}
 	
-	public void addBlock(Spreadsheet ss, int page)
+	public void addBlock(Spreadsheet ss, int page, boolean merge)
 	{
 		cb.tstxy.reset();
 		int lineCnt = 5;
@@ -193,7 +193,7 @@ public class DataHeader
 			if (!rot)
 			{
 				ss.setCell(page, new Coord(cb.tstxy.units.c, cb.tstxy.units.r+1), HEADER1_FMT, "");
-			    ss.mergeCells(page, cb.tstxy.units.r, cb.tstxy.units.r+1, cb.tstxy.units.c, cb.tstxy.units.c);
+			    if (merge) ss.mergeCells(page, cb.tstxy.units.r, cb.tstxy.units.r+1, cb.tstxy.units.c, cb.tstxy.units.c);
 			}
 			cb.tstxy.inc();
 		});

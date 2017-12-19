@@ -18,10 +18,10 @@ public class PageTitleBlock
     	this.width = numCols + cornerBlockWidth;
     }
     
-    public void addBlock(Spreadsheet ss, int page)
+    public void addBlock(Spreadsheet ss, int page, boolean merge)
     {
     	ss.setCell(page, new Coord(COL, 0), TITLE_FMT, title);
-    	ss.mergeCells(page, 0, HEIGHT - 1, COL, COL + width - 1);
+    	if (merge) ss.mergeCells(page, 0, HEIGHT - 1, COL, COL + width - 1);
     }
 
 	public int getWidth()

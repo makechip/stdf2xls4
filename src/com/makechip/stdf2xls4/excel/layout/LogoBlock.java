@@ -23,9 +23,9 @@ class LogoBlock
     	this.logoFile = logoFile;
     }
     
-    public void addBlock(Spreadsheet ss, int page)
+    public void addBlock(Spreadsheet ss, int page, boolean merge)
     {
-   		ss.mergeCells(page, ROW, ROW + HEIGHT - 1, COL, COL);
+   		if (merge) ss.mergeCells(page, ROW, ROW + HEIGHT - 1, COL, COL);
    		ss.setColumnWidth(page, COL, 32);
    		if (logoFile == null)  ss.setCell(page, new Coord(COL, ROW), Format_t.LOGO_FMT, "makechip.com");
     	else ss.addImage(page, logoFile, new Coord(COL, ROW), new Coord(COL + WIDTH, ROW + HEIGHT));

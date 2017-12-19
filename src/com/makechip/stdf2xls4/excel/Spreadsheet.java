@@ -59,4 +59,6 @@ public interface Spreadsheet
     public int getNumberOfSheets();
     
     public String getSheetName(int page);
+    
+    public int getNumMergedCells(int page);
 }

@@ -56,12 +56,13 @@ public class TitleBlock
     
 	public void addBlock(Spreadsheet ss, int page)
     {
+	    int mr = ss.getNumMergedCells(page);
 		hb.addBlock(ss, page);
-		ptb.addBlock(ss, page);
+		ptb.addBlock(ss, page, mr == 0);
 		lb.addBlock(ss, page);
-		logo.addBlock(ss, page);
-		cb.addBlock(ss, page);
-		dh.addBlock(ss, page);
+		logo.addBlock(ss, page, mr == 0);
+		cb.addBlock(ss, page, mr == 0);
+		dh.addBlock(ss, page, mr == 0);
     }
 	
 	public int getWidth()

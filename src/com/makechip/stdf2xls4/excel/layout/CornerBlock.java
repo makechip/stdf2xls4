@@ -53,17 +53,20 @@ public class CornerBlock
 		this.rotate = rotate;
 	}
 	
-	public void addBlock(Spreadsheet ss, int page)
+	public void addBlock(Spreadsheet ss, int page, boolean merge)
 	{
 		if (rotate)
 		{
 		    ss.setColumnWidth(page, tstxy.tname.c, 48);
-		    ss.mergeCells(page, tstxy.tnameLabel.r, tstxy.unitsLabel.r, tstxy.tnameLabel.c, tstxy.tnameLabel.c);
-		    ss.mergeCells(page, tstxy.tnumLabel.r, tstxy.unitsLabel.r, tstxy.tnumLabel.c, tstxy.tnumLabel.c);
-		    ss.mergeCells(page, tstxy.dupNumLabel.r, tstxy.unitsLabel.r, tstxy.dupNumLabel.c, tstxy.dupNumLabel.c);
-		    ss.mergeCells(page, tstxy.pinLabel.r, tstxy.unitsLabel.r, tstxy.pinLabel.c, tstxy.pinLabel.c);
-	 	    ss.mergeCells(page, tstxy.loLimLabel.r, tstxy.unitsLabel.r, tstxy.loLimLabel.c, tstxy.loLimLabel.c);
-		    ss.mergeCells(page, tstxy.hiLimLabel.r, tstxy.unitsLabel.r, tstxy.hiLimLabel.c, tstxy.hiLimLabel.c);
+		    if (merge)
+		    {
+		        ss.mergeCells(page, tstxy.tnameLabel.r, tstxy.unitsLabel.r, tstxy.tnameLabel.c, tstxy.tnameLabel.c);
+		        ss.mergeCells(page, tstxy.tnumLabel.r, tstxy.unitsLabel.r, tstxy.tnumLabel.c, tstxy.tnumLabel.c);
+		        ss.mergeCells(page, tstxy.dupNumLabel.r, tstxy.unitsLabel.r, tstxy.dupNumLabel.c, tstxy.dupNumLabel.c);
+		        ss.mergeCells(page, tstxy.pinLabel.r, tstxy.unitsLabel.r, tstxy.pinLabel.c, tstxy.pinLabel.c);
+	 	        ss.mergeCells(page, tstxy.loLimLabel.r, tstxy.unitsLabel.r, tstxy.loLimLabel.c, tstxy.loLimLabel.c);
+		        ss.mergeCells(page, tstxy.hiLimLabel.r, tstxy.unitsLabel.r, tstxy.hiLimLabel.c, tstxy.hiLimLabel.c);
+		    }
 		    //ss.mergeCells(page, tstxy.unitsLabel.r, tstxy.unitsLabel.r, tstxy.));
 		}
 		else
@@ -72,29 +75,29 @@ public class CornerBlock
 			{
 				ss.setColumnWidth(page, devxy.tstampLabel.c, 15);
 				fixBorders(ss, page, devxy.tstampLabel, devxy.tempLabel.r, HEADER4_FMT);
-			    ss.mergeCells(page, devxy.tstampLabel.r, devxy.tempLabel.r, devxy.tstampLabel.c, devxy.tstampLabel.c);
+			    if (merge) ss.mergeCells(page, devxy.tstampLabel.r, devxy.tempLabel.r, devxy.tstampLabel.c, devxy.tstampLabel.c);
 			}
 			if (onePage)
 			{
 				fixBorders(ss, page, devxy.wafOrStepLabel, devxy.tempLabel.r, HEADER4_FMT);
-				ss.mergeCells(page, devxy.wafOrStepLabel.r, devxy.tempLabel.r, devxy.wafOrStepLabel.c, devxy.wafOrStepLabel.c);
+				if (merge) ss.mergeCells(page, devxy.wafOrStepLabel.r, devxy.tempLabel.r, devxy.wafOrStepLabel.c, devxy.wafOrStepLabel.c);
 			}
 			if (wafersort)
 			{
 				fixBorders(ss, page, devxy.xLabel, devxy.tempLabel.r, HEADER4_FMT);
-				ss.mergeCells(page, devxy.xLabel.r, devxy.tempLabel.r, devxy.xLabel.c, devxy.xLabel.c);
+				if (merge) ss.mergeCells(page, devxy.xLabel.r, devxy.tempLabel.r, devxy.xLabel.c, devxy.xLabel.c);
 			}
 			fixBorders(ss, page, devxy.yOrSnLabel, devxy.tempLabel.r, HEADER4_FMT);
-			ss.mergeCells(page, devxy.yOrSnLabel.r, devxy.tempLabel.r, devxy.yOrSnLabel.c, devxy.yOrSnLabel.c);
+			if (merge) ss.mergeCells(page, devxy.yOrSnLabel.r, devxy.tempLabel.r, devxy.yOrSnLabel.c, devxy.yOrSnLabel.c);
 			fixBorders(ss, page, devxy.hwBinLabel, devxy.tempLabel.r, HEADER4_FMT);
-			ss.mergeCells(page, devxy.hwBinLabel.r, devxy.tempLabel.r, devxy.hwBinLabel.c, devxy.hwBinLabel.c);
+			if (merge) ss.mergeCells(page, devxy.hwBinLabel.r, devxy.tempLabel.r, devxy.hwBinLabel.c, devxy.hwBinLabel.c);
 			fixBorders(ss, page, devxy.swBinLabel, devxy.tempLabel.r, HEADER4_FMT);
-			ss.mergeCells(page, devxy.swBinLabel.r, devxy.tempLabel.r, devxy.swBinLabel.c, devxy.swBinLabel.c);
+			if (merge) ss.mergeCells(page, devxy.swBinLabel.r, devxy.tempLabel.r, devxy.swBinLabel.c, devxy.swBinLabel.c);
 			fixBorders(ss, page, devxy.rsltLabel, devxy.tempLabel.r, HEADER4_FMT);
-		    ss.mergeCells(page, devxy.rsltLabel.r, devxy.tempLabel.r, devxy.rsltLabel.c, devxy.rsltLabel.c);
+		    if (merge) ss.mergeCells(page, devxy.rsltLabel.r, devxy.tempLabel.r, devxy.rsltLabel.c, devxy.rsltLabel.c);
 		    if (!noWrap)
 		    {
-		    	ss.mergeCells(page, tstxy.tnameLabel.r, tstxy.tnumLabel.r-1, tstxy.tnameLabel.c, tstxy.tnameLabel.c);
+		    	if (merge) ss.mergeCells(page, tstxy.tnameLabel.r, tstxy.tnumLabel.r-1, tstxy.tnameLabel.c, tstxy.tnameLabel.c);
 		    }
 		}
 		Format_t cs4r = HEADER4_FMTR;

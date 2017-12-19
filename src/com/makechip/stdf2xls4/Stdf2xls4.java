@@ -116,6 +116,10 @@ package com.makechip.stdf2xls4;
  * 4.2.9 12/4/17
  * Used MIR TEST_TEMP field to set the default temperature in case the datalog does not specify one.
  * Used MIR TEST_COD field to ste the default step in case the datalog does not specify one.
+ * 
+ * 4.3.0 12/19/17
+ * Fixed spreadsheet corruption error caused by multiple cell merges in the header block.
+ * 
  */
 
 import java.io.IOException;
@@ -133,7 +137,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.2.9";
+	public static final String VERSION = "4.3.0";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)
