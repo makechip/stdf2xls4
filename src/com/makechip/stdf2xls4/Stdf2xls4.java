@@ -124,6 +124,9 @@ package com.makechip.stdf2xls4;
  * 
  * 4.3.2 1/8/18
  *  Fix regression where test names cells are not merged.
+ *  
+ * 4.3.3 1/18/18
+ *  Fix another regresion (page title block not correct) introduced in 4.3.0
  * 
  */
 
@@ -142,7 +145,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.3.2";
+	public static final String VERSION = "4.3.3";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)
