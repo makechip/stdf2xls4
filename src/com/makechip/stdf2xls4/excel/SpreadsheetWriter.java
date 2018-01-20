@@ -505,8 +505,11 @@ public final class SpreadsheetWriter
     
     private Map<PageHeader, Boolean> sheetInitMap;
     
+    private boolean new_sheet = false;
+    
     private void openSheet(PageHeader hdr)
     {
+        new_sheet = true;
     	List<DeviceHeader> devs = api.getDeviceHeaders(hdr);
     	List<TestHeader> tests = api.getTestHeaders(hdr);
     	int numElems = options.rotate ? devs.size() : tests.size();
@@ -540,14 +543,15 @@ public final class SpreadsheetWriter
     	        //List<TestHeader> list = getTestHeaders(ws[page]);
         	    List<TestHeader> list = options.rotate ? api.getTestHeaders(hdr) : getTestHeaders(hdr, page);
     	        TitleBlock titleBlock = new TitleBlock(hdr, options.logoFile, sname.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, list);
-    	        titles.put(page, titleBlock);
-    	        if (!sheetInitMap.containsKey(hdr)) titleBlock.addBlock(ss, page);
+    	        //titles.put(page, titleBlock);
+    	        //if (!sheetInitMap.containsKey(hdr)) titleBlock.addBlock(ss, page, new_sheet);
         		if (!checkRegistration(page, LegendBlock.HEIGHT, titleBlock.tstxy.tnameLabel)) 
         		{
         			ss.close(options.xlsName);
         			throw new RuntimeException("Incompatible spreadsheet");
         		}
         	}
+        	new_sheet = false;
         }
     }
         
@@ -557,7 +561,7 @@ public final class SpreadsheetWriter
     	List<TestHeader> list = options.rotate ? api.getTestHeaders(hdr) : getTestHeaders(hdr, page);
     	TitleBlock titleBlock = new TitleBlock(hdr, options.logoFile, name.toString(), api.wafersort(hdr), api.timeStampedFiles, options, numDevices, list);
     	titles.put(page, titleBlock);
-    	titleBlock.addBlock(ss, page);
+    	titleBlock.addBlock(ss, page, new_sheet);
     	sheetInitMap.put(hdr, true);
     }
     
