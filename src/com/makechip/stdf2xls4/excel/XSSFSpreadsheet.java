@@ -221,14 +221,14 @@ public class XSSFSpreadsheet implements Spreadsheet
 		ws[page] = wb.createSheet(name.toString());
 		ws[page].setDefaultRowHeight((short) 255);
 		sheetMap.put(name, ws[page]);
-		dummySheet[page] = wb.createSheet(name.toString() + "_DUMMY");
-		IntStream.range(0, 20).forEach(i ->
-		{
-		    Arrays.stream(Format_t.class.getEnumConstants()).forEach(fmt ->
-		    {
-			    setDummyCell(page, new Coord(i, fmt.ordinal()), fmt, "");
-		    });
-		});
+		//dummySheet[page] = wb.createSheet(name.toString() + "_DUMMY");
+		//IntStream.range(0, 20).forEach(i ->
+		//{
+		//    Arrays.stream(Format_t.class.getEnumConstants()).forEach(fmt ->
+		//    {
+		//	    setDummyCell(page, new Coord(i, fmt.ordinal()), fmt, "");
+		//    });
+		//});
 		createSheetCalled = true;
 	}
 	
