@@ -14,6 +14,7 @@ import com.makechip.stdf2xls4.excel.layout.LogoBlock;
 import com.makechip.stdf2xls4.excel.layout.PageTitleBlock;
 import com.makechip.stdf2xls4.stdfapi.PageHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
+import com.makechip.util.Log;
 
 public class TitleBlock
 {
@@ -54,15 +55,16 @@ public class TitleBlock
 	    return(dh.getRC(testName, tnum, pin, dupNum));
 	}
     
-	public void addBlock(Spreadsheet ss, int page)
+	public void addBlock(Spreadsheet ss, int page, boolean new_sheet)
     {
 	    int mr = ss.getNumMergedCells(page);
+	    Log.msg("mr = " + mr + "  page = " + page);
 		hb.addBlock(ss, page);
-		ptb.addBlock(ss, page, mr == 0);
+		ptb.addBlock(ss, page, (mr == 0) || new_sheet);
 		lb.addBlock(ss, page);
-		logo.addBlock(ss, page, mr == 0);
-		cb.addBlock(ss, page, mr == 0);
-		dh.addBlock(ss, page, mr == 0);
+		logo.addBlock(ss, page, (mr == 0) || new_sheet);
+		cb.addBlock(ss, page, (mr == 0) || new_sheet);
+		dh.addBlock(ss, page, (mr == 0) || new_sheet);
     }
 	
 	public int getWidth()

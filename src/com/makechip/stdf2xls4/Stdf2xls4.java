@@ -128,6 +128,9 @@ package com.makechip.stdf2xls4;
  * 4.3.3 1/18/18
  *  Fix another regresion (page title block not correct) introduced in 4.3.0
  * 
+ * 4.3.4 1/19/18
+ *  Fix another regresion (page title block not correct) introduced in 4.3.0
+ * 
  */
 
 import java.io.IOException;

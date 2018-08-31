@@ -21,7 +21,7 @@ public class PageTitleBlock
     public void addBlock(Spreadsheet ss, int page, boolean merge)
     {
     	ss.setCell(page, new Coord(COL, 0), TITLE_FMT, title);
-    	/* if (merge) */ ss.mergeCells(page, 0, HEIGHT - 1, COL, COL + width - 1);
+    	if (merge) ss.mergeCells(page, 0, HEIGHT - 1, COL, COL + width - 1);
     }
 
 	public int getWidth()
