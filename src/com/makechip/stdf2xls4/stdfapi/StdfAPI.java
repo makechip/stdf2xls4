@@ -331,6 +331,7 @@ public final class StdfAPI
 				records.stream().forEach(r -> hdr.setHeader(r));
 				for(List<StdfRecord> x : list)
 				{
+					Log.msg("record list sie = " + x.size());
 				    List<ValuePair<DefaultValueDatabase, List<StdfRecord>>> l1 = devList.get(hdr.getHeader());
 				    if (l1 == null)
 				    {
@@ -350,6 +351,7 @@ public final class StdfAPI
 		}
 		for (PageHeader p : devList.keySet())
 		{
+			Log.msg("PageHeader = " + p);
 		    List<ValuePair<DefaultValueDatabase, List<StdfRecord>>> l = devList.get(p);
 		    mapTests(options.sort, p, l);
 		}
