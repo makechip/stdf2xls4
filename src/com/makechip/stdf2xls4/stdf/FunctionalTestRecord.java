@@ -31,6 +31,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.FTROptFlag_t;
@@ -148,11 +149,13 @@ public class FunctionalTestRecord extends TestRecord
      * @param data Binary stream data.  This array should not contain
      * the first four bytes of the record.
      */
-    public FunctionalTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public FunctionalTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.FTR);
         int l = 7;
-        testNumber = cpu.getU4(is); 
+        long tmp = cpu.getU4(is);
+        if (options.zeroTnums) testNumber = 0L;
+        else testNumber = tmp;
         headNumber = cpu.getU1(is); 
         siteNumber = cpu.getU1(is); 
         EnumSet<TestFlag_t> s = TestFlag_t.getBits(cpu.getI1(is));
@@ -377,7 +380,8 @@ public class FunctionalTestRecord extends TestRecord
         final String rsltTxt,
         final Short patGenNum,
         final Integer numEnCompBits,
-        final int[] enComps)
+        final int[] enComps,
+        CliOptions options)
     {
     	this(cpu, tdb,
     		 getRecLen(testNumber, headNumber, siteNumber, testFlags, 
@@ -387,7 +391,7 @@ public class FunctionalTestRecord extends TestRecord
     		 new ByteInputStream(toBytes(cpu, testNumber, headNumber, siteNumber, testFlags, 
     		 optFlags, cycleCount, relVaddr, rptCnt, numFail, xFailAddr, yFailAddr, 
     		 vecOffset, rtnIndex, rtnState, pgmIndex, pgmState, numFailPinBits, failPin, vecName, timeSetName, vecOpCode, 
-    		 testName, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, enComps)));
+    		 testName, alarmName, progTxt, rsltTxt, patGenNum, numEnCompBits, enComps)), options);
     }
     
     

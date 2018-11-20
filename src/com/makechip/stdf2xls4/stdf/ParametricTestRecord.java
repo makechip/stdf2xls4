@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -116,9 +117,9 @@ public class ParametricTestRecord extends ParametricRecord
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public ParametricTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public ParametricTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
-    	super(cpu, Record_t.PTR, recLen, is);
+    	super(cpu, Record_t.PTR, recLen, is, options);
     	int l = 8;
     	if (l < recLen)
     	{
@@ -215,7 +216,7 @@ public class ParametricTestRecord extends ParametricRecord
         	l += R4.numBytes;
         }
         else hiSpec = null;
-        if (l != recLen) throw new RuntimeException("Record length error in PTR record: testNumber = " + testNumber);
+        if (l != recLen) throw new RuntimeException("Record length error in PTR record: testNumber = " + testNumber + " l = " + l + " recLen = " + recLen);
     }
     
     /**
@@ -267,14 +268,15 @@ public class ParametricTestRecord extends ParametricRecord
     	    final String llmFmt,
     	    final String hlmFmt,
     	    final Float loSpec,
-    	    final Float hiSpec)
+    	    final Float hiSpec,
+    	    CliOptions options)
     {
     	this(cpu, tdb,
     		 getRecLen(result, testName, alarmName, optFlags, resScal, llmScal, hlmScal, 
     		 loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec),
     		 new ByteInputStream(toBytes(cpu, testNumber, headNumber, 
     		 siteNumber, testFlags, paramFlags, result, testName, alarmName, optFlags, resScal, 
-    		 llmScal, hlmScal, loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec)));
+    		 llmScal, hlmScal, loLimit, hiLimit, units, resFmt, llmFmt, hlmFmt, loSpec, hiSpec)), options);
     }
     
 	@Override

@@ -33,6 +33,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
@@ -127,9 +128,9 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
      */
-    public MultipleResultParametricRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public MultipleResultParametricRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
-        super(cpu, Record_t.MPR, recLen, is);
+        super(cpu, Record_t.MPR, recLen, is, options);
         int l = 8;
         final int j = (l < recLen) ? cpu.getU2(is) : 0;
         l += U2.numBytes;
@@ -321,7 +322,8 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     	    final String llmFmt,
     	    final String hlmFmt,
     	    final Float loSpec,
-    	    final Float hiSpec)
+    	    final Float hiSpec,
+    	    CliOptions options)
     {
     	this(cpu, tdb,
     		 getRecLen(rtnState, results, testName, alarmName, optFlags, resScal, 
@@ -330,7 +332,7 @@ public final class MultipleResultParametricRecord extends ParametricRecord
     		 new ByteInputStream(toBytes(cpu, testNumber, headNumber, siteNumber, testFlags, 
     		         paramFlags, rtnState, results, testName, alarmName, optFlags, 
     		         resScal, llmScal, hlmScal, loLimit, hiLimit, startIn, incrIn, rtnIndex, 
-    		         units, unitsIn, resFmt, llmFmt, hlmFmt, loSpec, hiSpec)));
+    		         units, unitsIn, resFmt, llmFmt, hlmFmt, loSpec, hiSpec)), options);
     }
     
     private static int getRecLen(

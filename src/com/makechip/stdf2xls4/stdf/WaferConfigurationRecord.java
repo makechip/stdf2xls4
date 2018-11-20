@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -74,7 +76,7 @@ public class WaferConfigurationRecord extends StdfRecord
      */
     public final Character posY;
     
-    public WaferConfigurationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public WaferConfigurationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.WCR);
         int l = 0;
@@ -220,11 +222,12 @@ public class WaferConfigurationRecord extends StdfRecord
         Short centerX,
         Short centerY,
         Character posX,
-        Character posY)
+        Character posY,
+        CliOptions options)
     {
 		this(cpu, null, getRecLen(waferSize, dieHeight, dieWidth, units, flatOrient, centerX, centerY, posX, posY),
 			 new ByteInputStream(toBytes(cpu, waferSize, dieHeight, dieWidth, units, 
-				                 flatOrient, centerX, centerY, posX, posY)));
+				                 flatOrient, centerX, centerY, posX, posY)), options);
     }
 
 	/* (non-Javadoc)

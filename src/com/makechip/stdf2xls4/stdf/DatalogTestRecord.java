@@ -30,6 +30,7 @@ import gnu.trove.list.array.TByteArrayList;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -67,7 +68,7 @@ public class DatalogTestRecord extends TestRecord
      * This CTOR is a dummy CTOR that should not be used.  It is included so that
      * the initializer is available to the Record_t.DTRX enum.  It is never actually used.
      */
-    public DatalogTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public DatalogTestRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.DTRX);
         testName = null;
@@ -87,7 +88,7 @@ public class DatalogTestRecord extends TestRecord
      * @param text This field holds the TEXT_DAT field. It must not be null. The
      * maximum length of this String is 255 characters.
      */
-    public DatalogTestRecord(TestIdDatabase tdb, String text)
+    public DatalogTestRecord(TestIdDatabase tdb, String text, CliOptions options)
     {
     	super(Record_t.DTRX);
         StringTokenizer st = new StringTokenizer(text, ":");
@@ -117,7 +118,8 @@ public class DatalogTestRecord extends TestRecord
         }
         siteNumber = sn;
         headNumber = hn;
-        testNumber = new Long(tnum.trim());
+        if (options.zeroTnums) testNumber = 0L;
+        else testNumber = new Long(tnum.trim());
         id = TestID.createTestID(tdb, testNumber, siteNumber, headNumber, testName);
         StringTokenizer st2 = new StringTokenizer(valueUnitsOpt, "\" \t()"); 
         String v = st2.nextToken();

@@ -24,6 +24,7 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -43,7 +44,7 @@ public class EndProgramSectionRecord extends StdfRecord
      * record, the array should have a length of zero because the EndProgramSectionRecord
      * has no data fields.
      */
-    public EndProgramSectionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public EndProgramSectionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.EPS);
     }
@@ -55,9 +56,9 @@ public class EndProgramSectionRecord extends StdfRecord
      * @throws StdfException 
      * @throws IOException 
      */
-    public EndProgramSectionRecord(Cpu_t cpu)
+    public EndProgramSectionRecord(Cpu_t cpu, CliOptions options)
     {
-    	this(cpu, null, 0, null);
+    	this(cpu, null, 0, null, options);
     }
 
 	/* (non-Javadoc)

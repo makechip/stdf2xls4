@@ -130,6 +130,13 @@ package com.makechip.stdf2xls4;
  * 
  * 4.3.4 1/19/18
  *  Fix another regresion (page title block not correct) introduced in 4.3.0
+ *  
+ * 4.3.5
+ * 
+ * 4.3.6
+ * 
+ * 4.3.7 11/14/18 Added -z option to force all test numbers to zero.
+ * Fixed Text record serial number override to work with multiple sites.
  * 
  */
 
@@ -148,7 +155,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.3.6";
+	public static final String VERSION = "4.3.7";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

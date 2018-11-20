@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -74,7 +76,7 @@ public class PartCountRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public PartCountRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public PartCountRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.PCR);
         headNumber = cpu.getU1(is);
@@ -130,11 +132,12 @@ public class PartCountRecord extends StdfRecord
     		Long partsReTested,
     		Long aborts,
     		Long good,
-    		Long functional)
+    		Long functional,
+    		CliOptions options)
     {
     	this(cpu, null,
     		getRecLen(partsReTested, aborts, good, functional),
-    		new ByteInputStream(toBytes(cpu, headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional)));
+    		new ByteInputStream(toBytes(cpu, headNumber, siteNumber, partsTested, partsReTested, aborts, good, functional)), options);
     }
     
 	@Override

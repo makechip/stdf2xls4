@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -68,7 +70,7 @@ public class HardwareBinRecord extends StdfRecord
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public HardwareBinRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public HardwareBinRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.HBR);
         headNumber = cpu.getU1(is);
@@ -111,10 +113,11 @@ public class HardwareBinRecord extends StdfRecord
     	int hwBin, 
     	long binCnt, 
     	Character pf, 
-    	String binName)
+    	String binName,
+    	CliOptions options)
     {
     	this(cpu, null, getRecLen(pf, binName),
-    		 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, hwBin, binCnt, pf, binName)));
+    		 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, hwBin, binCnt, pf, binName)), options);
     }
     
 	/* (non-Javadoc)

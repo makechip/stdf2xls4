@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -52,7 +53,7 @@ public class PinListRecord extends StdfRecord
     public final List<String> pgmChal;
     public final List<String> rtnChal;
     
-    public PinListRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public PinListRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.PLR);
         final int k = cpu.getU2(is);
@@ -207,10 +208,11 @@ public class PinListRecord extends StdfRecord
 	    String[] pgmChar,
 	    String[] rtnChar,
 	    String[] pgmChal,
-	    String[] rtnChal)
+	    String[] rtnChal,
+	    CliOptions options)
 	{
 		this(cpu, null, getRecLen(pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal),
-			new ByteInputStream(toBytes(cpu, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal)));
+			new ByteInputStream(toBytes(cpu, pinIndex, mode, radix, pgmChar, rtnChar, pgmChal, rtnChal)), options);
 	}
 
 	/* (non-Javadoc)

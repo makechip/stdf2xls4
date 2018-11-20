@@ -14,6 +14,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
@@ -30,75 +31,77 @@ public class StdfTest1
     static StdfWriter stdf;
     static List<StdfRecord> list;
     static StdfReader rdr;
+    static CliOptions options;
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
+	    options = new CliOptions(new String[0]);
 		TestIdDatabase tdb = new TestIdDatabase();
-		FileAttributesRecord far = new FileAttributesRecord(cpu, 4);
+		FileAttributesRecord far = new FileAttributesRecord(cpu, 4, options);
 		List<AuditTrailRecord> atrs = new ArrayList<AuditTrailRecord>();
-		atrs.add(new AuditTrailRecord(cpu, 100000000L, "cmdline"));
+		atrs.add(new AuditTrailRecord(cpu, 100000000L, "cmdline", options));
 		MasterInformationRecord mir = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID",
 			"partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  "sublotID", "operatorName",
 			"execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", "auxDataFile",
 			"packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
 			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber",
-			"supervisorID");
-		RetestDataRecord srdr = new RetestDataRecord(cpu, new int[] { 1, 2, 3, 4 });
+			"supervisorID", options);
+		RetestDataRecord srdr = new RetestDataRecord(cpu, new int[] { 1, 2, 3, 4 }, options);
 		List<SiteDescriptionRecord> sdrs = new ArrayList<SiteDescriptionRecord>();
 		sdrs.add(new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 },
 			"handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID",
 			"dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID",
-			"laserType", "laserID", "equipType", "equipID"));
+			"laserType", "laserID", "equipType", "equipID", options));
 		stdf = new StdfWriter(cpu, far, atrs, mir, srdr, sdrs);
-		stdf.add(new PinMapRecord(cpu, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(cpu, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(cpu, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0));
-		stdf.add(new PinMapRecord(cpu, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0));
-		stdf.add(new BeginProgramSectionRecord(cpu, "beginProgramSectionRecord"));
-		stdf.add(new DatalogTextRecord(cpu, "datalogTextRecord"));
+		stdf.add(new PinMapRecord(cpu, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0, options));
+		stdf.add(new PinMapRecord(cpu, 1, 3, "channelName1", "physicalPinName1", "logicalPinName1", (short) 1, (short) 0, options));
+		stdf.add(new PinMapRecord(cpu, 2, 3, "channelName2", "physicalPinName2", "logicalPinName2", (short) 1, (short) 0, options));
+		stdf.add(new PinMapRecord(cpu, 3, 3, "channelName3", "physicalPinName3", "logicalPinName3", (short) 1, (short) 0, options));
+		stdf.add(new BeginProgramSectionRecord(cpu, "beginProgramSectionRecord", options));
+		stdf.add(new DatalogTextRecord(cpu, "datalogTextRecord", options));
 		stdf.add(new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 0,
 			(byte) 0, 1234L, 111L, 222L, 55L, 4, 5, (short) 6, new int[] { 1, 2, 3, 4 },
 			new int[] { 0x03, 0x0C, 1, 0x08 }, new int[] { 3, 4, 5, 6 },
 			new int[] { 0x0C, 0x03, 0x08, 1 }, 32, new int[] { 3, 2, 1, 0 },
 			"vecName", "timeSetName", "vecOpCode", "label", "alarmName", "progTxt", "rsltTxt", (short) 5,  24,
-			new int[] { 6, 7, 8 }));
+			new int[] { 6, 7, 8 }, options));
 		GenericDataRecord.Data d1 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.I4, 0), new Integer(33));
 		GenericDataRecord.Data d2 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.R8, 0), new Double(44.0));
 		List<GenericDataRecord.Data> lgd = new ArrayList<GenericDataRecord.Data>(); 
 		lgd.add(d1);
 		lgd.add(d2);
 		stdf.add(new GenericDataRecord(lgd));
-		stdf.add(new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 10L, 'P', "binName"));
-		stdf.add(new MasterResultsRecord(cpu, 1000L, 'C', "lotDesc", "execDesc"));
+		stdf.add(new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 10L, 'P', "binName", options));
+		stdf.add(new MasterResultsRecord(cpu, 1000L, 'C', "lotDesc", "execDesc", options));
 		stdf.add(new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f));
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options));
 		stdf.add(new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, (byte) 0,
 			(byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class),
-			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f));
-		stdf.add(new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L));
-		stdf.add(new PartInformationRecord(cpu, (short) 1, (short) 0));
+			(byte) 1, (byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options));
+		stdf.add(new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L, options));
+		stdf.add(new PartInformationRecord(cpu, (short) 1, (short) 0, options));
 		stdf.add(new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			10L, "partID", "partDescription", new int[] { 0, 1, 2 }));
-		stdf.add(new PinGroupRecord(cpu, 1, "group1", new int[] { 1, 2, }));
+			10L, "partID", "partDescription", new int[] { 0, 1, 2 }, options));
+		stdf.add(new PinGroupRecord(cpu, 1, "group1", new int[] { 1, 2, }, options));
 		stdf.add(new PinListRecord(cpu, new int[] { 1, 2 }, new int[] { 3, 4 }, new int[] { 2, 2 }, 
-			new String[] { "a", "b" }, new String[] { "c", "d" }, new String[] { "e", "f" }, new String[] { "g", "h" }));
-		stdf.add(new SoftwareBinRecord(cpu, (short) 1, (short) 0, 5, 45, 'F', "binName"));
+			new String[] { "a", "b" }, new String[] { "c", "d" }, new String[] { "e", "f" }, new String[] { "g", "h" }, options));
+		stdf.add(new SoftwareBinRecord(cpu, (short) 1, (short) 0, 5, 45, 'F', "binName", options));
 	    stdf.add(new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	"sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f));	
-	    stdf.add(new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5'));
-	    stdf.add(new WaferInformationRecord(cpu, (short) 1, (short) 0, 1000L, "waferID"));
+	    	"sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options));	
+	    stdf.add(new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5', options));
+	    stdf.add(new WaferInformationRecord(cpu, (short) 1, (short) 0, 1000L, "waferID", options));
 		stdf.add(new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc"));
-		stdf.add(new EndProgramSectionRecord(cpu));
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options));
+		stdf.add(new EndProgramSectionRecord(cpu, options));
 		stdf.add(new FunctionalTestRecord(cpu, tdb, 3L, (short) 2, (short) 1, (byte) 0, null, null, null, null,
 				                          null, null, null, null, null, null, null, null, null, null,
-				                          null, null, null, null, null, null, null, null, null, null));
+				                          null, null, null, null, null, null, null, null, null, null, options));
 		GenericDataRecord.Data d3 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U1, 0), new Short((short)33));
 		GenericDataRecord.Data d4 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U2, 0), new Integer(33));
 		GenericDataRecord.Data d5 = new GenericDataRecord.Data(new GenericDataRecord.PadData(Data_t.U4, 0), new Long(33L));
@@ -115,7 +118,7 @@ public class StdfTest1
 		lgd2.add(d8);
 		lgd2.add(d9);
 		stdf.add(new GenericDataRecord(lgd2));
-		stdf.add(new DatalogTextRecord(cpu, "TEXT_DATA : S/N : 30"));
+		stdf.add(new DatalogTextRecord(cpu, "TEXT_DATA : S/N : 30", options));
 		Path p = FileSystems.getDefault().getPath("x.stdf");
 		try (DataOutputStream os = new DataOutputStream(new FileOutputStream(p.toFile())))
 		{
@@ -126,7 +129,7 @@ public class StdfTest1
 		rdr = new StdfReader();
 		byte[] b = stdf.getBytes();
 		tdb.clearIdDups();
-		rdr.read(tdb, new ArrayList<Modifier>(), new ByteInputStream(b));
+		rdr.read(tdb, new ArrayList<Modifier>(), new ByteInputStream(b), options);
 		list = rdr.getRecords();
         //Files.delete(p);
 	}
@@ -154,14 +157,14 @@ public class StdfTest1
 	    FileAttributesRecord far = (FileAttributesRecord) r;
 	    assertEquals(Cpu_t.PC, far.cpuType);
 	    assertEquals(4, far.stdfVersion);
-	    FileAttributesRecord far1 = new FileAttributesRecord(Cpu_t.VAX, 4);
+	    FileAttributesRecord far1 = new FileAttributesRecord(Cpu_t.VAX, 4, options);
 	    assertFalse(far.equals(far1));
-	    FileAttributesRecord far2 = new FileAttributesRecord(Cpu_t.PC, 4);
+	    FileAttributesRecord far2 = new FileAttributesRecord(Cpu_t.PC, 4, options);
 	    assertTrue(far.equals(far2));
 	    assertTrue(far.equals(far));
 	    assertFalse(far.equals("A"));
 	    assertEquals(far.hashCode(), far2.hashCode());
-	    FileAttributesRecord far3 = new FileAttributesRecord(Cpu_t.PC, 5);
+	    FileAttributesRecord far3 = new FileAttributesRecord(Cpu_t.PC, 5, options);
 	    assertFalse(far.equals(far3));
     }
     
@@ -174,9 +177,9 @@ public class StdfTest1
         AuditTrailRecord atr = (AuditTrailRecord) r;
         assertEquals(100000000L, atr.date);
         assertEquals("cmdline", atr.cmdLine);
-		AuditTrailRecord atr1 = new AuditTrailRecord(Cpu_t.PC, 100000000L, "cmdline");
-		AuditTrailRecord atr2 = new AuditTrailRecord(Cpu_t.PC, 100000000L, "xmdline");
-		AuditTrailRecord atr3 = new AuditTrailRecord(Cpu_t.PC, 100000001L, "cmdline");
+		AuditTrailRecord atr1 = new AuditTrailRecord(Cpu_t.PC, 100000000L, "cmdline", options);
+		AuditTrailRecord atr2 = new AuditTrailRecord(Cpu_t.PC, 100000000L, "xmdline", options);
+		AuditTrailRecord atr3 = new AuditTrailRecord(Cpu_t.PC, 100000001L, "cmdline", options);
 		assertEquals(atr.hashCode(), atr1.hashCode());
 		assertTrue(atr.equals(atr1));
 		assertFalse(atr.equals(atr2));
@@ -242,197 +245,197 @@ public class StdfTest1
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mir2 = new MasterInformationRecord(cpu, 1001L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mir3 = new MasterInformationRecord(cpu, 1000L, 2001L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mir4 = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 0,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mir5 = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'a', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mir6 = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'b', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mir7 = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'b', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mir8 = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 101, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mir9 = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'r', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mira = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "rotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirb = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "rartType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirc = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "rodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mird = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "resterType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mire = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "robName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirf = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "robRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirg = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"rublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirh = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "rperatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord miri = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "rxecSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirj = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "rxecSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirk = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "rtepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirl = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "remperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirm = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "rserText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirn = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"ruxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord miro = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "rackageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirp = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "ramilyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirq = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "rateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirr = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "racilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirs = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "rloorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirt = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","rabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord miru = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "rrequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirv = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "rpecName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirw = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"rpecVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"rpecVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirx = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "rlowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "rlowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord miry = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "retupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "retupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirz = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "resignRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "resignRevision", "engLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirA = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "rngLotID", "romCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "rngLotID", "romCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirB = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "xomCodeID", "testerSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "xomCodeID", "testerSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirC = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "resterSerialNumber", "supervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "resterSerialNumber", "supervisorID", options);
 		MasterInformationRecord mirD = new MasterInformationRecord(cpu, 1000L, 2000L, (short) 1,
 			'A', 'B', 'C', 100, 'D', "lotID", "partType", "nodeName", "testerType", "jobName", "jobRevisionNumber",  
 			"sublotID", "operatorName", "execSoftware", "execSoftwareVersion", "stepCode", "temperature", "userText", 
 			"auxDataFile", "packageType", "familyID", "dateCode", "facilityID", "floorID","fabID", "frequency", "specName",
-			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "rupervisorID");
+			"specVersion", "flowID", "setupID", "designRevision", "engLotID", "romCodeID", "testerSerialNumber", "rupervisorID", options);
 		assertEquals(mir1.hashCode(), mir.hashCode());
 		assertTrue(mir.equals(mir1));
 		assertTrue(mir.equals(mir));
@@ -490,8 +493,8 @@ public class StdfTest1
 		assertEquals(2, bins[1]);
 		assertEquals(3, bins[2]);
 		assertEquals(4, bins[3]);
-		RetestDataRecord rdr1 = new RetestDataRecord(cpu, new int[] { 1, 2, 3, 4 });
-		RetestDataRecord rdr2 = new RetestDataRecord(cpu, new int[] { 0, 2, 3, 4 });
+		RetestDataRecord rdr1 = new RetestDataRecord(cpu, new int[] { 1, 2, 3, 4 }, options);
+		RetestDataRecord rdr2 = new RetestDataRecord(cpu, new int[] { 0, 2, 3, 4 }, options);
 	    assertTrue(rdr.equals(rdr));	
 	    assertTrue(rdr.equals(rdr1));	
 	    assertEquals(rdr.hashCode(), rdr1.hashCode());
@@ -532,26 +535,26 @@ public class StdfTest1
 		assertEquals("laserID", sdr.laserID);
 		assertEquals("equipType", sdr.equipType);
 		assertEquals("equipID", sdr.equipID);
-		SiteDescriptionRecord sdr1 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr2 = new SiteDescriptionRecord(cpu, (short) 0, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr3 = new SiteDescriptionRecord(cpu, (short) 1, (short) 0, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr4 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 1 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr5 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "xandlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr6 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "xandlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr7 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "xrobeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr8 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "xrobeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdr9 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "xoadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdra = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "xoadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrb = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "xibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrc = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "xibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrd = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "xfaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdre = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "xfaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrf = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "xontactorType", "contactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrg = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "xontactorID", "laserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrh = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "xaserType", "laserID", "equipType", "equipID");
-		SiteDescriptionRecord sdri = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "xaserID", "equipType", "equipID");
-		SiteDescriptionRecord sdrj = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "xquipType", "equipID");
-		SiteDescriptionRecord sdrk = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "xquipID");
+		SiteDescriptionRecord sdr1 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdr2 = new SiteDescriptionRecord(cpu, (short) 0, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdr3 = new SiteDescriptionRecord(cpu, (short) 1, (short) 0, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdr4 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 1 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdr5 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "xandlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdr6 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "xandlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdr7 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "xrobeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdr8 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "xrobeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdr9 = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "xoadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdra = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "xoadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdrb = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "xibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdrc = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "xibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdrd = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "xfaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdre = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "xfaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdrf = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "xontactorType", "contactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdrg = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "xontactorID", "laserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdrh = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "xaserType", "laserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdri = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "xaserID", "equipType", "equipID", options);
+		SiteDescriptionRecord sdrj = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "xquipType", "equipID", options);
+		SiteDescriptionRecord sdrk = new SiteDescriptionRecord(cpu, (short) 1, (short) 2, new int[] { 0 }, "handlerType", "handlerID", "probeCardType", "probeCardID", "loadboardType", "loadboardID", "dibBoardType", "dibBoardID", "ifaceCableType", "ifaceCableID", "contactorType", "contactorID", "laserType", "laserID", "equipType", "xquipID", options);
 		assertTrue(sdr.equals(sdr));
 		assertTrue(sdr.equals(sdr1));
 		assertEquals(sdr.hashCode(), sdr1.hashCode());
@@ -646,14 +649,14 @@ public class StdfTest1
 	    assertEquals("logicalPinName3", pmr.logicalPinName);
 	    assertEquals(1, pmr.headNumber.shortValue());
 	    assertEquals(0, pmr.siteNumber.shortValue());
-		PinMapRecord pmr2 = new PinMapRecord(cpu, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0);
-		PinMapRecord pmr3 = new PinMapRecord(cpu, 1, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0);
-		PinMapRecord pmr4 = new PinMapRecord(cpu, 0, 2, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0);
-		PinMapRecord pmr5 = new PinMapRecord(cpu, 0, 3, "xhannelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0);
-		PinMapRecord pmr6 = new PinMapRecord(cpu, 0, 3, "channelName0", "xhysicalPinName0", "logicalPinName0", (short) 1, (short) 0);
-		PinMapRecord pmr7 = new PinMapRecord(cpu, 0, 3, "channelName0", "physicalPinName0", "xogicalPinName0", (short) 1, (short) 0);
-		PinMapRecord pmr8 = new PinMapRecord(cpu, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 0, (short) 0);
-		PinMapRecord pmr9 = new PinMapRecord(cpu, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 1);
+		PinMapRecord pmr2 = new PinMapRecord(cpu, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0, options);
+		PinMapRecord pmr3 = new PinMapRecord(cpu, 1, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0, options);
+		PinMapRecord pmr4 = new PinMapRecord(cpu, 0, 2, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0, options);
+		PinMapRecord pmr5 = new PinMapRecord(cpu, 0, 3, "xhannelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 0, options);
+		PinMapRecord pmr6 = new PinMapRecord(cpu, 0, 3, "channelName0", "xhysicalPinName0", "logicalPinName0", (short) 1, (short) 0, options);
+		PinMapRecord pmr7 = new PinMapRecord(cpu, 0, 3, "channelName0", "physicalPinName0", "xogicalPinName0", (short) 1, (short) 0, options);
+		PinMapRecord pmr8 = new PinMapRecord(cpu, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 0, (short) 0, options);
+		PinMapRecord pmr9 = new PinMapRecord(cpu, 0, 3, "channelName0", "physicalPinName0", "logicalPinName0", (short) 1, (short) 1, options);
 		assertTrue(pmr2.equals(pmr1));
 		assertEquals(pmr1.hashCode(), pmr2.hashCode());
 		assertTrue(pmr1.equals(pmr1));
@@ -685,8 +688,8 @@ public class StdfTest1
 	    assertTrue(r instanceof BeginProgramSectionRecord);
 	    BeginProgramSectionRecord bpr = (BeginProgramSectionRecord) r;
 	    assertEquals("beginProgramSectionRecord", bpr.seqName);
-		BeginProgramSectionRecord bpr1 = new BeginProgramSectionRecord(cpu, "beginProgramSectionRecord");
-		BeginProgramSectionRecord bpr2 = new BeginProgramSectionRecord(cpu, "beginProgramSection");
+		BeginProgramSectionRecord bpr1 = new BeginProgramSectionRecord(cpu, "beginProgramSectionRecord", options);
+		BeginProgramSectionRecord bpr2 = new BeginProgramSectionRecord(cpu, "beginProgramSection", options);
         assertEquals(bpr, bpr1);
         assertEquals(bpr.hashCode(), bpr1.hashCode());
         assertTrue(bpr.equals(bpr1));
@@ -704,8 +707,8 @@ public class StdfTest1
 		assertTrue(r instanceof DatalogTextRecord);
 		DatalogTextRecord dtr = (DatalogTextRecord) r;
 		assertEquals("datalogTextRecord", dtr.text);
-		DatalogTextRecord dtr1 = new DatalogTextRecord(cpu, "datalogTextRecord");
-		DatalogTextRecord dtr2 = new DatalogTextRecord(cpu, "TEXT_DATA : 55.0");
+		DatalogTextRecord dtr1 = new DatalogTextRecord(cpu, "datalogTextRecord", options);
+		DatalogTextRecord dtr2 = new DatalogTextRecord(cpu, "TEXT_DATA : 55.0", options);
 		assertTrue(dtr.equals(dtr));
 		assertTrue(dtr.equals(dtr1));
 		assertFalse(dtr1.equals(dtr2));
@@ -897,13 +900,13 @@ public class StdfTest1
 		assertEquals(10L, hbr.binCnt);
 		assertEquals('P', hbr.pf.charValue());
 		assertEquals("binName", hbr.binName);
-		HardwareBinRecord hbr1 = new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 10L, 'P', "binName");
-		HardwareBinRecord hbr2 = new HardwareBinRecord(cpu, (short) 0, (short) 0, 1, 10L, 'P', "binName");
-		HardwareBinRecord hbr3 = new HardwareBinRecord(cpu, (short) 1, (short) 1, 1, 10L, 'P', "binName");
-		HardwareBinRecord hbr4 = new HardwareBinRecord(cpu, (short) 1, (short) 0, 2, 10L, 'P', "binName");
-		HardwareBinRecord hbr5 = new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 11L, 'P', "binName");
-		HardwareBinRecord hbr6 = new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 10L, 'F', "binName");
-		HardwareBinRecord hbr7 = new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 10L, 'P', "pinName");
+		HardwareBinRecord hbr1 = new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 10L, 'P', "binName", options);
+		HardwareBinRecord hbr2 = new HardwareBinRecord(cpu, (short) 0, (short) 0, 1, 10L, 'P', "binName", options);
+		HardwareBinRecord hbr3 = new HardwareBinRecord(cpu, (short) 1, (short) 1, 1, 10L, 'P', "binName", options);
+		HardwareBinRecord hbr4 = new HardwareBinRecord(cpu, (short) 1, (short) 0, 2, 10L, 'P', "binName", options);
+		HardwareBinRecord hbr5 = new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 11L, 'P', "binName", options);
+		HardwareBinRecord hbr6 = new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 10L, 'F', "binName", options);
+		HardwareBinRecord hbr7 = new HardwareBinRecord(cpu, (short) 1, (short) 0, 1, 10L, 'P', "pinName", options);
 		assertTrue(hbr.equals(hbr1));
 		assertFalse(hbr.equals(null));
 		assertFalse(hbr.equals("A"));
@@ -929,11 +932,11 @@ public class StdfTest1
 		assertEquals("lotDesc", mrr.lotDesc);
 		assertEquals("execDesc", mrr.execDesc);
 
-		MasterResultsRecord mrr1 = new MasterResultsRecord(cpu, 1000L, 'C', "lotDesc", "execDesc");
-		MasterResultsRecord mrr2 = new MasterResultsRecord(cpu, 1000L, 'D', "lotDesc", "execDesc");
-		MasterResultsRecord mrr3 = new MasterResultsRecord(cpu, 1000L, 'C', "", "execDesc");
-		MasterResultsRecord mrr4 = new MasterResultsRecord(cpu, 1000L, 'C', "lotDesc", "");
-		MasterResultsRecord mrr5 = new MasterResultsRecord(cpu, 1100L, 'C', "lotDesc", "execDesc");
+		MasterResultsRecord mrr1 = new MasterResultsRecord(cpu, 1000L, 'C', "lotDesc", "execDesc", options);
+		MasterResultsRecord mrr2 = new MasterResultsRecord(cpu, 1000L, 'D', "lotDesc", "execDesc", options);
+		MasterResultsRecord mrr3 = new MasterResultsRecord(cpu, 1000L, 'C', "", "execDesc", options);
+		MasterResultsRecord mrr4 = new MasterResultsRecord(cpu, 1000L, 'C', "lotDesc", "", options);
+		MasterResultsRecord mrr5 = new MasterResultsRecord(cpu, 1100L, 'C', "lotDesc", "execDesc", options);
 		assertTrue(mrr.equals(mrr));
 		assertTrue(mrr.equals(mrr1));
 		assertEquals(mrr.hashCode(), mrr1.hashCode());
@@ -989,132 +992,132 @@ public class StdfTest1
 		MultipleResultParametricRecord mpr1 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr2 = new MultipleResultParametricRecord(cpu, tdb, 23L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr3 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 2, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr4 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 1, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr5 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 1, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr6 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 1, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr7 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 2, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr8 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.3f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr9 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"xext", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr10 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "xlarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr11 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.NO_LO_LIMIT), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr12 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr13 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 2, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr14 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 3, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr15 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 2.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr16 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 4.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr17 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			1.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			1.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr18 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 2.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 2.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr19 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, //
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 1, 2 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 1, 2 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr20 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "xnits", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "xnits", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr21 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "xnitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "xnitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr22 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "xesFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "xesFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr23 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "xlmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "xlmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr24 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "xlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "xlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr25 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 4.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 4.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr26 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f,
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 5.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 5.0f, options);
 		tdb.clearIdDups();
 		assertTrue(mpr.equals(mpr));
 		assertTrue(mpr.equals(mpr1));
@@ -1156,17 +1159,17 @@ public class StdfTest1
 		MultipleResultParametricRecord mpr41 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.NO_HI_LIMIT), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr51 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		tdb.clearIdDups();
 		MultipleResultParametricRecord mpr61 = new MultipleResultParametricRecord(cpu, tdb, 22L, (short) 1, 
 				(short) 0, (byte) 0, (byte) 0, new int[] { 1, 2 }, new float[] { 1.0f, 2.0f, 3.0f, 4.0f },
 			"text", "alarmName", EnumSet.of(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID), (byte) 0, (byte) 1, (byte) 2, 1.0f, 3.0f, // dddd
-			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f);
+			0.0f, 0.0f, new int[] { 0, 1 }, "units", "unitsIn", "resFmt", "llmFmt", "hlmFmt", 3.0f, 4.0f, options);
 		assertEquals(null, mpr11.getLoLimit());
 		assertEquals(null, mpr41.getHiLimit());
 		assertEquals(null, mpr51.getLoLimit());
@@ -1213,7 +1216,7 @@ public class StdfTest1
         TestIdDatabase tdb = new TestIdDatabase();
 		ParametricTestRecord ptr1 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		assertTrue(ptr.equals(ptr));
 		assertTrue(ptr.equals(ptr1));
 		assertEquals(ptr.hashCode(), ptr1.hashCode());
@@ -1243,19 +1246,19 @@ public class StdfTest1
 		tdb.clearIdDups();
 		ParametricTestRecord ptr2 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.NO_LO_LIMIT), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr3 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.NO_HI_LIMIT), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr4 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.LO_LIMIT_LLM_SCAL_INVALID), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr5 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.HI_LIMIT_HLM_SCAL_INVALID), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		assertFalse(ptr.equals(ptr2));
 		assertEquals("alarmName", ptr.getAlarmName());
 		assertEquals((byte) 1, ptr.getResScal().byteValue());
@@ -1273,59 +1276,59 @@ public class StdfTest1
 		tdb.clearIdDups();
 		ParametricTestRecord ptr10 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "xlarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr11 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 11.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 11.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr12 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.1f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.1f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr13 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "xlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "xlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr14 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 4, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 4, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr15 = new ParametricTestRecord(cpu, tdb, 54L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr16 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "xlmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "xlmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr17 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 1, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 1, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr18 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.1f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.1f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr19 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.of(OptFlag_t.NO_LO_SPEC_LIMIT), (byte) 1,  // set OPT flags
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr20 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "xesFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "xesFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr21 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.6f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr22 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 1, 
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "xnits", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "xnits", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		tdb.clearIdDups();
 		ParametricTestRecord ptr23 = new ParametricTestRecord(cpu, tdb, 44L, (short) 1, (short) 0, 
 			(byte) 0, (byte) 0, 5.5f, "text", "alarmName", EnumSet.noneOf(OptFlag_t.class), (byte) 9,  // set OPT flags
-			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f);
+			(byte) 2, (byte) 3, 1.0f, 10.0f, "units", "resFmt", "llmFmt", "hlmFmt", 1.0f, 2.0f, options);
 		assertFalse(ptr.equals(ptr10));
 		assertFalse(ptr.equals(ptr11));
 		assertFalse(ptr.equals(ptr12));
@@ -1356,14 +1359,14 @@ public class StdfTest1
         assertEquals(0L, ptr.aborts.longValue()); 
         assertEquals(2L, ptr.good.longValue()); 
         assertEquals(1L, ptr.functional.longValue()); 
-		PartCountRecord ptr1 = new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L);
-		PartCountRecord ptr2 = new PartCountRecord(cpu, (short) 0, (short) 0, 2L, 1L, 0L, 2L, 1L);
-		PartCountRecord ptr3 = new PartCountRecord(cpu, (short) 1, (short) 1, 2L, 1L, 0L, 2L, 1L);
-		PartCountRecord ptr4 = new PartCountRecord(cpu, (short) 1, (short) 0, 1L, 1L, 0L, 2L, 1L);
-		PartCountRecord ptr5 = new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 0L, 0L, 2L, 1L);
-		PartCountRecord ptr6 = new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 1L, 2L, 1L);
-		PartCountRecord ptr7 = new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 0L, 1L, 1L);
-		PartCountRecord ptr8 = new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 0L);
+		PartCountRecord ptr1 = new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 1L, options);
+		PartCountRecord ptr2 = new PartCountRecord(cpu, (short) 0, (short) 0, 2L, 1L, 0L, 2L, 1L, options);
+		PartCountRecord ptr3 = new PartCountRecord(cpu, (short) 1, (short) 1, 2L, 1L, 0L, 2L, 1L, options);
+		PartCountRecord ptr4 = new PartCountRecord(cpu, (short) 1, (short) 0, 1L, 1L, 0L, 2L, 1L, options);
+		PartCountRecord ptr5 = new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 0L, 0L, 2L, 1L, options);
+		PartCountRecord ptr6 = new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 1L, 2L, 1L, options);
+		PartCountRecord ptr7 = new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 0L, 1L, 1L, options);
+		PartCountRecord ptr8 = new PartCountRecord(cpu, (short) 1, (short) 0, 2L, 1L, 0L, 2L, 0L, options);
 		assertTrue(ptr.equals(ptr));
 		assertTrue(ptr.equals(ptr1));
 		assertEquals(ptr.hashCode(), ptr1.hashCode());
@@ -1396,9 +1399,9 @@ public class StdfTest1
 		PartInformationRecord ptr = (PartInformationRecord) r;
 		assertEquals(1, ptr.headNumber);
 		assertEquals(0, ptr.siteNumber);
-		PartInformationRecord ptr1 = new PartInformationRecord(cpu, (short) 1, (short) 0);
-		PartInformationRecord ptr2 = new PartInformationRecord(cpu, (short) 0, (short) 0);
-		PartInformationRecord ptr3 = new PartInformationRecord(cpu, (short) 1, (short) 1);
+		PartInformationRecord ptr1 = new PartInformationRecord(cpu, (short) 1, (short) 0, options);
+		PartInformationRecord ptr2 = new PartInformationRecord(cpu, (short) 0, (short) 0, options);
+		PartInformationRecord ptr3 = new PartInformationRecord(cpu, (short) 1, (short) 1, options);
 		assertTrue(ptr.equals(ptr));
 		assertTrue(ptr.equals(ptr1));
 		assertEquals(ptr.hashCode(), ptr1.hashCode());
@@ -1435,31 +1438,31 @@ public class StdfTest1
 		assertEquals(1, ptr.repair.get(1));
 		assertEquals(2, ptr.repair.get(2));
 		PartResultsRecord ptr1 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptr2 = new PartResultsRecord(cpu, (short) 0, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptr3 = new PartResultsRecord(cpu, (short) 1, (short) 1, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptr4 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 1, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptr5 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 2, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptr6 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 3, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptr7 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 4, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptr8 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 0, (short) 2,
-			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptr9 = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 1,
-			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptra = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          11L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          11L, "partID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptrb = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "xartID", "partDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "xartID", "partDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptrc = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "xartDescription", new int[] { 0, (byte) 1, 2 });
+			                                          10L, "partID", "xartDescription", new int[] { 0, (byte) 1, 2 }, options);
 		PartResultsRecord ptrd = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 0, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "partID", "partDescription", new int[] { 1, (byte) 1, 2 });
+			                                          10L, "partID", "partDescription", new int[] { 1, (byte) 1, 2 }, options);
 		assertTrue(ptr.equals(ptr));
 		assertTrue(ptr.equals(ptr1));
 		assertEquals(ptr.hashCode(), ptr1.hashCode());
@@ -1492,7 +1495,7 @@ public class StdfTest1
 		assertFalse(ptr1.equals(ptrc));
 		assertFalse(ptr1.equals(ptrd));
 		PartResultsRecord ptre = new PartResultsRecord(cpu, (short) 1, (short) 0, (byte) 28, 1, 2, 3, (short) 1, (short) 2,
-			                                          10L, "", "partDescription", new int[] { 1, 1, 2 });
+			                                          10L, "", "partDescription", new int[] { 1, 1, 2 }, options);
 		assertFalse(ptr.abnormalEOT());
 		assertFalse(ptr.failed());
 		assertFalse(ptr.noPassFailIndication());
@@ -1513,10 +1516,10 @@ public class StdfTest1
 		assertEquals(idx.length, 2);
 		assertEquals(idx[0], 1);
 		assertEquals(idx[1], 2);
-		PinGroupRecord pgr1 = new PinGroupRecord(cpu, 1, "group1", new int[] { 1, 2, });
-		PinGroupRecord pgr2 = new PinGroupRecord(cpu, 0, "group1", new int[] { 1, 2, });
-		PinGroupRecord pgr3 = new PinGroupRecord(cpu, 1, "xroup1", new int[] { 1, 2, });
-		PinGroupRecord pgr4 = new PinGroupRecord(cpu, 1, "group1", new int[] { 0, 2, });
+		PinGroupRecord pgr1 = new PinGroupRecord(cpu, 1, "group1", new int[] { 1, 2, }, options);
+		PinGroupRecord pgr2 = new PinGroupRecord(cpu, 0, "group1", new int[] { 1, 2, }, options);
+		PinGroupRecord pgr3 = new PinGroupRecord(cpu, 1, "xroup1", new int[] { 1, 2, }, options);
+		PinGroupRecord pgr4 = new PinGroupRecord(cpu, 1, "group1", new int[] { 0, 2, }, options);
 		assertEquals(pgr.hashCode(), pgr1.hashCode());
 		assertTrue(pgr.equals(pgr));
 		assertTrue(pgr.equals(pgr1));
@@ -1557,35 +1560,35 @@ public class StdfTest1
 		PinListRecord ptr1 = new PinListRecord(cpu, new int[] { 1, 2 }, new int[] { 3, 4 }, 
 				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
 				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
-				                               new String[] { "g", "h" });
+				                               new String[] { "g", "h" }, options);
 		PinListRecord ptr2 = new PinListRecord(cpu, new int[] { 0, 2 }, new int[] { 3, 4 }, 
 				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
 				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
-				                               new String[] { "g", "h" });
+				                               new String[] { "g", "h" }, options);
 		PinListRecord ptr3 = new PinListRecord(cpu, new int[] { 1, 2 }, new int[] { 1, 4 }, 
 				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
 				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
-				                               new String[] { "g", "h" });
+				                               new String[] { "g", "h" }, options);
 		PinListRecord ptr4 = new PinListRecord(cpu, new int[] { 1, 2 }, new int[] { 3, 4 }, 
 				                               new int[] { 1, 2 }, new String[] { "a", "b" }, 
 				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
-				                               new String[] { "g", "h" });
+				                               new String[] { "g", "h" }, options);
 		PinListRecord ptr5 = new PinListRecord(cpu, new int[] { 1, 2 }, new int[] { 3, 4 }, 
 				                               new int[] { 2, 2 }, new String[] { "b", "b" }, 
 				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
-				                               new String[] { "g", "h" });
+				                               new String[] { "g", "h" }, options);
 		PinListRecord ptr6 = new PinListRecord(cpu, new int[] { 1, 2 }, new int[] { 3, 4 }, 
 				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
 				                               new String[] { "b", "d" }, new String[] { "e", "f" }, 
-				                               new String[] { "g", "h" });
+				                               new String[] { "g", "h" }, options);
 		PinListRecord ptr7 = new PinListRecord(cpu, new int[] { 1, 2 }, new int[] { 3, 4 }, 
 				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
 				                               new String[] { "c", "d" }, new String[] { "b", "f" }, 
-				                               new String[] { "g", "h" });
+				                               new String[] { "g", "h" }, options);
 		PinListRecord ptr8 = new PinListRecord(cpu, new int[] { 1, 2 }, new int[] { 3, 4 }, 
 				                               new int[] { 2, 2 }, new String[] { "a", "b" }, 
 				                               new String[] { "c", "d" }, new String[] { "e", "f" }, 
-				                               new String[] { "b", "h" });
+				                               new String[] { "b", "h" }, options);
 		assertEquals(ptr.hashCode(), ptr1.hashCode());
 		assertTrue(ptr.equals(ptr));
 		assertTrue(ptr.equals(ptr1));
@@ -1622,13 +1625,13 @@ public class StdfTest1
         assertEquals(45, ptr.count);	
         assertEquals('F', ptr.pf.charValue());	
         assertEquals("binName", ptr.binName);	
-		SoftwareBinRecord ptr1 = new SoftwareBinRecord(cpu, (short) 1, (short) 0, 5, 45, 'F', "binName");
-		SoftwareBinRecord ptr2 = new SoftwareBinRecord(cpu, (short) 0, (short) 0, 5, 45, 'F', "binName");
-		SoftwareBinRecord ptr3 = new SoftwareBinRecord(cpu, (short) 1, (short) 1, 5, 45, 'F', "binName");
-		SoftwareBinRecord ptr4 = new SoftwareBinRecord(cpu, (short) 1, (short) 0, 6, 45, 'F', "binName");
-		SoftwareBinRecord ptr5 = new SoftwareBinRecord(cpu, (short) 1, (short) 0, 5, 46, 'F', "binName");
-		SoftwareBinRecord ptr6 = new SoftwareBinRecord(cpu, (short) 1, (short) 0, 5, 45, 'P', "binName");
-		SoftwareBinRecord ptr7 = new SoftwareBinRecord(cpu, (short) 1, (short) 0, 5, 45, 'F', "xinName");
+		SoftwareBinRecord ptr1 = new SoftwareBinRecord(cpu, (short) 1, (short) 0, 5, 45, 'F', "binName", options);
+		SoftwareBinRecord ptr2 = new SoftwareBinRecord(cpu, (short) 0, (short) 0, 5, 45, 'F', "binName", options);
+		SoftwareBinRecord ptr3 = new SoftwareBinRecord(cpu, (short) 1, (short) 1, 5, 45, 'F', "binName", options);
+		SoftwareBinRecord ptr4 = new SoftwareBinRecord(cpu, (short) 1, (short) 0, 6, 45, 'F', "binName", options);
+		SoftwareBinRecord ptr5 = new SoftwareBinRecord(cpu, (short) 1, (short) 0, 5, 46, 'F', "binName", options);
+		SoftwareBinRecord ptr6 = new SoftwareBinRecord(cpu, (short) 1, (short) 0, 5, 45, 'P', "binName", options);
+		SoftwareBinRecord ptr7 = new SoftwareBinRecord(cpu, (short) 1, (short) 0, 5, 45, 'F', "xinName", options);
 		String s = ptr.toString();
 		assertTrue(ptr.equals(ptr));
 		assertTrue(ptr.equals(ptr1));
@@ -1675,39 +1678,39 @@ public class StdfTest1
         assertEquals(3.3f, ptr.testSum, 5);	
         assertEquals(4.4f, ptr.testSumSquares, 5);	
 	    TestSynopsisRecord ptr1 = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptr2 = new TestSynopsisRecord(cpu, (short) 0, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptr3 = new TestSynopsisRecord(cpu, (short) 1, (short) 1, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptr4 = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'F', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptr5 = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 11L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptr6 = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 12L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptr7 = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 13L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptr8 = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 14L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptr9 = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "xestName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptra = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "xequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "xequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptrb = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "xestLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "xestLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptrc = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.of(TestOptFlag_t.TEST_MAX_INVALID), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.of(TestOptFlag_t.TEST_MAX_INVALID), 3.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptrd = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 4.0f, 1.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 4.0f, 1.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptre = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 5.0f, 2.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 5.0f, 2.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptrf = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 6.2f, 3.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 6.2f, 3.3f, 4.4f, options);	
 	    TestSynopsisRecord ptrg = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 7.3f, 4.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 7.3f, 4.4f, options);	
 	    TestSynopsisRecord ptrh = new TestSynopsisRecord(cpu, (short) 1, (short) 0, 'T', 10L, 11L, 12L, 13L, "testName",   
-	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 8.4f);	
+	    	                 "sequencerName", "testLabel", EnumSet.noneOf(TestOptFlag_t.class), 3.0f, 1.0f, 2.2f, 3.3f, 8.4f, options);	
 	    String s = ptr.toString();
 	    assertTrue(ptr.equals(ptr));
 	    assertTrue(ptr.equals(ptr1));
@@ -1765,16 +1768,16 @@ public class StdfTest1
         assertEquals(2, ptr.centerY.shortValue());	
         assertEquals('5', ptr.posX.charValue());	
         assertEquals('5', ptr.posY.charValue());	
-	    WaferConfigurationRecord ptr1 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5');
-	    WaferConfigurationRecord ptr2 = new WaferConfigurationRecord(cpu, 1.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5');
-	    WaferConfigurationRecord ptr3 = new WaferConfigurationRecord(cpu, 6.0f, 1.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5');
-	    WaferConfigurationRecord ptr4 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 1.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5');
-	    WaferConfigurationRecord ptr5 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 0, 'L', (short) 1, (short) 2, '5', '5');
-	    WaferConfigurationRecord ptr6 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, '0', (short) 1, (short) 2, '5', '5');
-	    WaferConfigurationRecord ptr7 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 0, (short) 2, '5', '5');
-	    WaferConfigurationRecord ptr8 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 0, '5', '5');
-	    WaferConfigurationRecord ptr9 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '0', '5');
-	    WaferConfigurationRecord ptra = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '0');
+	    WaferConfigurationRecord ptr1 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5', options);
+	    WaferConfigurationRecord ptr2 = new WaferConfigurationRecord(cpu, 1.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5', options);
+	    WaferConfigurationRecord ptr3 = new WaferConfigurationRecord(cpu, 6.0f, 1.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5', options);
+	    WaferConfigurationRecord ptr4 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 1.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '5', options);
+	    WaferConfigurationRecord ptr5 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 0, 'L', (short) 1, (short) 2, '5', '5', options);
+	    WaferConfigurationRecord ptr6 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, '0', (short) 1, (short) 2, '5', '5', options);
+	    WaferConfigurationRecord ptr7 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 0, (short) 2, '5', '5', options);
+	    WaferConfigurationRecord ptr8 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 0, '5', '5', options);
+	    WaferConfigurationRecord ptr9 = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '0', '5', options);
+	    WaferConfigurationRecord ptra = new WaferConfigurationRecord(cpu, 6.0f, 3.3f, 4.4f, (short) 1, 'L', (short) 1, (short) 2, '5', '0', options);
 	    String s = ptr.toString();
 	    assertTrue(ptr.equals(ptr));
 	    assertTrue(ptr.equals(ptr1));
@@ -1813,11 +1816,11 @@ public class StdfTest1
         assertEquals(0, ptr.siteGroupNumber);	
         assertEquals(1000L, ptr.startDate);	
         assertEquals("waferID", ptr.waferID);	
-	    WaferInformationRecord ptr1 = new WaferInformationRecord(cpu, (short) 1, (short) 0, 1000L, "waferID");
-	    WaferInformationRecord ptr2 = new WaferInformationRecord(cpu, (short) 2, (short) 0, 1000L, "waferID");
-	    WaferInformationRecord ptr3 = new WaferInformationRecord(cpu, (short) 1, (short) 2, 1000L, "waferID");
-	    WaferInformationRecord ptr4 = new WaferInformationRecord(cpu, (short) 1, (short) 0, 1002L, "waferID");
-	    WaferInformationRecord ptr5 = new WaferInformationRecord(cpu, (short) 1, (short) 0, 1000L, "2aferID");
+	    WaferInformationRecord ptr1 = new WaferInformationRecord(cpu, (short) 1, (short) 0, 1000L, "waferID", options);
+	    WaferInformationRecord ptr2 = new WaferInformationRecord(cpu, (short) 2, (short) 0, 1000L, "waferID", options);
+	    WaferInformationRecord ptr3 = new WaferInformationRecord(cpu, (short) 1, (short) 2, 1000L, "waferID", options);
+	    WaferInformationRecord ptr4 = new WaferInformationRecord(cpu, (short) 1, (short) 0, 1002L, "waferID", options);
+	    WaferInformationRecord ptr5 = new WaferInformationRecord(cpu, (short) 1, (short) 0, 1000L, "2aferID", options);
 	    assertTrue(ptr.equals(ptr));
 	    assertTrue(ptr.equals(ptr1));
 	    assertEquals(ptr.hashCode(), ptr1.hashCode());
@@ -1858,35 +1861,35 @@ public class StdfTest1
         assertEquals("userWaferDesc", ptr.userWaferDesc);	
         assertEquals("execWaferDesc", ptr.execWaferDesc);	
 		WaferResultsRecord ptr1 = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptr2 = new WaferResultsRecord(cpu, (short) 5, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptr3 = new WaferResultsRecord(cpu, (short) 1, (short) 5, 1000L, 1L, 2L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptr4 = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1500L, 1L, 2L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptr5 = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 5L, 2L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptr6 = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 5L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptr7 = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 5L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptr8 = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 5L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptr9 = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 5L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptra = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
-			"xaferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"xaferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptrb = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
-			"waferID", "xabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "xabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptrc = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "xaferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "xaferFrameID", "waferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptrd = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "xaferMaskID", "userWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "xaferMaskID", "userWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptre = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "xserWaferDesc", "execWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "xserWaferDesc", "execWaferDesc", options);
 		WaferResultsRecord ptrf = new WaferResultsRecord(cpu, (short) 1, (short) 0, 1000L, 1L, 2L, 0L, 1L, 0L,
-			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "xxecWaferDesc");
+			"waferID", "fabWaferID", "waferFrameID", "waferMaskID", "userWaferDesc", "xxecWaferDesc", options);
 		assertTrue(ptr.equals(ptr));
 		assertTrue(ptr.equals(ptr1));
 		assertEquals(ptr.hashCode(), ptr1.hashCode());
@@ -1929,8 +1932,8 @@ public class StdfTest1
     {
     	StdfRecord r = list.get(27);
     	assertTrue(r instanceof EndProgramSectionRecord);
-    	EndProgramSectionRecord esr1 = new EndProgramSectionRecord(cpu);
-    	EndProgramSectionRecord esr2 = new EndProgramSectionRecord(cpu);
+    	EndProgramSectionRecord esr1 = new EndProgramSectionRecord(cpu, options);
+    	EndProgramSectionRecord esr2 = new EndProgramSectionRecord(cpu, options);
     	assertTrue(r.equals(r));
     	assertTrue(r.equals(esr1));
     	assertEquals(r.hashCode(), esr1.hashCode());
@@ -1971,39 +1974,39 @@ public class StdfTest1
 		TestIdDatabase tdb = new TestIdDatabase();
 		FunctionalTestRecord ftr0 = new FunctionalTestRecord(cpu, tdb, 3L, (short) 2, (short) 1, (byte) 0, null, null, null, null,
 				                                             null, null, null, null, null, null, null, null, null, null,
-				                                             null, null, null, null, null, null, null, null, null, null);
+				                                             null, null, null, null, null, null, null, null, null, null, options);
 		tdb.clearIdDups();
 		FunctionalTestRecord ftr1 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 0, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, options);
 		tdb.clearIdDups();
 		FunctionalTestRecord ftr2 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 1, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, options);
 		tdb.clearIdDups();
 		FunctionalTestRecord ftr3 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 4, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, options);
 		tdb.clearIdDups();
 		FunctionalTestRecord ftr4 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 8, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, options);
 		tdb.clearIdDups();
 		FunctionalTestRecord ftr5 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 16, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, options);
 		tdb.clearIdDups();
 		FunctionalTestRecord ftr6 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 32, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, options);
 		tdb.clearIdDups();
 		FunctionalTestRecord ftr7 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 64, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, options);
 		tdb.clearIdDups();
 		FunctionalTestRecord ftr8 = new FunctionalTestRecord(cpu, tdb, 3, (short) 2, (short) 1, (byte) 128, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, options);
 		assertTrue(ftr0.equals(ftr1));
 		assertEquals(ftr0.hashCode(), ftr1.hashCode());
 		assertTrue(ftr2.alarm());

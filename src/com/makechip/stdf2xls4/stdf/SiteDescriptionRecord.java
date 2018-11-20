@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -112,7 +114,7 @@ public class SiteDescriptionRecord extends StdfRecord
     
     public final IntList siteNumbers; // short
     
-    public SiteDescriptionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public SiteDescriptionRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.SDR);
         headNumber = cpu.getU1(is);
@@ -371,7 +373,8 @@ public class SiteDescriptionRecord extends StdfRecord
 		String laserType,
 		String laserID,
 		String equipType,
-		String equipID)
+		String equipID,
+		CliOptions options)
 	{
 		this(cpu, null,
 			 getRecLen(siteNumbers, handlerType,
@@ -381,7 +384,7 @@ public class SiteDescriptionRecord extends StdfRecord
 			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, 
 					 siteNumbers, handlerType, handlerID, probeCardType, probeCardID, loadBoardType, 
 					 loadBoardID, dibBoardType, dibBoardID, ifaceCableType, ifaceCableID, 
-					 contactorType, contactorID, laserType, laserID, equipType, equipID)));
+					 contactorType, contactorID, laserType, laserID, equipType, equipID)), options);
 	}
 
 	private static int getRecLen(int[] siteNumbers, 

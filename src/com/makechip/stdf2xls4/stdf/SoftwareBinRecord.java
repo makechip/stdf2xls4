@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -60,7 +62,7 @@ public class SoftwareBinRecord extends StdfRecord
      */
     public final String binName;
     
-    public SoftwareBinRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public SoftwareBinRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.SBR);
         headNumber = cpu.getU1(is);
@@ -145,10 +147,11 @@ public class SoftwareBinRecord extends StdfRecord
 			int swBinNumber, 
 			long count, 
 			char pf, 
-			String binName)
+			String binName,
+			CliOptions options)
 	{
 		this(cpu, null, getRecLen(pf, binName),
-			 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, swBinNumber, count, pf, binName)));
+			 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, swBinNumber, count, pf, binName)), options);
 	}
 
 	/* (non-Javadoc)

@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 //import com.makechip.util.Log;
@@ -57,7 +58,7 @@ public class StdfReader
     * @throws IOException
     * @throws StdfException
     */
-   public StdfReader read(TestIdDatabase tdb, List<Modifier> modifiers, ByteInputStream is)
+   public StdfReader read(TestIdDatabase tdb, List<Modifier> modifiers, ByteInputStream is, CliOptions options)
    {
 	   Cpu_t cpu = Cpu_t.PC; // assume this for the first record. The FAR does not need this.
 	   int cnt = 0;
@@ -67,7 +68,7 @@ public class StdfReader
 		   short rtype = cpu.getU1(is);
 		   short stype = cpu.getU1(is);
 		   Record_t type = Record_t.getRecordType(rtype, stype);
-		   StdfRecord r = type.getInstance(cpu, tdb, recLen, is);
+		   StdfRecord r = type.getInstance(cpu, tdb, recLen, is, options);
 		   if (type == Record_t.FAR) cpu = ((FileAttributesRecord) r).cpuType;
 		   else if (type == Record_t.PRR)tdb.clearIdDups(); 
 		   for (Modifier m : modifiers)
@@ -103,7 +104,8 @@ public class StdfReader
             StdfReader rdr = new StdfReader();
             byte[] b = new byte[is.available()];
             is.readFully(b);
-            rdr.read(tdb, new ArrayList<Modifier>(), new ByteInputStream(b));
+            CliOptions opts = new CliOptions(new String[0]);
+            rdr.read(tdb, new ArrayList<Modifier>(), new ByteInputStream(b), opts);
             rdr.getRecords().stream().forEach(r -> Log.msg(r.toString()));
     	} 
     	catch (Exception e)

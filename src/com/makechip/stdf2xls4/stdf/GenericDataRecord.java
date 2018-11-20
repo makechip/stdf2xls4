@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 //import java.util.stream.IntStream;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -328,7 +329,7 @@ public class GenericDataRecord extends StdfRecord
      * required so STDF records have consistent constructor signatures.
 	 * @param data
 	 */
-    public GenericDataRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public GenericDataRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.GDR);
         List<Data> l = new ArrayList<Data>();

@@ -26,6 +26,8 @@ package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
 import java.util.Arrays;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -46,7 +48,7 @@ public class PinGroupRecord extends StdfRecord
     public final String groupName;
     public final IntList pmrIdx;
     
-    public PinGroupRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public PinGroupRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.PGR);
         groupIndex = cpu.getU2(is);
@@ -76,10 +78,11 @@ public class PinGroupRecord extends StdfRecord
         Cpu_t cpu,
     	int groupIndex, 
     	String groupName, 
-    	int[] pmrIdx)
+    	int[] pmrIdx,
+    	CliOptions options)
     {
     	this(cpu, null, getRecLen(groupName, pmrIdx),
-    		 new ByteInputStream(toBytes(cpu, groupIndex, groupName, pmrIdx)));
+    		 new ByteInputStream(toBytes(cpu, groupIndex, groupName, pmrIdx)), options);
     }
 
 	@Override

@@ -27,6 +27,8 @@ package com.makechip.stdf2xls4.stdf;
 import gnu.trove.list.array.TByteArrayList;
 
 import java.util.Date;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -57,7 +59,7 @@ public class MasterResultsRecord extends StdfRecord
     /**
      *  Constructor used by the STDF reader to load binary data into this class.
      */
-   public MasterResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+   public MasterResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.MRR);
         finishDate = cpu.getU4(is);
@@ -99,10 +101,11 @@ public class MasterResultsRecord extends StdfRecord
     	long finishDate, 
     	Character dispCode, 
     	String lotDesc, 
-    	String execDesc)
+    	String execDesc,
+    	CliOptions options)
     {
     	this(cpu, null, getRecLen(dispCode, lotDesc, execDesc),
-    	     new ByteInputStream(toBytes(cpu, finishDate, dispCode, lotDesc, execDesc)));
+    	     new ByteInputStream(toBytes(cpu, finishDate, dispCode, lotDesc, execDesc)), options);
     }
     
 	@Override

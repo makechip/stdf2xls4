@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -45,16 +47,16 @@ public class PartInformationRecord extends StdfRecord
      */
     public final short siteNumber;
     
-    public PartInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public PartInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.PIR);
         headNumber = cpu.getU1(is);
         siteNumber = cpu.getU1(is);
     }
     
-    public PartInformationRecord(Cpu_t cpu, short headNumber, short siteNumber)
+    public PartInformationRecord(Cpu_t cpu, short headNumber, short siteNumber, CliOptions options)
     {
-        this(cpu, null, 2, new ByteInputStream(toBytes(cpu, headNumber, siteNumber)));
+        this(cpu, null, 2, new ByteInputStream(toBytes(cpu, headNumber, siteNumber)), options);
     }
     
 	private static byte[] toBytes(Cpu_t cpu, short headNumber, short siteNumber)

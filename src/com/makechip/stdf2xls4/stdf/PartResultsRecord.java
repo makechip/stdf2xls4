@@ -28,6 +28,7 @@ import gnu.trove.list.array.TByteArrayList;
 import java.util.Collections;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.PartInfoFlag_t;
@@ -104,7 +105,7 @@ public class PartResultsRecord extends StdfRecord
      */
     public boolean noPassFailIndication() { return(partInfoFlags.contains(PartInfoFlag_t.NO_PASS_FAIL_INDICATION)); }
     
-    public PartResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public PartResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.PRR);
         headNumber = cpu.getU1(is);
@@ -190,12 +191,13 @@ public class PartResultsRecord extends StdfRecord
     	Long testTime,
     	String partID,
     	String partDescription,
-    	int[] repair)
+    	int[] repair,
+    	CliOptions options)
     {
     	this(cpu, null,
     		 getRecLen(swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair),
     		 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, partInfoFlags, numExecs, 
-    		     hwBinNumber, swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair)));
+    		     hwBinNumber, swBinNumber, xCoord, yCoord, testTime, partID, partDescription, repair)), options);
     }
 
 	@Override

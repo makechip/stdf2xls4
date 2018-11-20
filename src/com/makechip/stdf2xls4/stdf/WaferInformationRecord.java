@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -53,7 +55,7 @@ public class WaferInformationRecord extends StdfRecord
      */
     public final String waferID;
     
-   public WaferInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+   public WaferInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.WIR);
         headNumber = cpu.getU1(is);
@@ -115,10 +117,11 @@ public class WaferInformationRecord extends StdfRecord
 		short headNumber,
 		short siteGroupNumber,
 		long startDate,
-		String waferID)
+		String waferID,
+		CliOptions options)
 	{
 		this(cpu, null, getRecLen(waferID),
-			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, startDate, waferID)));
+			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, startDate, waferID)), options);
 	}
 
 	/* (non-Javadoc)

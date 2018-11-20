@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -74,7 +76,7 @@ public class PinMapRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public PinMapRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public PinMapRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.PMR);
         pmrIdx = cpu.getU2(is);
@@ -140,12 +142,13 @@ public class PinMapRecord extends StdfRecord
         String physicalPinName,
         String logicalPinName,
         Short headNumber,
-        Short siteNumber)
+        Short siteNumber,
+        CliOptions options)
     {
     	this(cpu, null,
     		 getRecLen(channelType, channelName, physicalPinName, logicalPinName, headNumber, siteNumber),
     		 new ByteInputStream(toBytes(cpu, pmrIdx, channelType, channelName, 
-    				             physicalPinName, logicalPinName, headNumber, siteNumber)));
+    				             physicalPinName, logicalPinName, headNumber, siteNumber)), options);
     }
     
 	@Override

@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -52,7 +54,7 @@ public class FileAttributesRecord extends StdfRecord
      * @throws IOException
      * @throws StdfException
      */
-    public FileAttributesRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public FileAttributesRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.FAR);
         short c = (short) (0xFF & is.readByte());
@@ -69,9 +71,9 @@ public class FileAttributesRecord extends StdfRecord
      * @throws StdfException 
      * @throws IOException 
      */
-    public FileAttributesRecord(Cpu_t cpu, int stdfVersion)
+    public FileAttributesRecord(Cpu_t cpu, int stdfVersion, CliOptions options)
     {
-    	this(cpu, null, 0, new ByteInputStream(toBytes(cpu, stdfVersion)));
+    	this(cpu, null, 0, new ByteInputStream(toBytes(cpu, stdfVersion)), options);
     }
     
 	/* (non-Javadoc)

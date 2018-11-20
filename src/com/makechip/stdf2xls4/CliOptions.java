@@ -60,6 +60,7 @@ public class CliOptions
 	private static final String[] A_OPT = { "a", "pin-suffix", "Assume test names for ParametricTestRecords have the pin name following the character delimiter" };
 	private static final String[] L_OPT = { "l", "logo", "Specify a logo file for the spreadsheet" };
 	private static final String[] T_OPT = { "t", "timestamps", "output timestamp per device (only makes sense if you have one STDF file per device)" }; 
+	private static final String[] Z_OPT = { "z", "zerotnums", "Force all test numbers to zero" };
 	private OptionSpec<String>  A;
 	private OptionSpec<Void>    J;
 	private OptionSpec<Void>    F;
@@ -77,6 +78,7 @@ public class CliOptions
 	private OptionSpec<String>  M;
 	private OptionSpec<Integer> P;
 	private OptionSpec<Void> C;
+	private OptionSpec<Void> Z;
 	public final File xlsName;
 	public final File logoFile;
 	public final List<Modifier> modifiers;
@@ -94,6 +96,7 @@ public class CliOptions
 	public final boolean pinSuffix;
 	public final boolean maxExcelColumns;
 	public final boolean timestamps;
+	public final boolean zeroTnums;
 	public final char delimiter;
 	public final List<File> stdfFiles;
 	private boolean success;
@@ -142,6 +145,7 @@ public class CliOptions
 	    sb.append(options.has(V) ? "-v " : ""); 	
 	    sb.append(options.has(R) ? "-r " : ""); 	
 	    sb.append(options.has(Y) ? "-y " : ""); 	
+	    sb.append(options.has(Z) ? "-z " : "");
 	    sb.append(options.has(P) ? "-p " + options.valueOf(P) : "-p 3"); 	
 		return(sb.toString());
 	}
@@ -162,11 +166,10 @@ public class CliOptions
 	    G = op.acceptsAll(asList(G_OPT[0], G_OPT[1]), G_OPT[2]);
 	    C = op.acceptsAll(asList(C_OPT[0], C_OPT[1]), C_OPT[2]);
 	    T = op.acceptsAll(asList(T_OPT[0], T_OPT[1]), T_OPT[2]);
+	    Z = op.acceptsAll(asList(Z_OPT[0], Z_OPT[1]), Z_OPT[2]);
 	    M = op.acceptsAll(asList(M_OPT[0], M_OPT[1]), M_OPT[2]).withRequiredArg().ofType(String.class);
 	    P = op.acceptsAll(asList(P_OPT[0], P_OPT[1]), P_OPT[2]).withRequiredArg().ofType(int.class);
-	    
 	    OptionSpec<Void>    H = op.acceptsAll(asList(H_OPT[0], H_OPT[1]), H_OPT[2]).forHelp();
-
 	    OptionSpec<File>    L = op.acceptsAll(asList(L_OPT[0], L_OPT[1]), L_OPT[2]).withRequiredArg().ofType(File.class);
 	    OptionSpec<File>    X = op.acceptsAll(asList(X_OPT[0], X_OPT[1]), X_OPT[2]).
 	    		requiredUnless(D_OPT[0], D_OPT[1], H_OPT[0], H_OPT[1], G_OPT[0], G_OPT[1]).withRequiredArg().ofType(File.class);
@@ -193,6 +196,7 @@ public class CliOptions
 	    dynamicLimits = options.has(Y);
 	    dump = options.has(D);
 	    gui = options.has(G);
+	    zeroTnums = options.has(Z);
 	    timestamps = options.has(T);
 	    xlsName = options.has(X) ? options.valueOf(X) : null;
 	    useJxl = options.has(J);

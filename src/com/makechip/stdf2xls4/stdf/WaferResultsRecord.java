@@ -26,6 +26,8 @@
 package com.makechip.stdf2xls4.stdf;
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -93,7 +95,7 @@ public class WaferResultsRecord extends StdfRecord
      */
     public final String execWaferDesc;
     
-    public WaferResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public WaferResultsRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.WRR);
         headNumber = cpu.getU1(is);
@@ -269,14 +271,15 @@ public class WaferResultsRecord extends StdfRecord
         String waferFrameID,
         String waferMaskID,
         String userWaferDesc,
-        String execWaferDesc)
+        String execWaferDesc,
+        CliOptions options)
     {
 		this(cpu, null,
 			 getRecLen(retestCount, abortCount, passCount, functionalCount, waferID, 
 					   fabWaferID, waferFrameID, waferMaskID, userWaferDesc, execWaferDesc),
 			 new ByteInputStream(toBytes(cpu, headNumber, siteGroupNumber, 
 					 finishDate, partCount, retestCount, abortCount, passCount, functionalCount, 
-					 waferID, fabWaferID, waferFrameID, waferMaskID, userWaferDesc, execWaferDesc)));
+					 waferID, fabWaferID, waferFrameID, waferMaskID, userWaferDesc, execWaferDesc)), options);
     }
 
 	/* (non-Javadoc)

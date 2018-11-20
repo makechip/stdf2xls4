@@ -26,6 +26,8 @@ package com.makechip.stdf2xls4.stdf;
 
 
 import gnu.trove.list.array.TByteArrayList;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 
@@ -274,7 +276,8 @@ public class MasterInformationRecord extends StdfRecord
         String engLotID,
         String romCodeID,
         String testerSerialNumber,
-        String supervisorID)
+        String supervisorID,
+        CliOptions options)
     {
     	this(cpu, null,
     		 getRecLen(lotID, partType, nodeName, testerType, jobName, jobRevisionNumber, sublotID, operatorName, 
@@ -286,7 +289,7 @@ public class MasterInformationRecord extends StdfRecord
     			                 partType, nodeName, testerType, jobName, jobRevisionNumber, sublotID, operatorName, 
     			                 execSoftware, execSoftwareVersion, stepCode, temperature, userText, auxDataFile, 
     			                 packageType, familyID, dateCode, facilityID, floorID, fabID, frequency, specName, 
-    			                 specVersion, flowID, setupID, designRevision, engLotID, romCodeID, testerSerialNumber, supervisorID)));
+    			                 specVersion, flowID, setupID, designRevision, engLotID, romCodeID, testerSerialNumber, supervisorID)), options);
     }
     
     /**
@@ -297,7 +300,7 @@ public class MasterInformationRecord extends StdfRecord
      *  @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
      */
-    public MasterInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+    public MasterInformationRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.MIR);
         jobDate = cpu.getU4(is);

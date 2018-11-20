@@ -180,7 +180,7 @@ public final class StdfAPI
 		        {
 		            byte[] b = new byte[is.available()];
 		            is.readFully(b);
-		            rdr.read(tiddb, options.modifiers, new ByteInputStream(b));
+		            rdr.read(tiddb, options.modifiers, new ByteInputStream(b), options);
 		        }
 		        catch (IOException e)
 		        {
@@ -206,7 +206,7 @@ public final class StdfAPI
 			{
 	            byte[] b = new byte[is.available()];
 	            is.readFully(b);
-			    rdr.read(tiddb, options.modifiers, new ByteInputStream(b));
+			    rdr.read(tiddb, options.modifiers, new ByteInputStream(b), options);
 			}
 			catch (IOException e)
 			{
@@ -311,11 +311,21 @@ public final class StdfAPI
 				        	DatalogTextRecord dtr = (DatalogTextRecord) r;
 				        	if (isSn(dtr))
 				        	{
-				        		List<StdfRecord> l = listmap.get(1);
+	                            StringTokenizer st = new StringTokenizer(dtr.text, ": \t");
+	                            st.nextToken(); // burn "TEXT_DATA"
+	                            st.nextToken(); // burn "S/N"
+	                            st.nextToken(); // burn the actual serial number
+	                            String site = "1";
+	                            if (st.hasMoreTokens())
+	                            {    
+	                                site = st.nextToken();
+	                            }
+	                            Integer i = new Integer(site);
+				        		List<StdfRecord> l = listmap.get(i);
 				        		if (l == null)
 				        		{
 				        			l = new ArrayList<>();
-				        			listmap.put(1, l);
+				        			listmap.put(i, l);
 				        		}
 				        		l.add(r);
 				        	}
@@ -363,7 +373,7 @@ public final class StdfAPI
 	    	DatalogTextRecord dtr = (DatalogTextRecord) r;
 	    	if (dtr.text.contains(DatalogTextRecord.TEXT_DATA) && !dtr.text.contains(DatalogTextRecord.SERIAL_MARKER))
 	    	{
-	    		DatalogTestRecord dsr = new DatalogTestRecord(tiddb, dtr.text);
+	    		DatalogTestRecord dsr = new DatalogTestRecord(tiddb, dtr.text, options);
 	    		return(dsr);
 	    	}
 	    }

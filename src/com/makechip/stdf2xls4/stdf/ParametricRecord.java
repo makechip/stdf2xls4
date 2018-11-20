@@ -27,6 +27,7 @@ package com.makechip.stdf2xls4.stdf;
 import java.util.Collections;
 import java.util.Set;
 
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.ParamFlag_t;
@@ -68,10 +69,12 @@ public abstract class ParametricRecord extends TestRecord
 	 * @param data The binary stream data for this record. Note that the REC_LEN, REC_TYP, and
      *         REC_SUB values are not included in this array.
 	 */
-	protected ParametricRecord(Cpu_t cpu, Record_t type, int recLen, ByteInputStream is)
+	protected ParametricRecord(Cpu_t cpu, Record_t type, int recLen, ByteInputStream is, CliOptions options)
 	{
 		super(type);
-		testNumber = cpu.getU4(is); // skip over test number;
+		long tmp = cpu.getU4(is); // skip over test number;
+		if (options.zeroTnums) testNumber = 0L;
+		else testNumber = tmp;
 		headNumber = cpu.getU1(is);
 		siteNumber = cpu.getU1(is);
     	testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(cpu.getI1(is)));
@@ -79,10 +82,11 @@ public abstract class ParametricRecord extends TestRecord
 		
 	}
 	
-	protected ParametricRecord(Record_t type, long testNumber, short headNumber, short siteNumber, byte testFlags, byte paramFlags)
+	protected ParametricRecord(Record_t type, long testNumber, short headNumber, short siteNumber, byte testFlags, byte paramFlags, CliOptions options)
 	{
 		super(type);
-		this.testNumber = testNumber;
+		if (options.zeroTnums) this.testNumber = 0L;
+		else this.testNumber = testNumber;
 		this.headNumber = headNumber;
 		this.siteNumber = siteNumber;
 		this.testFlags = Collections.unmodifiableSet(TestFlag_t.getBits(testFlags));

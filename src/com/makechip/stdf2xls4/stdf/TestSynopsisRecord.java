@@ -28,6 +28,8 @@ import gnu.trove.list.array.TByteArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+
+import com.makechip.stdf2xls4.CliOptions;
 import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
@@ -104,7 +106,7 @@ public class TestSynopsisRecord extends StdfRecord
      */
     public Float testSumSquares;
     
-   public TestSynopsisRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is)
+   public TestSynopsisRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.TSR);
         headNumber = cpu.getU1(is);
@@ -307,13 +309,14 @@ public class TestSynopsisRecord extends StdfRecord
 	    float testMin,
 	    float testMax,
 	    float testSum,
-	    float testSumSquares)
+	    float testSumSquares,
+	    CliOptions options)
 	{
 		this(cpu, null, getRecLen(numExecs, numFailures, numAlarms, testName, sequencerName, testLabel, 
 	    	                optFlags, testTime, testMin, testMax, testSum, testSumSquares),
 			 new ByteInputStream(toBytes(cpu, headNumber, siteNumber, testType, 
 					        testNumber, numExecs, numFailures, numAlarms, testName, sequencerName, 
-					        testLabel, optFlags, testTime, testMin, testMax, testSum, testSumSquares)));
+					        testLabel, optFlags, testTime, testMin, testMax, testSum, testSumSquares)), options);
 	}
 
 	/* (non-Javadoc)
