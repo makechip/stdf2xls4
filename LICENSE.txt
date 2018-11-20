@@ -1,3 +1,0 @@
-This software is licensed under the GPL version 3 software license. The software
-uses the Apache POI library which is licensed under the Apache license.  The source
-code for the POI library is available at the Apache website.

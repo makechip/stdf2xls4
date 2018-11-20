@@ -165,23 +165,23 @@ public class Stdf2xls4
 	
 	public void run() throws IOException, InvalidFormatException, BiffException
 	{
-			StdfAPI api = new StdfAPI(options);
-			api.initialize();
-			Spreadsheet ss = null;
-			if (options.xlsName != null)
+		StdfAPI api = new StdfAPI(options);
+		api.initialize();
+		Spreadsheet ss = null;
+		if (options.xlsName != null)
+		{
+			if (options.xlsName.toString().endsWith(".xlsx"))
 			{
-				if (options.xlsName.toString().endsWith(".xlsx"))
-				{
-					ss = new XSSFSpreadsheet();
-				}
-				else
-				{
-					if (options.useJxl) ss = new JxlSpreadsheet();
-					else ss = new HSSFSpreadsheet();
-				}
-				SpreadsheetWriter ssw = new SpreadsheetWriter(options, api, ss);
-				ssw.generate();
+				ss = new XSSFSpreadsheet();
 			}
+			else
+			{
+				if (options.useJxl) ss = new JxlSpreadsheet();
+				else ss = new HSSFSpreadsheet();
+			}
+			SpreadsheetWriter ssw = new SpreadsheetWriter(options, api, ss);
+			ssw.generate();
+		}
 	}
 
 	public static void main(String[] args)

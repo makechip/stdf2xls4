@@ -35,6 +35,7 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.Data_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
+import com.makechip.util.Log;
 
 /**
  *  This class holds data from a Datalog Test Record.  A DatalogTestRecord
@@ -104,6 +105,7 @@ public class DatalogTestRecord extends TestRecord
         	if (st.hasMoreTokens())
         	{
         		String site = st.nextToken();
+        		if (site.trim().equals("site")) Log.msg(text);
         		Short s = new Short(site.trim());
         		sn = s.shortValue();
         		if (st.hasMoreElements())
