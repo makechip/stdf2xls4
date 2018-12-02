@@ -315,6 +315,7 @@ public final class StdfAPI
 	                            st.nextToken(); // burn "TEXT_DATA"
 	                            st.nextToken(); // burn "S/N"
 	                            st.nextToken(); // burn the actual serial number
+	                            st.nextToken(); // burn the 0 (head number?)
 	                            String site = "1";
 	                            if (st.hasMoreTokens())
 	                            {    
