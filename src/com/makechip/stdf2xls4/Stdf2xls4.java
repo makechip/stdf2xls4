@@ -140,6 +140,8 @@ package com.makechip.stdf2xls4;
  * 
  * 4.3.8 12/2/18 Fixed versionitus issue that broke serial numbers with multisite operation
  * 
+ * 4.3.8 12/19/18 Fixed bug in handling of multisite serial numbers.
+ * 
  */
 
 import java.io.IOException;
@@ -157,7 +159,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.3.8";
+	public static final String VERSION = "4.3.9";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

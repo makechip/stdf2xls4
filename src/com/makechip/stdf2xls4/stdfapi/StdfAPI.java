@@ -312,14 +312,23 @@ public final class StdfAPI
 				        	if (isSn(dtr))
 				        	{
 	                            StringTokenizer st = new StringTokenizer(dtr.text, ": \t");
-	                            st.nextToken(); // burn "TEXT_DATA"
-	                            st.nextToken(); // burn "S/N"
-	                            st.nextToken(); // burn the actual serial number
-	                            st.nextToken(); // burn the 0 (head number?)
 	                            String site = "1";
+	                            st.nextToken(); // burn "TEXT_DATA"
 	                            if (st.hasMoreTokens())
-	                            {    
-	                                site = st.nextToken();
+	                            {
+	                                st.nextToken(); // burn "S/N"
+	                                if (st.hasMoreTokens())
+	                                {
+	                                    st.nextToken(); // burn the actual serial number
+	                                    if (st.hasMoreTokens())
+	                                    {
+	                                        st.nextToken(); // burn the 0 (head number?)
+	                                        if (st.hasMoreTokens())
+	                                        {    
+	                                            site = st.nextToken();
+	                                        }
+	                                    }
+	                                }
 	                            }
 	                            Integer i = new Integer(site);
 				        		List<StdfRecord> l = listmap.get(i);
