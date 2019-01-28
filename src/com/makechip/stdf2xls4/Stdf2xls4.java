@@ -140,7 +140,7 @@ package com.makechip.stdf2xls4;
  * 
  * 4.3.8 12/2/18 Fixed versionitus issue that broke serial numbers with multisite operation
  * 
- * 4.3.8 12/19/18 Fixed bug in handling of multisite serial numbers.
+ * 4.3.9 12/19/18 Fixed bug in handling of multisite serial numbers.
  * 
  */
 
