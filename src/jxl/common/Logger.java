@@ -49,7 +49,8 @@ public abstract class Logger
   /**
    * Initializes the logger in a thread safe manner
    */
-  private synchronized static void initializeLogger()
+  @SuppressWarnings("deprecation")
+private synchronized static void initializeLogger()
   {
     if (logger != null)
     {

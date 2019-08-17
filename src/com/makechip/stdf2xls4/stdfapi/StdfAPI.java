@@ -234,6 +234,7 @@ public final class StdfAPI
 				try { timeStamp = Long.parseLong(ts); }
 				catch (Exception e) { Log.fatal("Unknown timeStamp"); }
 				boolean fusionCx = mir.testerType.equalsIgnoreCase("fusion_cx") || mir.testerType.equalsIgnoreCase("CTX");
+				if (mir.execSoftwareVersion.indexOf("Smartest : s/w rev. 8") >= 0) fusionCx = true;
 				defaultTemp = mir.temperature;
 				defaultStep = mir.stepCode;
 				DefaultValueDatabase dvd = new DefaultValueDatabase(fusionCx, timeStamp);
@@ -330,7 +331,8 @@ public final class StdfAPI
 	                                    }
 	                                }
 	                            }
-	                            Integer i = new Integer(site);
+	                            @SuppressWarnings("deprecation")
+                                Integer i = new Integer(site);
 				        		List<StdfRecord> l = listmap.get(i);
 				        		if (l == null)
 				        		{

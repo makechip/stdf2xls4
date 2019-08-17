@@ -24,7 +24,6 @@ import com.makechip.stdf2xls4.excel.layout.CornerBlock;
 import com.makechip.stdf2xls4.stdfapi.MultiParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.ParametricTestHeader;
 import com.makechip.stdf2xls4.stdfapi.TestHeader;
-
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -77,6 +76,7 @@ public class DataHeader
 	
 	public int getRC(String testName, long tnum, String pin, int dupNum)
 	{
+	    //Log.msg_("testName = " + testName + " tnum = " + tnum + " pin = " + pin + " dupNum = " + dupNum);
 	    TLongObjectHashMap<HashMap<String, TIntIntHashMap>> m1 = idlocs.get(testName);
 	    if (m1 == null) return(-1);
 	    HashMap<String, TIntIntHashMap> m2 = m1.get(tnum);
@@ -84,6 +84,7 @@ public class DataHeader
 	    TIntIntHashMap m3 = m2.get(pin);
 	    if (m3 == null) return(-1);
 	    int rc = m3.get(dupNum);
+	    //Log.msg(" rc = " + rc);
 	    return(rc);
 	}
 	

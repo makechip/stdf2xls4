@@ -75,7 +75,8 @@ public class CategoryNodeEditor extends CategoryAbstractCellEditor {
     });
 
     _renderer.addMouseListener(new MouseAdapter() {
-      public void mousePressed(MouseEvent e) {
+      @SuppressWarnings("deprecation")
+    public void mousePressed(MouseEvent e) {
         if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0) {
           showPopup(_lastEditedNode, e.getX(), e.getY());
         }

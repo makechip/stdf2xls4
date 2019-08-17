@@ -204,7 +204,8 @@ class SheetCopier
    * Copies a sheet from a read-only version to the writable version.
    * Performs shallow copies
    */
-  public void copySheet()
+  @SuppressWarnings("deprecation")
+public void copySheet()
   {
     shallowCopyCells();
 
@@ -523,7 +524,8 @@ class SheetCopier
   /**
    * Imports a sheet from a different workbook, doing a deep copy
    */
-  public void importSheet()
+  @SuppressWarnings("deprecation")
+public void importSheet()
   {
     xfRecords = new HashMap<Integer, WritableCellFormat>();
     fonts = new HashMap<Integer, Integer>();
@@ -894,6 +896,7 @@ class SheetCopier
     // Copy the cell format
     CellFormat cf = c.getCellFormat();
     int index = ( (XFRecord) cf).getXFIndex();
+    @SuppressWarnings("deprecation")
     WritableCellFormat wcf = (WritableCellFormat) 
       xfRecords.get(new Integer(index));
 
@@ -1006,7 +1009,8 @@ class SheetCopier
    * @param cf the cell format to copy
    * @return a deep copy of the cell format
    */
-  private WritableCellFormat copyCellFormat(CellFormat cf)
+  @SuppressWarnings("deprecation")
+private WritableCellFormat copyCellFormat(CellFormat cf)
   {
     try
     {

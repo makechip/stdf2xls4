@@ -160,7 +160,8 @@ public class Modifier
 		throw new RuntimeException(s);
 	}
 	
-	public static Object getValue(Data_t dt, String val)
+	@SuppressWarnings("deprecation")
+    public static Object getValue(Data_t dt, String val)
 	{
 		switch (dt)
 		{

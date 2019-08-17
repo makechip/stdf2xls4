@@ -179,7 +179,8 @@ public final class SpreadsheetWriter
         String oldp = oldOpts.substring(oldOpts.lastIndexOf(' ')).trim();
         if (Character.isDigit(oldp.charAt(0)))
         {
-        	Integer n = new Integer(oldp);
+        	@SuppressWarnings("deprecation")
+            Integer n = new Integer(oldp);
         	if (options.precision != n.intValue())
         	{
         		Log.warning("Existing spreadsheet uses different precision.");
@@ -437,6 +438,7 @@ public final class SpreadsheetWriter
    	    //int rc = options.rotate ? titleBlock.tstxy.unitsLabel.r + 1 + index : titleBlock.tstxy.unitsLabel.c + 1 + (index % COLS_PER_PAGE);
 		TitleBlock titleBlock = titles.get(page);
 		int rc = titleBlock.getRC(th.testName, th.testNumber, th.getPin(), th.dupNum);
+		//Log.msg("testName = " + th.testName + " testNumber = " + th.testNumber + " rc = " + rc + " currentRC = " + currentRC);
 		if (rc < 0) return; // returning here...
    	    Coord xy = options.rotate ? new Coord(currentRC, rc) : new Coord(rc, currentRC);
    	    //if (r instanceof LoLimitResult) Log.msg("lo result = " + ((ParametricTestResult) r).result + " rc = " + rc);

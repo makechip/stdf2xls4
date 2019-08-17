@@ -436,6 +436,7 @@ private int numRows;
     // Copy the cell format
     CellFormat cf = c.getCellFormat();
     int index = ( (XFRecord) cf).getXFIndex();
+    @SuppressWarnings("deprecation")
     WritableCellFormat wcf = xfRecords.get(new Integer(index));
 
     if (wcf == null)
@@ -547,7 +548,8 @@ private int numRows;
    * @param cf the cell format to copy
    * @return a deep copy of the cell format
    */
-  private WritableCellFormat copyCellFormat(CellFormat cf)
+  @SuppressWarnings("deprecation")
+private WritableCellFormat copyCellFormat(CellFormat cf)
   {
     try
     {

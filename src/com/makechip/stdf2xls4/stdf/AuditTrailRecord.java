@@ -62,6 +62,7 @@ public class AuditTrailRecord extends StdfRecord
         super(Record_t.ATR);
         date = cpu.getU4(is);
         cmdLine = cpu.getCN(is);
+        if (cmdLine.indexOf("SmarTest s/w rev. 8") > 0) tdb.smartTest8 = true; else tdb.smartTest8 = false;
     }
     
     /**

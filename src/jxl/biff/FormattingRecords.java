@@ -143,7 +143,8 @@ public class FormattingRecords
    *
    * @param fr the format record
    */
-  public final void addFormat(DisplayFormat fr)
+  @SuppressWarnings("deprecation")
+public final void addFormat(DisplayFormat fr)
     throws NumFormatRecordsException
   {
     // Handle the case the where the index number in the read Excel
@@ -199,6 +200,7 @@ public class FormattingRecords
       return true;
     }
 
+    @SuppressWarnings("deprecation")
     FormatRecord fr = (FormatRecord)
       formats.get(new Integer(xfr.getFormatRecord()));
 
@@ -221,6 +223,7 @@ public class FormattingRecords
       return xfr.getDateFormat();
     }
 
+    @SuppressWarnings("deprecation")
     FormatRecord fr = (FormatRecord)
       formats.get(new Integer(xfr.getFormatRecord()));
 
@@ -248,6 +251,7 @@ public class FormattingRecords
       return xfr.getNumberFormat();
     }
 
+    @SuppressWarnings("deprecation")
     FormatRecord fr = (FormatRecord)
       formats.get(new Integer(xfr.getFormatRecord()));
 
@@ -265,7 +269,8 @@ public class FormattingRecords
    * @param index the formatting record index to retrieve
    * @return the format record at the specified index
    */
-  FormatRecord getFormatRecord(int index)
+  @SuppressWarnings("deprecation")
+FormatRecord getFormatRecord(int index)
   {
     return (FormatRecord)
       formats.get(new Integer(index));

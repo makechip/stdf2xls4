@@ -225,6 +225,7 @@ public class TestRecordDatabase
 			    	    // 4. if (result == hiLimit) is it a pass?
 			    	    boolean fail = false;
 			    	    Float fl = (mpr.loLimit == null) ? dvd.getDefaultLoLimit(mpr.id) : mpr.loLimit;
+			    	    Log.msg("id = " + mpr.id + " lo limit = " + dvd.getDefaultLoLimit(mpr.id) + " fl = " + fl);
 			    	    if (fl != null)
 			    	    {
 			    	        if (mpr.paramFlags.contains(ParamFlag_t.LO_LIMIT_EQ_PASS)) 
@@ -249,7 +250,6 @@ public class TestRecordDatabase
 			    	    	}
 			    	    }
 			            TestResult tr = new ParametricTestResult(getTestFlags(mpr.testFlags, fail), sresults.get(j));
-			            Log.msg("b = " + b + " j = " + j + " th.size = " + th.size() + " tr = " + mpr.getTestName());
 			            TestHeader TH = th.get(b+j);
 			            m2a.put(TH, tr);
                         Map<DeviceHeader, TestResult> m2b = m1b.get(TH);

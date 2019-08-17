@@ -7,7 +7,9 @@ The source code is implemented as an eclipse project, so if you want to
 compile the source code you will need to import it into eclipse as a git project.
 
 # usage:
-You must have java 1.8 or later installed on your computer.
+You must have java 1.9 or later installed on your computer.  The code
+does not use any new features in java 9, but because it has been compiled
+with java 9, you need java 9.
 The jar file is int the dist directory.  The user manual is in the doc directory.
 To run it use the following command:
 

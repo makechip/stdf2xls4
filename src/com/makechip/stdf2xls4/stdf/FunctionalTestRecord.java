@@ -395,7 +395,8 @@ public class FunctionalTestRecord extends TestRecord
     }
     
     
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public byte[] getBytes(Cpu_t cpu)
 	{
 		byte tflags = (byte) testFlags.stream().mapToInt(b -> b.bit).sum();

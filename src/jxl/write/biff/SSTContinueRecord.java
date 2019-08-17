@@ -143,7 +143,8 @@ class SSTContinueRecord extends WritableRecordData
    * @param s the string to add
    * @return the number of characters not added
    */
-  public int add(String s)
+  @SuppressWarnings("deprecation")
+public int add(String s)
   {
     int bytes = s.length() * 2 + 3;
 

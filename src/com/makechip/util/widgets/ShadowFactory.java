@@ -350,6 +350,7 @@ public class ShadowFactory {
      * will be 0 instead.</p>
      * @param shadowSize the generated shadows size in pixels (fuzziness)
      */
+    @SuppressWarnings("deprecation")
     public void setSize(final int shadowSize) {
         int oldSize = this.size;
         

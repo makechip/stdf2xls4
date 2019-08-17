@@ -329,7 +329,8 @@ final class SheetReader
   /**
    * Reads in the contents of this sheet
    */
-  final void read()
+  @SuppressWarnings("deprecation")
+final void read()
   {
     Record r = null;
     BaseSharedFormulaRecord sharedFormula = null;
@@ -1597,7 +1598,8 @@ final class SheetReader
    * @param msoRecord the mso drawing record read in earlier
    * @param comments the hash map of comments
    */
-  private void handleObjectRecord(ObjRecord objRecord,
+  @SuppressWarnings("deprecation")
+private void handleObjectRecord(ObjRecord objRecord,
                                   MsoDrawingRecord msoRecord,
                                   HashMap<Integer, Comment> comments)
   {

@@ -63,7 +63,8 @@ class SharedStrings
    * @param s the string whose index we want
    * @return the index of the string
    */
-  public int getIndex(String s)
+  @SuppressWarnings("deprecation")
+public int getIndex(String s)
   {
     Integer i = strings.get(s);
 

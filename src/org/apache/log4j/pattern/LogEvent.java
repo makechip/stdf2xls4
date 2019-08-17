@@ -407,7 +407,8 @@ public
   }
 
 
-  private
+  @SuppressWarnings("deprecation")
+private
   void readLevel(ObjectInputStream ois)
                       throws java.io.IOException, ClassNotFoundException {
 

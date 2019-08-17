@@ -142,6 +142,13 @@ package com.makechip.stdf2xls4;
  * 
  * 4.3.8 12/19/18 Fixed bug in handling of multisite serial numbers.
  * 
+ * 4.4.0 1/19/18 Fix Multisite issue with MPRs.
+ * 
+ * 4.4.1 8/17/19
+ * Fixed problem Larry was having due to duplicate test IDs.  Tests were being flagged
+ * as duplicates even though they weren't.  This cause some tests to be placed
+ * into columns at the end of the spreadsheet.
+ * 
  */
 
 import java.io.IOException;
@@ -159,7 +166,7 @@ import com.makechip.util.Log;
 
 public class Stdf2xls4
 {
-	public static final String VERSION = "4.3.9";
+	public static final String VERSION = "4.4.0";
 	private CliOptions options;
 
 	public Stdf2xls4(CliOptions options)

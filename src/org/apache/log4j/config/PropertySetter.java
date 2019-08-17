@@ -262,7 +262,8 @@ public class PropertySetter {
      Convert <code>val</code> a String parameter to an object of a
      given type.
   */
-  protected
+  @SuppressWarnings("deprecation")
+protected
   Object convertArg(String val, @SuppressWarnings("rawtypes") Class type) {
     if(val == null)
       return null;

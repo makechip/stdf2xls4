@@ -35,7 +35,8 @@ public class StdfTest1
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@BeforeClass
+	@SuppressWarnings("deprecation")
+    @BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
 	    options = new CliOptions(new String[0]);
@@ -148,6 +149,7 @@ public class StdfTest1
 	    assertTrue(s.contains("records="));	
 	}
 
+    @SuppressWarnings("unlikely-arg-type")
     @Test
     public void testB() throws IOException, StdfException
     {
@@ -169,7 +171,8 @@ public class StdfTest1
     }
     
 	// atrs.add(new AuditTrailRecord(snum++, dnum, 100000000L, "cmdline"));
-	@Test
+	@SuppressWarnings("unlikely-arg-type")
+    @Test
 	public void testC() throws IOException, StdfException
 	{
         StdfRecord r = list.get(1);

@@ -191,7 +191,8 @@ protected LogRecordFilter _filter = new PassingLogRecordFilter();
 
   }
 
-  protected Object getColumn(int col, LogRecord lr) {
+  @SuppressWarnings("deprecation")
+protected Object getColumn(int col, LogRecord lr) {
     if (lr == null) {
       return "NULL Column";
     }

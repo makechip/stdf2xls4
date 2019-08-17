@@ -43,7 +43,8 @@ class Token
    *
    * @param v the biff code for the token
    */
-  private Token(int v)
+  @SuppressWarnings("deprecation")
+private Token(int v)
   {
     value = new int[] {v};
 
@@ -56,7 +57,8 @@ class Token
    *
    * @param v the biff code for the token
    */
-  private Token(int v1, int v2)
+  @SuppressWarnings("deprecation")
+private Token(int v1, int v2)
   {
     value = new int[] {v1, v2};
 
@@ -70,7 +72,8 @@ class Token
    *
    * @param v the biff code for the token
    */
-  private Token(int v1, int v2, int v3)
+  @SuppressWarnings("deprecation")
+private Token(int v1, int v2, int v3)
   {
     value = new int[] {v1, v2, v3};
 
@@ -85,7 +88,8 @@ class Token
    *
    * @param v the biff code for the token
    */
-  private Token(int v1, int v2, int v3, int v4)
+  @SuppressWarnings("deprecation")
+private Token(int v1, int v2, int v3, int v4)
   {
     value = new int[] {v1, v2, v3, v4};
 
@@ -101,7 +105,8 @@ class Token
    *
    * @param v the biff code for the token
    */
-  private Token(int v1, int v2, int v3, int v4, int v5)
+  @SuppressWarnings("deprecation")
+private Token(int v1, int v2, int v3, int v4, int v5)
   {
     value = new int[] {v1, v2, v3, v4, v5};
 
@@ -158,7 +163,8 @@ class Token
   /**
    * Gets the type object from its integer value
    */
-  public static Token getToken(int v)
+  @SuppressWarnings("deprecation")
+public static Token getToken(int v)
   {
     Token t = (Token) tokens.get(new Integer(v));
     

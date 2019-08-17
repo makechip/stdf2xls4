@@ -24,8 +24,11 @@
  */
 package com.makechip.stdf2xls4.stdf;
 
+import java.util.HashMap;
+
 import com.makechip.util.Identity;
 import com.makechip.util.Immutable;
+import com.makechip.util.Log;
 
 /**
  * This class provides TestIDs which are a combination of test names
@@ -55,7 +58,9 @@ public class TestID implements Identity, Immutable
      */
     public final int dupNum;
     
-    public short siteNumber;
+    public 
+    
+    short siteNum;
     
     public short headNumber;
    
@@ -76,24 +81,33 @@ public class TestID implements Identity, Immutable
     public static TestID createTestID(TestIdDatabase tdb, long testNum, short siteNum, short headNum, String testName)
     {
     	// 1. check testName and testNumber
-    	TestID id = tdb.idMap.getExistingValue(testNum, testName, 0);
-    	if (id == null || tdb.testIdDupMap.get(id) == null)
+    	TestID existId = tdb.idMap.getExistingValue(testNum, testName, 0);
+    	HashMap<String, TestID> pid = tdb.tempIdMap.get(testNum);
+    	if (pid == null)
     	{
-    		if (id == null) id = tdb.idMap.getValue(testNum, testName, 0);
-    		id.siteNumber = siteNum;
-    		id.headNumber = headNum;
-    		tdb.testIdDupMap.put(id, 0);
-    		return(id);
+    	    pid = new HashMap<>();
+    	    tdb.tempIdMap.put(testNum, pid);
+    	}
+    	TestID id = pid.get(testName);
+    	if (id == null)
+    	{
+    		if (existId == null) existId = tdb.idMap.getValue(testNum, testName, 0);
+    		existId.siteNum = siteNum;
+    		existId.headNumber = headNum;
+    		tdb.testIdDupMap.put(existId, 0);
+    		Log.msg("testNum = " + testNum + " siteNum = " + siteNum + " headNum = " + headNum + " testName = " + testName + " dupNum = 0");
+    		return(existId);
     	}
         // 2. Need duplicate ID
-    	if (id.siteNumber == siteNum && id.headNumber == headNum)
+    	if (id.siteNum == siteNum && id.headNumber == headNum)
     	{
     	    TestID oldid = id;
     	    Integer dnum = tdb.testIdDupMap.get(id);
     	    dnum++;
     	    id = tdb.idMap.getValue(testNum, testName, dnum);
-    	    id.siteNumber = siteNum;
+    	    id.siteNum = siteNum;
     	    id.headNumber = headNum;
+    		Log.msg("testNum = " + testNum + " siteNum = " + siteNum + " headNum = " + headNum + " testName = " + testName + " dupNum = " + dnum);
     	    tdb.testIdDupMap.put(oldid, dnum);
     	}
     	return(id);
@@ -148,7 +162,7 @@ public class TestID implements Identity, Immutable
         	super(id.testNumber, id.testName, id.dupNum);
         	this.pin = pin;
         	this.id = id;
-        	this.siteNumber = id.siteNumber;
+        	this.siteNum = id.siteNum;
         	this.headNumber = id.headNumber;
         }
         
@@ -188,7 +202,7 @@ public class TestID implements Identity, Immutable
 		builder.append(testName);
 		builder.append(", ");
 		builder.append("siteNum=");
-		builder.append(siteNumber);
+		builder.append(siteNum);
 		builder.append(", ");
 		builder.append("headNum=");
 		builder.append(headNumber);

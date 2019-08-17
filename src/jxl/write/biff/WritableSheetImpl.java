@@ -608,7 +608,7 @@ public WritableSheetImpl(String n,
    *
    * @param row the row to insert
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "deprecation" })
 public void insertRow(int row)
   {
     if (row < 0 || row >= numRows)
@@ -714,7 +714,7 @@ public void insertRow(int row)
    *
    * @param col the column to insert
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "deprecation" })
 public void insertColumn(int col)
   {
     if (col < 0 || col >= numColumns)
@@ -832,7 +832,7 @@ public void insertColumn(int col)
    *
    * @param col the column to remove
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "deprecation" })
 public void removeColumn(int col)
   {
     if (col < 0 || col >= numColumns)
@@ -981,7 +981,7 @@ public void removeColumn(int col)
    *
    * @param row the row to remove
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "deprecation" })
 public void removeRow(int row)
   {
     if (row < 0 || row >= numRows)
@@ -2112,7 +2112,7 @@ public void addHyperlink(WritableHyperlink h)
    * 
    * @param row the row to break at
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "deprecation" })
 public void addRowPageBreak(int row)
   {
     // First check that the row is not already present
@@ -2138,7 +2138,7 @@ public void addRowPageBreak(int row)
    * 
    * @param col the column to break at
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "deprecation" })
 public void addColumnPageBreak(int col)
   {
     // First check that the row is not already present

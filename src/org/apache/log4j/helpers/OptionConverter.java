@@ -319,7 +319,7 @@ public
      @param superClass The class to which the new object should belong.
      @param defaultValue The object to return in case of non-fulfillment
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
 public
   static
   Object instantiateByClassName(String className, Class superClass,

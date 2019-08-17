@@ -93,7 +93,8 @@ class BooleanRecord extends CellValue implements BooleanCell
    *
    * @return The numerical value of the formula as a string
    */
-  public String getContents()
+  @SuppressWarnings("deprecation")
+public String getContents()
   {
     Assert.verify(!isError());
 

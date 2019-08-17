@@ -36,6 +36,7 @@ import com.makechip.stdf2xls4.stdf.enums.Cpu_t;
 import com.makechip.stdf2xls4.stdf.enums.OptFlag_t;
 import com.makechip.stdf2xls4.stdf.enums.Record_t;
 import com.makechip.stdf2xls4.stdf.enums.TestFlag_t;
+import com.makechip.util.Log;
 
 import static com.makechip.stdf2xls4.stdf.enums.Data_t.*;
 import static com.makechip.stdf2xls4.stdf.enums.OptFlag_t.*;
@@ -133,7 +134,9 @@ public class ParametricTestRecord extends ParametricRecord
             l += 1 + testName.length();
     	}
     	else testName = null;
+    	Log.msg("site = " + siteNumber);
     	id = TestID.createTestID(tdb, testNumber, siteNumber, headNumber, testName);
+    	Log.msg("PTR: ID = " + id);
         if (l < recLen)
         {
             alarmName = cpu.getCN(is);

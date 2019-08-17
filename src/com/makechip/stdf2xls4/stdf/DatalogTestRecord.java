@@ -89,6 +89,7 @@ public class DatalogTestRecord extends TestRecord
      * @param text This field holds the TEXT_DAT field. It must not be null. The
      * maximum length of this String is 255 characters.
      */
+    @SuppressWarnings("deprecation")
     public DatalogTestRecord(TestIdDatabase tdb, String text, CliOptions options)
     {
     	super(Record_t.DTRX);

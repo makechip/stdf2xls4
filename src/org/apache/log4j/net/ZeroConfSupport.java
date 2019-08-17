@@ -56,6 +56,7 @@ public class ZeroConfSupport {
         this(zone, port, name, new HashMap<Object, Object>());
     }
 
+    @SuppressWarnings("deprecation")
     private static Object createJmDNSVersion1()
     {
         try {
@@ -83,7 +84,7 @@ public class ZeroConfSupport {
         return null;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "deprecation" })
     private Object buildServiceInfoVersion1(String zone, int port, String name, Map<?, ?> properties) {
         //version 1 uses a hashtable
         Hashtable<?, ?> hashtableProperties = new Hashtable<Object, Object>(properties);
@@ -118,7 +119,7 @@ public class ZeroConfSupport {
         return null;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "deprecation" })
     private Object buildServiceInfoVersion3(String zone, int port, String name, Map<?, ?> properties) {
         try {
             Class[] args = new Class[6];

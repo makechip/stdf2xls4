@@ -245,7 +245,8 @@ static final Class[] ONE_STRING_PARAM = new Class[] {String.class};
     String className = subst(appenderElement.getAttribute(CLASS_ATTR));
     LogLog.debug("Class name: [" + className+']');    
     try {
-      Object instance 	= Loader.loadClass(className).newInstance();
+      @SuppressWarnings("deprecation")
+    Object instance 	= Loader.loadClass(className).newInstance();
       Appender appender	= (Appender)instance;
       PropertySetter propSetter = new PropertySetter(appender);
 
@@ -553,7 +554,8 @@ static final Class[] ONE_STRING_PARAM = new Class[] {String.class};
     String className = subst(layout_element.getAttribute(CLASS_ATTR));
     LogLog.debug("Parsing layout of class: \""+className+"\"");		 
     try {
-      Object instance 	= Loader.loadClass(className).newInstance();
+      @SuppressWarnings("deprecation")
+    Object instance 	= Loader.loadClass(className).newInstance();
       Layout layout   	= (Layout)instance;
       PropertySetter propSetter = new PropertySetter(layout);
       
@@ -606,7 +608,8 @@ static final Class[] ONE_STRING_PARAM = new Class[] {String.class};
         String className = subst(element.getAttribute(CLASS_ATTR));
         LogLog.debug("Parsing throwableRenderer of class: \""+className+"\"");
         try {
-          Object instance 	= Loader.loadClass(className).newInstance();
+          @SuppressWarnings("deprecation")
+        Object instance 	= Loader.loadClass(className).newInstance();
           ThrowableRenderer tr   	= (ThrowableRenderer)instance;
           PropertySetter propSetter = new PropertySetter(tr);
 

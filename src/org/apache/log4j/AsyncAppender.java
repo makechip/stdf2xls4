@@ -464,7 +464,8 @@ public class AsyncAppender extends AppenderSkeleton
      * @return new event.
      */
     public LoggingEvent createEvent() {
-      String msg =
+      @SuppressWarnings("deprecation")
+    String msg =
         MessageFormat.format(
           "Discarded {0} messages due to full event buffer including: {1}",
           new Object[] { new Integer(count), maxEvent.getMessage() });

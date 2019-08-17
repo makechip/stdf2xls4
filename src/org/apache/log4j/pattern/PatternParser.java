@@ -498,6 +498,7 @@ public final class PatternParser {
       try {
         //
         //  try default constructor
+        @SuppressWarnings("deprecation")
         PatternConverter pc = (PatternConverter) converterClass.newInstance();
         currentLiteral.delete(
           0,

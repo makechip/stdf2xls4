@@ -60,6 +60,7 @@ public abstract class LogXF {
      * @param c a character value.
      * @return a Character instance representing c.
      */
+    @SuppressWarnings("deprecation")
     protected static Character valueOf(final char c) {
         return new Character(c);
     }
@@ -71,6 +72,7 @@ public abstract class LogXF {
      * @param b a byte value.
      * @return a Byte instance representing b.
      */
+    @SuppressWarnings("deprecation")
     protected static Byte valueOf(final byte b) {
         return new Byte(b);
     }
@@ -82,6 +84,7 @@ public abstract class LogXF {
      * @param b a short value.
      * @return a Byte instance representing b.
      */
+    @SuppressWarnings("deprecation")
     protected static Short valueOf(final short b) {
         return new Short(b);
     }
@@ -93,6 +96,7 @@ public abstract class LogXF {
      * @param b an int value.
      * @return an Integer instance representing b.
      */
+    @SuppressWarnings("deprecation")
     protected static Integer valueOf(final int b) {
         return new Integer(b);
     }
@@ -104,6 +108,7 @@ public abstract class LogXF {
      * @param b a long value.
      * @return a Long instance representing b.
      */
+    @SuppressWarnings("deprecation")
     protected static Long valueOf(final long b) {
         return new Long(b);
     }
@@ -115,6 +120,7 @@ public abstract class LogXF {
      * @param b a float value.
      * @return a Float instance representing b.
      */
+    @SuppressWarnings("deprecation")
     protected static Float valueOf(final float b) {
         return new Float(b);
     }
@@ -126,6 +132,7 @@ public abstract class LogXF {
      * @param b a double value.
      * @return a Byte instance representing b.
      */
+    @SuppressWarnings("deprecation")
     protected static Double valueOf(final double b) {
         return new Double(b);
     }

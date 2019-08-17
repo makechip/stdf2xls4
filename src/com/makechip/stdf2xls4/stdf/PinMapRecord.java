@@ -79,6 +79,8 @@ public class PinMapRecord extends StdfRecord
     public PinMapRecord(Cpu_t cpu, TestIdDatabase tdb, int recLen, ByteInputStream is, CliOptions options)
     {
         super(Record_t.PMR);
+        String tmpPhys = null;
+        String tmpLog = null;
         pmrIdx = cpu.getU2(is);
         int l = Data_t.U2.numBytes;
         if (l < recLen)
@@ -95,16 +97,42 @@ public class PinMapRecord extends StdfRecord
         else channelName = null;
         if (l < recLen)
         {
-            physicalPinName = cpu.getCN(is);
-            l += 1 + physicalPinName.length();
+            if (tdb.isSmartTest8())
+            {
+                tmpLog = cpu.getCN(is);
+                l += 1 + tmpLog.length();
+            }
+            else
+            {
+                tmpPhys = cpu.getCN(is);
+                l += 1 + tmpPhys.length();
+            }
         }
-        else physicalPinName = null;
+        else 
+        {
+            if (tdb.isSmartTest8()) tmpLog = null;
+            else tmpPhys = null;
+        }
         if (l < recLen)
         {
-            logicalPinName = cpu.getCN(is);
-            l += 1 + logicalPinName.length();
+            if (tdb.isSmartTest8())
+            {
+                tmpPhys = cpu.getCN(is);
+                l += 1 + tmpPhys.length();
+            }
+            else
+            {
+                tmpLog = cpu.getCN(is);
+                l += 1 + tmpLog.length();
+            }
         }
-        else logicalPinName = null;
+        else 
+        {
+            if (tdb.isSmartTest8()) tmpPhys = null;
+            else tmpLog = null;
+        }
+        physicalPinName = tmpPhys;
+        logicalPinName = tmpLog;
         if (l < recLen)
         {
             headNumber = cpu.getU1(is);

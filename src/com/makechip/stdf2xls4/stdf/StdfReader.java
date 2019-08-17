@@ -70,7 +70,11 @@ public class StdfReader
 		   Record_t type = Record_t.getRecordType(rtype, stype);
 		   StdfRecord r = type.getInstance(cpu, tdb, recLen, is, options);
 		   if (type == Record_t.FAR) cpu = ((FileAttributesRecord) r).cpuType;
-		   else if (type == Record_t.PRR)tdb.clearIdDups(); 
+		   else if (type == Record_t.PRR)
+		   {
+		       Log.msg("Clearing DUP map");
+		       tdb.clearIdDups(); 
+		   }
 		   for (Modifier m : modifiers)
 		   {
 		       if (r.type == m.record) 

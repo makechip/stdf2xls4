@@ -81,7 +81,8 @@ class BooleanValue extends Operand implements ParsedThing
    *
    * @param buf the string to append to
    */
-  public void getString(StringBuffer buf)
+  @SuppressWarnings("deprecation")
+public void getString(StringBuffer buf)
   {
     buf.append((new Boolean(value)).toString());
   }

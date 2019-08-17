@@ -80,7 +80,8 @@ class DBCellRecord extends WritableRecordData
    * 
    * @param pos 
    */
-  void addCellRowPosition(int pos)
+  @SuppressWarnings("deprecation")
+void addCellRowPosition(int pos)
   {
     cellRowPositions.add(new Integer(pos));
   }
